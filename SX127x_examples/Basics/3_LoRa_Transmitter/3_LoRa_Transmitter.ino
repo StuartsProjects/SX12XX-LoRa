@@ -27,7 +27,7 @@
 
 #include <SPI.h>                                               //the SX127X device is SPI based so load the SPI library                                         
 #include <SX127XLT.h>                                          //include the appropriate library  
-#include <Settings.h>                                          //include the setiings file, frequencies, LoRa settings etc   
+#include "Settings.h"                                          //include the setiings file, frequencies, LoRa settings etc   
 
 SX127XLT LT;                                                   //create a library class instance called LT
 

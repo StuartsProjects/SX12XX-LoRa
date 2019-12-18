@@ -1,8 +1,5 @@
 # SX127x - Semtech UHF LoRa Transceivers
 
-##** Example Programs 03/12/19**
-<br>
-
 Below is a list of the example programs and the folders they appear in. For instance program **1\_Register\_Test** is in folder \Basic.
 
 ## Basic   
