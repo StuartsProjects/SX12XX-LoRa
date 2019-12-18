@@ -99,6 +99,7 @@ void packet_Received_OK()
   //a LoRa packet has been received, which has passed the internal LoRa checks, including CRC, but it could be from
   //an unknown source, so we need to check that its actually a sensor packet we are expecting, and has valid sensor data
 
+  uint8_t len;
   errors = 0;                         //keep a count of errors found in packet
 
   RXpacketCount++;
@@ -121,12 +122,12 @@ void packet_Received_OK()
   statusbyte = LT.readUint8();              //a status byte, not currently used
   /************************************************************************/
 
-  LT.endReadSXBuffer();
+  len = LT.endReadSXBuffer();
 
   printreceptionDetails();                   //print details of reception, RSSI etc
   Serial.println();
 
-  errors = checkPacketValid();
+  errors = checkPacketValid(len);            //pass length of packet to check routine 
 
   if (errors == 0)
   {
@@ -146,7 +147,7 @@ void packet_Received_OK()
 }
 
 
-uint8_t checkPacketValid()
+uint8_t checkPacketValid(uint8_t len)
 {
   uint8_t errors = 0;
 
@@ -160,7 +161,7 @@ uint8_t checkPacketValid()
     errors++;
   }
 
-  if (!checkCRCvalue())
+  if (!checkCRCvalue(len))
   {
     errors++;
   }
@@ -172,11 +173,11 @@ uint8_t checkPacketValid()
 }
 
 
-bool checkCRCvalue()
+bool checkCRCvalue(uint8_t len)
 {
   uint16_t CRCSensorData;
-
-  CRCSensorData = LT.CRCCCITTSX(0, (RXPacketL - 3), 0xFFFF);    //calculate the CRC of packet sensor data
+  
+  CRCSensorData = LT.CRCCCITTSX(0, (len-1), 0xFFFF);    //calculate the CRC of packet sensor data
 
   Serial.print(F("(CRC of Received sensor data "));
   Serial.print(CRCSensorData, HEX);

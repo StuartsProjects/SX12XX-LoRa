@@ -115,6 +115,7 @@ uint8_t sendSensorPacket()
   uint8_t len;
 
   LT.startWriteSXBuffer(0);                 //start the write packet to buffer process
+  
   LT.writeUint8(Sensor1);                   //this byte defines the packet type
   LT.writeUint8('B');                       //this byte identifies the destination node of the packet
   LT.writeUint8(1);                         //this byte identifies the source node of the packet
@@ -131,27 +132,29 @@ uint8_t sendSensorPacket()
 
   len = LT.endWriteSXBuffer();              //close the packet, get the length of data to be sent
 
-  addPacketErrorCheck();                    //add the additional CRC error checking to the packet end
+  addPacketErrorCheck(len);                 //add the additional CRC error checking to the packet end
 
   //now transmit the packet, set a timeout of 5000mS, wait for it to complete sending
   digitalWrite(LED1, HIGH);                 //turn on LED as an indicator
-  TXPacketL = LT.transmitSXBuffer(0, len + 2, 5000, TXpower, WAIT_TX);
+  TXPacketL = LT.transmitSXBuffer(0, (len + 2), 5000, TXpower, WAIT_TX);
 
   return TXPacketL;                         //TXPacketL will be 0 if there was an error sending
 }
 
 
-void addPacketErrorCheck()
+void addPacketErrorCheck(uint8_t len)
 {
   //calculate the CRC of packet contents up to location of CRC value
-  CRCvalue = LT.CRCCCITTSX(0, (TXPacketL - 1), 0xFFFF);
+  CRCvalue = LT.CRCCCITTSX(0, (len-1), 0xFFFF);
 
-  //Serial.print(F("Calculated CRC value "));
-  //Serial.println(CRCvalue,HEX);
+  Serial.print(F("Calculated CRC value "));
+  Serial.println(CRCvalue,HEX);
 
-  LT.startWriteSXBuffer(TXPacketL);          //start the write packet again at location of CRC, past end of sensor data
+  LT.startWriteSXBuffer(len);                //start the write packet again at location of CRC, past end of sensor data
   LT.writeUint16(CRCvalue);                  //add the actual CRC value
   LT.endWriteSXBuffer();                     //close the packet
+  Serial.println();
+ 
 }
 
 

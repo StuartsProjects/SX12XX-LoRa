@@ -32,11 +32,24 @@ calibrateDevice	KEYWORD2
 printDeviceErrors	KEYWORD2
 wake	KEYWORD2
 calibrateImage	KEYWORD2
+CRCCCITTSX	KEYWORD2
 CRCCCITT	KEYWORD2
 
+receiveAddressed	KEYWORD2
+getByteSXBuffer	KEYWORD2
+startWriteSXBuffer	KEYWORD2
+transmitAddressed	KEYWORD2
+startReadSXBuffer	KEYWORD2
+endReadSXBuffer	KEYWORD2
+readBuffer	KEYWORD2
+receiveSXBuffer	KEYWORD2
+transmitSXBuffer	KEYWORD2
+endWriteSXBuffer	KEYWORD2
+writeBuffer	KEYWORD2
+readPacket	KEYWORD2
 setupLoRaRX	KEYWORD2
 setupLoRaTX	KEYWORD2
-
+setSleep	KEYBOARD2
 getOperatingMode	KEYWORD2
 writeCommand	KEYWORD2
 readCommand	KEYWORD2
@@ -110,7 +123,7 @@ readPacketAddressedLoRa	KEYWORD2
 getOptimisation	KEYWORD2
 calcSymbolTime	KEYWORD2
 printLoraSettings	KEYWORD2
-printOperatingSettings	KEYWORD2 
+printOperatingSettings	KEYWORD2
 setSyncWord	KEYWORD2
 startWriteFIFO	KEYWORD2
 endWriteFIFO	KEYWORD2
