@@ -1,0 +1,135 @@
+#######################################
+# Syntax Coloring Map For LoRa
+#######################################
+
+#######################################
+# Datatypes (KEYWORD1)
+#######################################
+
+SX126XLT	KEYWORD1
+
+#######################################
+# Methods and Functions (KEYWORD2)
+#######################################
+
+begin	KEYWORD2
+pinInit	KEYWORD2
+spiInit KEYWORD2
+setupLoRa	KEYWORD2
+resetDevice	KEYWORD2
+setMode	KEYWORD2
+checkBusy	KEYWORD2
+setSleep KEYWORD2
+setRegulatorMode	KEYWORD2
+checkDevice	KEYWORD2
+setDevice	KEYWORD2
+config	KEYWORD2
+readsavedRegulatorMode	KEYWORD2
+setDIO2AsRfSwitchCtrl	KEYWORD2
+setDIO3AsTCXOCtrl	KEYWORD2
+clearDeviceErrors	KEYWORD2
+calibrateDevice	KEYWORD2
+printDeviceErrors	KEYWORD2
+wake	KEYWORD2
+calibrateImage	KEYWORD2
+CRCCCITT	KEYWORD2
+
+setupLoRaRX	KEYWORD2
+setupLoRaTX	KEYWORD2
+
+getOperatingMode	KEYWORD2
+writeCommand	KEYWORD2
+readCommand	KEYWORD2
+writeRegisters	KEYWORD2
+writeRegister	KEYWORD2
+readRegisters	KEYWORD2
+readRegister	KEYWORD2
+printRegisters	KEYWORD2
+setPacketParams	KEYWORD2
+setModulationParams	KEYWORD2
+printSavedModulationParams	KEYWORD2
+setRfFrequency	KEYWORD2
+getFreqInt	KEYWORD2
+getFrequencyErrorRegValue	KEYWORD2
+getFrequencyErrorHz	KEYWORD2
+setTxParams	KEYWORD2
+setTx	KEYWORD2
+readTXDone	KEYWORD2
+setRx	KEYWORD2
+setLowPowerRX	KEYWORD2
+setHighSensitivity	KEYWORD2
+setRXGain	KEYWORD2
+readRXDone	KEYWORD2
+readRXBufferStatus	KEYWORD2
+readRXPacketL	KEYWORD2
+readPacketRSSI	KEYWORD2
+readPacketSNR	KEYWORD2
+setPaConfig	KEYWORD2
+setRx2	KEYWORD2
+setRxDutyCycle	KEYWORD2
+readRXBufferPointer	KEYWORD2
+readsavedFrequency	KEYWORD2
+readsavedOffset	KEYWORD2
+setBufferBaseAddress	KEYWORD2
+setPacketType	KEYWORD2
+readsavedPacketType	KEYWORD2
+clearIrqStatus	KEYWORD2
+readIrqStatus	KEYWORD2
+setDioIrqParams	KEYWORD2
+printIrqStatus	KEYWORD2
+readPacketCRCError	KEYWORD2
+readPacketHeaderValid	KEYWORD2
+readPacketHeaderError	KEYWORD2
+readsavedPower	KEYWORD2
+printASCIIorHEX	KEYWORD2
+printHEXByte	KEYWORD2
+printHEXByte0x	KEYWORD2
+printASCIIPacket	KEYWORD2
+printHEXPacket	KEYWORD2
+readsavedModParam1	KEYWORD2
+readsavedModParam2	KEYWORD2
+readsavedModParam3	KEYWORD2
+readsavedModParam4	KEYWORD2
+readRXPacketType	KEYWORD2
+readRXDestination	KEYWORD2
+readRXSource	KEYWORD2
+printAddressInfo	KEYWORD2
+transmitLoRa	KEYWORD2
+receiveAddressedLoRa	KEYWORD2
+transmitFIFOLoRa	KEYWORD2
+sendPacketAddressedLoRa	KEYWORD2
+transmitAddressedLoRa	KEYWORD2
+sendPacketLoRa	KEYWORD2
+readPacketLoRareadPacketReceptionLoRa	KEYWORD2
+printReceptionInfoLoRa	KEYWORD2
+getLoRaBandwidth	KEYWORD2
+returnSF	KEYWORD2
+returnbandwidth	KEYWORD2
+sendFIFOLoRa	KEYWORD2
+readPacketAddressedLoRa	KEYWORD2
+getOptimisation	KEYWORD2
+calcSymbolTime	KEYWORD2
+printLoraSettings	KEYWORD2
+printOperatingSettings	KEYWORD2 
+setSyncWord	KEYWORD2
+startWriteFIFO	KEYWORD2
+endWriteFIFO	KEYWORD2
+startReadFIFO	KEYWORD2
+endReadFIFO	KEYWORD2
+writeUint8	KEYWORD2
+readUint8	KEYWORD2
+writeInt8	KEYWORD2
+readInt8	KEYWORD2
+writeInt16	KEYWORD2
+readInt16	KEYWORD2
+writeUint16	KEYWORD2
+readUint16	KEYWORD2
+writeInt32	KEYWORD2
+readInt32	KEYWORD2
+writeUint32	KEYWORD2
+readUint32	KEYWORD2
+writeFloat	KEYWORD2
+readFloat	KEYWORD2
+rxtxInit	KEYWORD2
+rxEnable	KEYWORD2
+txEnable	KEYWORD2
