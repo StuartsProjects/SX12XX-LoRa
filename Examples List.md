@@ -4,7 +4,7 @@ Below is a list of the example programs and the folders they appear in. For inst
 
 ## Basic   
     1_LED_Blink
-    1_Register_Test
+    2_Register_Test
 	3_LoRa_Transmit
 	4_LoRa_Receive
 
@@ -24,17 +24,20 @@ Below is a list of the example programs and the folders they appear in. For inst
     
 ## Diagnostic and Test
 
-    10_LoRa_Link_Test_TX
+    10_LoRa_Link_Test_TX  
     11_LoRa_HEX_Print_RX
     13_Frequency_and_Power_Check_TX
     16_LoRa_RX_Frequency_Error_Check
     20_LoRa_Link_Test_Receiver
+    30_I2C_Scanner
+    31_SSD1306_OLED_Checker
+    
 
 ## Sensor
 
     17_Sensor_Transmiter
     18_Sensor_Receiver
-
+	
 ## Remote Control
 
     21_On_Off_Transmitter 

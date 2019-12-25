@@ -97,7 +97,7 @@ There is a printout of the valid packets received in HEX format. Thus the progra
 
 This is a program that transmits a long LoRa packets lasting about 5 seconds that can be used to measure the frequency and power of the transmission using external equipment. The bandwidth of the transmission is only 10khz, so a frequency counter should give reasonable average result.
 
-The LoRa settings to use, including transmit powwer, are specified in the 'Settings.h' file.
+The LoRa settings to use, including transmit power, are specified in the 'Settings.h' file.
 
 #### 16\_LoRa\_RX\_Frequency\_Error\_Check
 
@@ -109,6 +109,17 @@ for each packet and an average over 10 received packets reported. Any transmitte
 The program listens for incoming packets using the LoRa settings in the 'Settings.h' file. The pins to access the SX127X need to be defined in the 'Settings.h' file also.
 
 The program is a matching receiver program for the '10_LoRa_Link_Test_TX'. The packets received are displayed on the serial monitor and analysed to extract the packet data which indicates the power used to send the   packet. A count is kept of the numbers of each power setting received. When the transmitter sends the test mode packet at the beginning of the sequence (displayed as 999) the running totals of the powers received is printed. Thus you can quickly see at what transmit power levels the reception fails. 
+
+#### 30\_I2C\_Scanner
+
+The program scans the I2C bus and displays the addresses of any devices found. Useful first check when using I2C devices.
+
+#### 31\_SSD1306\_OLED\_Checker
+
+This program is a simple test program for the SSD1306 and SH1106 OLEDs. The program prints a short message on each line, pauses, clears the screen, and starts again. 
+
+OLED address is defined as 0x3C.
+
 
 ## Low Memory
 
@@ -192,7 +203,7 @@ The contents of the packet received, and printed to serial monitor, should be;
 This program is a remote control transmitter. When one of three switches are made (shorted to ground) a packet is transmitted with single byte indicating the state of Switch0 as bit 0, Switch1 as bit 1 and Switch2 as bit 2. To prevent false triggering at the receiver the packet contains a
 32 bit number called the TXIdentity which in this example is set to 1234554321. The receiver will only act on, change the state of the outputs, if the identity set in the receiver matches that of the  transmitter. The chance of a false trigger is fairly remote.
 
-Between switch presses the LoRa device and Atmel microcontroller are put to sleep. A switch press wakes up the processor from sleep, the switches are read and a packet sent. The pin definitions, LoRa frequency and LoRa modem settings are in the Settings.h file.
+Between switch presses the LoRa device and Atmel micro controller are put to sleep. A switch press wakes up the processor from sleep, the switches are read and a packet sent. The pin definitions, LoRa frequency and LoRa modem settings are in the Settings.h file.
 
 #### 22\_On\_Off\_Receiver
 
@@ -208,38 +219,36 @@ The pin definitions, LoRa frequency and LoRa modem settings are in the Settings.
 #### 17\_Sensor\_Transmitter
 
 The program transmits a LoRa packet without using a processor buffer, the LoRa devices internal buffer is filled directly with variables. 
+  
+The sensor used is a BME280. The pressure, humidity, and temperature are read and transmitted. There is also a 16bit value of battery mV (simulated) and and a 8 bit status value at the packet end.
 
-The sensor used is a BME280. The pressure, humidity, and temperature are read and transmitted. There is also a 16bit value of battery mV (simulated) and and a 8 bit status value at the packet end. Although the LoRa packet transmitted and received has its own internal CRC error checking, you could still receive packets of the same length from another source. If this valid packet were to be used to recover the sensor values, you could be reading rubbish. To reduce the risk of this, when the packet is transmitted the CRC value of the actual sensor data is calculated and sent out with the packet. This CRC value is read by the receiver and used to check that the received CRC matches the supposed sensor data in the packet. 
-
-As an additional check there is some addressing information at the beginning of the packet which is also checked for validity. Thus we can be relatively confident when reading the received packet that its genuine and from this transmitter. The packet is built and sent in the sendSensorPacket() function, there is a 'highlighted section' where the actual sensor data is added to the packet.
+Although the LoRa packet transmitted and received has its own internal CRC error checking, you could still receive packets of the same length from another source. If this valid packet were to be used to recover the sensor values, you could be reading rubbish. To reduce the risk of this, when the packet is transmitted the CRC value of the actual sensor data is calculated and sent out with the packet. This CRC value is read by the receiver and used to check that the received CRC matches the supposed
+sensor data in the packet. As an additional check there is some addressing information at the beginning of the packet which is also checked for validity. Thus we can be relatively confident when reading the
+received packet that its genuine and from this transmitter. The packet is built and sent in the sendSensorPacket() function, there is a 'highlighted section' where the actual sensor data is added to the packet.
 
 Between readings the LoRa device, BME280 sensor, and Atmel micro controller are put to sleep in units of 8 seconds using the Atmel processor internal watchdog.
 
-The pin definitions, LoRa frequency and LoRa modem settings are in the Settings.h file.
+The pin definitions, LoRa frequency and LoRa modem settings are in the Settings.h file. The Atmel watchdog timer is a viable option for a very low current sensor node. A bare bones ATmega328P with regulator and LoRa device has a sleep current of 6.5uA, add the LoRa devices and BME280 sensor module and the average sleep current only rises to 6.7uA.
 
-The Atmel watchdog time is a viable option for a very low current sensor node. A bare bones ATmega328P with regulator and LoRa device has a sleep current of 6.5uA, add the LoRa devices and BME280 sensor module and the sleep current only rises to 6.7uA.
-
-However there is the time the processor takes to wake up from sleep and start running the program code. When monitoring the supply rail with a resistor, I see power pulses of circa 2.4mS when the watchdog timer wakes the processor up. So assuming a powered time of 2.4mS every 8 seconds (1/3333th of the time) and a processor run current of maybe 6mA, thats an average of 1.8uA.
-
-So adding the predicted average wake up current to the measured sleep current give an average node current in sleep of maybe 8.5uA, not bad for a freebie sleep timer. If such a node were put into a loop that kept it permanently in sleep, then a pack of AA alkaline batteries could last 37 years, if it were possible for the battery shelf life to be that long.  
+One of these transmitter programs is running on a long term test with a 175mAh battery, to see how long the battery actually lasts.
 
 
 #### 18\_Sensor\_Receiver
 
 The program receives a LoRa packet without using a processor buffer, the LoRa devices internal buffer is read direct for the received sensor data. 
   
-The sensor used in the matching '17_Sensor_Transmiter' program is a BME280 and the pressure, humidity, and temperature are being and received. There is also a 16bit value of battery mV and and a 8 bit status value at the end of the packet.
+The sensor used in the matching '17_Sensor_Transmitter' program is a BME280 and the pressure, humidity, and temperature are being and received. There is also a 16bit value of battery mV and and a 8 bit status value at the end of the packet.
 
-When the program starts, the LoRa device is setup to set the DIO0 pin high when a packet is received, the Atmel processor is then put to sleep and will wake up when a packet is received. When a packet is received, its printed and assuming the packet is validated, the sensor results are printed to the serial monitor and screen. Between readings the sensor transmitter is put to sleep in units of 8 seconds using the Atmel
+When the program starts, the LoRa device is set-up to set the DIO0 pin high when a packet is received, the Atmel processor is then put to sleep and will wake up when a packet is received. When a packet is received, its printed and assuming the packet is validated, the sensor results are printed to the serial monitor and screen. Between readings the sensor transmitter is put to sleep in units of 8 seconds using the Atmel
 processor internal watchdog.
 
-For the sensor data to be accepted as valid the folowing need to match;
+For the sensor data to be accepted as valid the flowing need to match;
 
 The 16bit CRC on the received sensor data must match the CRC value transmitted with the packet. 
 The packet must start with a byte that matches the packet type sent, 'Sensor1'
 The RXdestination byte in the packet must match this node ID of this receiver node, defined by 'This_Node'
 
-In total thats 16 + 8 + 8  = 32bits of checking, so a 1:4294967296 chance (approx) that an invalid packet is acted on and erroneous values displayed.
+In total that's 16 + 8 + 8  = 32bits of checking, so a 1:4294967296 chance (approx) that an invalid packet is acted on and erroneous values displayed.
 
 The pin definitions, LoRa frequency and LoRa modem settings are in the Settings.h file.
 
@@ -262,7 +271,7 @@ Tested on an ATmega328P bare bones board, the current in sleep mode was 6.5uA.
 
 The program listens for incoming packets using the LoRa settings in the 'Settings.h' file. The pins to access the SX127X need to be defined in the 'Settings.h' file also.
 
-When the program starts the LoRa device is setup to recieve packets with pin DIO0 set to go high when a packet arrives. The receiver remains powered (it cannot receive otherwise) and the processor (Atmel ATMega328P or 1284P) is put to sleep. When pin DIO0 does go high, indicating a packet is received, the processor wakes up and prints the packet. It then goes back to sleep.
+When the program starts the LoRa device is set-up to receive packets with pin DIO0 set to go high when a packet arrives. The receiver remains powered (it cannot receive otherwise) and the processor (Atmel ATMega328P or 1284P) is put to sleep. When pin DIO0 does go high, indicating a packet is received, the processor wakes up and prints the packet. It then goes back to sleep.
 
 There is a printout of the valid packets received, these are assumed to be in ASCII printable text. The LED will flash for each packet received and the buzzer will sound,if fitted.
 
@@ -272,7 +281,7 @@ This program tests the sleep mode and register retention of the SX127X in sleep 
 
 A packet is sent, containing the text 'Before Device Sleep' and the SX127x and Atmel processor are put to sleep. The processor should remain asleep until the pin defined by SWITCH1 in the Settings.h file is connected to ground, the LoRa device register values should be retained.  The LoRa device then attempts to transmit another packet 'After Device Sleep' without re-loading all the LoRa settings. The receiver should see 'After Device Sleep' for the first packet and 'After Device Sleep' for the second.
 
-Tested on an bare bones ATmega328P board, the curent in sleep mode was 6.1uA.
+Tested on an bare bones ATmega328P board, the current in sleep mode was 6.1uA.
 
 
 
@@ -283,7 +292,7 @@ Tested on an bare bones ATmega328P board, the curent in sleep mode was 6.1uA.
 #### 23\_Simple\_GPS\_Tracker\_Transmitter
 
 
-This program is an example of a basic GPS tracker. The program reads the GPS, waits for an updated fix and transmits location and altitude, number of satellites in view, the HDOP value, the fix time of the GPS and the battery voltage. This transmitter can be also be used to investigate GPS performance. At startup there should be a couple of seconds of  recognisable text from the GPS printed to the serial monitor. If you see garbage or funny characters its likley the GPS baud rate is wrong. If the transmitter is turned on from cold, the receiver will pick up the cold fix time, which is an indication of GPS performance. The GPS will be powered on for around 4 seconds before the timing of the fix starts. Outside with a good view of the sky most GPSs should produce a fix in around 45 seconds. The number of satellites and HDOP are good indications to how well a GPS is working. 
+This program is an example of a basic GPS tracker. The program reads the GPS, waits for an updated fix and transmits location and altitude, number of satellites in view, the HDOP value, the fix time of the GPS and the battery voltage. This transmitter can be also be used to investigate GPS performance. At start-up there should be a couple of seconds of  recognisable text from the GPS printed to the serial monitor. If you see garbage or funny characters its likely the GPS baud rate is wrong. If the transmitter is turned on from cold, the receiver will pick up the cold fix time, which is an indication of GPS performance. The GPS will be powered on for around 4 seconds before the timing of the fix starts. Outside with a good view of the sky most GPSs should produce a fix in around 45 seconds. The number of satellites and HDOP are good indications to how well a GPS is working. 
 
 The program writes direct to the LoRa devices internal buffer, no memory buffer is used.
   
@@ -318,13 +327,13 @@ Serial monitor baud rate is set at 115200.
 
 #### 28\_GPS\_Checker
 
-This program is a GPS checker. At startup the program starts checking the data coming from the GPS for a valid fix. It checks for 5 seconds and if there is no fix, prints a message on the serial monitor. During this time the data coming from the GPS is copied to the serial monitor also. 
+This program is a GPS checker. At start-up the program starts checking the data coming from the GPS for a valid fix. It checks for 5 seconds and if there is no fix, prints a message on the serial monitor. During this time the data coming from the GPS is copied to the serial monitor also. 
   
 When the program detects that the GPS has a fix, it prints the Latitude, Longitude, Altitude, Number of satellites in use and the HDOP value to the serial monitor.
 
 #### 29\_GPS\_Checker\_With\_Display
 
-This program is a GPS checker with a display output. It uses an SSD1306 or SH1106 128x64 I2C OLED display. At startup the program starts checking the data coming from the GPS for a valid fix. It reads the GPS for 5 seconds and if there is no fix, prints a message on the serial monitor and updates the seconds without a fix on the display. During this time the data coming from the GPS is copied to the serial monitor also.
+This program is a GPS checker with a display output. It uses an SSD1306 or SH1106 128x64 I2C OLED display. At start-up the program starts checking the data coming from the GPS for a valid fix. It reads the GPS for 5 seconds and if there is no fix, prints a message on the serial monitor and updates the seconds without a fix on the display. During this time the data coming from the GPS is copied to the serial monitor also.
 
 When the program detects that the GPS has a fix, it prints the Latitude, Longitude, Altitude, Number of satellites in use, the HDOP value, time and date to the serial monitor. If the I2C OLED display is attached that is updated as well. Display is assumed to be on I2C address 0x3C.
 

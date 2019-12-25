@@ -48,12 +48,12 @@ bool SX127XLT::begin(int8_t pinNSS, int8_t pinNRESET, int8_t pinDIO0, int8_t pin
 
   if (_DIO1 >= 0)
   {
-    pinMode( _DIO1,  INPUT_PULLUP);
+    pinMode( _DIO1,  INPUT);
   }
 
   if (_DIO2 >= 0)
   {
-    pinMode( _DIO2,  INPUT_PULLUP);
+    pinMode( _DIO2,  INPUT);
   }
 
   resetDevice();
@@ -2733,7 +2733,7 @@ void SX127XLT::writeByteSXBuffer(uint8_t addr, uint8_t regdata)
   SPI.beginTransaction(SPISettings(LTspeedMaximum, LTdataOrder, LTdataMode));
 #endif
 
-  digitalWrite(_NSS, LOW);                    //start the burst read
+  digitalWrite(_NSS, LOW);                //start the burst read
   SPI.transfer(WREGFIFO);
   SPI.transfer(regdata);
   digitalWrite(_NSS, HIGH);
@@ -2757,7 +2757,7 @@ void SX127XLT::startWriteSXBuffer(uint8_t ptr)
   _TXPacketL = 0;                               //this variable used to keep track of bytes written
   writeRegister(REGFIFOADDRPTR, ptr);           //set buffer access ptr
 
-#ifdef USE_SPI_TRANSACTION                   //to use SPI_TRANSACTION enable define at beginning of CPP file 
+#ifdef USE_SPI_TRANSACTION                      //to use SPI_TRANSACTION enable define at beginning of CPP file 
   SPI.beginTransaction(SPISettings(LTspeedMaximum, LTdataOrder, LTdataMode));
 #endif
 

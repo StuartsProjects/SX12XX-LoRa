@@ -30,20 +30,13 @@
 
   The pin definitions, LoRa frequency and LoRa modem settings are in the Settings.h file.
 
-  The Atmel watchdog time is a viable option for a very low current sensor node. A bare bones ATmega328P
+  The Atmel watchdog timer is a viable option for a very low current sensor node. A bare bones ATmega328P
   with regulator and LoRa device has a sleep current of 6.5uA, add the LoRa devices and BME280 sensor
-  module and the sleep current only rises to 6.7uA.
+  module and the average sleep current only rises to 6.7uA.
 
-  However there is the time the processor takes to wake up from sleep and start running the program code.
-  When monitoring the supply rail with a resistor, I see power pulses of circa 2.4mS when the watchdog
-  timer wakes the processor up. So assuming a powered time of 2.4mS every 8 seconds (1/3333th of the time)
-  and a processor run current of maybe 6mA, thats an average of 1.8uA.
-
-  So adding the predicted average wake up current to the measured sleep current give an average node current
-  in sleep of maybe 8.5uA, not bad for a freebie sleep timer. If such a node were put into a loop that kept it
-  permanently in sleep, then a pack of AA alkaline batteries could last 37 years, if it were possible for
-  the battery shelf life to be that long.
-  
+  One of these transmitter programs is running on a long term test with a 175mAh battery, to see how long
+  the battery actually lasts. 
+   
   Serial monitor baud rate is set at 9600.
 *******************************************************************************************************/
 
@@ -144,8 +137,8 @@ uint8_t sendSensorPacket()
 
 void addPacketErrorCheck(uint8_t len)
 {
-  //calculate the CRC of packet contents up to location of CRC value
-  CRCvalue = LT.CRCCCITTSX(0, (len-1), 0xFFFF);
+  //calculate the CRC of packet sensor data
+  CRCvalue = LT.CRCCCITTSX(3, (len-1), 0xFFFF);
 
   Serial.print(F("Calculated CRC value "));
   Serial.println(CRCvalue,HEX);
@@ -164,7 +157,15 @@ void readSensors()
   temperature = bme280.getTemperature();
   pressure = bme280.getPressure();
   humidity = bme280.getHumidity();
-  voltage = 3999;                            //manually set this for now, its a test
+
+  if (BATTERYAD)
+  {
+  voltage = readBatteryVoltage();            //read resistor divider across battery 
+  }
+  else
+  {
+  voltage = 9999;                            //set a default value
+  }
   statusbyte = 0x55;                         //manually set this for now, its a test
 }
 
@@ -223,6 +224,33 @@ void writeBME280reg(byte reg, byte regvalue)
 }
 
 
+uint16_t readBatteryVoltage()
+{
+  //relies on 1V1 internal reference and 91K & 11K resistor divider
+  //returns supply in mV @ 10mV per AD bit read
+  uint16_t temp;
+  uint16_t volts = 0;
+  byte index;
+
+  digitalWrite(BATTERYREADON, HIGH);            //turn MOSFET connection resitor divider in circuit
+  
+  analogReference(INTERNAL1V1);
+  temp = analogRead(BATTERYAD);
+    
+  for (index = 0; index <= 4; index++)                      //sample AD 3 times
+  {
+    temp = analogRead(BATTERYAD);
+    volts = volts + temp;
+  }
+  volts = ((volts / 5) * ADMultiplier) + DIODEMV;
+
+  digitalWrite(BATTERYREADON, LOW);            //turn MOSFET connection resitor divider in circuit
+ 
+  return volts;
+}
+
+
+
 void led_Flash(uint16_t flashes, uint16_t delaymS)
 {
   uint16_t index;
@@ -240,6 +268,11 @@ void setup()
 {
   pinMode(LED1, OUTPUT);
   led_Flash(2, 125);
+
+  if (BATTERYREADON)
+  {
+  pinMode(BATTERYREADON, OUTPUT);
+  }
 
   Serial.begin(9600);
 

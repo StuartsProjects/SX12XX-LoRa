@@ -25,7 +25,7 @@
 #define LORA_DEVICE DEVICE_SX1278               //this is the device we are using
 
 
-//*******  Setup LoRa Test Parameters Here ! ***************
+//***************  Setup LoRa Test Parameters Here ! ***************
 
 //LoRa Modem Parameters
 const uint32_t Frequency = 434000000;           //frequency of transmissions
@@ -40,3 +40,7 @@ const int8_t TXpower = 2;                       //LoRa TX power
 
 #define packet_delay 1000                       //mS delay between packets
 #define This_Node 'B'                           //this is the node that the remote sensors send data to   
+
+//****************  Setup Display Parameters Here  ****************
+
+//const uint8_t dispfont = u8x8_font_chroma48medium8_r;  //display font from u8g2 library

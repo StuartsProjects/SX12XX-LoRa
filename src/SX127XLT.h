@@ -167,7 +167,7 @@ class SX127XLT
     bool isTXdoneIRQ();
     void setTXDonePin(uint8_t pin);
     void setRXDonePin(uint8_t pin);
-
+    
     //*******************************************************************************
     //Packet Read and Write Routines
     //*******************************************************************************

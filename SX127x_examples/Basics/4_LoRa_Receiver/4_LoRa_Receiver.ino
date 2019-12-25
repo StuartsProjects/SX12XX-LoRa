@@ -50,6 +50,11 @@ void loop()
 
   digitalWrite(LED1, HIGH);                      //something has happened
 
+  if (BUZZER > 0)                                //turn buzzer on
+  {
+    digitalWrite(BUZZER, HIGH);
+  }
+
   PacketRSSI = LT.readPacketRSSI();              //read the recived RSSI value
   PacketSNR = LT.readPacketSNR();                //read the received SNR value
 
@@ -64,7 +69,6 @@ void loop()
 
   if (BUZZER > 0)
   {
-    delay(25);                                    //gives a slightly longer beep
     digitalWrite(BUZZER, LOW);                    //buzzer off
   }
 
@@ -77,11 +81,6 @@ void loop()
 void packet_is_OK()
 {
   uint16_t IRQStatus, CRC;
-
-  if (BUZZER > 0)                                  //turn buzzer on for a valid packet
-  {
-    digitalWrite(BUZZER, HIGH);
-  }
 
   IRQStatus = LT.readIrqStatus();                  //read the LoRa device IRQ status register
 
@@ -138,6 +137,9 @@ void packet_is_Error()
     Serial.print(IRQStatus, HEX);
     LT.printIrqStatus();                            //print the names of the IRQ registers set
   }
+
+  delay(250);                                       //gives a longer buzzer and LED falsh for error 
+  
 }
 
 

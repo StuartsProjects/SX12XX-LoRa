@@ -21,6 +21,12 @@
 #define DIO2 -1                                 //DIO2 on LoRa device, normally not used so set to -1
 #define LED1 8                                  //On board LED, high for on
 
+#define BATTERYREADON 8                         //when high turns on the resistor divider to measure voltage, -1 if not used
+#define BATTERYAD A7                            //Resitor divider for battery connected here, -1 if not used
+#define ADMultiplier 10.00                      //adjustment to convert AD value read into mV of battery voltage
+#define DIODEMV 98                              //mV voltage drop accross diode @ low idle current
+
+
 #define LORA_DEVICE DEVICE_SX1278               //this is the device we are using
 
 
@@ -35,7 +41,7 @@ const uint8_t SpreadingFactor = LORA_SF7;       //LoRa spreading factor
 const uint8_t CodeRate = LORA_CR_4_5;           //LoRa coding rate
 const uint8_t Optimisation = LDRO_AUTO;         //low data rate optimisation setting
 
-const int8_t TXpower = 10;                      //LoRa transmit power in dBm
+const int8_t TXpower = 14;                      //LoRa transmit power in dBm
 
 #define BME280_ADDRESS  0x76                    //I2C bus address of BME280 
 #define BME280_REGISTER_CONTROL 0xF4            //BME280 register number for power control

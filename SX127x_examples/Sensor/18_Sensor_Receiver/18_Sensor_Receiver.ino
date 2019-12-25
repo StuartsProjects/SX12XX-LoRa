@@ -43,17 +43,15 @@
 #include "Settings.h"
 #include <Program_Definitions.h>
 
-#include <U8x8lib.h>                                        //get library here >  https://github.com/olikraus/u8g2 
-//U8X8_SSD1306_128X64_NONAME_HW_I2C disp(U8X8_PIN_NONE);    //use this line for standard 0.96" SSD1306
-U8X8_SH1106_128X64_NONAME_HW_I2C disp(U8X8_PIN_NONE);       //use this line for 1.3" OLED often sold as 1.3" SSD1306
-
 SX127XLT LT;
+
+#include <U8x8lib.h>                                        //get library here >  https://github.com/olikraus/u8g2 
+U8X8_SSD1306_128X64_NONAME_HW_I2C disp(U8X8_PIN_NONE);    //use this line for standard 0.96" SSD1306
+//U8X8_SH1106_128X64_NONAME_HW_I2C disp(U8X8_PIN_NONE);       //use this line for 1.3" OLED often sold as 1.3" SSD1306
 
 uint32_t RXpacketCount;          //count of all packets received
 uint32_t ValidPackets;           //count of packets received with valid data
 uint32_t RXpacketErrors;         //count of all packets with errors received
-uint16_t errors;
-uint8_t validcount;
 bool packetisgood;
 
 uint8_t RXPacketL;               //length of received packet
@@ -68,7 +66,7 @@ float pressure;                  //the BME280 pressure value
 uint16_t humidity;               //the BME280 humididty value
 uint16_t voltage;                //the battery voltage value
 uint8_t statusbyte;              //a status byte, not currently used
-uint16_t CRCvalue;               //the CRC value of the packet data
+uint16_t TXCRCvalue;             //the CRC value of the packet data as transmitted
 
 
 void loop()
@@ -100,7 +98,7 @@ void packet_Received_OK()
   //an unknown source, so we need to check that its actually a sensor packet we are expecting, and has valid sensor data
 
   uint8_t len;
-  errors = 0;                         //keep a count of errors found in packet
+  uint8_t contenterrors;                 //keep a count of errors found in packet
 
   RXpacketCount++;
   Serial.print(RXpacketCount);
@@ -127,22 +125,26 @@ void packet_Received_OK()
   printreceptionDetails();                   //print details of reception, RSSI etc
   Serial.println();
 
-  errors = checkPacketValid(len);            //pass length of packet to check routine 
+  contenterrors = checkPacketValid(len);     //pass length of packet to check routine 
 
-  if (errors == 0)
+  if (contenterrors == 0)
   {
     Serial.println(F("  Packet is good"));
     ValidPackets++;
     printSensorValues();                     //print the sensor values
     Serial.println();
     printPacketCounts();                     //print count of valid packets and erors                  
-    dispscreen1();
+    displayscreen1();
     Serial.println();
   }
   else
   {
-  Serial.println(F("  Packet is not vlaid"));
-  RXpacketErrors++;  
+  Serial.println(F("  Packet is not valid"));
+  RXpacketErrors++;
+  disp.clearLine(7);
+  disp.setCursor(0, 7);
+  disp.print(F("Errors "));
+  disp.print(RXpacketErrors);  
   }
 }
 
@@ -177,19 +179,19 @@ bool checkCRCvalue(uint8_t len)
 {
   uint16_t CRCSensorData;
   
-  CRCSensorData = LT.CRCCCITTSX(0, (len-1), 0xFFFF);    //calculate the CRC of packet sensor data
+  CRCSensorData = LT.CRCCCITTSX(3, (len-1), 0xFFFF);    //calculate the CRC of packet sensor data
 
   Serial.print(F("(CRC of Received sensor data "));
   Serial.print(CRCSensorData, HEX);
   Serial.print(F(")"  ));
 
-  CRCvalue = ((LT.getByteSXBuffer(17) << 8) + (LT.getByteSXBuffer(16)));
+  TXCRCvalue = ((LT.getByteSXBuffer(17) << 8) + (LT.getByteSXBuffer(16)));
 
   Serial.print(F("(CRC transmitted "));
-  Serial.print(CRCvalue, HEX);
+  Serial.print(TXCRCvalue, HEX);
   Serial.print(F(")"  ));
 
-  if (CRCvalue != CRCSensorData)
+  if (TXCRCvalue != CRCSensorData)
   {
     Serial.print(F(" Sensor Data Not Valid"));
     return false;
@@ -216,7 +218,7 @@ void printSensorValues()
   Serial.print(F("mV,Status,"));
   Serial.print(statusbyte, HEX);
   Serial.print(F(",CRC,"));
-  Serial.print(CRCvalue, HEX);
+  Serial.print(TXCRCvalue, HEX);
   Serial.flush();
 }
 
@@ -254,18 +256,21 @@ void packet_is_Error()
   }
   else
   {
-    errors++;
     Serial.print(F("PacketError "));
     printreceptionDetails();
     Serial.print(F(",IRQreg,"));
     Serial.print(IRQStatus, HEX);
     LT.printIrqStatus();
     Serial.println();
+    disp.clearLine(7);
+    disp.setCursor(0, 7);
+    disp.print(F("Errors "));
+    disp.print(RXpacketErrors);
   }
 }
 
 
-void dispscreen1()
+void displayscreen1()
 {
   //show sensor data on display
   disp.clearLine(0);
