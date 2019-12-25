@@ -169,17 +169,17 @@ void print_Test1Count()
   for (index = 31; index >= 0; index--)
   {
     Serial.print(index - 9);
-    Serial.print("dBm,");
+    Serial.print(F("dBm,"));
     j = Test1Count[index];
     Serial.print(j);
-    Serial.print("  ");
+    Serial.print(F("  "));
   }
   Serial.println();
 
-  Serial.print("CSV");
+  Serial.print(F("CSV"));
   for (index = 31; index >= 0; index--)
   {
-    Serial.print(",");
+    Serial.print(F(","));
     j = Test1Count[index];
     Serial.print(j);
   }

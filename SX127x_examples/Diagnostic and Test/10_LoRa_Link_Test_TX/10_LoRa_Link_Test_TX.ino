@@ -57,10 +57,10 @@ uint8_t TXPacketL;
 
 void loop()
 {
-  Serial.println("Start Test Sequence");
+  Serial.println(F("Start Test Sequence"));
   Serial.print(TXpower);
-  Serial.print("dBm ");
-  Serial.print("Start Packet> ");
+  Serial.print(F("dBm "));
+  Serial.print(F("Start Packet> "));
 
   SendTest1ModePacket();
 
@@ -69,15 +69,15 @@ void loop()
   for (TestPower = start_power; TestPower >= end_power; TestPower--)
   {
     Serial.print(TestPower);
-    Serial.print("dBm ");
-    Serial.print("Test Packet> ");
+    Serial.print(F("dBm "));
+    Serial.print(F("Test Packet> "));
     Serial.flush();
     SendTestPacket(TestPower);
     Serial.println();
     delay(packet_delay);
   }
 
-  Serial.println("Finished Test Sequence");
+  Serial.println(F("Finished Test Sequence"));
   Serial.println();
 }
 

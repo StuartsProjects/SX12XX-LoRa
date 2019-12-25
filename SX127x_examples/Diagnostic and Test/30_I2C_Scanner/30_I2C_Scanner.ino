@@ -14,7 +14,7 @@ void setup()
   Wire.begin();
 
   Serial.begin(9600);
-  Serial.println("I2C Scanner starting");
+  Serial.println(F("I2C Scanner starting"));
   Serial.println();
 }
 
@@ -26,7 +26,7 @@ void loop()
 
   counter++;
   Serial.print(counter);
-  Serial.println(" Scanning...");
+  Serial.println(F(" Scanning..."));
 
   nDevices = 0;
   for (address = 1; address < 127; address++ )
@@ -39,29 +39,29 @@ void loop()
 
     if (error == 0)
     {
-      Serial.print("I2C device found at address 0x");
+      Serial.print(F("I2C device found at address 0x"));
       if (address < 16)
-        Serial.print("0");
+        Serial.print(F("0"));
       Serial.print(address, HEX);
       nDevices++;
     }
     else if (error == 4)
     {
-      Serial.print("Unknown error at address 0x");
+      Serial.print(F("Unknown error at address 0x"));
       if (address < 16)
-        Serial.print("0");
+        Serial.print(F("0"));
       Serial.println(address, HEX);
     }
   }
 
   if (nDevices == 0)
   {
-    Serial.println("No I2C devices found");
+    Serial.println(F("No I2C devices found"));
   }
   else
   {
     Serial.println();
-    Serial.println("Done");
+    Serial.println(F("Done"));
     Serial.println();
   }
 

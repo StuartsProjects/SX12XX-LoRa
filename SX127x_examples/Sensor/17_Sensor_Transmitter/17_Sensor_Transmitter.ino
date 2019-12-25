@@ -92,7 +92,7 @@ void loop()
   //now put the sensor, LoRa device and processor to sleep
   sleepBME280();                            //sleep the BME280
   LT.setSleep(CONFIGURATION_RETENTION);     //sleep LoRa device, keeping register settings in sleep.
-  sleep8seconds(2);                         //sleep Atmel processor in units of approx 8 seconds
+  sleep8seconds(112);                       //sleep Atmel processor in units of approx 8 seconds
 
   //wait a bit ................
   Serial.println(F(" - Awake !!"));         //the processor has woken up

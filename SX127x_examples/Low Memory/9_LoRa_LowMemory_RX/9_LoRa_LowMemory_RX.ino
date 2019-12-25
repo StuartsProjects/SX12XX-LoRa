@@ -143,7 +143,7 @@ void packet_is_Error()
 
 void printpacketDetails()
 {
-  Serial.print("  RSSI,");
+  Serial.print(F("  RSSI,"));
   Serial.print(PacketRSSI);
   Serial.print(F("dBm,SNR,"));
   Serial.print(PacketSNR);

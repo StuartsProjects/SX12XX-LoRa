@@ -98,7 +98,7 @@ void packet_is_OK()
   float tempHdop;
 
   RXpacketCount++;
-  Serial.print("Packet OK > ");
+  Serial.print(F("Packet OK > "));
 
   readPacketAddressing();
 
@@ -110,9 +110,9 @@ void packet_is_OK()
     LT.readUint8();                              //read byte from FIFO, not used
     TRVolts = LT.readUint16();
     LT.endReadSXBuffer();
-    Serial.print("Tracker transmitter powerup - battery ");
+    Serial.print(F("Tracker transmitter powerup - battery "));
     Serial.print(TRVolts);
-    Serial.print("mV");
+    Serial.print(F("mV"));
   }
 
   if (PacketType == LocationBinaryPacket)
@@ -137,23 +137,23 @@ void packet_is_OK()
     Serial.write(PacketType);
     Serial.write(Destination);
     Serial.write(Source);
-    Serial.print(",");
+    Serial.print(F(","));
     Serial.print(TRLat, 5);
-    Serial.print(",");
+    Serial.print(F(","));
     Serial.print(TRLon, 5);
-    Serial.print(",");
+    Serial.print(F(","));
     Serial.print(TRAlt, 1);
-    Serial.print("m,");
+    Serial.print(F("m,"));
     Serial.print(TRSats);
-    Serial.print(",");
+    Serial.print(F(","));
     Serial.print(tempHdop, 2);
-    Serial.print(",");
+    Serial.print(F(","));
     Serial.print(TRStatus);
-    Serial.print(",");
+    Serial.print(F(","));
     Serial.print(TRGPSFixTime);
-    Serial.print("mS,");
+    Serial.print(F("mS,"));
     Serial.print(TRVolts);
-    Serial.print("mV");
+    Serial.print(F("mV"));
     printpacketDetails();
     return;
   }
@@ -164,7 +164,7 @@ void packet_is_OK()
     Serial.write(PacketType);
     Serial.write(Destination);
     Serial.write(Source);
-    Serial.print(",");
+    Serial.print(F(","));
     printpacketDetails();
   }
 
@@ -174,7 +174,7 @@ void packet_is_OK()
 void printpacketDetails()
 {
   uint16_t IRQStatus;
-  Serial.print(",RSSI,");
+  Serial.print(F(",RSSI,"));
   Serial.print(PacketRSSI);
   Serial.print(F("dBm,SNR,"));
   Serial.print(PacketSNR);

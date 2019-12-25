@@ -69,7 +69,7 @@ void packet_is_OK()
 
   RXpacketCount++;
   Serial.print(F("PacketOK > "));
-  Serial.print(" RSSI,");
+  Serial.print(F(" RSSI,"));
   Serial.print(PacketRSSI);
   Serial.print(F("dBm,SNR,"));
   Serial.print(PacketSNR);

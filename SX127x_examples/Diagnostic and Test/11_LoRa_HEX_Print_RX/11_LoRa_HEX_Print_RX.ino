@@ -89,7 +89,7 @@ void packet_is_OK()
 
   LT.printSXBufferHEX(0, (RXPacketL - 1));
 
-  Serial.print(" RSSI,");
+  Serial.print(F(" RSSI,"));
   Serial.print(PacketRSSI);
   Serial.print(F("dBm,SNR,"));
   Serial.print(PacketSNR);
@@ -117,7 +117,7 @@ void packet_is_Error()
   {
     errors++;
     Serial.print(F(" PacketError"));
-    Serial.print(",RSSI,");
+    Serial.print(F(",RSSI,"));
     Serial.print(PacketRSSI);
     Serial.print(F("dBm,SNR,"));
     Serial.print(PacketSNR);
@@ -150,7 +150,7 @@ void led_Flash(uint16_t flashes, uint16_t delaymS)
 void printDigits(int8_t digits)
 {
   //utility function for digital clock display: prints preceding colon and leading 0
-  Serial.print(":");
+  Serial.print(F(":"));
   if (digits < 10)
     Serial.print('0');
   Serial.print(digits);
