@@ -4,7 +4,7 @@ To test the example programs in the SX12XX library I developed a small Pro Mini 
 The board takes a single Mikrobus compatible plug in board in addition to plug in boards that  LoRaTracker produce which extend the pin out to 10 pins either side, this is a great help when using LoRa modules. The parts needed for a basic build ‘Easy Mikrobus Pro Mini’ are shown below;
 
 
-![Picture 1](Pictures/Easy_Mikrobus_Parts.jpg)
+![Picture 1](pictures/Easy_Mikrobus_Parts.jpg)
 
 <br>
 
@@ -12,7 +12,7 @@ The base boards can be used for most of the current LoRa modules just by pluggin
 
 <br>
 
-![Picture 1](Pictures/LoRa_Mikrobus_Modules.jpg)
+![Picture 1](pictures/LoRa_Mikrobus_Modules.jpg)
 
 <br>
 
@@ -20,7 +20,7 @@ When assembled the boards looks like this;
 
 
 
-![Picture 1](Pictures/Easy_Mikrobus_Assembled.jpg)
+![Picture 1](pictures/Easy_Mikrobus_Assembled.jpg)
 
 <br>
 
@@ -30,7 +30,7 @@ One of the example program is an application that reads a BME280 sensor and tran
 
 <br>
 
-![Picture 1](Pictures/Easy_Mikrobus_Sensor.jpg)
+![Picture 1](pictures/Easy_Mikrobus_Sensor.jpg)
 
 <br>
  
@@ -38,7 +38,7 @@ On of the other example programs is a GPS tracker, this reads a GPS and uses LoR
 
 <br>
 
-![Picture 1](Pictures/Easy_Mikrobus_GPS_Tracker.jpg)
+![Picture 1](pictures/Easy_Mikrobus_GPS_Tracker.jpg)
 
 <br>
 
