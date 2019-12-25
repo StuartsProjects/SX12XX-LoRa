@@ -58,12 +58,9 @@ Check sensitivity\current for writeRegister(RegLna, 0x3B );.//at HF 150% LNA cur
 Add packet SF6 support and implicit mode support and examples
 
 
-
-
-
-
 <br>
-### Stuart Robinson
 
-### December 2019
+###  Stuart Robinson
+
+###  December 2019
 
