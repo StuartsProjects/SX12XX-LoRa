@@ -10,7 +10,7 @@
 
 //*******  Setup hardware pin definitions here ! ***************
 
-//These are the pin definitions for one of my own boards, the Easy Mikrobus Pro Mini, 
+//These are the pin definitions for one of my own boards, the Easy Mikrobus Pro Mini,
 //be sure to change the definitiosn to match your own setup. Some pins such as DIO1,
 //DIO2, BUZZER SWITCH1 may not be in used by this sketch so they do not need to be
 //connected and should be set to -1.
@@ -43,28 +43,22 @@ const uint8_t SpreadingFactor = LORA_SF7;       //LoRa spreading factor
 const uint8_t CodeRate = LORA_CR_4_5;           //LoRa coding rate
 const uint8_t Optimisation = LDRO_AUTO;         //low data rate optimisation setting
 
-const int8_t TXpower = 10;                      //LoRa transmit power in dBm 
+const int8_t TXpower = 10;                      //LoRa transmit power in dBm
 
 
 //**************************************************************************************************
 // GPS Settings
 //**************************************************************************************************
 
-//#define DEBUGNoGPS                             //test mode, does not need a connected GPS
-
 #define USE_SOFTSERIAL_GPS                       //need to include this if we are using softserial for GPS     
 #define HardwareSerialPort Serial1               //if using hardware serial enable this define for hardware serial port 
 
 #define GPSBaud 9600                             //GPS Baud rate   
-
 #define WaitGPSFixSeconds 30                     //time to wait for a new GPS fix 
-#define GPSpowerontimems 120000                  //number of mS after power on before GPS can be turned off.                             
-
 #define echomS 2500                              //number of mS to run GPS echo for at startup    
 
-//#define DisplayUpdateSeconds                    //number of seconds to force screen update 
-#define NoRXGPSfixms 10000                        //max number of mS to allow before no fix flagged 
-#define DisplayRate 7                             //when working OK the GPS will get a new fix every second or so
-                                                  //this rate defines how often the display should be updated 
+#define NoRXGPSfixms 10000                       //max number of mS to allow before no fix flagged 
+#define DisplayRate 7                            //when working OK the GPS will get a new fix every second or so
+//this rate defines how often the display should be updated
 
 

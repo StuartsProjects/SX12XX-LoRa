@@ -28,15 +28,15 @@
   and direction to tracker, if local GPS fix. In addition if there is a recent tracker transmitter) GPS fix
   a 'T' is shown on line 0 right of screen and if there is a recent local (receiver) GPS fix a 'R' is displayed
   line 1 right of screen.
-  
+
   The received information is printed to the Serial Monitor as CSV data in this order;
-  
-  Packet Address information, Latitude, Longitude, Altitude, Satellites in use, HDOP, TX status byte, 
+
+  Packet Address information, Latitude, Longitude, Altitude, Satellites in use, HDOP, TX status byte,
   GPS Fixtime, Tracker battery mV, Number of received packets, Distance and direction to tracker, if local
-  GPS fix. 
+  GPS fix.
 
   The program has the option of using a pin to control the power to the GPS, if the GPS module being used
-  has this feature. To use the option change the define in Settings.h; '#define GPSPOWER -1' from -1 to 
+  has this feature. To use the option change the define in Settings.h; '#define GPSPOWER -1' from -1 to
   the pin number being used. Also set the GPSONSTATE and GPSOFFSTATE to the appropriate logic levels.
 
   Serial monitor baud rate is set at 9600.
@@ -64,17 +64,17 @@ TinyGPSPlus gps;                                            //create the TinyGPS
 SoftwareSerial GPSserial(RXpin, TXpin);
 #else
 #define GPSserial HardwareSerialPort       //hardware serial port (eg Serial1) is configured in the Settings.h file
-#endif                             
+#endif
 
 uint32_t RXpacketCount;        //count of received packets
-uint8_t RXPacketL;             //length of received packet                  
+uint8_t RXPacketL;             //length of received packet
 int8_t  PacketRSSI;            //signal strength (RSSI) dBm of received packet
 int8_t  PacketSNR;             //signal to noise ratio (SNR) dB of received packet
 uint8_t PacketType;            //for packet addressing, identifies packet type
 uint8_t Destination;           //for packet addressing, identifies the destination (receiving) node
-uint8_t Source;                //for packet addressing, identifies the source (transmiting) node 
-uint8_t TXStatus;              //status byte from tracker transmitter   
-uint8_t TXSats;                //number of sattelites in use  
+uint8_t Source;                //for packet addressing, identifies the source (transmiting) node
+uint8_t TXStatus;              //status byte from tracker transmitter
+uint8_t TXSats;                //number of sattelites in use
 float TXLat;                   //latitude
 float TXLon;                   //longitude
 float TXAlt;                   //altitude
@@ -85,14 +85,14 @@ uint32_t TXHdop;               //HDOP, indication of fix quality, horizontal dil
 uint32_t TXGPSFixTime;         //time in mS for fix
 uint16_t TXVolts;              //supply\battery voltage
 uint16_t RXVolts;              //supply\battery voltage
-float TXdistance;              //calculated distance to tracker    
+float TXdistance;              //calculated distance to tracker
 uint16_t TXdirection;          //calculated direction to tracker
 uint16_t RXerrors;
 
-uint32_t LastRXGPSfixCheck;    //used to record the time of the last GPS fix 
+uint32_t LastRXGPSfixCheck;    //used to record the time of the last GPS fix
 
 bool TXLocation;               //set to true when a tracker location packet has been received
-bool RXGPSfix;                 //set tot true if the local GPS has a recent fix  
+bool RXGPSfix;                 //set tot true if the local GPS has a recent fix
 
 uint8_t FixCount = DisplayRate;  //used to keep track of number of GPS fixes before display updated
 
@@ -101,9 +101,9 @@ void loop()
 {
   RXPacketL = LT.receiveSXBuffer(0, 0, NO_WAIT);   //returns 0 if packet error of some sort
 
-  while (!digitalRead(DIO0))                       
+  while (!digitalRead(DIO0))
   {
-    readGPS();                                     //If the DIO pin is low, no packet arrived, so read the GPS                                      
+    readGPS();                                     //If the DIO pin is low, no packet arrived, so read the GPS
   }
 
   //something has happened
@@ -231,20 +231,20 @@ void packet_is_OK()
     TXLocation = true;
     LT.startReadSXBuffer(0);                //start the read of received packet
     PacketType = LT.readUint8();            //read in the PacketType
-    Destination = LT.readUint8();           //read in the Packet destination address           
+    Destination = LT.readUint8();           //read in the Packet destination address
     Source = LT.readUint8();                //read in the Packet source address
-    TXLat = LT.readFloat();                 //read in the tracker latitude                  
-    TXLon = LT.readFloat();                 //read in the tracker longitude 
-    TXAlt = LT.readFloat();                 //read in the tracker altitude 
+    TXLat = LT.readFloat();                 //read in the tracker latitude
+    TXLon = LT.readFloat();                 //read in the tracker longitude
+    TXAlt = LT.readFloat();                 //read in the tracker altitude
     TXSats = LT.readUint8();                //read in the satellites in use by tracker GPS
     TXHdop = LT.readUint32();               //read in the HDOP of tracker GPS
     TXStatus = LT.readUint8();              //read in the tracker status byte
-    TXGPSFixTime = LT.readUint32();         //read in the last fix time of tracker GPS 
+    TXGPSFixTime = LT.readUint32();         //read in the last fix time of tracker GPS
     TXVolts = LT.readUint16();              //read in the tracker supply\battery volts
-    RXPacketL = LT.endReadSXBuffer();       //end the read of received packet  
+    RXPacketL = LT.endReadSXBuffer();       //end the read of received packet
 
 
-    if (RXGPSfix)                           //if there has been a local GPS fic do the distance and direction calculation  
+    if (RXGPSfix)                           //if there has been a local GPS fic do the distance and direction calculation
     {
       TXdirection = (int) TinyGPSPlus::courseTo(RXLat, RXLon, TXLat, TXLon);
       TXdistance = TinyGPSPlus::distanceBetween(RXLat, RXLon, TXLat, TXLon);
@@ -284,7 +284,7 @@ void packet_is_OK()
     tempfloat = ((float) TXVolts / 1000);
     disp.print(tempfloat, 2);
     Serial.print(F(","));
-    Serial.print(TXdistance,0);
+    Serial.print(TXdistance, 0);
     Serial.print(F("m,"));
     Serial.print(TXdirection);
     Serial.print(F("d,RSSI,"));
@@ -330,7 +330,7 @@ void packet_is_Error()
   Serial.print(IRQStatus, HEX);
   LT.printIrqStatus();
   digitalWrite(LED1, LOW);
-  
+
   if (BUZZER >= 0)
   {
     digitalWrite(BUZZER, LOW);
@@ -441,12 +441,6 @@ void dispscreen2()
 void setup()
 {
   uint32_t endmS;
-  
-  if (GPSPOWER >= 0)
-  {
-    pinMode(GPSPOWER, OUTPUT);
-    digitalWrite(GPSPOWER, GPSONSTATE);
-  }
 
   pinMode(LED1, OUTPUT);                        //setup pin as output for indicator LED
   led_Flash(2, 125);                            //two quick LED flashes to indicate program start
@@ -467,7 +461,7 @@ void setup()
   }
 
   SPI.begin();
-  
+
   disp.begin();
   disp.setFont(u8x8_font_chroma48medium8_r);
 
@@ -498,15 +492,20 @@ void setup()
 
   endmS = millis() + echomS;
 
-  while (millis() < endmS)
+  if (GPSPOWER >= 0)
   {
-    while (GPSserial.available() > 0)
-      Serial.write(GPSserial.read());
+    pinMode(GPSPOWER, OUTPUT);
+    digitalWrite(GPSPOWER, GPSONSTATE);
+    GPSserial.begin(GPSBaud);
+
+    while (millis() < endmS)
+    {
+      while (GPSserial.available() > 0)
+        Serial.write(GPSserial.read());
+    }
+    Serial.println();
+    Serial.println();
   }
-  Serial.println();
-  Serial.println();
-
-
 
   Serial.println(F("Receiver ready"));
   Serial.println();
