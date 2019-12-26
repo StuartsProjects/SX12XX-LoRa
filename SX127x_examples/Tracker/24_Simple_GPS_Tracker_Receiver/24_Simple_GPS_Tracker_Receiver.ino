@@ -29,23 +29,22 @@ SX127XLT LT;
 #include "Program_Definitions.h"
 
 
-uint32_t RXpacketCount;
-uint16_t errors;
+uint32_t RXpacketCount;        //count of received packets
 
 uint8_t RXPacketL;             //length of received packet
 int8_t PacketRSSI;             //RSSI of received packet
 int8_t PacketSNR;              //signal to noise ratio of received packet
-uint8_t PacketType;
-uint8_t Destination;
-uint8_t Source;
-uint8_t TRStatus;
-float TRLat;
-float TRLon;
-float TRAlt;
-uint32_t TRHdop;
-uint32_t TRGPSFixTime;
-uint16_t TRVolts;
-uint8_t TRSats;
+uint8_t PacketType;            //for packet addressing, identifies packet type
+uint8_t Destination;           //for packet addressing, identifies the destination (receiving) node
+uint8_t Source;                //for packet addressing, identifies the source (transmiting) node
+uint8_t TRStatus;              //A status byte
+float TRLat;                   //latitude
+float TRLon;                   //longitude
+float TRAlt;                   //altitude
+uint32_t TRHdop;               //HDOP, indication of fix quality, horizontal dilution of precision, low is good
+uint32_t TRGPSFixTime;         //time in mS for fix
+uint16_t TRVolts;              //supply\battery voltage
+uint8_t TRSats;                //number of sattelites in use
 
 
 void loop()
@@ -158,16 +157,19 @@ void packet_is_OK()
     return;
   }
 
-  if ((PacketType != LocationBinaryPacket) && (PacketType != PowerUp))
+  if (PacketType == NoFix)
   {
-    Serial.print(F("Packet not recognised "));
-    Serial.write(PacketType);
-    Serial.write(Destination);
-    Serial.write(Source);
-    Serial.print(F(","));
+    Serial.print(F("No GPS fix "));
     printpacketDetails();
+    return;
   }
 
+  Serial.print(F("Packet not recognised "));
+  Serial.write(PacketType);
+  Serial.write(Destination);
+  Serial.write(Source);
+  Serial.print(F(","));
+  printpacketDetails();
 }
 
 
@@ -190,7 +192,6 @@ void printpacketDetails()
 }
 
 
-
 void packet_is_Error()
 {
   uint16_t IRQStatus;
@@ -203,9 +204,7 @@ void packet_is_Error()
   }
 
   IRQStatus = LT.readIrqStatus();                    //get the IRQ status
-  errors++;
   Serial.print(F("PacketError,RSSI"));
-
   Serial.print(PacketRSSI);
   Serial.print(F("dBm,SNR,"));
   Serial.print(PacketSNR);

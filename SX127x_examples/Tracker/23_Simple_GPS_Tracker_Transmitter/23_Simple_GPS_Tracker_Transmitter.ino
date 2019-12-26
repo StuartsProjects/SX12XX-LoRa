@@ -22,6 +22,10 @@
 
   The LoRa settings are configured in the Settings.h file. file.
 
+  The program has the option of using a pin to control the power to the GPS, if the GPS module being used
+  has this feature. To use the option change the define in Settings.h; '#define GPSPOWER -1' from -1 to 
+  the pin number being used. Also set the GPSONSTATE and GPSOFFSTATE to the appropriate logic levels.
+
   Serial monitor baud rate is set at 9600.
 *******************************************************************************************************/
 
@@ -59,14 +63,19 @@ void loop()
 {
   Serial.println(F("Running Loop"));
 
-  gpsWaitFix(WaitGPSFixSeconds);
-
+  if (gpsWaitFix(WaitGPSFixSeconds));
+  {
   sendLocationBinary(TXLat, TXLon, TXAlt, TXHdop, TXGPSFixTime);
   Serial.println();
   Serial.print(F("Waiting "));
   Serial.print(Sleepsecs);
   Serial.println(F("s"));
   delay(Sleepsecs * 1000);                         //this sleep is used to set overall transmission cycle time
+  }
+  else
+  {
+  send_Command(NoFix);                             //send notification of no GPS fix.   
+  }
 }
 
 
@@ -261,12 +270,36 @@ uint16_t readSupplyVoltage()
 }
 
 
+void GPSON()
+{
+  if (GPSPOWER > = 0)
+  {
+  digitalWrite(GPSPOWER, GPSONSTATE);                         //power up GPS  
+  }  
+}
+
+
+void GPSOFF()
+{
+  if (GPSPOWER)
+  {
+  digitalWrite(GPSPOWER, GPSOFFSTATE);                        //power off GPS  
+  }  
+}
+
+
 void setup()
 {
   uint32_t endmS;
 
-  pinMode(LED1, OUTPUT);                        //setup pin as output for indicator LED
-  led_Flash(2, 125);                            //two quick LED flashes to indicate program start
+  if (GPSPOWER >= 0)
+  {
+  pinMode(GPSPOWER, OUTPUT);
+  GPSON();  
+  }
+
+  pinMode(LED1, OUTPUT);                                      //setup pin as output for indicator LED
+  led_Flash(2, 125);                                          //two quick LED flashes to indicate program start
 
   Serial.begin(9600);
   Serial.println();

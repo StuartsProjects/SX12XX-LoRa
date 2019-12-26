@@ -18,6 +18,10 @@
   of satellites in use, the HDOP value, time and date to the serial monitor. If the I2C OLED display is
   attached that is updated as well. Display is assumed to be on I2C address 0x3C.
 
+  The program has the option of using a pin to control the power to the GPS, if the GPS module being used
+  has this feature. To use the option change the define; '#define GPSPOWER -1' from -1 to the pin number
+  being used. Also set the GPSONSTATE and GPSOFFSTATE to the appropriate logic levels. 
+
   Serial monitor baud rate is set at 115200.
 *******************************************************************************************************/
 
@@ -31,7 +35,10 @@ TinyGPSPlus gps;                                   //create the TinyGPS++ object
 
 #define RXpin A3                                   //pin number for GPS RX input into Arduino - TX from GPS
 #define TXpin A2                                   //pin number for GPS TX output from Arduino- RX into GPS
-#define GPSON 4
+
+#define GPSPOWER -1                                //Pin that controls power to GPS, set to -1 if not used
+#define GPSONSTATE HIGH                            //logic level to turn GPS on via pin GPSPOWER 
+#define GPSOFFSTATE LOW                            //logic level to turn GPS off via pin GPSPOWER 
 
 #include <SoftwareSerial.h>
 SoftwareSerial GPSserial(RXpin, TXpin);
@@ -240,8 +247,32 @@ void displayscreen1()
 }
 
 
+void GPSON()
+{
+  if (GPSPOWER)
+  {
+  digitalWrite(GPSPOWER, GPSONSTATE);                         //power up GPS  
+  }  
+}
+
+
+void GPSOFF()
+{
+  if (GPSPOWER)
+  {
+  digitalWrite(GPSPOWER, GPSOFFSTATE);                        //power off GPS  
+  }  
+}
+
+
 void setup()
 {
+  if (GPSPOWER >= 0)
+  {
+  pinMode(GPSPOWER, OUTPUT);
+  GPSON();  
+  }
+  
   GPSserial.begin(9600);
 
   Serial.begin(115200);

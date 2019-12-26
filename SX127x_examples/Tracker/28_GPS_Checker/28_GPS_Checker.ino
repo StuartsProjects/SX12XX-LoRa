@@ -23,12 +23,17 @@
 
 #include <Arduino.h>
 
-#include <TinyGPS++.h>                             //get library here > http://arduiniana.org/libraries/tinygpsplus/
-TinyGPSPlus gps;                                   //create the TinyGPS++ object
+#include <TinyGPS++.h>                            //get library here > http://arduiniana.org/libraries/tinygpsplus/
+TinyGPSPlus gps;                                  //create the TinyGPS++ object
 
-#define RXpin A3                                   //pin number for GPS RX input into Arduino - TX from GPS
-#define TXpin A2                                   //pin number for GPS TX output from Arduino- RX into GPS
-#define GPSON 4
+#define RXpin A3                                  //pin number for GPS RX input into Arduino - TX from GPS
+#define TXpin A2                                  //pin number for GPS TX output from Arduino- RX into GPS
+
+
+#define GPSPOWER 4                                //Pin that controls power to GPS, set to -1 if not used
+#define GPSONSTATE HIGH                           //logic level to turn GPS on via pin GPSPOWER 
+#define GPSOFFSTATE LOW                           //logic level to turn GPS off via pin GPSPOWER 
+
 
 #include <SoftwareSerial.h>                        
 SoftwareSerial GPSserial(RXpin, TXpin);            
@@ -119,8 +124,32 @@ void displayGPSfix()
 }
 
 
+void GPSON()
+{
+  if (GPSPOWER)
+  {
+  digitalWrite(GPSPOWER, GPSONSTATE);                         //power up GPS  
+  }  
+}
+
+
+void GPSOFF()
+{
+  if (GPSPOWER)
+  {
+  digitalWrite(GPSPOWER, GPSOFFSTATE);                        //power off GPS  
+  }  
+}
+
+
 void setup()
 {
+  if (GPSPOWER >= 0)
+  {
+  pinMode(GPSPOWER, OUTPUT);
+  GPSON();  
+  }
+    
   GPSserial.begin(9600);
 
   Serial.begin(115200);
