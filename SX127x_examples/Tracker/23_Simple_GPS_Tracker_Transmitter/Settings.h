@@ -52,8 +52,6 @@ const uint8_t Optimisation = LDRO_AUTO;         //low data rate optimisation set
 
 const int8_t TXpower = 10;                       //LoRa TX power
 
-#define packet_delay 1000                        //mS delay between packets
-
 #define ThisNode 'T'                             //a character that identifies this tracker
 
 //**************************************************************************************************
@@ -64,7 +62,6 @@ const int8_t TXpower = 10;                       //LoRa TX power
 
 #define WaitGPSFixSeconds 30                     //time in seconds to wait for a new GPS fix 
 #define WaitFirstGPSFixSeconds 1800              //time to seconds to wait for the first GPS fix at startup
-#define GPSpowerontimems 120000                  //number of mS after power on before flagging a GPS fail                             
 #define Sleepsecs 15                             //seconds between transmissions, this delay is used to set overall transmission cycle time
 
 #define echomS 2000                              //number of mS to run GPS echo at startup    

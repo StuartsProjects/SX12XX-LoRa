@@ -5,32 +5,73 @@ SX12XX Library Example Programs
 This program blinks an LED connected the pin number defined by LED1.The pin 13 LED, fitted to some Arduinos is blinked as well. The blinks should be close to one per second. Messages are sent to the Serial Monitor also.
 
 #### 2\_Register\_Test &emsp; &emsp; &emsp;  &emsp; &emsp; &emsp; (Basics folder)
-This program checks that a SX127X LoRa device can be accessed. There should be two short LED flashes at start-up. If the SX127X is detected there will be two more LED flashes and the contents of the registers from 0x00 to 0x7F are printed, this is a copy of a typical printout below. Note that the read back changed frequency may be different to the programmed frequency (434100000hz), there is a rounding error, the frequency can only be programmed in units of approx 61hz. 
+This program is stand alone, it is not necessary to install the SX12XX-LoRa library to use it.
 
-If the SX127X is not detected LED1 will flash rapidly.
+The program checks that a SX1276-9 LoRa device can be accessed by doing a test register write and read. If there is no device found a message is printed on the serial monitor. The contents of the registers from 0x00 to 0x7F are printed, there is a copy of a typical printout below. Note that the read back changed frequency may be different to the programmed frequency, there is a rounding error due to the use of floats to calculate the frequency. 
 
-    Frequency at reset 434000000
-    Registers at reset
-    Reg0  1  2  3  4  5  6  7  8  9  A  B  C  D  E  F 
-    0x00  00 09 1A 0B 00 52 6C 80 00 4F 09 2B 20 08 02 0A
-	0x10  FF 70 15 0B 28 0C 12 47 32 3E 00 00 00 00 00 40
-	0x20  00 00 00 00 05 00 03 93 55 55 55 55 55 55 55 55
-	0x30  90 40 40 00 00 0F 00 00 00 F5 20 82 03 02 80 40
-	0x40  00 00 12 24 2D 00 03 00 04 23 00 09 05 84 32 2B
-	0x50  14 00 00 12 00 00 00 0F E0 00 0C 03 08 00 5C 78
-	0x60  00 19 0C 4B CC 0F 41 20 04 47 AF 3F D4 00 53 0B
-	0x70  D0 01 10 00 00 00 00 00 00 00 00 00 00 00 00 00
+2_Register_Test Starting
+SX1276-79 Selected
+LoRa Device found
+
+Frequency at reset 434000000
+Registers at reset
+Reg    0  1  2  3  4  5  6  7  8  9  A  B  C  D  E  F
+0x00  00 09 1A 0B 00 52 6C 80 00 4F 09 2B 20 08 02 0A 
+0x10  FF 6F 15 0B 28 0C 12 47 32 3E 00 00 00 00 00 40 
+0x20  00 00 00 00 05 00 03 93 55 55 55 55 55 55 55 55 
+0x30  90 40 40 00 00 0F 00 00 00 F5 20 82 00 02 80 40 
+0x40  00 00 12 24 2D 00 03 00 04 23 00 09 05 84 32 2B 
+0x50  14 00 00 12 00 00 00 0F E0 00 0C 00 08 00 5C 78 
+0x60  00 19 0C 4B CC 0F 01 20 04 47 AF 3F CF 00 53 0B 
+0x70  D0 01 10 00 00 00 00 00 00 00 00 00 00 00 00 00 
+
+
+Changed Frequency 434099968
+Reg    0  1  2  3  4  5  6  7  8  9  A  B  C  D  E  F
+0x00  00 09 1A 0B 00 52 6C 86 66 4F 09 2B 20 08 02 0A 
+0x10  FF 6F 15 0B 28 0C 12 47 32 3E 00 00 00 00 00 40 
+0x20  00 00 00 00 05 00 03 93 55 55 55 55 55 55 55 55 
+0x30  90 40 40 00 00 0F 00 00 00 F5 20 82 00 02 80 40 
+0x40  00 00 12 24 2D 00 03 00 04 23 00 09 05 84 32 2B 
+0x50  14 00 00 12 00 00 00 0F E0 00 0C 00 08 00 5C 78 
+0x60  00 19 0C 4B CC 0F 01 20 04 47 AF 3F CF 00 53 0B 
+0x70  D0 01 10 00 00 00 00 00 00 00 00 00 00 00 00 00 
+
+
+
+#### 2\_Register\_Test\_SX1272 &emsp; &emsp; &emsp;  &emsp; &emsp; &emsp; (Basics folder)
+This program is stand alone, it is not necessary to install the SX12XX-LoRa library to use it. 
+
+The program checks that a SX1272 LoRa device can be accessed by doing a test register write and read. If there is no device found a message is printed on the serial monitor. The contents of the registers from 0x00 to 0x7F are printed, there is a copy of a typical printout below. Note that the read back changed frequency may be different to the programmed frequency, there is a rounding error due to the use of floats to calculate the frequency. 
+
+	2_Register_Test_SX1272 Starting
+	SX1272 Selected
+	LoRa Device found
+
+	Frequency at reset 915000000
+	Registers at reset
+	Reg0  1  2  3  4  5  6  7  8  9  A  B  C  D  E  F
+	0x00  00 01 1A 0B 00 52 E4 C0 00 0F 19 2B 20 08 02 0A 
+	0x10  FF 63 15 0B 28 0C 12 47 32 3E 00 00 00 00 00 40 
+	0x20  00 00 00 00 05 00 03 93 55 55 55 55 55 55 55 55 
+	0x30  90 40 40 00 00 0F 00 00 00 F5 20 82 01 02 80 40 
+	0x40  00 00 22 13 0E 5B DB 24 0E 7F 3A 2E 00 03 00 00 
+	0x50  00 00 04 23 00 BD 00 09 09 05 84 0B D0 0B D0 32 
+	0x60  2B 14 00 00 10 00 00 00 0F E0 00 0C 01 14 25 07 
+	0x70  00 5C 00 00 00 00 00 00 00 00 00 00 00 00 00 00 
+
 
 	Changed Frequency 434099968
 	Reg0  1  2  3  4  5  6  7  8  9  A  B  C  D  E  F
-	0x00  00 09 1A 0B 00 52 6C 86 66 4F 09 2B 20 08 02 0A
-	0x10  FF 70 15 0B 28 0C 12 47 32 3E 00 00 00 00 00 40
-	0x20  00 00 00 00 05 00 03 93 55 55 55 55 55 55 55 55
-	0x30  90 40 40 00 00 0F 00 00 00 F5 20 82 03 02 80 40
-	0x40  00 00 12 24 2D 00 03 00 04 23 00 09 05 84 32 2B
-	0x50  14 00 00 12 00 00 00 0F E0 00 0C 03 08 00 5C 78
-	0x60  00 19 0C 4B CC 0F 41 20 04 47 AF 3F D4 00 53 0B
-	0x70  D0 01 10 00 00 00 00 00 00 00 00 00 00 00 00 00
+	0x00  00 01 1A 0B 00 52 6C 86 66 0F 19 2B 20 08 02 0A 
+	0x10  FF 63 15 0B 28 0C 12 47 32 3E 00 00 00 00 00 40 
+	0x20  00 00 00 00 05 00 03 93 55 55 55 55 55 55 55 55 
+	0x30  90 40 40 00 00 0F 00 00 00 F5 20 82 01 02 80 40 
+	0x40  00 00 22 13 0E 5B DB 24 0E 7F 3A 2E 00 03 00 00 
+	0x50  00 00 04 23 00 BD 00 09 09 05 84 0B D0 0B D0 32 
+	0x60  2B 14 00 00 10 00 00 00 0F E0 00 0C 01 14 25 07 
+	0x70  00 5C 00 00 00 00 00 00 00 00 00 00 00 00 00 00 
+
 
 
 
@@ -55,6 +96,7 @@ If there is a packet error it might look like this, which is showing a CRC error
 
 	1189s PacketError,RSSI,-111dBm,SNR,-12dB,Length,0,Packets,1126,Errors,1,IRQreg,70,IRQ_HEADER_VALID,IRQ_CRC_ERROR,IRQ_RX_DONE
 
+<br>
 
 #### 5\_LoRa\_TX\_Sleep\_Timed\_Wakeup\_Atmel &emsp; &emsp; &emsp;  &emsp; &emsp; &emsp; (Sleep folder) 
 
@@ -145,6 +187,12 @@ LoRa settings to use for the link test are specified in the 'Settings.h' file.
 This is a useful packet logger program. It listens for incoming packets using the LoRa settings in the 'Settings.h' file. The pins to access the SX127X need to be defined in the 'Settings.h' file also.
 
 There is a printout of the valid packets received in HEX format. Thus the program can be used to receive and record non-ASCII packets. The LED will flash for each packet received and the buzzer will sound, if fitted. The measured frequency difference between the frequency used by the transmitter and the frequency used by the receiver is shown. If this frequency difference gets to 25% of the set LoRa bandwidth, packet reception will fail. The displayed error can be reduced by using the 'offset' setting in the 'Settings.h' file. 
+
+#### 12\_ATmel\_Sleep\_with\_Switch\_Wakeup &emsp; &emsp; &emsp; &emsp; &emsp; &emsp; (Sleep folder) 
+
+This program tests the deep sleep mode and wakeup with a switch of an Atmel 328P or 1284P processor. The program starts, flashes the LED and then puts the processor into permanent sleep. It can be woken up with a switch press. Used as a base test routine for checking the sleep current of a board.
+
+Tested on an bare bones ATmega328P board, the current in sleep mode was 2.0uA with a 3.3V MCP1700 regulator being used.
 
 
 #### 13\_Frequency\_and\_Power\_Check\_TX &emsp; &emsp; &emsp;  &emsp; &emsp; &emsp; (Diagnostics and Test folder)

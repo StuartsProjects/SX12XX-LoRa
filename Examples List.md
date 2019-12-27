@@ -5,6 +5,7 @@ Below is a list of the example programs and the folders they appear in. For inst
 ## Basic   
     1_LED_Blink
     2_Register_Test
+    2_Register_Test_SX1272
 	3_LoRa_Transmit
 	4_LoRa_Receive
 
@@ -43,11 +44,12 @@ Below is a list of the example programs and the folders they appear in. For inst
     21_On_Off_Transmitter 
     22_On_Off_Receiver
 
-## GPS Tracker
+## Tracker
 
     23_Simple_GPS_Tracker_Transmitter
     24_Simple_GPS_Tracker_Receiver
-    26_GPS_Echo
+    25_GPS_Tracker_Receiver_with_Display_and_GPS
+	26_GPS_Echo
     28_GPS_Checker
     29_GPS_Checker_With_Display
 
