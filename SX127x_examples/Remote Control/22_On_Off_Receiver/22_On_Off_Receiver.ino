@@ -64,6 +64,29 @@ void loop()
 }
 
 
+void outputCheck(uint8_t number, uint32_t ondelaymS, uint32_t offdelaymS)
+{
+  uint8_t index;
+
+  for (index = 1; index <= number; index++)
+  {
+    digitalWrite(OUTPUT0, HIGH);
+    delay(ondelaymS);
+    digitalWrite(OUTPUT0, LOW);
+    delay(offdelaymS);
+    digitalWrite(OUTPUT1, HIGH);
+    delay(ondelaymS);
+    digitalWrite(OUTPUT1, LOW);
+    delay(offdelaymS);
+    digitalWrite(OUTPUT2, HIGH);
+    delay(ondelaymS);
+    digitalWrite(OUTPUT2, LOW);
+    delay(offdelaymS);
+  }
+}
+
+
+
 uint8_t packet_is_OK()
 {
   //packet has been received, now read from the SX12xx Buffer using the same variable type and
@@ -76,7 +99,7 @@ uint8_t packet_is_OK()
 
   LT.startReadSXBuffer(0);                //start buffer read at location 0
   TXIdentity = LT.readUint32();           //read in the identity of transmitter
-  SwitchByte = LT.readUint8();            //read in the Switche values
+  SwitchByte = LT.readUint8();            //read in the Switch values
   RXPacketL = LT.endReadSXBuffer();
 
   printpacketDetails();
@@ -98,7 +121,7 @@ uint8_t packet_is_OK()
   }
 
 
-  Serial.print(F("SwitchByte "));
+  Serial.print(F(",SwitchByte Received "));
   Serial.print(SwitchByte, BIN);           //print switch values in binary, if a bit is 0, that switch is active
   readSwitches(SwitchByte);
 
@@ -178,7 +201,7 @@ void readSwitches(uint8_t switches)
 
 void setupOutputs()
 {
-  //configure the output pins, if a pin is set as -1, its not configured
+  //configure the output pins, if a pin is defiend in 'Settings.h' as -1, its not configured, so stays as input
 
   if (OUTPUT0  >= 0)
   {
@@ -192,7 +215,7 @@ void setupOutputs()
 
   if (OUTPUT2  >= 0)
   {
-    pinMode(OUTPUT1, OUTPUT);
+    pinMode(OUTPUT2, OUTPUT);
   }
 }
 
@@ -203,6 +226,8 @@ void setup()
   led_Flash(2, 125);
 
   setupOutputs();
+
+  outputCheck(3, 500, 100);
 
   Serial.begin(9600);
 

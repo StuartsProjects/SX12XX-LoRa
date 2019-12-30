@@ -15,6 +15,7 @@ Below is a list of the example programs and the folders they appear in. For inst
 	6_LoRa_RX_and_Sleep_Atmel
 	7_LoRa_TX_Sleep_Switch_Wakeup_Atmel
     19_Timed_Sleep_Atmel 
+	34_ATmel_Sleep_with_Watchdog_Wakeup
 
 ## Low Memory 
 

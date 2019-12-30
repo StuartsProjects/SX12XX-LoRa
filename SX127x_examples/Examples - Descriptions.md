@@ -1,5 +1,8 @@
 SX12XX Library Example Programs
 
+For the majority of the programs you will need to define the pins used, the frequency and the LoRa settings in the Settings.h file. The provided setting may not be optimised for long distance. Some of the examples use sleep mode on the processor and LoRa device to save power and typical sleep currents may be mentioned in the description of each program. In all cases a 'bare bones' Arduino has been used to measure the sleep currents and you may not get even close to the mentioned sleep currents using standard Arduinos such as Pro Minis or similar. 
+
+
 #### 1\_LED\_Blink &emsp; &emsp; &emsp;  &emsp; &emsp; &emsp; (Basics folder)
 
 This program blinks an LED connected the pin number defined by LED1.The pin 13 LED, fitted to some Arduinos is blinked as well. The blinks should be close to one per second. Messages are sent to the Serial Monitor also.
@@ -302,7 +305,10 @@ The program is a matching receiver program for the '10_LoRa_Link_Test_TX'. The p
 This program is a remote control transmitter. When one of three switches are made (shorted to ground) a packet is transmitted with single byte indicating the state of Switch0 as bit 0, Switch1 as bit 1 and Switch2 as bit 2. To prevent false triggering at the receiver the packet contains a
 32 bit number called the TXIdentity which in this example is set to 1234554321. The receiver will only act on, change the state of the outputs, if the identity set in the receiver matches that of the  transmitter. The chance of a false trigger is fairly remote.
 
-Between switch presses the LoRa device and Atmel micro controller are put to sleep. A switch press wakes up the processor from sleep, the switches are read and a packet sent. The pin definitions, LoRa frequency and LoRa modem settings are in the Settings.h file.
+Between switch presses the LoRa device and Atmel micro controller are put to sleep. A switch press wakes up the processor from sleep, the switches are read and a packet sent. On a 'bare bones' Arduino set-up the transmitter has a sleep current of approx 2.2uA, so it's ideal for a battery powered remote control with a potential range of many kilometres.
+
+
+The pin definitions, LoRa frequency and LoRa modem settings are in the Settings.h file.
 
 
 #### 22\_On\_Off\_Receiver &emsp; &emsp; &emsp;  &emsp; &emsp; &emsp; (Remote Control folder)
@@ -396,3 +402,10 @@ This program is a simple test program for the SSD1306 and SH1106 OLEDs. The prog
 
 OLED address is defined as 0x3C.
 
+#### 34\_ATmel\_Sleep\_with\_Watchdog\_Wakeup
+
+This program tests the sleep mode of an Atmel ATMega328P processor.
+
+At power up the flashes an LED 4 times, then turns on the LED for 5 seconds. Then the processor is put to sleep for 8 seconds. On wakeup the LED flashes twice, then is on for 5 seconds and the board goes to sleep again. And the sequence repeats. 
+
+Sleep current for a 'bare bones' ATmega328 with a MCP1700 regulator @ 3.3V and using an external event such as a switch to wakeup from sleep should be around 2uA. Using the watchdog timer to wakeup raises the deep sleep current to circa 6.2uA.   

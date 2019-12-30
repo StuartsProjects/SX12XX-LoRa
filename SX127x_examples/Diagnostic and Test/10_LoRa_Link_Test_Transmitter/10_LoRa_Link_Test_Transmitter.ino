@@ -230,7 +230,7 @@ void setup()
   Serial.println(F(Program_Version));
   Serial.println();
 
-  Serial.println(F("10_LoRa_Link_Test_TX Starting"));
+  Serial.println(F("10_LoRa_Link_Test_Transmitter Starting"));
 
   SPI.begin();
 

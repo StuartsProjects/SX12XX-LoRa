@@ -73,6 +73,7 @@
   DONE - Check use of Serial.print(RXPacketL); when packet errors occur
   DONE - Ensure that bufferless TX\RX printouts match structure TX\RX
 
+  
   Add ppmoffset to frequency error check program Check this in program 12 LT.writeRegister(RegPpmCorrection,ppmoffset);
   Investigate adding internal SX1278 temperature sensor
   Check sensitivity\current for writeRegister(RegLna, 0x3B );.//at HF 150% LNA current.

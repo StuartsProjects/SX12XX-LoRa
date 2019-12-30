@@ -15,10 +15,13 @@
   act on, change the state of the outputs, if the identity set in the receiver matches that of the
   transmitter. The chance of a false trigger is fairly remote.
 
-  Between switch presses the LoRa device and Atmel microcontroller are put to sleep. A switch press wakes up
-  the processor from sleep, the switches are read and a packet sent.
+  Between switch presses the LoRa device and Atmel microcontroller are put to sleep. A switch press wakes
+  up the processor from sleep, the switches are read and a packet sent. On a 'bare bones' Arduino setup
+  the transmitter has a sleep current of approx 2.2uA, so it's ideal for a battery powered remote control
+  with a potential range of many kilometres.
 
-  The pin definitions, LoRa frequency and LoRa modem settings are in the Settings.h file.
+  The pin definitions, LoRa frequency and LoRa modem settings are in the Settings.h file. These settings
+  are not necessarily optimised for long range. 
 
   Serial monitor baud rate is set at 9600.
 *******************************************************************************************************/
@@ -64,7 +67,7 @@ void loop()
 
   Serial.print(SwitchByte, BIN);
 
-  if (sendSwitchPacket())
+  if (sendSwitchPacket(SwitchByte))
   {
     Serial.println(F("  SentOK"));
   }
@@ -79,7 +82,7 @@ void loop()
 }
 
 
-uint8_t sendSwitchPacket()
+uint8_t sendSwitchPacket(uint8_t switches)
 {
   //The SX12XX buffer is filled with variables of a known type and in a known sequence. Make sure the
   //receiver uses the same variable types and sequence to read variables out of the receive buffer.
@@ -87,7 +90,7 @@ uint8_t sendSwitchPacket()
 
   LT.startWriteSXBuffer(0);                 //start the write packet to buffer process
   LT.writeUint32(TXIdentity);               //this 32bit integer defines the Identity of the transmiter
-  LT.writeUint8(SwitchByte);                //this byte contains the 8 switch values to be sent
+  LT.writeUint8(switches);                  //this byte contains the 8 switch values to be sent
   len = LT.endWriteSXBuffer();              //close the packet, get the length of data to be sent
 
   //now transmit the packet, 10 second timeout, and wait for it to complete sending
@@ -138,7 +141,7 @@ void attachInterrupts()
   if (SWITCH2  >= 0)
   {
     attachPCINT(digitalPinToPCINT(SWITCH2), wake2, FALLING);
-    switch1flag = false;
+    switch2flag = false;
   }
 }
 

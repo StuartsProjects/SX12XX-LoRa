@@ -10,14 +10,14 @@
 
 //*******  Setup hardware pin definitions here ! ***************
 
-//These are the pin definitions for one of my own boards, the Easy Mikrobus Pro Mini, 
+//These are the pin definitions for one of my own boards, the Easy Mikrobus Pro Mini,
 //be sure to change the definitiosn to match your own setup. Some pins such as DIO1,
 //DIO2, may not be in used by this sketch so they do not need to be connected and
 //should be set to -1.
 
 const int8_t NSS = 10;                          //select on LoRa device
 const int8_t NRESET = 9;                        //reset on LoRa device
-const int8_t DIO0 = 3;                          //DIO0 on LoRa device, used for RX and TX done 
+const int8_t DIO0 = 3;                          //DIO0 on LoRa device, used for RX and TX done
 const int8_t DIO1 = -1;                         //DIO1 on LoRa device, normally not used so set to -1
 const int8_t DIO2 = -1;                         //DIO2 on LoRa device, normally not used so set to -1
 const int8_t LED1 = 8;                          //On board LED, logic high is on
@@ -29,7 +29,7 @@ const int8_t SWITCH1 = 4;
 const int8_t SWITCH2 = A3;
 
 const uint32_t TXIdentity = 1234554321;         //define an identity number, the receiver must use the same number
-                                                //range is 0 to 4294967296
+//range is 0 to 4294967296
 
 
 

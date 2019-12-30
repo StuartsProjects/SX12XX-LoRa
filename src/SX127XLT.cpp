@@ -557,6 +557,89 @@ void SX127XLT::setTxParams(int8_t txPower, uint8_t rampTime)
   uint8_t param1, param2;
 
   writeRegister(REGPARAMP, rampTime);       //Reg 0x0A this is same for SX1272 and SX1278
+  
+  if (txPower > 20)
+  {
+   txPower = 20;
+  }
+  
+  if (txPower < 2)
+  {
+   txPower = 2;
+  }
+  
+  if (txPower > 17)
+  {
+    writeRegister(REGPADAC, 0x87);          //Reg 0x4D this is same for SX1272 and SX1278
+  }
+  else
+  {
+    writeRegister(REGPADAC, 0x84);          //Reg 0x4D this is same for SX1272 and SX1278
+  }
+
+//now the device specifif settings
+  
+  if (_Device != DEVICE_SX1272)
+  {
+    //for all devices apart from SX1272
+    
+    if (txPower > 17)
+    {
+      param1 = (txPower + 0xEB);
+      param2 = OCP_TRIM_130MA;
+    }
+
+    if (txPower <= 17)
+    {
+      param1 = txPower + 0xEE;
+      param2 = OCP_TRIM_100MA;
+    }
+
+    if (txPower <= 5)
+    {
+      param1 = txPower + 0xEE;
+      param2 = OCP_TRIM_80MA;
+    }
+    
+  }
+  else
+  {
+    //for device SX1272
+
+    if (txPower > 17)
+    {
+      param1 = (txPower + 0x7F);
+      param2 = OCP_TRIM_130MA;
+    }
+
+    if (txPower <= 17)
+    {
+      param1 = txPower + 0x82;
+      param2 = OCP_TRIM_100MA;
+    }
+
+    if (txPower <= 5)
+    {
+      param1 = txPower + 0x82;
+      param2 = OCP_TRIM_80MA;
+    }
+    
+  }
+
+  writeRegister(REGPACONFIG, param1);       //Reg 0x09 this changes for SX1272 and SX1278
+  writeRegister(REGOCP, param2);            //Reg 0x0C this is same for SX1272 and SX1278
+}
+
+/*
+void SX127XLT::setTxParams2(int8_t txPower, uint8_t rampTime)
+{
+#ifdef SX127XDEBUG1
+  Serial.println(F("setTxParams()"));
+#endif
+
+  uint8_t param1, param2;
+
+  writeRegister(REGPARAMP, rampTime);       //Reg 0x0A this is same for SX1272 and SX1278
 
   if (txPower >= 17)
   {
@@ -627,7 +710,7 @@ void SX127XLT::setTxParams(int8_t txPower, uint8_t rampTime)
   writeRegister(REGPACONFIG, param1);       //Reg 0x09 this changes for SX1272 and SX1278
   writeRegister(REGOCP, param2);            //Reg 0x0C this is same for SX1272 and SX1278
 }
-
+*/
 
 
 void SX127XLT::setPacketParams(uint16_t packetParam1, uint8_t  packetParam2, uint8_t packetParam3, uint8_t packetParam4, uint8_t packetParam5)

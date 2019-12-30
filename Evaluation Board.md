@@ -33,8 +33,16 @@ One of the example program is an application that reads a BME280 sensor and tran
 ![Picture 1](pictures/Easy_Mikrobus_Sensor.jpg)
 
 <br>
+
+Another of the example programs is a demonstration of remote control basics, switching traffic light LEDs on and off via a LoRa link. On a 'bare bones' Arduino set-up the transmitter has a sleep current of approx 2.2uA, so it's ideal for a battery powered remote control with a potential range of many kilometres.
+
+<br>
  
-On of the other example programs is a GPS tracker, this reads a GPS and uses LoRa to transmit the location of the tracker to a remote receiver, the receiver shown (program to be released soon) has its own GPS and is able to calculate the distance to and direction of the remote transmitter see below;
+![Picture 1](pictures/Easy_Mikrobus_Remote_Control.jpg)
+
+<br>
+
+One of the other example programs is a GPS tracker, this reads a GPS and uses LoRa to transmit the location of the tracker to a remote receiver, the receiver shown (program to be released soon) has its own GPS and is able to calculate the distance to and direction of the remote transmitter see below;
 
 <br>
 

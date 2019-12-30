@@ -36,8 +36,8 @@ const uint8_t Optimisation = LDRO_AUTO;         //low data rate optimisation set
 
 const int8_t TXpower = 10;                       //LoRa TX power in dBm, 10dBm = 10mW
 
-#define packet_delay 2500                        //mS delay between transmissions
+#define packet_delay 2500                       //mS delay between transmissions
 
-#define TXBUFFER_SIZE 64                         //TX buffer size
+#define TXBUFFER_SIZE 64                        //TX buffer size
 
 
