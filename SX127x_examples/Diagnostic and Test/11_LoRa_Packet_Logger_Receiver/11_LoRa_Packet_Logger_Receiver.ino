@@ -178,7 +178,7 @@ void setup()
   Serial.println(F(Program_Version));
   Serial.println();
 
-  Serial.println(F("11_LoRa_HEX_Print_RX Starting"));
+  Serial.println(F("11_LoRa_Packet_Logger_Receiver Starting"));
   Serial.println();
 
   if (BUZZER > 0)

@@ -18,7 +18,7 @@
   without re-loading all the LoRa settings. The receiver should see 'After Device Sleep' for the first
   packet and 'After Device Sleep' for the second.
 
-  Tested on an ATmega328P board, the current in sleep mode was 6.5uA.
+  Tested on a 'bare bones' ATmega328P board, the current in sleep mode was 6.5uA.
 
   Serial monitor baud rate is set at 9600.
 *******************************************************************************************************/

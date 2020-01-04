@@ -32,22 +32,22 @@
 
   The pin definitions, LoRa frequency and LoRa modem settings are in the Settings.h file.
 
-  Easy Mikrobus Pro Mini Sleep current, plain TX only = 89uA
-  Bares bones Arduino sleep current, plain TX only = 6.5uA
+  With a standard Arduino Pro Mini and SSD1306 display the current consumption was 20.25mA with the 
+  display and 16.6mA without the display.  
 
   Serial monitor baud rate is set at 9600.
 *******************************************************************************************************/
 
 #include <SPI.h>
-#include "SX127XLT.h"
+#include <SX127XLT.h>
 #include "Settings.h"
 #include <Program_Definitions.h>
 
 SX127XLT LT;
 
 #include <U8x8lib.h>                                        //get library here >  https://github.com/olikraus/u8g2 
-U8X8_SSD1306_128X64_NONAME_HW_I2C disp(U8X8_PIN_NONE);    //use this line for standard 0.96" SSD1306
-//U8X8_SH1106_128X64_NONAME_HW_I2C disp(U8X8_PIN_NONE);       //use this line for 1.3" OLED often sold as 1.3" SSD1306
+U8X8_SSD1306_128X64_NONAME_HW_I2C disp(U8X8_PIN_NONE);      //use this line for standard 0.96" SSD1306
+//U8X8_SH1106_128X64_NONAME_HW_I2C disp(U8X8_PIN_NONE);     //use this line for 1.3" OLED often sold as 1.3" SSD1306
 
 uint32_t RXpacketCount;          //count of all packets received
 uint32_t ValidPackets;           //count of packets received with valid data
@@ -151,19 +151,21 @@ void packet_Received_OK()
 
 uint8_t checkPacketValid(uint8_t len)
 {
+  //this function checks if the packet is valid and will be displayed
+  
   uint8_t errors = 0;
 
-  if (RXPacketType != Sensor1)
+  if (RXPacketType != Sensor1)                        //is it a Sensor1 type packet
   {
     errors++;
   }
 
-  if (RXDestination != This_Node)
+  if (RXDestination != This_Node)                     //was the packet sent to this receiver node ? 
   {
     errors++;
   }
 
-  if (!checkCRCvalue(len))
+  if (!checkCRCvalue(len))                            //is the sent CRC value of sensor data valid ? 
   {
     errors++;
   }

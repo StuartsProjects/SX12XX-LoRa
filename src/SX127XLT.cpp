@@ -732,11 +732,11 @@ void SX127XLT::setPacketParams(uint16_t packetParam1, uint8_t  packetParam2, uin
   writeRegister(REGPREAMBLEMSB, preambleMSB);
   writeRegister(REGPREAMBLELSB, preambleLSB);
 
-  //Packetlength reg 0x22
-  writeRegister(REGPAYLOADLENGTH, packetParam3);
-
+  //TX Packetlength reg 0x22
+  writeRegister(REGPAYLOADLENGTH, packetParam3);                //when in implicit mode, this is used as receive length also
+  
   //IQ mode reg 0x33
-  regdata = ( (readRegister(REGINVERTIQ)) & 0xBF );              //mask off invertIQ bit 6
+  regdata = ( (readRegister(REGINVERTIQ)) & 0xBF );             //mask off invertIQ bit 6
   writeRegister(REGINVERTIQ, (regdata + packetParam5));
   //*******************************************************
 
@@ -760,11 +760,11 @@ void SX127XLT::setPacketParams(uint16_t packetParam1, uint8_t  packetParam2, uin
     //for SX1272
     //Fixed\Variable length packets
     regdata = ( (readRegister(REGMODEMCONFIG1)) & (~READ_IMPLCIT_AND_2)); //mask off bit 2
-    writeRegister(REGMODEMCONFIG1, (regdata + (packetParam2 << 2)));              //write out with bit 2 set appropriatly
+    writeRegister(REGMODEMCONFIG1, (regdata + (packetParam2 << 2)));      //write out with bit 2 set appropriatly
 
     //CRC on payload
-    regdata = ( (readRegister(REGMODEMCONFIG1)) & (~READ_HASCRC_AND_2));         //mask of all bits bar CRC on - bit 1
-    writeRegister(REGMODEMCONFIG1, (regdata + (packetParam4 << 1))); //write out with CRC bit 1 set appropriatly
+    regdata = ( (readRegister(REGMODEMCONFIG1)) & (~READ_HASCRC_AND_2));  //mask of all bits bar CRC on - bit 1
+    writeRegister(REGMODEMCONFIG1, (regdata + (packetParam4 << 1)));      //write out with CRC bit 1 set appropriatly
   }
 
 
@@ -1242,7 +1242,7 @@ uint8_t SX127XLT::getHeaderMode()
 
   uint8_t regdata;
 
-  regdata = readRegister(REGMODEMCONFIG2);
+  regdata = readRegister(REGMODEMCONFIG1);
 
   if (_Device != DEVICE_SX1272)
   {
@@ -2738,8 +2738,7 @@ void SX127XLT::printSXBufferASCII(uint8_t start, uint8_t end)
 #ifdef USE_SPI_TRANSACTION
   SPI.endTransaction();
 #endif
-
-  Serial.println();
+ 
 }
 
 

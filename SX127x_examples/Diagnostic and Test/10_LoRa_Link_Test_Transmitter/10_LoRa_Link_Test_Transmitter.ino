@@ -29,8 +29,8 @@
 
   If it is arranged so that reception of packets fails halfway through the sequence by attenuating either the
   transmitter (with an SMA attenuator for instance) or the receiver (by placing it in a tin perhaps) then
-  if you swap antennas you can see the dBm difference in reception, which will be the dBm difference (gain)
-  of the antenna.
+  if you swap transmitter antennas you can see the dBm difference in reception, which will be the dBm difference
+  (gain) of the antenna.
 
   To start the sequence a packet is sent with the number 999, when received it looks like this;
 

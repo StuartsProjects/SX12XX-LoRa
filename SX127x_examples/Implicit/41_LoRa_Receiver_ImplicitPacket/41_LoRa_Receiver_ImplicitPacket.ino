@@ -8,14 +8,28 @@
 *******************************************************************************************************/
 
 /*******************************************************************************************************
-  Program Operation - The program listens for incoming packets using the LoRa settings in the 'Settings.h'
-  file. The pins to access the SX127X need to be defined in the 'Settings.h' file also.
+  Program Operation - This is an example of the use of implicit or fixed length LoRa packets.
+  Implicit packets have no header so both transmitter and receiver need to be programmed with the packet
+  length in use. The use of spreading factor 6 requires implicit packets and together with a bandwidth
+  of 500khz, leads to the shortest possible and lowest air time packets. The program listens for incoming
+  packets using the LoRa settings in the 'Settings.h'.
 
-  The program is a matching receiver program for the '10_LoRa_Link_Test_Transmitter'. The packets received
-  are displayed on the serial monitor and analysed to extract the packet data which indicates the power
-  used to send the packet. A count is kept of the numbers of each power setting received. When the transmitter
-  sends the test mode packet at the beginning of the sequence (displayed as 999) the running totals of the
-  powers received are printed. Thus you can quickly see at what transmit power levels the reception fails. 
+  This example receives a buffer that is 19 characters long and that length must be defined in Settings.h
+  as the constant 'PacketLength'.
+
+  The pins to access the SX127X need to be defined in the 'Settings.h' file also.
+
+  There is a printout of the valid packets received, the packet is assumed to be in ASCII printable text,
+  if its not ASCII text characters from 0x20 to 0x7F, expect weird things to happen on the Serial Monitor.
+  The LED will flash for each packet received and the buzzer will sound, if fitted.
+
+  Sample serial monitor output;
+
+  1109s  {packet contents}  CRC,3882,RSSI,-69dBm,SNR,10dB,Length,19,Packets,1026,Errors,0,IRQreg,50
+
+  If there is a packet error it might look like this, which is showing a CRC error,
+
+  1189s PacketError,RSSI,-111dBm,SNR,-12dB,Length,0,Packets,1126,Errors,1,IRQreg,70,IRQ_HEADER_VALID,IRQ_CRC_ERROR,IRQ_RX_DONE
 
   Serial monitor baud rate is set at 9600.
 *******************************************************************************************************/
@@ -25,7 +39,6 @@
 #include <SPI.h>                                 //the SX127X device is SPI based so load the SPI library
 #include <SX127XLT.h>                            //include the appropriate library   
 #include "Settings.h"                            //include the setiings file, frequencies, LoRa settings etc   
-#include <Program_Definitions.h>
 
 SX127XLT LT;                                     //create a library class instance called LT
 
@@ -38,147 +51,71 @@ uint8_t RXPacketL;                               //stores length of packet recei
 int8_t  PacketRSSI;                              //stores RSSI of received packet
 int8_t  PacketSNR;                               //stores signal to noise ratio of received packet
 
-uint32_t Test1Count[21];                         //buffer where counts of received packets are stored, +2dbm to +20dBm
-uint32_t Mode1_Cycles = 0;                       //count the number of cyles received
-bool updateCounts = false;                       //update counts set to tru when first TestMode1 received, at sequence start
-
 
 void loop()
 {
-  RXPacketL = LT.receiveAddressed(RXBUFFER, RXBUFFER_SIZE, 15000, WAIT_RX); //wait for a packet to arrive with 15seconds (15000mS) timeout
+  RXPacketL = LT.receive(RXBUFFER, PacketLength, 0, NO_WAIT); //wait for a packet to arrive with 60seconds (60000mS) timeout
 
-  digitalWrite(LED1, HIGH);                      //something has happened
+  while (!digitalRead(DIO0));                    //wait for DIO0 to go high
+
+  digitalWrite(LED1, HIGH);
+
+  if (BUZZER > 0)                                //turn buzzer on
+  {
+    digitalWrite(BUZZER, HIGH);
+  }
 
   PacketRSSI = LT.readPacketRSSI();              //read the recived RSSI value
   PacketSNR = LT.readPacketSNR();                //read the received SNR value
 
-  if (RXPacketL == 0)                            //if the LT.receive() function detects an error, RXpacketL == 0
-  {
-    packet_is_Error();
-  }
-  else
+  if ( LT.readIrqStatus() == (IRQ_RX_DONE + IRQ_HEADER_VALID))
   {
     packet_is_OK();
   }
-
+  else
+  {
+    packet_is_Error();
+  }
+  
   if (BUZZER > 0)
   {
-    delay(25);                                   //gives a slightly longer beep
-    digitalWrite(BUZZER, LOW);                   //buzzer off
+    digitalWrite(BUZZER, LOW);                    //buzzer off
   }
 
-  digitalWrite(LED1, LOW);                       //LED off
-
+  digitalWrite(LED1, LOW);                        //LED off
   Serial.println();
 }
 
 
 void packet_is_OK()
 {
-  uint16_t IRQStatus;
+  uint16_t IRQStatus, CRC;
 
-  if (BUZZER > 0)                                //turn buzzer on for a valid packet
-  {
-    digitalWrite(BUZZER, HIGH);
-  }
-
-  IRQStatus = LT.readIrqStatus();                //read the LoRa device IRQ status register
+  IRQStatus = LT.readIrqStatus();                  //read the LoRa device IRQ status register
 
   RXpacketCount++;
 
-  printElapsedTime();                            //print elapsed time to Serial Monitor
+  printElapsedTime();                              //print elapsed time to Serial Monitor
   Serial.print(F("  "));
-  LT.printASCIIPacket(RXBUFFER, RXPacketL - 3);  //print the packet as ASCII characters
 
+  LT.readPacket(RXBUFFER, PacketLength);
+  LT.printASCIIPacket(RXBUFFER, PacketLength);        //print the packet as ASCII characters
+
+  CRC = LT.CRCCCITT(RXBUFFER, PacketLength, 0xFFFF);  //calculate the CRC, this is the external CRC calculation of the RXBUFFER
+  Serial.print(F(",CRC,"));                        //contents, not the LoRa device internal CRC
+  Serial.print(CRC, HEX);
   Serial.print(F(",RSSI,"));
   Serial.print(PacketRSSI);
   Serial.print(F("dBm,SNR,"));
   Serial.print(PacketSNR);
   Serial.print(F("dB,Length,"));
-  Serial.print(RXPacketL);
+  Serial.print(PacketLength);
   Serial.print(F(",Packets,"));
   Serial.print(RXpacketCount);
   Serial.print(F(",Errors,"));
   Serial.print(errors);
   Serial.print(F(",IRQreg,"));
   Serial.print(IRQStatus, HEX);
-
-  processPacket();
-}
-
-
-void processPacket()
-{
-  int8_t lTXpower;
-  uint8_t packettype;
-  uint32_t temp;
-
-  packettype = LT.readRXPacketType();                             //need to know the packet type so we can decide what to do
-
-  if (packettype == TestPacket)
-  {
-    lTXpower = ((RXBUFFER[1] - 48) * 10) +  (RXBUFFER[2] - 48);   //convert packet text to power
-
-    Serial.print(F(" ("));
-    Serial.print(lTXpower);
-    Serial.print(F("dBm)"));
-
-    if (updateCounts)
-    {
-      temp = (Test1Count[lTXpower]);
-      Test1Count[lTXpower] = temp + 1;
-    }
-  }
-
-  if (packettype == TestMode1)
-  {
-    //this is a command to switch to TestMode1 also updates totals and logs
-    updateCounts = true;
-    Serial.println();
-    Serial.println(F("End test sequence"));
-
-    if (Mode1_Cycles > 0)
-    {
-      print_Test1Count();
-    }
-
-    Serial.println();
-    Mode1_Cycles++;
-  }
-
-}
-
-
-void print_Test1Count()
-{
-  //prints running totals of the powers of received packets
-  int8_t index;
-  uint32_t j;
-
-  Serial.print(F("Test Packets "));
-  Serial.println(RXpacketCount);
-  Serial.print(F("Test Cycles "));
-  Serial.println(Mode1_Cycles);
-
-  Serial.println();
-  for (index = 20; index >= 2; index--)
-  {
-    Serial.print(index);
-    Serial.print(F("dBm,"));
-    j = Test1Count[index];
-    Serial.print(j);
-    Serial.print(F("  "));
-  }
-  Serial.println();
-
-  Serial.print(F("CSV"));
-  for (index = 20; index >= 2; index--)
-  {
-    Serial.print(F(","));
-    j = Test1Count[index];
-    Serial.print(j);
-  }
-  Serial.println();
 }
 
 
@@ -211,6 +148,9 @@ void packet_is_Error()
     Serial.print(IRQStatus, HEX);
     LT.printIrqStatus();                            //print the names of the IRQ registers set
   }
+
+  delay(250);                                       //gives a longer buzzer and LED flash for error
+
 }
 
 
@@ -237,6 +177,26 @@ void led_Flash(uint16_t flashes, uint16_t delaymS)
 }
 
 
+void setupLoRa()
+{
+  //this is the contents of the library function called by;
+  //LT.setupLoRa(Frequency, Offset, SpreadingFactor, Bandwidth, CodeRate, Optimisation);
+  //Its included here for reference, so the default settings can be reviewed.
+
+  LT.setMode(MODE_STDBY_RC);                              //got to standby mode to configure device
+  LT.setPacketType(PACKET_TYPE_LORA);                     //set for LoRa transmissions
+  LT.setRfFrequency(Frequency, Offset);                   //set the operating frequency
+  LT.calibrateImage(0);                                   //run calibration after setting frequency
+  LT.setModulationParams(SpreadingFactor, Bandwidth, CodeRate, LDRO_AUTO);  //set LoRa modem parameters
+  LT.setBufferBaseAddress(0x00, 0x00);                    //where in the SX buffer packets start, TX and RX
+  LT.setPacketParams(8, LORA_PACKET_FIXED_LENGTH, PacketLength, LORA_CRC_ON, LORA_IQ_NORMAL);  //set packet parameters
+  LT.setSyncWord(LORA_MAC_PRIVATE_SYNCWORD);              //syncword, LORA_MAC_PRIVATE_SYNCWORD = 0x12, or LORA_MAC_PUBLIC_SYNCWORD = 0x34
+  LT.setHighSensitivity();                                //set for highest sensitivity at expense of slightly higher LNA current
+  //This is the typical IRQ parameters set, actually excecuted in the receive function
+  LT.setDioIrqParams(IRQ_RADIO_ALL, IRQ_RX_DONE, 0, 0);   //set for IRQ on RX done
+}
+
+
 void setup()
 {
   pinMode(LED1, OUTPUT);                        //setup pin as output for indicator LED
@@ -244,12 +204,12 @@ void setup()
 
   Serial.begin(9600);
   Serial.println();
-  Serial.print(__TIME__);
+  Serial.print(F(__TIME__));
   Serial.print(F(" "));
-  Serial.println(__DATE__);
+  Serial.println(F(__DATE__));
   Serial.println(F(Program_Version));
   Serial.println();
-  Serial.println(F("20_LoRa_Link_Test_Receiver Starting"));
+  Serial.println(F("42_LoRa_Receiver_ImplicitPacket Starting"));
   Serial.println();
 
   if (BUZZER > 0)
@@ -260,7 +220,6 @@ void setup()
     digitalWrite(BUZZER, LOW);
   }
 
-  //setup SPI, its external to library on purpose, so settings can be mixed and matched with other SPI devices
   SPI.begin();
 
   //SPI beginTranscation is normally part of library routines, but if it is disabled in library
@@ -284,12 +243,17 @@ void setup()
   }
 
   //this function call sets up the device for LoRa using the settings from settings.h
-  LT.setupLoRa(Frequency, Offset, SpreadingFactor, Bandwidth, CodeRate, Optimisation);
-  
+  //LT.setupLoRa(Frequency, Offset, SpreadingFactor, Bandwidth, CodeRate, Optimisation);
+
+  setupLoRa();
+
   Serial.println();
-  LT.printLoraSettings();                                     //reads and prints the configured LoRa settings, useful check
+  LT.printLoraSettings();                                      //reads and prints the configured LoRa settings, useful check
   Serial.println();
-  LT.printOperatingSettings();                                //reads and prints the configured operting settings, useful check
+  LT.printOperatingSettings();                                 //reads and prints the configured operting settings, useful check
+  Serial.println();
+  Serial.println();
+  LT.printRegisters(PRINT_LOW_REGISTER, PRINT_HIGH_REGISTER);  //print contents of device registers
   Serial.println();
   Serial.println();
 

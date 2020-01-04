@@ -14,11 +14,11 @@
 
   A packet is sent, containing the text 'Before Device Sleep' and the SX127x and Atmel processor are put
   to sleep. The processor should remain asleep until the pin defined by SWITCH1 in the Settings.h file is
-  connected to ground, the LoRa device register values should be retained.  The LoRa device then
+  connected to ground and the LoRa device register values should be retained.  The LoRa device then
   attempts to transmit another packet 'After Device Sleep' without re-loading all the LoRa settings.
   The receiver should see 'After Device Sleep' for the first packet and 'After Device Sleep' for the second.
 
-  Tested on an bare bones ATmega328P board, the curent in sleep mode was 6.1uA.
+  Tested on an bare bones ATmega328P board, the curent in sleep mode was 2.4uA.
 
   Serial monitor baud rate is set at 9600.
 *******************************************************************************************************/
@@ -92,17 +92,17 @@ void sleep_permanent()
 {
   attachPCINT(digitalPinToPCINT(SWITCH1), wakeUp, LOW);   //This is a hardware interrupt
 
-  ADCSRA = 0;                //disable ADC
+  ADCSRA = 0;                                             //disable ADC
   set_sleep_mode (SLEEP_MODE_PWR_DOWN);
-  noInterrupts ();           // timed sequence follows
+  noInterrupts ();                                        //timed sequence follows
   sleep_enable();
 
-  // turn off brown-out enable in software
-  MCUCR = bit (BODS) | bit (BODSE);  // turn on brown-out enable select
-  MCUCR = bit (BODS);        // this must be done within 4 clock cycles of above
-  interrupts ();             // guarantees next instruction executed
+  //turn off brown-out enable in software
+  MCUCR = bit (BODS) | bit (BODSE);                       //turn on brown-out enable select
+  MCUCR = bit (BODS);                                     //this must be done within 4 clock cycles of above
+  interrupts ();                                          //guarantees next instruction executed
 
-  sleep_cpu ();              // sleep within 3 clock cycles of above
+  sleep_cpu ();                                           //sleep within 3 clock cycles of above
 
   /* wake up here */
 

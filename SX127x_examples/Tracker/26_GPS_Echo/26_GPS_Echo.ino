@@ -18,7 +18,7 @@
   If the data displayed on the serial terminal appears to be random text with odd symbols its very
   likely you have the GPS serial baud rate set incorrectly.
 
-  Note that not all pins on an ATmega will work with software serial, see here;
+  Note that not all pins on a all Arduinos will work with software serial, see here;
 
   https://www.arduino.cc/en/Reference/softwareSerial
 
@@ -54,5 +54,5 @@ void setup()
 {
   GPS.begin(GPSBAUD);
   Serial.begin(MONITORBAUD);
-  Serial.println("Simple GPS Echo Starting");
+  Serial.println("26_GPS_Echo Starting");
 }

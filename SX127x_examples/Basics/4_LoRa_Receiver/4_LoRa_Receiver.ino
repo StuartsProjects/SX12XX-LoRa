@@ -138,7 +138,7 @@ void packet_is_Error()
     LT.printIrqStatus();                            //print the names of the IRQ registers set
   }
 
-  delay(250);                                       //gives a longer buzzer and LED falsh for error 
+  delay(250);                                       //gives a longer buzzer and LED flash for error 
   
 }
 

@@ -12,26 +12,26 @@
   internal buffer is read direct and copied to variables. The program is a simulation of the type of packet
   that might be received from a GPS tracker. Note that in this example a buffer of text is part of the
   received packet, this does need a processor buffer which is filled with data from the LoRa device internal
-  buffer, if you don't need to send and receive text then the uint8_t receivebuffer[32]; definition can be 
-  ommited. 
+  buffer, if you don't need to send and receive text then the uint8_t receivebuffer[32]; definition can be
+  ommited.
 
   The contents of the packet received, and printed to serial monitor, should be;
-  
-  "LoRaTracker1" (buffer)      - trackerID 
-  1+             (uint32_t)    - packet count    
-  51.23456       (float)       - latitude   
+
+  "LoRaTracker1" (buffer)      - trackerID
+  1+             (uint32_t)    - packet count
+  51.23456       (float)       - latitude
   -3.12345       (float)       - longitude
-  199            (uint16_t)    - altitude  
-  8              (uint8_t)     - number of satellites 
-  3999           (uint16_t)    - battery voltage 
+  199            (uint16_t)    - altitude
+  8              (uint8_t)     - number of satellites
+  3999           (uint16_t)    - battery voltage
   -9             (int8_t)      - temperature
 
   Serial monitor baud rate is set at 9600.
-  
+
 *******************************************************************************************************/
 
 #include <SPI.h>
-#include "SX127XLT.h"
+#include <SX127XLT.h>
 #include "Settings.h"
 
 SX127XLT LT;
@@ -75,25 +75,25 @@ uint8_t packet_is_OK()
   uint8_t satellites;
   int8_t temperature;
   uint32_t txcount;
-  
-  uint8_t receivebuffer[16];            //create receive buffer, make sure this is big enough for buffer sent !!! 
+
+  uint8_t receivebuffer[16];            //create receive buffer, make sure this is big enough for buffer sent !!!
 
   //packet has been received, now read from the SX12xx Buffer using the same variable type and
   //order as the transmit side used.
-  
+
   RXpacketCount++;
   Serial.print(RXpacketCount);
   Serial.print(F("  "));
 
-  LT.startReadSXBuffer(0);               //start buffer read at location 0  
+  LT.startReadSXBuffer(0);               //start buffer read at location 0
   LT.readBuffer(receivebuffer);          //read in the character buffer
-  txcount  = LT.readUint32();            //read in the TXCount 
+  txcount  = LT.readUint32();            //read in the TXCount
   latitude = LT.readFloat();             //read in the latitude
   longitude = LT.readFloat();            //read in the longitude
   altitude = LT.readUint16();            //read in the altitude
-  satellites = LT.readUint8();           //read in the number of satellites   
+  satellites = LT.readUint8();           //read in the number of satellites
   voltage = LT.readUint16();             //read in the voltage
-  temperature = LT.readInt8();           //read in the temperature 
+  temperature = LT.readInt8();           //read in the temperature
   RXPacketL = LT.endReadSXBuffer();
 
   Serial.print((char*)receivebuffer);    //print the received buffer, cast to char needed
@@ -188,7 +188,7 @@ void setup()
   }
 
   LT.setupLoRa(Frequency, Offset, SpreadingFactor, Bandwidth, CodeRate, Optimisation);
-  
+
   Serial.println(F("Receiver ready"));
   Serial.println();
 }

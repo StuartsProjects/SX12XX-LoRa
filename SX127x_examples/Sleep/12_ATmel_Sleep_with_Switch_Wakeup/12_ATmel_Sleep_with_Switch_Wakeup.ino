@@ -13,7 +13,7 @@
   It can be woken up with a switch press. Used as a base test routine for checking the sleep current of
   a board.  
   
-  Tested on a bare bones ATmega328P board, the current in sleep mode was 2.0uA with a 3.3V MCP1700
+  Tested on a 'bare bones' ATmega328P board, the current in sleep mode was 1.7uA with a 3.3V MCP1700
   regulator being used.
 
   Serial monitor baud rate is set at 9600.
@@ -48,17 +48,17 @@ void sleep_permanent()
 {
   attachInterrupt(digitalPinToInterrupt(SWITCH1), wakeUp, FALLING                                                                                                                                                                                                                                                                                                                                           );   //This is a hardware interrupt
 
-  ADCSRA = 0;                //disable ADC
+  ADCSRA = 0;                         //disable ADC
   set_sleep_mode (SLEEP_MODE_PWR_DOWN);
-  noInterrupts ();           // timed sequence follows
+  noInterrupts ();                   //timed sequence follows
   sleep_enable();
 
-  // turn off brown-out enable in software
-  MCUCR = bit (BODS) | bit (BODSE);  // turn on brown-out enable select
-  MCUCR = bit (BODS);        // this must be done within 4 clock cycles of above
-  interrupts ();             // guarantees next instruction executed
+  //turn off brown-out enable in software
+  MCUCR = bit (BODS) | bit (BODSE);  //turn on brown-out enable select
+  MCUCR = bit (BODS);                //this must be done within 4 clock cycles of above
+  interrupts ();                     //guarantees next instruction executed
 
-  sleep_cpu ();              // sleep within 3 clock cycles of above
+  sleep_cpu ();                      //sleep within 3 clock cycles of above
 
   /* wake up here */
 

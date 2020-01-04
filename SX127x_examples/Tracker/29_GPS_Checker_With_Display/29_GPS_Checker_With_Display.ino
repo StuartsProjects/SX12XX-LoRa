@@ -8,11 +8,11 @@
 *******************************************************************************************************/
 
 /*******************************************************************************************************
-  Program Operation -  This program is a GPS checker. It uses an SSD1306 or SH1106 128x64 I2C OLED
-  display. At startup the program starts checking the data coming from the GPS for a valid fix. It reads
-  the GPS for 5 seconds and if there is no fix, prints a message on the serial monitor and updates the 
-  seconds without a fix on the display. During this time the data coming from the GPS is copied to the
-  serial monitor also.
+  Program Operation -  This program is a portable GPS checker and display. It uses an SSD1306 or SH1106
+  128x64 I2C OLED display. At startup the program starts checking the data coming from the GPS for a
+  valid fix. It reads the GPS for 5 seconds and if there is no fix, prints a message on the serial monitor
+  and updates the seconds without a fix on the display. During this time the data coming from the GPS is
+  copied to the serial monitor also.
 
   When the program detects that the GPS has a fix, it prints the Latitude, Longitude, Altitude, Number
   of satellites in use, the HDOP value, time and date to the serial monitor. If the I2C OLED display is
@@ -44,9 +44,9 @@ TinyGPSPlus gps;                                   //create the TinyGPS++ object
 SoftwareSerial GPSserial(RXpin, TXpin);
 
 
-#include <U8x8lib.h>                                        //get library here >  https://github.com/olikraus/u8g2 
-//U8X8_SSD1306_128X64_NONAME_HW_I2C disp(U8X8_PIN_NONE);    //use this line for standard 0.96" SSD1306
-U8X8_SH1106_128X64_NONAME_HW_I2C disp(U8X8_PIN_NONE);       //use this line for 1.3" OLED often sold as 1.3" SSD1306
+#include <U8x8lib.h>                                      //get library here >  https://github.com/olikraus/u8g2 
+U8X8_SSD1306_128X64_NONAME_HW_I2C disp(U8X8_PIN_NONE);    //use this line for standard 0.96" SSD1306
+//U8X8_SH1106_128X64_NONAME_HW_I2C disp(U8X8_PIN_NONE);   //use this line for 1.3" OLED often sold as 1.3" SSD1306
 
 
 float GPSLat;                                      //Latitude from GPS

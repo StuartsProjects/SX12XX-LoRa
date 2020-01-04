@@ -30,9 +30,9 @@
 
   The pin definitions, LoRa frequency and LoRa modem settings are in the Settings.h file.
 
-  The Atmel watchdog timer is a viable option for a very low current sensor node. A bare bones ATmega328P
-  with regulator and LoRa device has a sleep current of 6.5uA, add the LoRa devices and BME280 sensor
-  module and the average sleep current only rises to 6.7uA.
+  The Atmel watchdog timer is a viable option for a very low current sensor node. A 'bare bones' ATmega328P
+  with regulator and LoRa device has a sleep current of 6.6uA, add the LoRa devices and BME280 sensor
+  module and the average sleep current only rises to 6.8uA.
 
   One of these transmitter programs is running on a long term test with a 175mAh battery, to see how long
   the battery actually lasts. 

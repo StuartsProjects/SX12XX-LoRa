@@ -20,7 +20,7 @@
 #define Program_Version "V1.0"
 
 #include <SPI.h>
-#include "SX127XLT.h"
+#include <SX127XLT.h>
 #include "Settings.h"
 
 SX127XLT LT;

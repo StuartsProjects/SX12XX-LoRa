@@ -8,7 +8,7 @@
 *******************************************************************************************************/
 
 /*******************************************************************************************************
-  Program Operation - This program is a remote control transmitter. When one of three switches are made
+  Program Operation - This program is a remote control transmitter. When one of four switches are made
   (shorted to ground) a packet is transmitted with single byte indicating the state of Switch0 as bit 0,
   Switch1 as bit 1 and Switch2 as bit 2. To prevent false triggering at the receiver the packet contains a
   32 bit number called the TXIdentity which in this example is set to 1234554321. The receiver will only
@@ -21,7 +21,7 @@
   with a potential range of many kilometres.
 
   The pin definitions, LoRa frequency and LoRa modem settings are in the Settings.h file. These settings
-  are not necessarily optimised for long range. 
+  are not necessarily optimised for long range.
 
   Serial monitor baud rate is set at 9600.
 *******************************************************************************************************/
@@ -39,35 +39,35 @@ SX127XLT LT;
 
 uint32_t TXpacketCount;
 uint8_t TXPacketL;
-uint8_t SwitchByte = 0xFF;
 
 volatile bool switch0flag = false;
 volatile bool switch1flag = false;
 volatile bool switch2flag = false;
-
+volatile bool switch3flag = false;
 
 void loop()
 {
+  uint8_t switches;
+
   digitalWrite(LED1, LOW);                  //turn off indicator LED
   Serial.print(F("Sleeping zzzz"));
   Serial.flush();                           //make sure all serial output has gone
 
-  //now put the LoRa device and processor to sleep
   LT.setSleep(CONFIGURATION_RETENTION);     //sleep LoRa device, keeping register settings in sleep.
   sleep_permanent();                        //sleep Atmel processor in units of approx 8 seconds
 
   digitalWrite(LED1, HIGH);
 
   Serial.println(F(" - Awake !!"));         //the processor has woken up
-  readSwitches();
+  switches = readSwitches();                //read the state of the switches
 
   TXpacketCount++;
   Serial.print(TXpacketCount);              //print the numbers of sends
   Serial.print(F(" Sending > "));
 
-  Serial.print(SwitchByte, BIN);
+  Serial.print(switches, BIN);
 
-  if (sendSwitchPacket(SwitchByte))
+  if (sendSwitchPacket(switches))
   {
     Serial.println(F("  SentOK"));
   }
@@ -89,6 +89,7 @@ uint8_t sendSwitchPacket(uint8_t switches)
   uint8_t len;
 
   LT.startWriteSXBuffer(0);                 //start the write packet to buffer process
+  LT.writeUint8(RControl1);                 //this byte identifies the type of packet
   LT.writeUint32(TXIdentity);               //this 32bit integer defines the Identity of the transmiter
   LT.writeUint8(switches);                  //this byte contains the 8 switch values to be sent
   len = LT.endWriteSXBuffer();              //close the packet, get the length of data to be sent
@@ -143,6 +144,13 @@ void attachInterrupts()
     attachPCINT(digitalPinToPCINT(SWITCH2), wake2, FALLING);
     switch2flag = false;
   }
+
+  if (SWITCH3  >= 0)
+  {
+    attachPCINT(digitalPinToPCINT(SWITCH3), wake3, FALLING);
+    switch3flag = false;
+  }
+
 }
 
 
@@ -162,7 +170,15 @@ void detachInterrupts()
   {
     detachPCINT(digitalPinToPCINT(SWITCH2));
   }
+
+  if (SWITCH3  >= 0)
+  {
+    detachPCINT(digitalPinToPCINT(SWITCH3));
+  }
+
 }
+
+
 
 
 void wake0()
@@ -183,27 +199,42 @@ void wake2()
 }
 
 
-void readSwitches()
+void wake3()
 {
-  SwitchByte = 0xFF;                     //start assuming all switches off
+  switch3flag = true;
+}
+
+
+uint8_t readSwitches()
+{
+  uint8_t switchByte = 0xFF;                  //start assuming all switches off
 
   if (switch0flag)
   {
-    bitClear(SwitchByte, 0);              //if the switch is down clear the bit
+    bitClear(switchByte, 0);                  //if the flag is set clear the bit
     Serial.println(F("SWITCH0 pressed"));
   }
 
   if (switch1flag)
   {
-    bitClear(SwitchByte, 1);              //if the switch is down clear the bit
+    bitClear(switchByte, 1);                  //if the flag is set clear the bit
     Serial.println(F("SWITCH1 pressed"));
   }
 
   if (switch2flag)
   {
-    bitClear(SwitchByte, 2);              //if the switch is down clear the bit
+    bitClear(switchByte, 2);                  //if the flag is set clear the bit
     Serial.println(F("SWITCH2 pressed"));
   }
+
+
+  if (switch3flag)
+  {
+    bitClear(switchByte, 3);                  //if the flag is set clear the bit
+    Serial.println(F("SWITCH3 pressed"));
+  }
+
+  return switchByte;
 }
 
 
@@ -235,6 +266,11 @@ void setupSwitches()
   if (SWITCH2  >= 0)
   {
     pinMode(SWITCH2, INPUT_PULLUP);
+  }
+
+  if (SWITCH3  >= 0)
+  {
+    pinMode(SWITCH3, INPUT_PULLUP);
   }
 }
 

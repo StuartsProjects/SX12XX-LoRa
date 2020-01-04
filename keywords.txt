@@ -12,6 +12,9 @@ SX126XLT	KEYWORD1
 # Methods and Functions (KEYWORD2)
 #######################################
 
+SX127XLT	KEYWORD1
+Program_Definitions	KEYWORD1
+
 begin	KEYWORD2
 pinInit	KEYWORD2
 spiInit KEYWORD2
@@ -34,6 +37,7 @@ wake	KEYWORD2
 calibrateImage	KEYWORD2
 CRCCCITTSX	KEYWORD2
 CRCCCITT	KEYWORD2
+printSXBufferASCII	KEYWORD2
 
 receiveAddressed	KEYWORD2
 getByteSXBuffer	KEYWORD2

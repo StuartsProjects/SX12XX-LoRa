@@ -20,11 +20,11 @@
 
   The program writes direct to the LoRa devices internal buffer, no memory buffer is used.
 
-  The LoRa settings are configured in the Settings.h file. file.
+  The LoRa settings are configured in the Settings.h file.
 
   The program has the option of using a pin to control the power to the GPS, if the GPS module being used
-  has this feature. To use the option change the define in Settings.h; '#define GPSPOWER -1' from -1 to 
-  the pin number being used. Also set the GPSONSTATE and GPSOFFSTATE to the appropriate logic levels.
+  has this feature. To use the option change the define in the Settings.h file; '#define GPSPOWER -1' from
+  -1 to the pin number being used. Also set the GPSONSTATE and GPSOFFSTATE to the appropriate logic levels.
 
   Serial monitor baud rate is set at 9600.
 *******************************************************************************************************/
@@ -35,10 +35,10 @@
 #include <Arduino.h>
 
 #include <SPI.h>
-#include "SX127XLT.h"
+#include <SX127XLT.h>
 
 #include "Settings.h"
-#include "Program_Definitions.h"
+#include <Program_Definitions.h>
 
 SX127XLT LT;
 
@@ -63,68 +63,18 @@ void loop()
 {
   Serial.println(F("Running Loop"));
 
-  if (gpsWaitFix(WaitGPSFixSeconds));
+  if (gpsWaitFix(WaitGPSFixSeconds))
   {
-  sendLocationBinary(TXLat, TXLon, TXAlt, TXHdop, TXGPSFixTime);
-  Serial.println();
-  Serial.print(F("Waiting "));
-  Serial.print(Sleepsecs);
-  Serial.println(F("s"));
-  delay(Sleepsecs * 1000);                         //this sleep is used to set overall transmission cycle time
+    sendLocationBinary(TXLat, TXLon, TXAlt, TXHdop, TXGPSFixTime);
+    Serial.println();
+    Serial.print(F("Waiting "));
+    Serial.print(Sleepsecs);
+    Serial.println(F("s"));
+    delay(Sleepsecs * 1000);                        //this sleep is used to set overall transmission cycle time
   }
   else
   {
-  send_Command(NoFix);                             //send notification of no GPS fix.   
-  }
-}
-
-
-void sendLocationBinary(float Lat, float Lon, float Alt, uint32_t Hdop, uint32_t fixtime)
-{
-  uint8_t len;
-
-  Serial.print(F("Send Location"));
-
-  TXVolts = readSupplyVoltage();              //get the latest supply\battery volts
-
-  LT.startWriteSXBuffer(0);                   //initialise buffer write at address 0
-  LT.writeUint8(LocationBinaryPacket);        //indentify type of packet
-  LT.writeUint8(Broadcast);                   //who is the packet sent too
-  LT.writeUint8(ThisNode);                    //tells receiver where is packet from
-  LT.writeFloat(Lat);                         //add latitude
-  LT.writeFloat(Lon);                         //add longitude
-  LT.writeFloat(Alt);                         //add altitude
-  LT.writeUint8(TXSats);                      //add number of satellites
-  LT.writeUint32(Hdop);                       //add hdop
-  LT.writeUint8(TXStatus);                    //add tracker status
-  LT.writeUint32(fixtime);                    //add GPS fix time in mS
-  LT.writeUint16(TXVolts);                    //add tracker supply volts
-  len = LT.endWriteSXBuffer();                //close buffer write
-
-  TXpacketL = LT.transmitSXBuffer(0, len, 10000, TXpower, WAIT_TX);
-
-  if (TXpacketL)
-  {
-    Serial.println(F(" - Done"));
-  }
-  else
-  {
-    Serial.println(F("Error"));
-  }
-}
-
-
-void setStatusByte(uint8_t bitnum, uint8_t bitval)
-{
-  //program the status byte
-
-  if (bitval == 0)
-  {
-    bitClear(TXStatus, bitnum);
-  }
-  else
-  {
-    bitSet(TXStatus, bitnum);
+    send_Command(NoFix);                            //send notification of no GPS fix.
   }
 }
 
@@ -202,6 +152,57 @@ bool gpsWaitFix(uint16_t waitSecs)
 }
 
 
+
+void sendLocationBinary(float Lat, float Lon, float Alt, uint32_t Hdop, uint32_t fixtime)
+{
+  uint8_t len;
+
+  Serial.print(F("Send Location"));
+
+  TXVolts = readSupplyVoltage();              //get the latest supply\battery volts
+
+  LT.startWriteSXBuffer(0);                   //initialise buffer write at address 0
+  LT.writeUint8(LocationBinaryPacket);        //indentify type of packet
+  LT.writeUint8(Broadcast);                   //who is the packet sent too
+  LT.writeUint8(ThisNode);                    //tells receiver where is packet from
+  LT.writeFloat(Lat);                         //add latitude
+  LT.writeFloat(Lon);                         //add longitude
+  LT.writeFloat(Alt);                         //add altitude
+  LT.writeUint8(TXSats);                      //add number of satellites
+  LT.writeUint32(Hdop);                       //add hdop
+  LT.writeUint8(TXStatus);                    //add tracker status
+  LT.writeUint32(fixtime);                    //add GPS fix time in mS
+  LT.writeUint16(TXVolts);                    //add tracker supply volts
+  len = LT.endWriteSXBuffer();                //close buffer write
+
+  TXpacketL = LT.transmitSXBuffer(0, len, 10000, TXpower, WAIT_TX);
+
+  if (TXpacketL)
+  {
+    Serial.println(F(" - Done"));
+  }
+  else
+  {
+    Serial.println(F("Error"));
+  }
+}
+
+
+void setStatusByte(uint8_t bitnum, uint8_t bitval)
+{
+  //program the status byte
+
+  if (bitval == 0)
+  {
+    bitClear(TXStatus, bitnum);
+  }
+  else
+  {
+    bitSet(TXStatus, bitnum);
+  }
+}
+
+
 void led_Flash(uint16_t flashes, uint16_t delaymS)
 {
   //flash LED to show tracker is alive
@@ -272,10 +273,10 @@ uint16_t readSupplyVoltage()
 
 void GPSON()
 {
-  if (GPSPOWER > = 0)
+  if (GPSPOWER >= 0)
   {
-  digitalWrite(GPSPOWER, GPSONSTATE);                         //power up GPS  
-  }  
+    digitalWrite(GPSPOWER, GPSONSTATE);                         //power up GPS
+  }
 }
 
 
@@ -283,8 +284,8 @@ void GPSOFF()
 {
   if (GPSPOWER)
   {
-  digitalWrite(GPSPOWER, GPSOFFSTATE);                        //power off GPS  
-  }  
+    digitalWrite(GPSPOWER, GPSOFFSTATE);                        //power off GPS
+  }
 }
 
 
@@ -294,8 +295,8 @@ void setup()
 
   if (GPSPOWER >= 0)
   {
-  pinMode(GPSPOWER, OUTPUT);
-  GPSON();  
+    pinMode(GPSPOWER, OUTPUT);
+    GPSON();
   }
 
   pinMode(LED1, OUTPUT);                                      //setup pin as output for indicator LED

@@ -1,5 +1,5 @@
 /*******************************************************************************************************
-  LoRaTracker Programs for Arduino - Copyright of the author Stuart Robinson - 16/12/19
+  LoRaTracker Programs for Arduino - Copyright of the author Stuart Robinson - 31/12/19
 
   http://www.LoRaTracker.uk
 
@@ -9,7 +9,7 @@
 
 /*******************************************************************************************************
   Program Operation - This program is a remote control receiver. When a packet is received an 8 bit byte
-  (SwitchByte) is read and the three outputs (defined in Settings.h) are toggled according to the bits
+  (SwitchByte) is read and the four outputs (defined in Settings.h) are toggled according to the bits
   set in this byte. If the Switch1 byte has bit 0 cleared, then OUTPUT0 is toggled. If the Switch1 byte
   has bit 1 cleared, then OUTPUT1 is toggled. If the Switch1 byte has bit 2 cleared, then OUTPUT2 is toggled.
 
@@ -26,8 +26,10 @@
 #define programversion "V1.0"
 
 #include <SPI.h>
-#include "SX127XLT.h"
+#include <SX127XLT.h>
 #include "Settings.h"
+#include <Program_Definitions.h>
+
 
 SX127XLT LT;
 
@@ -35,6 +37,7 @@ uint32_t RXpacketCount;
 uint16_t errors;
 
 uint8_t RXPacketL;               //length of received packet
+uint8_t RXPacketType;            //type of received packet
 int8_t  PacketRSSI;              //RSSI of received packet
 int8_t  PacketSNR;               //signal to noise ratio of received packet
 
@@ -43,7 +46,7 @@ uint8_t SwitchByte = 0xFF;       //this is the transmitted switch values, bit 0 
 void loop()
 {
 
-  RXPacketL = LT.receiveSXBuffer(0, 0, WAIT_RX);       //returns 0 if packet error of some sort, timeout set at 5000mS
+  RXPacketL = LT.receiveSXBuffer(0, 0, WAIT_RX);       //returns 0 if packet error of some sort, no timeout
 
   digitalWrite(LED1, HIGH);                            //something has happened
 
@@ -64,29 +67,6 @@ void loop()
 }
 
 
-void outputCheck(uint8_t number, uint32_t ondelaymS, uint32_t offdelaymS)
-{
-  uint8_t index;
-
-  for (index = 1; index <= number; index++)
-  {
-    digitalWrite(OUTPUT0, HIGH);
-    delay(ondelaymS);
-    digitalWrite(OUTPUT0, LOW);
-    delay(offdelaymS);
-    digitalWrite(OUTPUT1, HIGH);
-    delay(ondelaymS);
-    digitalWrite(OUTPUT1, LOW);
-    delay(offdelaymS);
-    digitalWrite(OUTPUT2, HIGH);
-    delay(ondelaymS);
-    digitalWrite(OUTPUT2, LOW);
-    delay(offdelaymS);
-  }
-}
-
-
-
 uint8_t packet_is_OK()
 {
   //packet has been received, now read from the SX12xx Buffer using the same variable type and
@@ -98,12 +78,20 @@ uint8_t packet_is_OK()
   Serial.print(F("  Packet Received"));
 
   LT.startReadSXBuffer(0);                //start buffer read at location 0
+  RXPacketType = LT.readUint8();          //read in the packet type 
   TXIdentity = LT.readUint32();           //read in the identity of transmitter
   SwitchByte = LT.readUint8();            //read in the Switch values
-  RXPacketL = LT.endReadSXBuffer();
+  RXPacketL = LT.endReadSXBuffer();       //finish buffer read
 
   printpacketDetails();
 
+  if (RXPacketType != RControl1)
+  {
+    Serial.print(F("  Wrong packet type"));
+    led_Flash(5, 25);                      //short fast speed flash indicates wrong packet type
+    return 0;
+  }
+    
   if (TXIdentity != RXIdentity)
   {
     Serial.print(F("  Transmitter "));
@@ -113,17 +101,28 @@ uint8_t packet_is_OK()
     return 0;
   }
 
-  if (LT.readRXPacketL() != 5)
+  if (LT.readRXPacketL() != 6)
   {
     Serial.print(F("  Wrong Packet Length"));
     led_Flash(5, 25);                      //short fast speed flash indicates transmitter not recognised
     return 0;
   }
 
+  //if we get to here, then the packet is valid so switch outputs accordingly
 
+  if (BUZZER  >= 0)
+  {
+    digitalWrite(BUZZER, HIGH);
+  }
+  
   Serial.print(F(",SwitchByte Received "));
   Serial.print(SwitchByte, BIN);           //print switch values in binary, if a bit is 0, that switch is active
-  readSwitches(SwitchByte);
+  actionOutputs(SwitchByte);
+
+  if (BUZZER  >= 0)
+  {
+    digitalWrite(BUZZER, LOW);
+  }
 
   return RXPacketL;
 }
@@ -174,28 +173,30 @@ void led_Flash(uint16_t flashes, uint16_t delaymS)
 }
 
 
-void readSwitches(uint8_t switches)
+void actionOutputs(uint8_t switches)
 {
   //read the recreived switch byte and toggle outputs as required
 
   if (!bitRead(switches, 0))
   {
-    //Switch Output state
-    digitalWrite(OUTPUT0, !digitalRead(OUTPUT0));
+    //toggle Output state
+    digitalWrite(OUTPUT0, !digitalRead(OUTPUT0));     //toggle Output state
   }
 
   if (!bitRead(switches, 1))
   {
-    //Switch Output state
-    digitalWrite(OUTPUT1, !digitalRead(OUTPUT1));
+    digitalWrite(OUTPUT1, !digitalRead(OUTPUT1));     //toggle Output state
   }
 
   if (!bitRead(switches, 2))
   {
-    //Switch Output state
-    digitalWrite(OUTPUT2, !digitalRead(OUTPUT2));
+    digitalWrite(OUTPUT2, !digitalRead(OUTPUT2));     //toggle Output state
   }
 
+  if (!bitRead(switches, 3))
+  {
+    digitalWrite(OUTPUT3, !digitalRead(OUTPUT3));     //toggle Output state
+  }
 }
 
 
@@ -217,6 +218,49 @@ void setupOutputs()
   {
     pinMode(OUTPUT2, OUTPUT);
   }
+
+  if (OUTPUT3  >= 0)
+  {
+    pinMode(OUTPUT3, OUTPUT);
+  }
+
+  if (BUZZER  >= 0)
+  {
+    pinMode(BUZZER, OUTPUT);
+  }
+
+}
+
+
+void outputCheck(uint8_t number, uint32_t ondelaymS, uint32_t offdelaymS)
+{
+  uint8_t index;
+
+  Serial.println(F("Toggling outputs"));
+
+  for (index = 1; index <= number; index++)
+  {
+    digitalWrite(OUTPUT0, HIGH);
+    delay(ondelaymS);
+    digitalWrite(OUTPUT0, LOW);
+    delay(offdelaymS);
+    digitalWrite(OUTPUT1, HIGH);
+    delay(ondelaymS);
+    digitalWrite(OUTPUT1, LOW);
+    delay(offdelaymS);
+    digitalWrite(OUTPUT2, HIGH);
+    delay(ondelaymS);
+    digitalWrite(OUTPUT2, LOW);
+    delay(offdelaymS);
+    digitalWrite(OUTPUT3, HIGH);
+    delay(offdelaymS);
+    digitalWrite(OUTPUT3, LOW);
+    delay(offdelaymS);
+    digitalWrite(BUZZER, HIGH);
+    delay(offdelaymS);
+    digitalWrite(BUZZER, LOW);
+    delay(offdelaymS);
+  }
 }
 
 
@@ -224,12 +268,12 @@ void setup()
 {
   pinMode(LED1, OUTPUT);
   led_Flash(2, 125);
-
+  
+  Serial.begin(9600);
+  
   setupOutputs();
 
   outputCheck(3, 500, 100);
-
-  Serial.begin(9600);
 
   SPI.begin();
 
@@ -249,7 +293,6 @@ void setup()
   LT.setupLoRa(Frequency, Offset, SpreadingFactor, Bandwidth, CodeRate, Optimisation);
 
   Serial.println(F("Receiver ready"));
-  Serial.println();
 }
 
 

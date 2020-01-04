@@ -25,7 +25,7 @@
 
   The Arduino pin numbers that the NSS and NRESET pins on the LoRa device are connected to must be
   specified in the hardware definitions section below. The LoRa device type in use, SX1272, SX1276,
-  SX1277, SX1278 or SX1279 must be specified also. 
+  SX1277, SX1278 or SX1279 must be specified also.
 
   Typical printout;
 

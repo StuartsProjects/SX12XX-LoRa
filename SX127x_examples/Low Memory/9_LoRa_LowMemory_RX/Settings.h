@@ -7,7 +7,6 @@
   suitable for the intended purpose and free from errors.
 *******************************************************************************************************/
 
-
 //*******  Setup hardware pin definitions here ! ***************
 
 //These are the pin definitions for one of my own boards, the Easy Mikrobus Pro Mini,

@@ -8,24 +8,19 @@
 *******************************************************************************************************/
 
 /*******************************************************************************************************
-  Program Operation -  This program is an example of a basic GPS tracker. The program reads the GPS,
-  waits for an updated fix and transmits location and altitude, number of satellites in view, the HDOP
-  value, the fix time of the GPS and the battery voltage. This transmitter can be also be used to
-  investigate GPS performance. At startup there should be a couple of seconds of recognisable text from
-  the GPS printed to the serial monitor. If you see garbage or funny characters its likely the GPS baud
-  rate is wrong. If the transmitter is turned on from cold, the receiver will pick up the cold fix time,
-  which is an indication of GPS performance. The GPS will be powered on for around 4 seconds before the
-  timing of the fix starts. Outside with a good view of the sky most GPSs should produce a fix in around
-  45 seconds. The number of satellites and HDOP are good indications to how well a GPS is working.
+  Program Operation -  This program is an example of a basic portable GPS tracker receiver. The program
+  receives the location packets from the remote tracker and displays them on an OLED display. The program
+  also reads a local GPS and when that has a fix, will display the distance and direction to the remote
+  tracker.  
 
   The program writes direct to the LoRa devices internal buffer, no memory buffer is used.
 
-  The LoRa settings are configured in the Settings.h file. file.
+  The LoRa settings are configured in the Settings.h file.
 
   The received information is printed to screen in this order top to bottom;
 
   Latitude, Longitude, Altitude, HDOP, GPS Fixtime, Tracker battery mV, Number of received packets, Distance
-  and direction to tracker, if local GPS fix. In addition if there is a recent tracker transmitter) GPS fix
+  and direction to tracker, if local GPS fix. In addition if there is a recent tracker transmitter GPS fix
   a 'T' is shown on line 0 right of screen and if there is a recent local (receiver) GPS fix a 'R' is displayed
   line 1 right of screen.
 
@@ -39,6 +34,13 @@
   has this feature. To use the option change the define in Settings.h; '#define GPSPOWER -1' from -1 to
   the pin number being used. Also set the GPSONSTATE and GPSOFFSTATE to the appropriate logic levels.
 
+  The program by default uses software serial to read the GPS, you can use hardware serial by commenting
+  out this line in the Settings.h file;
+
+  #define USE_SOFTSERIAL_GPS
+
+  And then defining the hardware serial port you are using, which defaults to Serial1. 
+
   Serial monitor baud rate is set at 9600.
 *******************************************************************************************************/
 
@@ -48,8 +50,9 @@
 #include <SPI.h>
 #include <SX127XLT.h>
 SX127XLT LT;
+
 #include "Settings.h"
-#include "Program_Definitions.h"
+#include <Program_Definitions.h>
 
 #include <U8x8lib.h>                                        //https://github.com/olikraus/u8g2 
 U8X8_SSD1306_128X64_NONAME_HW_I2C disp(U8X8_PIN_NONE);      //standard 0.96" SSD1306
@@ -182,7 +185,7 @@ bool readTXStatus(byte bitnum)
 
 void printRXLocation()
 {
-  Serial.print(F("RXLocation "));
+  Serial.print(F("Local GPS "));
   Serial.print(RXLat, 5);
   Serial.print(F(","));
   Serial.print(RXLon, 5);

@@ -26,8 +26,8 @@ Below is a list of the example programs and the folders they appear in. For inst
     
 ## Diagnostic and Test
 
-    10_LoRa_Link_Test_TX  
-    11_LoRa_HEX_Print_RX
+    10_LoRa_Link_Test_Transmitter  
+    11_LoRa_Packet_Logger_Receiver
     13_Frequency_and_Power_Check_TX
     16_LoRa_RX_Frequency_Error_Check
     20_LoRa_Link_Test_Receiver
@@ -44,6 +44,9 @@ Below is a list of the example programs and the folders they appear in. For inst
 
     21_On_Off_Transmitter 
     22_On_Off_Receiver
+    35_Remote_Control_Servo_Transmitter
+	36_Remote_Control_Servo_Receiver    
+	37_Servo_Sweep_Tester
 
 ## Tracker
 
@@ -54,3 +57,7 @@ Below is a list of the example programs and the folders they appear in. For inst
     28_GPS_Checker
     29_GPS_Checker_With_Display
 
+## Implicit
+
+	40_LoRa_Transmitter_ImplicitPacket
+	41_LoRa_Receiver_ImplicitPacket

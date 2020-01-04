@@ -19,6 +19,8 @@
   There is a printout of the valid packets received, these are assumed to be in ASCII printable text.
   The LED will flash for each packet received and the buzzer will sound,if fitted.
 
+  Tested on a 'bare bones' ATmega328P board, the current in sleep mode was 12.26mA.
+
   Serial monitor baud rate is set at 9600.
 *******************************************************************************************************/
 

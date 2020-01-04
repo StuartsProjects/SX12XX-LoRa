@@ -8,9 +8,9 @@
 *******************************************************************************************************/
 
 /*******************************************************************************************************
-  Program Operation - This program is an basic receiver for the '23_Simple_GPS_Tracker_TX' program.
+  Program Operation - This program is an basic receiver for the '23_Simple_GPS_Tracker_Transmitter' program.
   The program reads the received packet from the tracker transmitter and displays the results on
-  the serial monitor. The LoRa and frequency settings settings provided in the Settings.h file must
+  the serial monitor. The LoRa and frequency settings provided in the Settings.h file must
   match those used by the transmitter.
 
   The program receives direct from the LoRa devices internal buffer.
@@ -26,7 +26,7 @@
 SX127XLT LT;
 
 #include "Settings.h"
-#include "Program_Definitions.h"
+#include <Program_Definitions.h>
 
 
 uint32_t RXpacketCount;        //count of received packets

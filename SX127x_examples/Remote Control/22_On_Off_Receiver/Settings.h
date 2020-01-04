@@ -1,5 +1,5 @@
 /*******************************************************************************************************
-  LoRaTracker Programs for Arduino - Copyright of the author Stuart Robinson - 02/12/19
+  LoRaTracker Programs for Arduino - Copyright of the author Stuart Robinson - 31/12/19
 
   http://www.LoRaTracker.uk
 
@@ -21,12 +21,14 @@ const int8_t DIO0 = 3;                          //DIO0 on LoRa device, used for 
 const int8_t DIO1 = -1;                         //DIO1 on LoRa device, normally not used so set to -1
 const int8_t DIO2 = -1;                         //DIO2 on LoRa device, normally not used so set to -1
 const int8_t LED1 = 8;                          //On board LED, logic high is on
+const int8_t BUZZER = A5;                       //buzzer if fitted, set to -1 if not
 
 #define LORA_DEVICE DEVICE_SX1278               //this is the device we are using
 
 const int8_t OUTPUT0 = 2;
 const int8_t OUTPUT1 = 4;
 const int8_t OUTPUT2 = A3;
+const int8_t OUTPUT3 = A2;
 
 const uint32_t RXIdentity = 1234554321;         //define an identity number, the receiver must use the same number
                                                 //range is 0 to 4294967296
