@@ -19,7 +19,7 @@ A common feature of the programs is the use of a series of definitions in the Se
     const uint16_t packet_delay = 1000;             //mS delay between packets`
 
 
-The full range of possible settings is within the 'SX127XLT_Includes.h' file. A summary of the relevant LoRa modem settings is below.  
+The full range of possible settings is within the 'SX127XLT_Definitions.h' file. A summary of the relevant LoRa modem settings is below.  
 
 
 <br> 
