@@ -99,7 +99,7 @@ void SX127XLT::setMode(uint8_t modeconfig)
   uint8_t regdata;
 
   regdata = modeconfig + _PACKET_TYPE;
-  writeRegister(REGOPMODE, regdata);
+  writeRegister(REG_OPMODE, regdata);
 }
 
 
@@ -115,8 +115,8 @@ void SX127XLT::setSleep(uint8_t sleepconfig)
 
   uint8_t regdata;
 
-  regdata = readRegister(REGOPMODE);
-  writeRegister(REGOPMODE, (regdata & 0xF8));       //clear bits 0,1,2 to set sleepmode
+  regdata = readRegister(REG_OPMODE);
+  writeRegister(REG_OPMODE, (regdata & 0xF8));       //clear bits 0,1,2 to set sleepmode
   delay(1);                                         //allow time for shutdown
 }
 
@@ -130,10 +130,10 @@ bool SX127XLT::checkDevice()
 #endif
 
   uint8_t Regdata1, Regdata2;
-  Regdata1 = readRegister(REGFRMID);               //low byte of frequency setting
-  writeRegister(REGFRMID, (Regdata1 + 1));
-  Regdata2 = readRegister(REGFRMID);               //read changed value back
-  writeRegister(REGFRMID, Regdata1);               //restore register to original value
+  Regdata1 = readRegister(REG_FRMID);               //low byte of frequency setting
+  writeRegister(REG_FRMID, (Regdata1 + 1));
+  Regdata2 = readRegister(REG_FRMID);               //read changed value back
+  writeRegister(REG_FRMID, Regdata1);               //restore register to original value
 
   if (Regdata2 == (Regdata1 + 1))
   {
@@ -153,8 +153,8 @@ void SX127XLT::wake()
 #endif
   uint8_t regdata;
 
-  regdata = readRegister(REGOPMODE);
-  writeRegister(REGOPMODE, (regdata | 0x01));       //set bit 0 to goto stdby mode
+  regdata = readRegister(REG_OPMODE);
+  writeRegister(REG_OPMODE, (regdata | 0x01));       //set bit 0 to goto stdby mode
 }
 
 
@@ -167,13 +167,13 @@ void SX127XLT::calibrateImage(uint8_t null)
   UNUSED(null);
 
   uint8_t regdata, savedmode;
-  savedmode = readRegister(REGOPMODE);
-  writeRegister(REGOPMODE, MODE_SLEEP);
-  writeRegister(REGOPMODE, MODE_STDBY);
-  regdata = (readRegister(REGIMAGECAL) | 0x40);
-  writeRegister(REGIMAGECAL, regdata);
-  writeRegister(REGOPMODE, MODE_SLEEP);
-  writeRegister(REGOPMODE, savedmode);
+  savedmode = readRegister(REG_OPMODE);
+  writeRegister(REG_OPMODE, MODE_SLEEP);
+  writeRegister(REG_OPMODE, MODE_STDBY);
+  regdata = (readRegister(REG_IMAGECAL) | 0x40);
+  writeRegister(REG_IMAGECAL, regdata);
+  writeRegister(REG_OPMODE, MODE_SLEEP);
+  writeRegister(REG_OPMODE, savedmode);
   delay(10);                              //calibration time 10mS
 }
 
@@ -289,7 +289,7 @@ uint8_t SX127XLT::getOperatingMode()
   Serial.println(F("getOperatingMode()"));
 #endif
 
-  return readRegister(REGOPMODE);
+  return readRegister(REG_OPMODE);
 }
 
 
@@ -556,7 +556,7 @@ void SX127XLT::setTxParams(int8_t txPower, uint8_t rampTime)
 
   uint8_t param1, param2;
 
-  writeRegister(REGPARAMP, rampTime);       //Reg 0x0A this is same for SX1272 and SX1278
+  writeRegister(REG_PARAMP, rampTime);       //Reg 0x0A this is same for SX1272 and SX1278
   
   if (txPower > 20)
   {
@@ -570,11 +570,11 @@ void SX127XLT::setTxParams(int8_t txPower, uint8_t rampTime)
   
   if (txPower > 17)
   {
-    writeRegister(REGPADAC, 0x87);          //Reg 0x4D this is same for SX1272 and SX1278
+    writeRegister(REG_PADAC, 0x87);          //Reg 0x4D this is same for SX1272 and SX1278
   }
   else
   {
-    writeRegister(REGPADAC, 0x84);          //Reg 0x4D this is same for SX1272 and SX1278
+    writeRegister(REG_PADAC, 0x84);          //Reg 0x4D this is same for SX1272 and SX1278
   }
 
 //now the device specifif settings
@@ -626,8 +626,8 @@ void SX127XLT::setTxParams(int8_t txPower, uint8_t rampTime)
     
   }
 
-  writeRegister(REGPACONFIG, param1);       //Reg 0x09 this changes for SX1272 and SX1278
-  writeRegister(REGOCP, param2);            //Reg 0x0C this is same for SX1272 and SX1278
+  writeRegister(REG_PACONFIG, param1);       //Reg 0x09 this changes for SX1272 and SX1278
+  writeRegister(REG_OCP, param2);            //Reg 0x0C this is same for SX1272 and SX1278
 }
 
 /*
@@ -639,15 +639,15 @@ void SX127XLT::setTxParams2(int8_t txPower, uint8_t rampTime)
 
   uint8_t param1, param2;
 
-  writeRegister(REGPARAMP, rampTime);       //Reg 0x0A this is same for SX1272 and SX1278
+  writeRegister(REG_PARAMP, rampTime);       //Reg 0x0A this is same for SX1272 and SX1278
 
   if (txPower >= 17)
   {
-    writeRegister(REGPADAC, 0x87);          //Reg 0x4D this is same for SX1272 and SX1278
+    writeRegister(REG_PADAC, 0x87);          //Reg 0x4D this is same for SX1272 and SX1278
   }
   else
   {
-    writeRegister(REGPADAC, 0x84);          //Reg 0x4D this is same for SX1272 and SX1278
+    writeRegister(REG_PADAC, 0x84);          //Reg 0x4D this is same for SX1272 and SX1278
   }
 
   if (_Device != DEVICE_SX1272)
@@ -707,8 +707,8 @@ void SX127XLT::setTxParams2(int8_t txPower, uint8_t rampTime)
     }
   }
 
-  writeRegister(REGPACONFIG, param1);       //Reg 0x09 this changes for SX1272 and SX1278
-  writeRegister(REGOCP, param2);            //Reg 0x0C this is same for SX1272 and SX1278
+  writeRegister(REG_PACONFIG, param1);       //Reg 0x09 this changes for SX1272 and SX1278
+  writeRegister(REG_OCP, param2);            //Reg 0x0C this is same for SX1272 and SX1278
 }
 */
 
@@ -729,15 +729,15 @@ void SX127XLT::setPacketParams(uint16_t packetParam1, uint8_t  packetParam2, uin
   //PreambleLength reg 0x20, 0x21
   preambleMSB = packetParam1 >> 8;
   preambleLSB = packetParam1 & 0xFF;
-  writeRegister(REGPREAMBLEMSB, preambleMSB);
-  writeRegister(REGPREAMBLELSB, preambleLSB);
+  writeRegister(REG_PREAMBLEMSB, preambleMSB);
+  writeRegister(REG_PREAMBLELSB, preambleLSB);
 
   //TX Packetlength reg 0x22
-  writeRegister(REGPAYLOADLENGTH, packetParam3);                //when in implicit mode, this is used as receive length also
+  writeRegister(REG_PAYLOADLENGTH, packetParam3);                //when in implicit mode, this is used as receive length also
   
   //IQ mode reg 0x33
-  regdata = ( (readRegister(REGINVERTIQ)) & 0xBF );             //mask off invertIQ bit 6
-  writeRegister(REGINVERTIQ, (regdata + packetParam5));
+  regdata = ( (readRegister(REG_INVERTIQ)) & 0xBF );             //mask off invertIQ bit 6
+  writeRegister(REG_INVERTIQ, (regdata + packetParam5));
   //*******************************************************
 
 
@@ -748,23 +748,23 @@ void SX127XLT::setPacketParams(uint16_t packetParam1, uint8_t  packetParam2, uin
   {
     //for all devices apart from SX1272
     //Fixed\Variable length packets
-    regdata = ( (readRegister(REGMODEMCONFIG1)) & (~READ_IMPLCIT_AND_X)); //mask off bit 0
-    writeRegister(REGMODEMCONFIG1, (regdata + packetParam2));             //write out with bit 0 set appropriatly
+    regdata = ( (readRegister(REG_MODEMCONFIG1)) & (~READ_IMPLCIT_AND_X)); //mask off bit 0
+    writeRegister(REG_MODEMCONFIG1, (regdata + packetParam2));             //write out with bit 0 set appropriatly
 
     //CRC on payload
-    regdata = ( (readRegister(REGMODEMCONFIG2)) & (~READ_HASCRC_AND_X));  //mask off all bits bar CRC on - bit 2
-    writeRegister(REGMODEMCONFIG2, (regdata + (packetParam4 << 2)));      //write out with CRC bit 2 set appropriatly
+    regdata = ( (readRegister(REG_MODEMCONFIG2)) & (~READ_HASCRC_AND_X));  //mask off all bits bar CRC on - bit 2
+    writeRegister(REG_MODEMCONFIG2, (regdata + (packetParam4 << 2)));      //write out with CRC bit 2 set appropriatly
   }
   else
   {
     //for SX1272
     //Fixed\Variable length packets
-    regdata = ( (readRegister(REGMODEMCONFIG1)) & (~READ_IMPLCIT_AND_2)); //mask off bit 2
-    writeRegister(REGMODEMCONFIG1, (regdata + (packetParam2 << 2)));      //write out with bit 2 set appropriatly
+    regdata = ( (readRegister(REG_MODEMCONFIG1)) & (~READ_IMPLCIT_AND_2)); //mask off bit 2
+    writeRegister(REG_MODEMCONFIG1, (regdata + (packetParam2 << 2)));      //write out with bit 2 set appropriatly
 
     //CRC on payload
-    regdata = ( (readRegister(REGMODEMCONFIG1)) & (~READ_HASCRC_AND_2));  //mask of all bits bar CRC on - bit 1
-    writeRegister(REGMODEMCONFIG1, (regdata + (packetParam4 << 1)));      //write out with CRC bit 1 set appropriatly
+    regdata = ( (readRegister(REG_MODEMCONFIG1)) & (~READ_HASCRC_AND_2));  //mask of all bits bar CRC on - bit 1
+    writeRegister(REG_MODEMCONFIG1, (regdata + (packetParam4 << 1)));      //write out with CRC bit 1 set appropriatly
   }
 
 
@@ -782,20 +782,20 @@ void SX127XLT::setModulationParams(uint8_t modParam1, uint8_t modParam2, uint8_t
   uint8_t regdata, bw;
 
   //Spreading factor - same for SX1272 and SX127X - reg 0x1D
-  regdata = (readRegister(REGMODEMCONFIG2) & (~READ_SF_AND_X));
-  writeRegister(REGMODEMCONFIG2, (regdata + (modParam1 << 4)));
+  regdata = (readRegister(REG_MODEMCONFIG2) & (~READ_SF_AND_X));
+  writeRegister(REG_MODEMCONFIG2, (regdata + (modParam1 << 4)));
 
   if (_Device != DEVICE_SX1272)
   {
     //for all devices apart from SX1272
 
     //bandwidth
-    regdata = (readRegister(REGMODEMCONFIG1) & (~READ_BW_AND_X));
-    writeRegister(REGMODEMCONFIG1, (regdata + modParam2));
+    regdata = (readRegister(REG_MODEMCONFIG1) & (~READ_BW_AND_X));
+    writeRegister(REG_MODEMCONFIG1, (regdata + modParam2));
 
     //Coding rate
-    regdata = (readRegister(REGMODEMCONFIG1) & (~READ_CR_AND_X));
-    writeRegister(REGMODEMCONFIG1, (regdata + (modParam3)));
+    regdata = (readRegister(REG_MODEMCONFIG1) & (~READ_CR_AND_X));
+    writeRegister(REG_MODEMCONFIG1, (regdata + (modParam3)));
 
     //Optimisation
     if (modParam4 == LDRO_AUTO)
@@ -803,15 +803,15 @@ void SX127XLT::setModulationParams(uint8_t modParam1, uint8_t modParam2, uint8_t
       modParam4 = returnOptimisation(modParam2, modParam1);
     }
 
-    regdata = (readRegister(REGMODEMCONFIG3) & (~READ_LDRO_AND_X));
-    writeRegister(REGMODEMCONFIG3, (regdata + (modParam4 << 3)));
+    regdata = (readRegister(REG_MODEMCONFIG3) & (~READ_LDRO_AND_X));
+    writeRegister(REG_MODEMCONFIG3, (regdata + (modParam4 << 3)));
 
   }
   else
   {
     //for SX1272
     //bandwidth
-    regdata = (readRegister(REGMODEMCONFIG1) & (~READ_BW_AND_2));   //value will be LORA_BW_500 128, LORA_BW_250 64, LORA_BW_125 0
+    regdata = (readRegister(REG_MODEMCONFIG1) & (~READ_BW_AND_2));   //value will be LORA_BW_500 128, LORA_BW_250 64, LORA_BW_125 0
 
     switch (modParam2)
     {
@@ -831,11 +831,11 @@ void SX127XLT::setModulationParams(uint8_t modParam1, uint8_t modParam2, uint8_t
         bw = 0x00;                       //defaults to LORA_BW_125
     }
 
-    writeRegister(REGMODEMCONFIG1, (regdata + bw));
+    writeRegister(REG_MODEMCONFIG1, (regdata + bw));
 
     //Coding rate
-    regdata = (readRegister(REGMODEMCONFIG1) & (~READ_CR_AND_2));
-    writeRegister(REGMODEMCONFIG1, (regdata + (modParam3 << 2)));
+    regdata = (readRegister(REG_MODEMCONFIG1) & (~READ_CR_AND_2));
+    writeRegister(REG_MODEMCONFIG1, (regdata + (modParam3 << 2)));
 
     //Optimisation
     if (modParam4 == LDRO_AUTO)
@@ -843,8 +843,8 @@ void SX127XLT::setModulationParams(uint8_t modParam1, uint8_t modParam2, uint8_t
       modParam4 = returnOptimisation(modParam2, modParam1);
     }
 
-    regdata = (readRegister(REGMODEMCONFIG1) & (~READ_LDRO_AND_2));
-    writeRegister(REGMODEMCONFIG1, (regdata + modParam4));
+    regdata = (readRegister(REG_MODEMCONFIG1) & (~READ_LDRO_AND_2));
+    writeRegister(REG_MODEMCONFIG1, (regdata + modParam4));
 
   }
 }
@@ -858,9 +858,9 @@ void SX127XLT::setRfFrequency(uint64_t freq64, int32_t offset)
 
   freq64 = freq64 + offset;
   freq64 = ((uint64_t)freq64 << 19) / 32000000;
-  writeRegister(REGFRMSB, (uint8_t)(freq64 >> 16));
-  writeRegister(REGFRMID, (uint8_t)(freq64 >> 8));
-  writeRegister(REGFRLSB, (uint8_t)(freq64 >> 0));
+  writeRegister(REG_FRMSB, (uint8_t)(freq64 >> 16));
+  writeRegister(REG_FRMID, (uint8_t)(freq64 >> 8));
+  writeRegister(REG_FRLSB, (uint8_t)(freq64 >> 0));
 }
 
 
@@ -874,9 +874,9 @@ uint32_t SX127XLT::getFreqInt()
   uint8_t Msb, Mid, Lsb;
   uint32_t uinttemp;
   float floattemp;
-  Msb = readRegister(REGFRMSB);
-  Mid = readRegister(REGFRMID);
-  Lsb = readRegister(REGFRLSB);
+  Msb = readRegister(REG_FRMSB);
+  Mid = readRegister(REG_FRMID);
+  Lsb = readRegister(REG_FRLSB);
   floattemp = ((Msb * 0x10000ul) + (Mid * 0x100ul) + Lsb);
   floattemp = ((floattemp * 61.03515625) / 1000000ul);
   uinttemp = (uint32_t)(floattemp * 1000000);
@@ -896,9 +896,9 @@ int32_t SX127XLT::getFrequencyErrorRegValue()
 
   setMode(MODE_STDBY_RC);
 
-  msb = readRegister(REGFEIMSB);
-  mid = readRegister(REGFEIMID);
-  lsb = readRegister(REGFEILSB);
+  msb = readRegister(REG_FEIMSB);
+  mid = readRegister(REG_FEIMID);
+  lsb = readRegister(REG_FEILSB);
 
 #ifdef SX127XDEBUG1
   Serial.println();
@@ -936,14 +936,14 @@ int32_t SX127XLT::getFrequencyErrorHz()
   uint8_t bw;
   float bwconst;
 
-  msb = readRegister(REGFEIMSB);
-  mid = readRegister(REGFEIMID);
-  lsb = readRegister(REGFEILSB);
+  msb = readRegister(REG_FEIMSB);
+  mid = readRegister(REG_FEIMID);
+  lsb = readRegister(REG_FEILSB);
 
   if (_Device != DEVICE_SX1272)
   {
     //for all devices apart from SX1272
-    bw = (readRegister(REGMODEMCONFIG1)) & (0xF0);
+    bw = (readRegister(REG_MODEMCONFIG1)) & (0xF0);
 
     switch (bw)
     {
@@ -994,7 +994,7 @@ int32_t SX127XLT::getFrequencyErrorHz()
   else
   {
     //for the SX1272
-    bw = (readRegister(REGMODEMCONFIG1)) & (0xF0);
+    bw = (readRegister(REG_MODEMCONFIG1)) & (0xF0);
 
     switch (bw)
     {
@@ -1047,7 +1047,7 @@ void SX127XLT::setTx(uint32_t timeout)
     }
   */
 
-  writeRegister(REGOPMODE, (MODE_TX + 0x88));    //TX on LoRa mode
+  writeRegister(REG_OPMODE, (MODE_TX + 0x88));    //TX on LoRa mode
 }
 
 
@@ -1069,7 +1069,7 @@ void SX127XLT::setRx(uint32_t timeout)
     }
   */
 
-  writeRegister(REGOPMODE, (MODE_RXCONTINUOUS + 0x80));    //RX on LoRa mode
+  writeRegister(REG_OPMODE, (MODE_RXCONTINUOUS + 0x80));    //RX on LoRa mode
 }
 
 
@@ -1121,7 +1121,7 @@ void SX127XLT::setLowPowerReceive()
   Serial.println(F("setLowPowerReceive()"));
 #endif
 
-  writeRegister(REGLNA, 0x20 ); //at HF 100% LNA current
+  writeRegister(REG_LNA, 0x20 ); //at HF 100% LNA current
 }
 
 
@@ -1136,12 +1136,12 @@ void SX127XLT::setHighSensitivity()
   if (_Device != DEVICE_SX1272)
   {
     //for all devices apart from SX1272
-    writeRegister(REGLNA, 0x3B ); //at HF 150% LNA current.
+    writeRegister(REG_LNA, 0x3B ); //at HF 150% LNA current.
   }
   else
   {
     //for SX1272
-    writeRegister(REGLNA, 0x23 ); //at HF 10% LNA current.
+    writeRegister(REG_LNA, 0x23 ); //at HF 10% LNA current.
   }
 }
 
@@ -1159,15 +1159,15 @@ void SX127XLT::setRXGain(uint8_t config)
   if (_Device != DEVICE_SX1272)
   {
     //for all devices apart from SX1272
-    regdata = readRegister(REGMODEMCONFIG3);
-    writeRegister(REGMODEMCONFIG3, (regdata &  (~READ_AGCAUTO_AND_X))); //clear bit AgcAutoOn (2) to ensure RegLNA is controlling gain
-    writeRegister(REGLNA, config);
+    regdata = readRegister(REG_MODEMCONFIG3);
+    writeRegister(REG_MODEMCONFIG3, (regdata &  (~READ_AGCAUTO_AND_X))); //clear bit AgcAutoOn (2) to ensure RegLNA is controlling gain
+    writeRegister(REG_LNA, config);
   }
   else
   {
-    regdata = readRegister(REGMODEMCONFIG2);
-    writeRegister(REGMODEMCONFIG2, (regdata & (~READ_AGCAUTO_AND_2))); //clear bit AgcAutoOn (2) to ensure RegLNA is controlling gain
-    writeRegister(REGLNA, config);
+    regdata = readRegister(REG_MODEMCONFIG2);
+    writeRegister(REG_MODEMCONFIG2, (regdata & (~READ_AGCAUTO_AND_2))); //clear bit AgcAutoOn (2) to ensure RegLNA is controlling gain
+    writeRegister(REG_LNA, config);
   }
 }
 
@@ -1183,12 +1183,12 @@ uint8_t SX127XLT::getAGC()
 
   if (_Device != DEVICE_SX1272)
   {
-    regdata = readRegister(REGMODEMCONFIG3);
+    regdata = readRegister(REG_MODEMCONFIG3);
     regdata = (regdata & READ_AGCAUTO_AND_X);
   }
   else
   {
-    regdata = readRegister(REGMODEMCONFIG2);
+    regdata = readRegister(REG_MODEMCONFIG2);
     regdata = (regdata & READ_AGCAUTO_AND_2);
   }
 
@@ -1203,7 +1203,7 @@ uint8_t SX127XLT::getLNAgain()
 #endif
 
   uint8_t regdata;
-  regdata = readRegister(REGLNA);
+  regdata = readRegister(REG_LNA);
   regdata = (regdata & READ_LNAGAIN_AND_X);
   return (regdata >> 5);
 }
@@ -1217,16 +1217,16 @@ uint8_t SX127XLT::getCRCMode()
 
   uint8_t regdata;
 
-  regdata = readRegister(REGMODEMCONFIG2);
+  regdata = readRegister(REG_MODEMCONFIG2);
 
   if (_Device != DEVICE_SX1272)
   {
-    regdata = readRegister(REGMODEMCONFIG2);
+    regdata = readRegister(REG_MODEMCONFIG2);
     regdata = ((regdata & READ_HASCRC_AND_X) >> 2);
   }
   else
   {
-    regdata = readRegister(REGMODEMCONFIG1);
+    regdata = readRegister(REG_MODEMCONFIG1);
     regdata = ((regdata & READ_HASCRC_AND_2) >> 1);
   }
 
@@ -1242,7 +1242,7 @@ uint8_t SX127XLT::getHeaderMode()
 
   uint8_t regdata;
 
-  regdata = readRegister(REGMODEMCONFIG1);
+  regdata = readRegister(REG_MODEMCONFIG1);
 
   if (_Device != DEVICE_SX1272)
   {
@@ -1265,7 +1265,7 @@ uint8_t SX127XLT::getLNAboostLF()
 
   uint8_t regdata;
 
-  regdata = readRegister(REGLNA);
+  regdata = readRegister(REG_LNA);
 
   if (_Device != DEVICE_SX1272)
   {
@@ -1288,7 +1288,7 @@ uint8_t SX127XLT::getLNAboostHF()
 
   uint8_t regdata;
 
-  regdata = readRegister(REGLNA);
+  regdata = readRegister(REG_LNA);
 
   if (_Device != DEVICE_SX1272)
   {
@@ -1311,7 +1311,7 @@ uint8_t SX127XLT::getOpmode()
 
   uint8_t regdata;
 
-  regdata = (readRegister(REGOPMODE) & READ_OPMODE_AND_X);
+  regdata = (readRegister(REG_OPMODE) & READ_OPMODE_AND_X);
 
   return regdata;
 }
@@ -1327,7 +1327,7 @@ uint8_t SX127XLT::getPacketMode()
 
   uint8_t regdata;
 
-  regdata = (readRegister(REGOPMODE) & READ_RANGEMODE_AND_X);
+  regdata = (readRegister(REG_OPMODE) & READ_RANGEMODE_AND_X);
 
   return (regdata >> 7);
 }
@@ -1339,7 +1339,7 @@ uint8_t SX127XLT::readRXPacketL()
   Serial.println(F("readRXPacketL()"));
 #endif
 
-  _RXPacketL = readRegister(REGRXNBBYTES);
+  _RXPacketL = readRegister(REG_RXNBBYTES);
   return _RXPacketL;
 }
 
@@ -1351,7 +1351,7 @@ uint8_t SX127XLT::readPacketRSSI()
 #endif
 
   uint8_t regdata;
-  regdata = readRegister(REGPKTRSSIVALUE);
+  regdata = readRegister(REG_PKTRSSIVALUE);
   _PacketRSSI = (157 - regdata) * (-1);
   return _PacketRSSI;
 }
@@ -1364,7 +1364,7 @@ uint8_t SX127XLT::readPacketSNR()
 #endif
 
   uint8_t regdata;
-  regdata = readRegister(REGPKTSNRVALUE);
+  regdata = readRegister(REG_PKTSNRVALUE);
 
   if (regdata > 127)
   {
@@ -1427,7 +1427,7 @@ uint8_t SX127XLT::packetOK()
 
   bool packetHasCRC;
 
-  packetHasCRC = (readRegister(REGHOPCHANNEL) & 0x40);                      //read the packet has CRC bit in RegHopChannel
+  packetHasCRC = (readRegister(REG_HOPCHANNEL) & 0x40);                      //read the packet has CRC bit in RegHopChannel
 
 #ifdef DEBUGPHANTOM
   Serial.print(F("PacketHasCRC = "));
@@ -1487,8 +1487,8 @@ void SX127XLT::setBufferBaseAddress(uint8_t txBaseAddress, uint8_t rxBaseAddress
   Serial.println(F("setBufferBaseAddress()"));
 #endif
 
-  writeRegister(REGFIFOTXBASEADDR, txBaseAddress);
-  writeRegister(REGFIFORXBASEADDR, rxBaseAddress);
+  writeRegister(REG_FIFOTXBASEADDR, txBaseAddress);
+  writeRegister(REG_FIFORXBASEADDR, rxBaseAddress);
 }
 
 
@@ -1499,19 +1499,19 @@ void SX127XLT::setPacketType(uint8_t packettype )
 #endif
   uint8_t regdata;
 
-  regdata = (readRegister(REGOPMODE) & 0x7F);           //save all register bits bar the LoRa\FSK bit 7
+  regdata = (readRegister(REG_OPMODE) & 0x7F);           //save all register bits bar the LoRa\FSK bit 7
 
   if (packettype == PACKET_TYPE_LORA)
   {
     _PACKET_TYPE = PACKET_TYPE_LORA;
-    writeRegister(REGOPMODE, 0x80);                     //REGOPMODE, need to set to sleep mode before configure for LoRa mode
-    writeRegister(REGOPMODE, (regdata + 0x80));         //back to original standby mode with LoRa set
+    writeRegister(REG_OPMODE, 0x80);                     //REG_OPMODE, need to set to sleep mode before configure for LoRa mode
+    writeRegister(REG_OPMODE, (regdata + 0x80));         //back to original standby mode with LoRa set
   }
   else
   {
     _PACKET_TYPE = PACKET_TYPE_GFSK;
-    writeRegister(REGOPMODE, 0x00);                     //REGOPMODE, need to set to sleep mode before configure for FSK
-    writeRegister(REGOPMODE, regdata);                  //back to original standby mode with LoRa set
+    writeRegister(REG_OPMODE, 0x00);                     //REG_OPMODE, need to set to sleep mode before configure for FSK
+    writeRegister(REG_OPMODE, regdata);                  //back to original standby mode with LoRa set
   }
 
 }
@@ -1528,7 +1528,7 @@ void SX127XLT::clearIrqStatus(uint16_t irqMask)
   _IRQmsb = _IRQmsb & 0xFF00;                                 //make sure _IRQmsb does not have LSB bits set.
   masklsb = (irqMask & 0xFF);
   maskmsb = (irqMask & 0xFF00);
-  writeRegister(REGIRQFLAGS, masklsb);                        //clear standard IRQs
+  writeRegister(REG_IRQFLAGS, masklsb);                        //clear standard IRQs
   _IRQmsb = (_IRQmsb & (~maskmsb));                               //only want top bits set.
 }
 
@@ -1541,7 +1541,7 @@ uint16_t SX127XLT::readIrqStatus()
 
   bool packetHasCRC;
 
-  packetHasCRC = (readRegister(REGHOPCHANNEL) & 0x40);                      //read the packet has CRC bit in RegHopChannel
+  packetHasCRC = (readRegister(REG_HOPCHANNEL) & 0x40);                      //read the packet has CRC bit in RegHopChannel
 
 #ifdef DEBUGPHANTOM
   Serial.print(F("PacketHasCRC = "));
@@ -1555,7 +1555,7 @@ uint16_t SX127XLT::readIrqStatus()
     _IRQmsb = _IRQmsb + IRQ_NO_PACKET_CRC;                                  //flag the phantom packet
   }
 
-  return (readRegister(REGIRQFLAGS) + _IRQmsb);
+  return (readRegister(REG_IRQFLAGS) + _IRQmsb);
 }
 
 
@@ -1610,8 +1610,8 @@ void SX127XLT::setDioIrqParams(uint16_t irqMask, uint16_t dio0Mask, uint16_t dio
 
   mask2 = 0x00;              //is always IRQ_FSHS_CHANGE_CHANNEL
 
-  writeRegister(REGIRQFLAGSMASK, ~irqMask);
-  writeRegister(REGDIOMAPPING1, (mask0 + mask1 + mask2));
+  writeRegister(REG_IRQFLAGSMASK, ~irqMask);
+  writeRegister(REG_DIOMAPPING1, (mask0 + mask1 + mask2));
 }
 
 
@@ -1801,7 +1801,7 @@ bool SX127XLT::isRXdoneIRQ()
   Serial.println(F("isRXdoneIRQ()"));
 #endif
 
-  return (readRegister(REGIRQFLAGS) & IRQ_RX_DONE);
+  return (readRegister(REG_IRQFLAGS) & IRQ_RX_DONE);
 }
 
 
@@ -1811,7 +1811,7 @@ bool SX127XLT::isTXdoneIRQ()
   Serial.println(F("isTXdoneIRQ()"));
 #endif
 
-  return (readRegister(REGIRQFLAGS) & IRQ_TX_DONE);
+  return (readRegister(REG_IRQFLAGS) & IRQ_TX_DONE);
 }
 
 
@@ -1847,8 +1847,8 @@ uint8_t SX127XLT::receive(uint8_t *rxbuffer, uint8_t size, uint32_t rxtimeout, u
   uint8_t regdata;
 
   setMode(MODE_STDBY_RC);
-  regdata = readRegister(REGFIFORXBASEADDR);                               //retrieve the RXbase address pointer
-  writeRegister(REGFIFOADDRPTR, regdata);                                  //and save in FIFO access ptr
+  regdata = readRegister(REG_FIFORXBASEADDR);                               //retrieve the RXbase address pointer
+  writeRegister(REG_FIFOADDRPTR, regdata);                                  //and save in FIFO access ptr
 
   setDioIrqParams(IRQ_RADIO_ALL, (IRQ_RX_DONE + IRQ_HEADER_VALID), 0, 0);  //set for IRQ on RX done
   setRx(0);                                                                //no actual RX timeout in this function
@@ -1882,7 +1882,7 @@ uint8_t SX127XLT::receive(uint8_t *rxbuffer, uint8_t size, uint32_t rxtimeout, u
     return 0;                                                                //no RX done and header valid only, could be CRC error
   }
 
-  _RXPacketL = readRegister(REGRXNBBYTES);
+  _RXPacketL = readRegister(REG_RXNBBYTES);
 
   if (_RXPacketL > size)                      //check passed buffer is big enough for packet
   {
@@ -1894,7 +1894,7 @@ uint8_t SX127XLT::receive(uint8_t *rxbuffer, uint8_t size, uint32_t rxtimeout, u
 #endif
 
   digitalWrite(_NSS, LOW);                    //start the burst read
-  SPI.transfer(REGFIFO);
+  SPI.transfer(REG_FIFO);
 
   for (index = 0; index < _RXPacketL; index++)
   {
@@ -1922,8 +1922,8 @@ uint8_t SX127XLT::receiveAddressed(uint8_t *rxbuffer, uint8_t size, uint32_t rxt
   uint8_t regdata;
 
   setMode(MODE_STDBY_RC);
-  regdata = readRegister(REGFIFORXBASEADDR);                                //retrieve the RXbase address pointer
-  writeRegister(REGFIFOADDRPTR, regdata);                                   //and save in FIFO access ptr
+  regdata = readRegister(REG_FIFORXBASEADDR);                                //retrieve the RXbase address pointer
+  writeRegister(REG_FIFOADDRPTR, regdata);                                   //and save in FIFO access ptr
 
   setDioIrqParams(IRQ_RADIO_ALL, (IRQ_RX_DONE + IRQ_HEADER_VALID), 0, 0);   //set for IRQ on RX done
   setRx(0);                                                                 //no actual RX timeout in this function
@@ -1956,7 +1956,7 @@ uint8_t SX127XLT::receiveAddressed(uint8_t *rxbuffer, uint8_t size, uint32_t rxt
     return 0;                       //no RX done and header valid only, could be CRC error
   }
 
-  _RXPacketL = readRegister(REGRXNBBYTES);
+  _RXPacketL = readRegister(REG_RXNBBYTES);
 
   if (_RXPacketL > size)                      //check passed buffer is big enough for packet
   {
@@ -1968,7 +1968,7 @@ uint8_t SX127XLT::receiveAddressed(uint8_t *rxbuffer, uint8_t size, uint32_t rxt
 #endif
 
   digitalWrite(_NSS, LOW);                    //start the burst read
-  SPI.transfer(REGFIFO);
+  SPI.transfer(REG_FIFO);
 
   _RXPacketType = SPI.transfer(0);
   _RXDestination = SPI.transfer(0);
@@ -2004,10 +2004,10 @@ uint8_t SX127XLT::readPacket(uint8_t *rxbuffer, uint8_t size)
   }
 
   setMode(MODE_STDBY_RC);
-  regdata = readRegister(REGFIFORXBASEADDR);  //retrieve the RXbase address pointer
-  writeRegister(REGFIFOADDRPTR, regdata);     //and save in FIFO access ptr
+  regdata = readRegister(REG_FIFORXBASEADDR);  //retrieve the RXbase address pointer
+  writeRegister(REG_FIFOADDRPTR, regdata);     //and save in FIFO access ptr
 
-  _RXPacketL = readRegister(REGRXNBBYTES);
+  _RXPacketL = readRegister(REG_RXNBBYTES);
 
   if (_RXPacketL > size)                      //check passed buffer is big enough for packet
   {
@@ -2019,7 +2019,7 @@ uint8_t SX127XLT::readPacket(uint8_t *rxbuffer, uint8_t size)
 #endif
 
   digitalWrite(_NSS, LOW);                    //start the burst read
-  SPI.transfer(REGFIFO);
+  SPI.transfer(REG_FIFO);
 
   for (index = 0; index < _RXPacketL; index++)
   {
@@ -2045,10 +2045,10 @@ uint8_t SX127XLT::readPacketAddressed(uint8_t *rxbuffer, uint8_t size)
   uint8_t index, regdata;
 
   setMode(MODE_STDBY_RC);
-  regdata = readRegister(REGFIFORXBASEADDR);  //retrieve the RXbase address pointer
-  writeRegister(REGFIFOADDRPTR, regdata);     //and save in FIFO access ptr
+  regdata = readRegister(REG_FIFORXBASEADDR);  //retrieve the RXbase address pointer
+  writeRegister(REG_FIFOADDRPTR, regdata);     //and save in FIFO access ptr
 
-  _RXPacketL = readRegister(REGRXNBBYTES);
+  _RXPacketL = readRegister(REG_RXNBBYTES);
 
   if (_RXPacketL > size)                      //check passed buffer is big enough for packet
   {
@@ -2060,7 +2060,7 @@ uint8_t SX127XLT::readPacketAddressed(uint8_t *rxbuffer, uint8_t size)
 #endif
 
   digitalWrite(_NSS, LOW);                    //start the burst read
-  SPI.transfer(REGFIFO);
+  SPI.transfer(REG_FIFO);
   _RXPacketType = SPI.transfer(0);
   _RXDestination = SPI.transfer(0);
   _RXSource = SPI.transfer(0);
@@ -2096,15 +2096,15 @@ uint8_t SX127XLT::transmit(uint8_t *txbuffer, uint8_t size, uint32_t txtimeout, 
   }
 
   setMode(MODE_STDBY_RC);
-  ptr = readRegister(REGFIFOTXBASEADDR);       //retrieve the TXbase address pointer
-  writeRegister(REGFIFOADDRPTR, ptr);          //and save in FIFO access ptr
+  ptr = readRegister(REG_FIFOTXBASEADDR);       //retrieve the TXbase address pointer
+  writeRegister(REG_FIFOADDRPTR, ptr);          //and save in FIFO access ptr
 
 #ifdef USE_SPI_TRANSACTION                   //to use SPI_TRANSACTION enable define at beginning of CPP file 
   SPI.beginTransaction(SPISettings(LTspeedMaximum, LTdataOrder, LTdataMode));
 #endif
 
   digitalWrite(_NSS, LOW);
-  SPI.transfer(WREGFIFO);
+  SPI.transfer(WREG_FIFO);
 
   for (index = 0; index < size; index++)
   {
@@ -2118,7 +2118,7 @@ uint8_t SX127XLT::transmit(uint8_t *txbuffer, uint8_t size, uint32_t txtimeout, 
 #endif
 
   _TXPacketL = size;
-  writeRegister(REGPAYLOADLENGTH, _TXPacketL);
+  writeRegister(REG_PAYLOADLENGTH, _TXPacketL);
 
   setTxParams(txpower, RADIO_RAMP_DEFAULT);             //TX power and ramp time
 
@@ -2169,15 +2169,15 @@ uint8_t SX127XLT::transmitAddressed(uint8_t *txbuffer, uint8_t size, char txpack
   }
 
   setMode(MODE_STDBY_RC);
-  ptr = readRegister(REGFIFOTXBASEADDR);         //retrieve the TXbase address pointer
-  writeRegister(REGFIFOADDRPTR, ptr);            //and save in FIFO access ptr
+  ptr = readRegister(REG_FIFOTXBASEADDR);         //retrieve the TXbase address pointer
+  writeRegister(REG_FIFOADDRPTR, ptr);            //and save in FIFO access ptr
 
 #ifdef USE_SPI_TRANSACTION                     //to use SPI_TRANSACTION enable define at beginning of CPP file 
   SPI.beginTransaction(SPISettings(LTspeedMaximum, LTdataOrder, LTdataMode));
 #endif
 
   digitalWrite(_NSS, LOW);
-  SPI.transfer(WREGFIFO);
+  SPI.transfer(WREG_FIFO);
   SPI.transfer(txpackettype);                     //Write the packet type
   SPI.transfer(txdestination);                    //Destination node
   SPI.transfer(txsource);                         //Source node
@@ -2194,7 +2194,7 @@ uint8_t SX127XLT::transmitAddressed(uint8_t *txbuffer, uint8_t size, char txpack
   SPI.endTransaction();
 #endif
 
-  writeRegister(REGPAYLOADLENGTH, _TXPacketL);
+  writeRegister(REG_PAYLOADLENGTH, _TXPacketL);
 
   setTxParams(txpower, RADIO_RAMP_DEFAULT);             //TX power and ramp time
 
@@ -2262,7 +2262,7 @@ uint32_t SX127XLT::getLoRaBandwidth()
 
   if (_Device == DEVICE_SX1272)
   {
-    regdata = (readRegister(REGMODEMCONFIG1) & READ_BW_AND_2);
+    regdata = (readRegister(REG_MODEMCONFIG1) & READ_BW_AND_2);
     switch (regdata)
     {
       case 0:
@@ -2281,7 +2281,7 @@ uint32_t SX127XLT::getLoRaBandwidth()
   else
   {
 
-    regdata = (readRegister(REGMODEMCONFIG1) & READ_BW_AND_X);
+    regdata = (readRegister(REG_MODEMCONFIG1) & READ_BW_AND_X);
 
     switch (regdata)
     {
@@ -2330,7 +2330,7 @@ uint8_t SX127XLT::getLoRaSF()
 #endif
 
   uint8_t regdata;
-  regdata = readRegister(REGMODEMCONFIG2);
+  regdata = readRegister(REG_MODEMCONFIG2);
   regdata = ((regdata & READ_SF_AND_X) >> 4);       //SX1272 and SX1276 store SF in same place
 
   return regdata;
@@ -2344,7 +2344,7 @@ uint8_t SX127XLT::getLoRaCodingRate()
 #endif
 
   uint8_t regdata;
-  regdata = readRegister(REGMODEMCONFIG1);
+  regdata = readRegister(REG_MODEMCONFIG1);
 
   if (_Device != DEVICE_SX1272)
   {
@@ -2371,12 +2371,12 @@ uint8_t SX127XLT::getOptimisation()
   if (_Device != DEVICE_SX1272)
   {
     //for all devices apart from SX1272
-    regdata = readRegister(REGMODEMCONFIG3);
+    regdata = readRegister(REG_MODEMCONFIG3);
     regdata = ((regdata & READ_LDRO_AND_X) >> 3);
   }
   else
   {
-    regdata = readRegister(REGMODEMCONFIG1);
+    regdata = readRegister(REG_MODEMCONFIG1);
     regdata = (regdata & READ_LDRO_AND_2);
   }
 
@@ -2390,7 +2390,7 @@ uint8_t SX127XLT::getSyncWord()
   Serial.println(F("getSyncWord"));
 #endif
 
-  return readRegister(REGSYNCWORD);
+  return readRegister(REG_SYNCWORD);
 }
 
 
@@ -2403,7 +2403,7 @@ uint8_t SX127XLT::getInvertIQ()
 #endif
 
   uint8_t regdata;
-  regdata =  ( (readRegister(REGINVERTIQ)) & 0x40 );
+  regdata =  ( (readRegister(REG_INVERTIQ)) & 0x40 );
   return regdata;
 }
 
@@ -2416,7 +2416,7 @@ uint8_t SX127XLT::getVersion()
   Serial.println(F("getVersion"));
 #endif
 
-  return readRegister(REGVERSION);
+  return readRegister(REG_VERSION);
 }
 
 
@@ -2427,7 +2427,7 @@ uint16_t SX127XLT::getPreamble()
 #endif
 
   uint16_t regdata;
-  regdata =  ( (readRegister(REGPREAMBLEMSB) << 8) + readRegister(REGPREAMBLELSB) );
+  regdata =  ( (readRegister(REG_PREAMBLEMSB) << 8) + readRegister(REG_PREAMBLELSB) );
   return regdata;
 }
 
@@ -2577,7 +2577,7 @@ void SX127XLT::setSyncWord(uint8_t syncword)
   Serial.println(F("setSyncWord()"));
 #endif
 
-  writeRegister(REGSYNCWORD, syncword);
+  writeRegister(REG_SYNCWORD, syncword);
 }
 
 
@@ -2590,7 +2590,7 @@ uint8_t SX127XLT::receiveSXBuffer(uint8_t startaddr, uint32_t rxtimeout, uint8_t
   uint32_t endtimeoutmS;
 
   setMode(MODE_STDBY_RC);
-  writeRegister(REGFIFORXBASEADDR, startaddr);          //set start address of RX packet in buffer
+  writeRegister(REG_FIFORXBASEADDR, startaddr);          //set start address of RX packet in buffer
   setDioIrqParams(IRQ_RADIO_ALL, (IRQ_RX_DONE + IRQ_HEADER_VALID), 0, 0);   //set for IRQ on RX done
   setRx(0);                                                                 //no actual RX timeout in this function
 
@@ -2622,7 +2622,7 @@ uint8_t SX127XLT::receiveSXBuffer(uint8_t startaddr, uint32_t rxtimeout, uint8_t
     return 0;                       //no RX done and header valid only, could be CRC error
   }
 
-  _RXPacketL = readRegister(REGRXNBBYTES);
+  _RXPacketL = readRegister(REG_RXNBBYTES);
 
   return _RXPacketL;                           //so we can check for packet having enough buffer space
 }
@@ -2639,8 +2639,8 @@ uint8_t SX127XLT::transmitSXBuffer(uint8_t startaddr, uint8_t length, uint32_t t
 
   setMode(MODE_STDBY_RC);
 
-  writeRegister(REGFIFOTXBASEADDR, startaddr);          //set start address of packet in buffer
-  writeRegister(REGPAYLOADLENGTH, length);
+  writeRegister(REG_FIFOTXBASEADDR, startaddr);          //set start address of packet in buffer
+  writeRegister(REG_PAYLOADLENGTH, length);
 
   setTxParams(txpower, RADIO_RAMP_DEFAULT);             //TX power and ramp time
 
@@ -2685,14 +2685,14 @@ void SX127XLT::printSXBufferHEX(uint8_t start, uint8_t end)
   uint8_t index, regdata;
 
   setMode(MODE_STDBY_RC);
-  writeRegister(REGFIFOADDRPTR, start);          //set FIFO access ptr to start
+  writeRegister(REG_FIFOADDRPTR, start);          //set FIFO access ptr to start
 
 #ifdef USE_SPI_TRANSACTION     //to use SPI_TRANSACTION enable define at beginning of CPP file 
   SPI.beginTransaction(SPISettings(LTspeedMaximum, LTdataOrder, LTdataMode));
 #endif
 
   digitalWrite(_NSS, LOW);                       //start the burst read
-  SPI.transfer(REGFIFO);
+  SPI.transfer(REG_FIFO);
 
   for (index = start; index <= end; index++)
   {
@@ -2719,14 +2719,14 @@ void SX127XLT::printSXBufferASCII(uint8_t start, uint8_t end)
   uint8_t index, regdata;
   setMode(MODE_STDBY_RC);
 
-  writeRegister(REGFIFOADDRPTR, start);     //and save in FIFO access ptr
+  writeRegister(REG_FIFOADDRPTR, start);     //and save in FIFO access ptr
 
 #ifdef USE_SPI_TRANSACTION   //to use SPI_TRANSACTION enable define at beginning of CPP file 
   SPI.beginTransaction(SPISettings(LTspeedMaximum, LTdataOrder, LTdataMode));
 #endif
 
   digitalWrite(_NSS, LOW);                    //start the burst read
-  SPI.transfer(REGFIFO);
+  SPI.transfer(REG_FIFO);
 
   for (index = 0; index <= end; index++)
   {
@@ -2750,14 +2750,14 @@ void SX127XLT::fillSXBuffer(uint8_t startaddress, uint8_t size, uint8_t characte
   uint8_t index;
 
   setMode(MODE_STDBY_RC);
-  writeRegister(REGFIFOADDRPTR, startaddress);     //and save in FIFO access ptr
+  writeRegister(REG_FIFOADDRPTR, startaddress);     //and save in FIFO access ptr
 
 #ifdef USE_SPI_TRANSACTION                       //to use SPI_TRANSACTION enable define at beginning of CPP file 
   SPI.beginTransaction(SPISettings(LTspeedMaximum, LTdataOrder, LTdataMode));
 #endif
 
   digitalWrite(_NSS, LOW);                         //start the burst write
-  SPI.transfer(WREGFIFO);
+  SPI.transfer(WREG_FIFO);
 
   for (index = 0; index < size; index++)
   {
@@ -2782,14 +2782,14 @@ uint8_t SX127XLT::getByteSXBuffer(uint8_t addr)
   uint8_t regdata;
   setMode(MODE_STDBY_RC);                     //this is needed to ensure we can read from buffer OK.
 
-  writeRegister(REGFIFOADDRPTR, addr);        //set FIFO access ptr to location
+  writeRegister(REG_FIFOADDRPTR, addr);        //set FIFO access ptr to location
 
 #ifdef USE_SPI_TRANSACTION   //to use SPI_TRANSACTION enable define at beginning of CPP file 
   SPI.beginTransaction(SPISettings(LTspeedMaximum, LTdataOrder, LTdataMode));
 #endif
 
   digitalWrite(_NSS, LOW);                    //start the burst read
-  SPI.transfer(REGFIFO);
+  SPI.transfer(REG_FIFO);
   regdata = SPI.transfer(0);
   digitalWrite(_NSS, HIGH);
 
@@ -2809,14 +2809,14 @@ void SX127XLT::writeByteSXBuffer(uint8_t addr, uint8_t regdata)
 
   setMode(MODE_STDBY_RC);                 //this is needed to ensure we can write to buffer OK.
 
-  writeRegister(REGFIFOADDRPTR, addr);    //set FIFO access ptr to location
+  writeRegister(REG_FIFOADDRPTR, addr);    //set FIFO access ptr to location
 
 #ifdef USE_SPI_TRANSACTION   //to use SPI_TRANSACTION enable define at beginning of CPP file 
   SPI.beginTransaction(SPISettings(LTspeedMaximum, LTdataOrder, LTdataMode));
 #endif
 
   digitalWrite(_NSS, LOW);                //start the burst read
-  SPI.transfer(WREGFIFO);
+  SPI.transfer(WREG_FIFO);
   SPI.transfer(regdata);
   digitalWrite(_NSS, HIGH);
 
@@ -2837,14 +2837,14 @@ void SX127XLT::startWriteSXBuffer(uint8_t ptr)
   setMode(MODE_STDBY_RC);
 
   _TXPacketL = 0;                               //this variable used to keep track of bytes written
-  writeRegister(REGFIFOADDRPTR, ptr);           //set buffer access ptr
+  writeRegister(REG_FIFOADDRPTR, ptr);           //set buffer access ptr
 
 #ifdef USE_SPI_TRANSACTION                      //to use SPI_TRANSACTION enable define at beginning of CPP file 
   SPI.beginTransaction(SPISettings(LTspeedMaximum, LTdataOrder, LTdataMode));
 #endif
 
   digitalWrite(_NSS, LOW);
-  SPI.transfer(WREGFIFO);
+  SPI.transfer(WREG_FIFO);
 }
 
 
@@ -2872,14 +2872,14 @@ void SX127XLT::startReadSXBuffer(uint8_t ptr)
 
   setMode(MODE_STDBY_RC);
   _RXPacketL = 0;
-  writeRegister(REGFIFOADDRPTR, ptr);           //set buffer access ptr
+  writeRegister(REG_FIFOADDRPTR, ptr);           //set buffer access ptr
 
 #ifdef USE_SPI_TRANSACTION   //to use SPI_TRANSACTION enable define at beginning of CPP file 
   SPI.beginTransaction(SPISettings(LTspeedMaximum, LTdataOrder, LTdataMode));
 #endif
 
   digitalWrite(_NSS, LOW);               //start the burst read
-  SPI.transfer(REGFIFO);
+  SPI.transfer(REG_FIFO);
 
   //next line would be data = SPI.transfer(0);
   //SPI interface ready for byte to read from

@@ -60,10 +60,10 @@
   Serial monitor baud rate is set at 9600.
 *******************************************************************************************************/
 
-const uint8_t REGFRMSB = 0x06;                  //register number for setting setting and reading frequency, high byte
-const uint8_t REGFRMID = 0x07;                  //register number for setting setting and reading frequency, mid byte
-const uint8_t REGFRLSB = 0x08;                  //register number for setting setting and reading frequency, low byte
-const uint8_t REGVERSION = 0x42;                //register containg version number of device
+const uint8_t REG_FRMSB = 0x06;                 //register number for setting setting and reading frequency, high byte
+const uint8_t REG_FRMID = 0x07;                 //register number for setting setting and reading frequency, mid byte
+const uint8_t REG_FRLSB = 0x08;                 //register number for setting setting and reading frequency, low byte
+const uint8_t REG_VERSION = 0x42;               //register containg version number of device
 
 const uint8_t DEVICE_SX1272 = 0x10;             //SX1272
 const uint8_t DEVICE_SX1276 = 0x11;             //SX1276
@@ -114,7 +114,7 @@ void setup()
   }
 
   Serial.print(F("Device version 0x"));
-  uint8_t deviceversion = readRegister(REGVERSION);
+  uint8_t deviceversion = readRegister(REG_VERSION);
   if (deviceversion < 0x10)
   {
     Serial.print(F("0"));
@@ -175,9 +175,9 @@ uint32_t getFreqInt()
   uint8_t Msb, Mid, Lsb;
   uint32_t uinttemp;
   float floattemp;
-  Msb = readRegister(REGFRMSB);
-  Mid = readRegister(REGFRMID);
-  Lsb = readRegister(REGFRLSB);
+  Msb = readRegister(REG_FRMSB);
+  Mid = readRegister(REG_FRMID);
+  Lsb = readRegister(REG_FRLSB);
   floattemp = ((Msb * 0x10000ul) + (Mid * 0x100ul) + Lsb);
   floattemp = ((floattemp * 61.03515625) / 1000000ul);
   uinttemp = (uint32_t)(floattemp * 1000000);
@@ -223,9 +223,9 @@ void setRfFrequency(uint64_t freq64, int32_t offset)
 {
   freq64 = freq64 + offset;
   freq64 = ((uint64_t)freq64 << 19) / 32000000;
-  writeRegister(REGFRMSB, (uint8_t)(freq64 >> 16));
-  writeRegister(REGFRMID, (uint8_t)(freq64 >> 8));
-  writeRegister(REGFRLSB, (uint8_t)(freq64 >> 0));
+  writeRegister(REG_FRMSB, (uint8_t)(freq64 >> 16));
+  writeRegister(REG_FRMID, (uint8_t)(freq64 >> 8));
+  writeRegister(REG_FRLSB, (uint8_t)(freq64 >> 0));
 }
 
 
@@ -288,10 +288,10 @@ bool checkDevice()
   //check there is a device out there, writes a register and reads back
 
   uint8_t Regdata1, Regdata2;
-  Regdata1 = readRegister(REGFRMID);               //low byte of frequency setting
-  writeRegister(REGFRMID, (Regdata1 + 1));
-  Regdata2 = readRegister(REGFRMID);               //read changed value back
-  writeRegister(REGFRMID, Regdata1);               //restore register to original value
+  Regdata1 = readRegister(REG_FRMID);               //low byte of frequency setting
+  writeRegister(REG_FRMID, (Regdata1 + 1));
+  Regdata2 = readRegister(REG_FRMID);               //read changed value back
+  writeRegister(REG_FRMID, Regdata1);               //restore register to original value
 
   if (Regdata2 == (Regdata1 + 1))
   {
