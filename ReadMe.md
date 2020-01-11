@@ -7,6 +7,16 @@ The objective of the library was to allow the same program sketches to be used a
 ### Warning
 **The Semtech devices that this library supports are all 3.3V logic level devices so do not use directly with 5V logic level Arduinos, some form of logic level conversion is needed.** There are no specific logic level converters I could recommend. The programs have only been tested on 3.3V 8Mhz ATMega328P and ATMega1284P processors.
 
+### Library installation
+
+To install the library select the 'Clone or download' button on the main Github page, then select 'Download Zip'. In the Arduino IDE select 'Sketch' then 'Include Library'. Next select 'Add .ZIP library' and browse to and select the ZIP file you downloaded, it's called 'SX12xx-master.zip'.
+
+
+### Library Functions
+
+For details on how to use the library functions see the document; 'Library Functions'
+
+
 ### Testing
 For testing the library and the example programs I used a board of my own design, it uses a 3.3V/8Mhz Arduino Pro Mini which is soldered with a minimum amount of other components onto a board to which you can plug in a LoRa device as a Mikrobus style module. The board is small enough to be used for a GPS tracker application using the connections for a GPS and display as shown in the picture. The Pro Mini used includes a supply reverse protection diode and a fuse, so the board does not need these components.
 <br>
@@ -41,19 +51,16 @@ Full tested on 3.3V 8Mhz ATMega328P and ATMega1284P only.
  
 It was not the intention to specifically support non-Atmel platforms with the library, but the following programs have been tested and work on an ESP32 WROOM board;
 
-**3\_LoRa\_Transmit** and **4\_LoRa\_Receive**
+**3\_LoRa\_Transmitter** and **4\_LoRa\_Receiver**
 
 Using the ESP32 Dev Module board in the Arduino IDE. The pins used were;  NSS 5, NRESET 27, DIO0 35, SCK 18, MISO 19, MOSI 23. Some of the example programs use Atmel specific libraries for functions such as sleep mode and interrupts, these would not be expected to work on the ESP32. 
 
-### Library installation
-
-To install the library select the 'Clone or download' button on the main Github page, then select 'Download Zip'. In the Arduino IDE select 'Sketch' then 'Include Library'. Next select 'Add .ZIP library' and browse to and select the ZIP file you downloaded, it's called 'SX12xx-master.zip'.
 
 ### Support
-The examples do work, so if for you they do not, assume there is a problem with how you have wired the modules or that they are faulty or that your Arduino set-up is faulty or unsupported. Please do not ask for basic level support on how to connect the SX127x devices to a particular Arduino or other device, I just don't have the time to do help with this. I am not the right person to ask for support on how to use third party libraries. 
+The examples do work, so if for you they do not, assume there is a problem with how you have wired the modules or that your modules are faulty or that your Arduino set-up is faulty or unsupported. Please do not ask for basic level support on how to connect the SX127x devices to a particular Arduino or other device, I just don't have the time to do help with this. 
 
 If you find a bug, or other error in the SX12xx library or examples, please let me know.
- 
+
 
 ### Future Changes and Enhancements to Library
 

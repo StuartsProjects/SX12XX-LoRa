@@ -166,26 +166,6 @@ void led_Flash(uint16_t flashes, uint16_t delaymS)
 }
 
 
-void setupLoRa()
-{
-  //this is the contents of the library function called by;
-  //LT.setupLoRa(Frequency, Offset, SpreadingFactor, Bandwidth, CodeRate, Optimisation);
-  //Its included here for reference, so the default settings can be reviewed.
-
-  LT.setMode(MODE_STDBY_RC);                              //got to standby mode to configure device
-  LT.setPacketType(PACKET_TYPE_LORA);                     //set for LoRa transmissions
-  LT.setRfFrequency(Frequency, Offset);                   //set the operating frequency
-  LT.calibrateImage(0);                                   //run calibration after setting frequency
-  LT.setModulationParams(SpreadingFactor, Bandwidth, CodeRate, LDRO_AUTO);  //set LoRa modem parameters
-  LT.setBufferBaseAddress(0x00, 0x00);                    //where in the SX buffer packets start, TX and RX
-  LT.setPacketParams(8, LORA_PACKET_VARIABLE_LENGTH, 255, LORA_CRC_ON, LORA_IQ_NORMAL);  //set packet parameters
-  LT.setSyncWord(LORA_MAC_PRIVATE_SYNCWORD);              //syncword, LORA_MAC_PRIVATE_SYNCWORD = 0x12, or LORA_MAC_PUBLIC_SYNCWORD = 0x34
-  LT.setHighSensitivity();                                //set for highest sensitivity at expense of slightly higher LNA current
-  //This is the typical IRQ parameters set, actually excecuted in the receive function
-  LT.setDioIrqParams(IRQ_RADIO_ALL, IRQ_RX_DONE, 0, 0);   //set for IRQ on RX done
-}
-
-
 void setup()
 {
   pinMode(LED1, OUTPUT);                        //setup pin as output for indicator LED
@@ -211,7 +191,7 @@ void setup()
 
   SPI.begin();
 
-  //SPI beginTranscation is normally part of library routines, but if it is disabled in library
+  //SPI beginTranscation is normally part of library routines, but if it is disabled in the library
   //a single instance is needed here, so uncomment the program line below
   //SPI.beginTransaction(SPISettings(8000000, MSBFIRST, SPI_MODE0));
 
@@ -231,8 +211,26 @@ void setup()
     }
   }
 
-  //this function call sets up the device for LoRa using the settings from settings.h
-  LT.setupLoRa(Frequency, Offset, SpreadingFactor, Bandwidth, CodeRate, Optimisation);
+  //The function call list below shows the complete setup for the LoRa device using the information defined in the
+  //Settings.h file.
+  //The 'Setup LoRa device' list below can be replaced with a single function call;
+  //LT.setupLoRa(Frequency, Offset, SpreadingFactor, Bandwidth, CodeRate, Optimisation);
+
+  //***************************************************************************************************
+  //Setup LoRa device
+  //***************************************************************************************************
+  LT.setMode(MODE_STDBY_RC);                              //got to standby mode to configure device
+  LT.setPacketType(PACKET_TYPE_LORA);                     //set for LoRa transmissions
+  LT.setRfFrequency(Frequency, Offset);                   //set the operating frequency
+  LT.calibrateImage(0);                                   //run calibration after setting frequency
+  LT.setModulationParams(SpreadingFactor, Bandwidth, CodeRate, LDRO_AUTO);  //set LoRa modem parameters
+  LT.setBufferBaseAddress(0x00, 0x00);                    //where in the SX buffer packets start, TX and RX
+  LT.setPacketParams(8, LORA_PACKET_VARIABLE_LENGTH, 255, LORA_CRC_ON, LORA_IQ_NORMAL);  //set packet parameters
+  LT.setSyncWord(LORA_MAC_PRIVATE_SYNCWORD);              //syncword, LORA_MAC_PRIVATE_SYNCWORD = 0x12, or LORA_MAC_PUBLIC_SYNCWORD = 0x34
+  LT.setHighSensitivity();                                //set for highest sensitivity at expense of slightly higher LNA current
+  LT.setDioIrqParams(IRQ_RADIO_ALL, IRQ_RX_DONE, 0, 0);   //set for IRQ on RX done
+  //***************************************************************************************************
+
 
   Serial.println();
   LT.printLoraSettings();                                      //reads and prints the configured LoRa settings, useful check

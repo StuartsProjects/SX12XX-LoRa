@@ -212,20 +212,6 @@ void sweepTest(uint8_t num)
 }
 
 
-void setupLoRa()
-{
-  LT.setMode(MODE_STDBY_RC);                              //got to standby mode to configure device
-  LT.setPacketType(PACKET_TYPE_LORA);                     //set for LoRa transmissions
-  LT.setRfFrequency(Frequency, Offset);                   //set the operating frequency
-  LT.calibrateImage(0);                                   //run calibration after setting frequency
-  LT.setModulationParams(SpreadingFactor, Bandwidth, CodeRate, LDRO_AUTO);  //set LoRa modem parameters
-  LT.setBufferBaseAddress(0x00, 0x00);                    //where in the SX buffer packets start, TX and RX
-  LT.setPacketParams(8, LORA_PACKET_FIXED_LENGTH, PacketLength, LORA_CRC_ON, LORA_IQ_NORMAL);  //set packet parameters
-  LT.setSyncWord(LORA_MAC_PRIVATE_SYNCWORD);              //syncword, LORA_MAC_PRIVATE_SYNCWORD = 0x12, or LORA_MAC_PUBLIC_SYNCWORD = 0x34
-  LT.setHighSensitivity();                                //set for highest sensitivity at expense of slightly higher LNA current
-  LT.setDioIrqParams(IRQ_RADIO_ALL, IRQ_TX_DONE, 0, 0);   //set for IRQ on TX done
-}
-
 
 void setup()
 {
@@ -259,7 +245,7 @@ void setup()
     }
   }
 
-  setupLoRa();
+  LT.setupLoRa(Frequency, Offset, SpreadingFactor, Bandwidth, CodeRate, Optimisation);
 
   Serial.println(F("36_Remote_Control_Servo_Receiver ready"));
   Serial.println();

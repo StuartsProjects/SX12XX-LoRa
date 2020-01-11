@@ -165,13 +165,13 @@
 //For most applications only DIO0, DIO1 and DIO2 are connected.
 
 #define    IRQ_RADIO_NONE                           0x00
-#define    IRQ_CAD_ACTIVITY_DETECTED                0x01  //defaults to DIO1 
-#define    IRQ_FSHS_CHANGE_CHANNEL                  0x02  //defaults to DIO2 
-#define    IRQ_CAD_DONE                             0x04  //defaults to DIO0 
-#define    IRQ_TX_DONE                              0x08  //defaults to DIO0 
-#define    IRQ_HEADER_VALID                         0x10
-#define    IRQ_CRC_ERROR                            0x20
-#define    IRQ_RX_DONE                              0x40   //defaults to DIO0 
+#define    IRQ_CAD_ACTIVITY_DETECTED                0x01  //active on DIO1 
+#define    IRQ_FSHS_CHANGE_CHANNEL                  0x02  //active on DIO2 
+#define    IRQ_CAD_DONE                             0x04  //active on DIO0 
+#define    IRQ_TX_DONE                              0x08  //active on DIO0 
+#define    IRQ_HEADER_VALID                         0x10  //read from IRQ register only
+#define    IRQ_CRC_ERROR                            0x20  //read from IRQ register only
+#define    IRQ_RX_DONE                              0x40  //active on DIO0 
 #define    IRQ_RADIO_ALL                            0xFFFF
 
 #define    IRQ_TX_TIMEOUT                       0x0100     //so that readIrqstatus can return additional detections 

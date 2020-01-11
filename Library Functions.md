@@ -16,33 +16,55 @@ before every use of the SPI and this function after it;
 
 **SPI.endTransaction()**
 
-The parameters used are LTspeedMaximum, LTdataOrder and LTdataMode are defined in SX127X_Includes.h as;
+The parameters used are LTspeedMaximum, LTdataOrder and LTdataMode are defined in SX127XLT_Definitions.h as;
 
 
-	#define LTspeedMaximum  8000000
-	#define LTdataOrder     MSBFIRST
-	#define LTdataMode      SPI_MODE0
+	LTspeedMaximum  8000000
+	LTdataOrder     MSBFIRST
+	LTdataMode      SPI_MODE0
 
 The use of SPI.beginTransaction and SPI.endTransaction can be disabled by commenting out this define at the top of the SX127XLT.cpp file;
 
 	#define USE_SPI_TRANSACTION        
 
 
-**begin(NSS, NRESET, DIO0, DIO1, DIO2, LORA_DEVICE)**
+**begin(NSS, NRESET, DIO0, DIO1, DIO2, LORA\_DEVICE)**
 
 Initialises the hardware pins used by the device. NSS, NRESET and DIO0 are required, DIO1 and DIO2 are optional and if not used define as -1. LoRA\_DEVICE tells the library which actual LoRa RF IC is being used, the choices are;
 
-	#define DEVICE_SX1272
-	#define DEVICE_SX1276
-	#define DEVICE_SX1277
-	#define DEVICE_SX1278
-	#define DEVICE_SX1279
+	DEVICE_SX1272
+	DEVICE_SX1276
+	DEVICE_SX1277
+	DEVICE_SX1278
+	DEVICE_SX1279
 
-**setupLoRa(Frequency, Offset, SpreadingFactor, Bandwidth, CodeRate, Optimisation)**
+**setMode(MODE\_STDBY\_RC)**
 
-This function first sets the Frequency of operation, the frequency is in hertz as a 32 bit unsigned integer. The actual programmed operating frequency is the sum of Frequency and Offset (also 32 bit integer). If you knew (by calibration) that a particular module has a frequency off set of +5,000hz, then you can correct for it by setting the offset to -5,000hz.
+Sets the operation mode of the LoRa device. Choices are;
 
-SpreadingFactor, Bandwidth and CodeRate are the LoRa modem parameters and the choices are;
+	MODE_SLEEP
+	MODE_STDBY
+	MODE_STDBY_RC
+
+**setPacketType(PACKET\_TYPE\_LORA)**
+
+Set the type of packet to use, currently only LORA is supported, choices are;
+
+	PACKET_TYPE_GFSK
+	PACKET_TYPE_LORA
+	PACKET_TYPE_NONE
+
+**setRfFrequency(Frequency, Offset)**
+
+Sets the operating frequency, in hertz. A calibration offset also in hertz can be used if there is a calibration value known for a particular module.
+
+**calibrateImage(0)**
+
+Carries out an internal device calibration, normally carried out after setting the initial operating frequency. 
+
+**setModulationParams(SpreadingFactor, Bandwidth, CodeRate, LDRO_AUTO)**
+
+Sets the LoRa modem parameters of Spreading factor, Bandwidth, CodeRate and Optimisation. The options are; 
 
     //LoRa Spreading factors
     LORA_SF6
@@ -71,12 +93,71 @@ SpreadingFactor, Bandwidth and CodeRate are the LoRa modem parameters and the ch
     LORA_CR_4_7  
     LORA_CR_4_8
 
-The SX126X and SX127X devices have an low data rate optimisation setting that needs to be set when the symbol time is greater than 16mS. You can manually turn it on or off or set it to LDRO_AUTO and the library does the calculation for you
+The SX126X and SX127X devices have an low data rate optimisation setting that needs to be set when the symbol time is greater than 16mS. You can manually turn it on or off or set it to LDRO\_AUTO and the library does the calculation for you
 
     //Low date rate optimisation, need to be set when symbol time > 16mS
     LDRO_OFF
     LDRO_ON
-    LDRO_AUTO       //automatically calculated and set   
+    LDRO_AUTO       //automatically calculated and set 
+
+**setBufferBaseAddress(0x00, 0x00)**
+
+This sets the default location for the locations in the LoRa device buffer where transmitted and received packets start. The defaults of these locations are set in the transmit and receive functions, so this function is not normally required. 
+                   
+**setPacketParams(PreAmblelength, LORA\_PACKET\_VARIABLE\_LENGTH, PacketLength, LORA\_CRC\_ON, LORA\_IQ\_NORMAL)**
+
+Set the packet parameters. PreAmblelength is normally 8. There is a choise of LORA\_PACKET\_VARIABLE\_LENGTH for variable length explicit packets or LORA\_PACKET\_FIXED\_LENGTH for implicit packets. PacketLength is 1 to 255, it can be set here but is normally handled within the transmitter and receiver functions. There is the option of using a packet CRC with LORA\_CRC\_ON or not using a CRC with LORA\_CRC\_OFF. IQ can be set to LORA\_IQ\_NORMAL or LORA\_IQ\_INVERTED.
+
+**setSyncWord(LORA\_MAC\_PRIVATE\_SYNCWORD)**
+
+You can define the syncword here, either a 8 bit value of your own choice or the standard values of LORA\_MAC\_PRIVATE\_SYNCWORD (0x12) or LORA\_MAC\_PUBLIC\_SYNCWORD (0x34). Take care with setting your own syncwords, some values may not be compatible with other LoRa devices or can give reduced sensitivity.
+
+**setHighSensitivity()**
+
+Sets LoRa device for the highest sensitivity at expense of slightly higher LNA current. The alternative is setLowPowerReceive() for lower sensitivity with slightly lower current. 
+
+
+**setDioIrqParams(MASK, DIO0\_MASK, DIO1\_MASK, DIO2\_MASK)**
+
+Sets up the how the device responds to internal events. This function is written to match the style used by the SX126X and SX127X devices. MASK is applied to the IRQ settings for DIO0, DIO1 and DIO2, its normally set to IRQ\_RADIO\_ALL (0xFFFF). Whilst the SX127X only has an 8 bit IRQ register the library has extended the function to provide additional IRQ detections that can be found in the SX126X and SX127X. 
+
+In the case of the SX127X, the function maps the internal interrupts to the DIO0, DIO1 and DIO2 pins according to this table;
+
+	IRQ_RADIO_NONE              0x00
+	IRQ_CAD_ACTIVITY_DETECTED   0x01       //active on DIO1 
+	IRQ_FSHS_CHANGE_CHANNEL     0x02       //active on DIO2 
+	IRQ_CAD_DONE                0x04       //active on DIO0 
+	IRQ_TX_DONE                 0x08       //active on DIO0 
+	IRQ_HEADER_VALID            0x10       //read from IRQ register only
+	IRQ_CRC_ERROR               0x20       //read from IRQ register only
+	IRQ_RX_DONE                 0x40       //active on DIO0 
+	IRQ_RADIO_ALL               0xFFFF
+
+	IRQ_TX_TIMEOUT              0x0100     //so that readIrqstatus can return additional detections 
+	IRQ_RX_TIMEOUT              0x0200     //so that readIrqstatus can return additional detections  
+	IRQ_NO_PACKET_CRC           0x0400     //so that readIrqstatus can return additional detections 
+
+
+**setupLoRa(Frequency, Offset, SpreadingFactor, Bandwidth, CodeRate, Optimisation)**
+
+As an alternative to setting up the LoRa device with separate functions (as above) you can use this function. The function first sets the Frequency of operation, the frequency is in hertz as a 32 bit unsigned integer. The actual programmed operating frequency is the sum of Frequency and Offset (also 32 bit integer).
+
+SpreadingFactor, Bandwidth and CodeRate are the LoRa modem parameters and the choices are as given for the setModulationParams() described above.
+
+When using setupLoRa() that library function calls the following functions using these defaults;
+
+	setMode(MODE_STDBY_RC)
+	setPacketType(PACKET_TYPE_LORA);
+	setRfFrequency(Frequency, Offset);
+	calibrateImage(0);
+	setModulationParams(SpreadingFactor, Bandwidth, CodeRate, LDRO_AUTO);
+	setBufferBaseAddress(0x00, 0x00);
+	setPacketParams(8, LORA_PACKET_VARIABLE_LENGTH, 255, LORA_CRC_ON, LORA_IQ_NORMAL);
+	setSyncWord(LORA_MAC_PRIVATE_SYNCWORD);
+	LORA_MAC_PUBLIC_SYNCWORD = 0x34
+	setHighSensitivity();
+	setDioIrqParams(IRQ_RADIO_ALL, IRQ_TX_DONE, 0, 0);
+ 
 
 **printLoraSettings()**
 
@@ -115,7 +196,7 @@ The **4\_LoRa\_Receiver** sketch is very similar, with the following differences
 
 **LT.receive(RXBUFFER, RXBUFFER\_SIZE, timeout, WAIT\_RX)**
 
-Copy the received packet into the buffer address given with a maximum buffer size. If the RXBUFFER\_SIZE is smaller than the actual received packet then the packet will be truncated. If WAI\T_RX is selected then the program will wait for the time-out period (in mS) for a packet to arrive before signalling a time-out, this is a blocking command. To have the receiver wait continuously for a packet set the timeout to 0. To use the receiver in non-blocking mode set NO\_WAIT in which case you will need to check DIO0 going high to indicate a packet has arrived. 
+Copy the received packet into the buffer address given with a maximum buffer size. If the RXBUFFER\_SIZE is smaller than the actual received packet then the packet will be truncated. If WAIT\_RX is selected then the program will wait for the time-out period (in mS) for a packet to arrive before signalling a time-out, this is a blocking command. To have the receiver wait continuously for a packet set the timeout to 0. To use the receiver in non-blocking mode set NO\_WAIT in which case you will need to check DIO0 going high to indicate a packet has arrived. 
 
 **readPacketRSSI()** 
 
