@@ -1,7 +1,5 @@
 /*******************************************************************************************************
-  LoRaTracker Programs for Arduino - Copyright of the author Stuart Robinson - 16/12/19
-
-  http://www.LoRaTracker.uk
+  lora Programs for Arduino - Copyright of the author Stuart Robinson - 16/12/19
 
   This programs is supplied as is, it is up to the user of the program to decide if the programs are
   suitable for the intended purpose and free from errors.

@@ -1608,7 +1608,7 @@ void SX127XLT::setDioIrqParams(uint16_t irqMask, uint16_t dio0Mask, uint16_t dio
       mask1 = 0x30;
   }
 
-  mask2 = 0x00;              //is always IRQ_FSHS_CHANGE_CHANNEL
+  mask2 = 0x00;                  //is always IRQ_FSHS_CHANGE_CHANNEL
 
   writeRegister(REG_IRQFLAGSMASK, ~irqMask);
   writeRegister(REG_DIOMAPPING1, (mask0 + mask1 + mask2));

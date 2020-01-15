@@ -1,7 +1,5 @@
 /*******************************************************************************************************
-  LoRaTracker Programs for Arduino - Copyright of the author Stuart Robinson - 16/12/19
-
-  http://www.LoRaTracker.uk
+  lora Programs for Arduino - Copyright of the author Stuart Robinson - 16/12/19
 
   This program is supplied as is, it is up to the user of the program to decide if the program is
   suitable for the intended purpose and free from errors.
@@ -34,8 +32,7 @@ SX127XLT LT;                                                   //create a librar
 uint8_t TXPacketL;
 uint32_t TXPacketCount, startmS, endmS;
 
-uint8_t buff[] = "www.LoRaTracker.uk";
-
+uint8_t buff[] = "Hello World 1234567890";
 
 void loop()
 {

@@ -1,7 +1,5 @@
 /*******************************************************************************************************
-  LoRaTracker Programs for Arduino - Copyright of the author Stuart Robinson - 20/12/19
-
-  http://www.LoRaTracker.uk
+  lora Programs for Arduino - Copyright of the author Stuart Robinson - 20/12/19
 
   This program is supplied as is, it is up to the user of the program to decide if the program is
   suitable for the intended purpose and free from errors.
@@ -17,8 +15,8 @@
 *******************************************************************************************************/
 
 #include <U8x8lib.h>                                        //get library here >  https://github.com/olikraus/u8g2 
-U8X8_SSD1306_128X64_NONAME_HW_I2C disp(U8X8_PIN_NONE);      //use this line for standard 0.96" SSD1306
-//U8X8_SH1106_128X64_NONAME_HW_I2C disp(U8X8_PIN_NONE);     //use this line for 1.3" OLED often sold as 1.3" SSD1306
+//U8X8_SSD1306_128X64_NONAME_HW_I2C disp(U8X8_PIN_NONE);      //use this line for standard 0.96" SSD1306
+U8X8_SH1106_128X64_NONAME_HW_I2C disp(U8X8_PIN_NONE);     //use this line for 1.3" OLED often sold as 1.3" SSD1306
 
 #define OLED_Address 0x3C
 

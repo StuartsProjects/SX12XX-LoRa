@@ -1,7 +1,5 @@
 /*******************************************************************************************************
-  LoRaTracker Programs for Arduino - Copyright of the author Stuart Robinson - 04/01/20
-
-  http://www.LoRaTracker.uk
+  lora Programs for Arduino - Copyright of the author Stuart Robinson - 04/01/20
 
   This program is supplied as is, it is up to the user of the program to decide if the program is
   suitable for the intended purpose and free from errors.
@@ -27,7 +25,7 @@
 
   Sample Serial Monitor output;
 
-  10dBm Packet> www.LoRaTracker.uk*  BytesSent,19  CRC,3882  TransmitTime,8mS  PacketsSent,1
+  10dBm Packet> Hello World 123456*  BytesSent,19  CRC,3882  TransmitTime,8mS  PacketsSent,1
 
   Serial monitor baud rate is set at 9600
 *******************************************************************************************************/
@@ -43,7 +41,7 @@ SX127XLT LT;                                                   //create a librar
 uint8_t TXPacketL;
 uint32_t TXPacketCount, startmS, endmS;
 
-uint8_t buff[] = "www.LoRaTracker.uk";                         //buffer length must be 19, and defined in constant PacketLength
+uint8_t buff[] = "Hello World 123456";                         //buffer length must be 19, and defined in constant PacketLength
 
 
 void loop()
