@@ -1,5 +1,5 @@
 /*******************************************************************************************************
-  lora Programs for Arduino - Copyright of the author Stuart Robinson - 21/12/19
+  lora Programs for Arduino - Copyright of the author Stuart Robinson - 20/02/20
 
   This program is supplied as is, it is up to the user of the program to decide if the program is
   suitable for the intended purpose and free from errors.
@@ -32,16 +32,11 @@
 
 SX127XLT LT;                                     //create a library class instance called LT
 
-#include <U8x8lib.h>                                      //get library here >  https://github.com/olikraus/u8g2 
-U8X8_SSD1306_128X64_NONAME_HW_I2C disp(U8X8_PIN_NONE);    //use this line for standard 0.96" SSD1306
-//U8X8_SH1106_128X64_NONAME_HW_I2C disp(U8X8_PIN_NONE);   //use this line for 1.3" OLED often sold as 1.3" SSD1306
-
-
 uint32_t RXpacketCount;
-uint32_t RXpacketErrors;
-uint16_t IRQStatus;
+uint32_t errors;
 
 uint8_t RXBUFFER[RXBUFFER_SIZE];                 //create the buffer that received packets are copied into
+
 uint8_t RXPacketL;                               //stores length of packet received
 int8_t  PacketRSSI;                              //stores RSSI of received packet
 int8_t  PacketSNR;                               //stores signal to noise ratio of received packet
@@ -53,15 +48,14 @@ void loop()
 
   digitalWrite(LED1, HIGH);                      //something has happened
 
-  if (BUZZER > 0)
+  if (BUZZER > 0)                                //turn buzzer on
   {
-    digitalWrite(BUZZER, HIGH);                  //buzzer on
+    digitalWrite(BUZZER, HIGH);
   }
 
   PacketRSSI = LT.readPacketRSSI();              //read the recived RSSI value
   PacketSNR = LT.readPacketSNR();                //read the received SNR value
-  IRQStatus = LT.readIrqStatus();                //read the LoRa device IRQ status register
-  
+
   if (RXPacketL == 0)                            //if the LT.receive() function detects an error, RXpacketL == 0
   {
     packet_is_Error();
@@ -71,11 +65,11 @@ void loop()
     packet_is_OK();
   }
 
-   if (BUZZER > 0)
+  if (BUZZER > 0)
   {
     digitalWrite(BUZZER, LOW);                    //buzzer off
   }
-  
+
   digitalWrite(LED1, LOW);                        //LED off
 
   Serial.println();
@@ -84,7 +78,9 @@ void loop()
 
 void packet_is_OK()
 {
-  uint16_t CRC;
+  uint16_t IRQStatus, localCRC;
+
+  IRQStatus = LT.readIrqStatus();                  //read the LoRa device IRQ status register
 
   RXpacketCount++;
 
@@ -92,9 +88,9 @@ void packet_is_OK()
   Serial.print(F("  "));
   LT.printASCIIPacket(RXBUFFER, RXPacketL);        //print the packet as ASCII characters
 
-  CRC = LT.CRCCCITT(RXBUFFER, RXPacketL, 0xFFFF);  //calculate the CRC, this is the external CRC calculation of the RXBUFFER
+  localCRC = LT.CRCCCITT(RXBUFFER, RXPacketL, 0xFFFF);  //calculate the CRC, this is the external CRC calculation of the RXBUFFER
   Serial.print(F(",CRC,"));                        //contents, not the LoRa device internal CRC
-  Serial.print(CRC, HEX);
+  Serial.print(localCRC, HEX);
   Serial.print(F(",RSSI,"));
   Serial.print(PacketRSSI);
   Serial.print(F("dBm,SNR,"));
@@ -104,19 +100,17 @@ void packet_is_OK()
   Serial.print(F(",Packets,"));
   Serial.print(RXpacketCount);
   Serial.print(F(",Errors,"));
-  Serial.print(RXpacketErrors);
+  Serial.print(errors);
   Serial.print(F(",IRQreg,"));
   Serial.print(IRQStatus, HEX);
-
-  disp.clearLine(0);
-  disp.setCursor(0, 0);
-  disp.print(F("OK"));
-  dispscreen1();
 }
 
 
 void packet_is_Error()
 {
+  uint16_t IRQStatus;
+  IRQStatus = LT.readIrqStatus();                   //read the LoRa device IRQ status register
+
   printElapsedTime();                               //print elapsed time to Serial Monitor
 
   if (IRQStatus & IRQ_RX_TIMEOUT)                   //check for an RX timeout
@@ -125,7 +119,7 @@ void packet_is_Error()
   }
   else
   {
-    RXpacketErrors++;
+    errors++;
     Serial.print(F(" PacketError"));
     Serial.print(F(",RSSI,"));
     Serial.print(PacketRSSI);
@@ -136,17 +130,13 @@ void packet_is_Error()
     Serial.print(F(",Packets,"));
     Serial.print(RXpacketCount);
     Serial.print(F(",Errors,"));
-    Serial.print(RXpacketErrors);
+    Serial.print(errors);
     Serial.print(F(",IRQreg,"));
     Serial.print(IRQStatus, HEX);
     LT.printIrqStatus();                            //print the names of the IRQ registers set
-    disp.clearLine(0);
-    disp.setCursor(0, 0);
-    disp.print(F("Packet Error"));
-    dispscreen1();
   }
 
-  delay(500);                                       //gives longer buzzer and LED falsh for error
+  delay(250);                                       //gives a longer buzzer and LED flash for error 
   
 }
 
@@ -158,45 +148,6 @@ void printElapsedTime()
   Serial.print(seconds, 0);
   Serial.print(F("s"));
 }
-
-
-void dispscreen1()
-{
-  disp.clearLine(1);
-  disp.setCursor(0, 1);
-  disp.print(F("RSSI    "));
-  disp.print(PacketRSSI);
-  disp.print(F("dBm"));
-  disp.clearLine(2);
-  disp.setCursor(0, 2);
-  disp.print(F("SNR     "));
-
-  if (PacketSNR)
-  {
-  disp.print(F("+")); 
-  }
-  
-  disp.print(PacketSNR);
-  disp.print(F("dB"));
-  disp.clearLine(3);
-  disp.setCursor(0, 3);
-  disp.print(F("Length  "));
-  disp.print(LT.readRXPacketL());
-  disp.clearLine(4);
-  disp.setCursor(0, 4);
-  disp.print(F("Packets "));
-  disp.print(RXpacketCount);
-  disp.clearLine(5);
-  disp.setCursor(0, 5);
-  disp.print(F("Errors  "));
-  disp.print(RXpacketErrors);
-  disp.clearLine(6);
-  disp.setCursor(0, 6);
-  disp.print(F("IRQreg  "));
-  disp.print(IRQStatus, HEX);
-}
-
-
 
 
 void led_Flash(uint16_t flashes, uint16_t delaymS)
@@ -215,6 +166,9 @@ void led_Flash(uint16_t flashes, uint16_t delaymS)
 
 void setup()
 {
+  pinMode(VCCPOWER, OUTPUT);                    //this pin switches power for external devices, lora and SD card
+  digitalWrite(VCCPOWER, LOW);                  //turn power on 
+  
   pinMode(LED1, OUTPUT);                        //setup pin as output for indicator LED
   led_Flash(2, 125);                            //two quick LED flashes to indicate program start
 
@@ -225,7 +179,7 @@ void setup()
   Serial.println(F(__DATE__));
   Serial.println(F(Program_Version));
   Serial.println();
-  Serial.println(F("4_LoRa_Receiver Starting"));
+  Serial.println(F("4_LoRa_Receiver_ESP32 Starting"));
   Serial.println();
 
   if (BUZZER > 0)
@@ -236,24 +190,16 @@ void setup()
     digitalWrite(BUZZER, LOW);
   }
 
-  SPI.begin();
+ //SPI.begin();                                      //default setup can be used be used
+  SPI.begin(SCK,MISO,MOSI,NSS);                      //alternative format for SPI3, VSPI; SPI.begin(SCK,MISO,MOSI,SS)
 
-  //SPI beginTranscation is normally part of library routines, but if it is disabled in library
+  //SPI beginTranscation is normally part of library routines, but if it is disabled in the library
   //a single instance is needed here, so uncomment the program line below
   //SPI.beginTransaction(SPISettings(8000000, MSBFIRST, SPI_MODE0));
-
-  disp.begin();
-  disp.setFont(u8x8_font_chroma48medium8_r);
-
-  disp.clear();
-  disp.setCursor(0, 0);
-  disp.print(F("Check LoRa"));
-  disp.setCursor(0, 1);
 
   //setup hardware pins used by device, then check if device is found
   if (LT.begin(NSS, NRESET, DIO0, DIO1, DIO2, LORA_DEVICE))
   {
-    disp.print(F("LoRa OK"));
     Serial.println(F("LoRa Device found"));
     led_Flash(2, 125);
     delay(1000);
@@ -263,13 +209,30 @@ void setup()
     Serial.println(F("No device responding"));
     while (1)
     {
-      disp.print(F("Device error"));
       led_Flash(50, 50);                                       //long fast speed LED flash indicates device error
     }
   }
 
-  //this function call sets up the device for LoRa using the settings from settings.h
-  LT.setupLoRa(Frequency, Offset, SpreadingFactor, Bandwidth, CodeRate, Optimisation);
+  //The function call list below shows the complete setup for the LoRa device using the information defined in the
+  //Settings.h file.
+  //The 'Setup LoRa device' list below can be replaced with a single function call;
+  //LT.setupLoRa(Frequency, Offset, SpreadingFactor, Bandwidth, CodeRate, Optimisation);
+
+  //***************************************************************************************************
+  //Setup LoRa device
+  //***************************************************************************************************
+  LT.setMode(MODE_STDBY_RC);                              //got to standby mode to configure device
+  LT.setPacketType(PACKET_TYPE_LORA);                     //set for LoRa transmissions
+  LT.setRfFrequency(Frequency, Offset);                   //set the operating frequency
+  LT.calibrateImage(0);                                   //run calibration after setting frequency
+  LT.setModulationParams(SpreadingFactor, Bandwidth, CodeRate, LDRO_AUTO);  //set LoRa modem parameters
+  LT.setBufferBaseAddress(0x00, 0x00);                    //where in the SX buffer packets start, TX and RX
+  LT.setPacketParams(8, LORA_PACKET_VARIABLE_LENGTH, 255, LORA_CRC_ON, LORA_IQ_NORMAL);  //set packet parameters
+  LT.setSyncWord(LORA_MAC_PRIVATE_SYNCWORD);              //syncword, LORA_MAC_PRIVATE_SYNCWORD = 0x12, or LORA_MAC_PUBLIC_SYNCWORD = 0x34
+  LT.setHighSensitivity();                                //set for highest sensitivity at expense of slightly higher LNA current
+  LT.setDioIrqParams(IRQ_RADIO_ALL, IRQ_RX_DONE, 0, 0);   //set for IRQ on RX done
+  //***************************************************************************************************
+
 
   Serial.println();
   LT.printLoraSettings();                                      //reads and prints the configured LoRa settings, useful check
@@ -277,7 +240,7 @@ void setup()
   LT.printOperatingSettings();                                 //reads and prints the configured operting settings, useful check
   Serial.println();
   Serial.println();
-  LT.printRegisters(PRINT_LOW_REGISTER, PRINT_HIGH_REGISTER);  //print contents of device registers
+  LT.printRegisters(0x00, 0x4F);                               //print contents of device registers, normally 0x00 to 0x4F
   Serial.println();
   Serial.println();
 

@@ -7,7 +7,7 @@
 #include <SX127XLT.h>
 #include <SPI.h>
 
-#define UNUSED(v) (void) (v)       //add UNUSED(variable); in functions to avoid compiler warnings 
+#define LTUNUSED(v) (void) (v)       //add LTUNUSED(variable); in functions to avoid compiler warnings 
 #define USE_SPI_TRANSACTION        //this is the standard behaviour of library, use SPI Transaction switching
 
 //#define SX127XDEBUG1             //enable level 1 debug messages
@@ -111,7 +111,7 @@ void SX127XLT::setSleep(uint8_t sleepconfig)
   Serial.println(F("setSleep()"));
 #endif
 
-  UNUSED(sleepconfig);
+  LTUNUSED(sleepconfig);
 
   uint8_t regdata;
 
@@ -164,7 +164,7 @@ void SX127XLT::calibrateImage(uint8_t null)
   Serial.println(F("calibrateImage()"));
 #endif
 
-  UNUSED(null);
+  LTUNUSED(null);
 
   uint8_t regdata, savedmode;
   savedmode = readRegister(REG_OPMODE);
@@ -185,24 +185,24 @@ uint16_t SX127XLT::CRCCCITT(uint8_t *buffer, uint8_t size, uint16_t startvalue)
   Serial.println(F("CRCCCITT()"));
 #endif
 
-  uint16_t index, CRC;
+  uint16_t index, localCRC;
   uint8_t j;
 
-  CRC = startvalue;                                  //start value for CRC16
+  localCRC = startvalue;                                  //start value for CRC16
 
   for (index = 0; index < size; index++)
   {
-    CRC ^= (((uint16_t)buffer[index]) << 8);
+    localCRC ^= (((uint16_t)buffer[index]) << 8);
     for (j = 0; j < 8; j++)
     {
-      if (CRC & 0x8000)
-        CRC = (CRC << 1) ^ 0x1021;
+      if (localCRC & 0x8000)
+        localCRC = (localCRC << 1) ^ 0x1021;
       else
-        CRC <<= 1;
+        localCRC <<= 1;
     }
   }
 
-  return CRC;
+  return localCRC;
 }
 
 
@@ -215,26 +215,28 @@ uint16_t SX127XLT::CRCCCITTSX(uint8_t startadd, uint8_t endadd, uint16_t startva
 #endif
 
 
-  uint16_t index, CRC;
+  uint16_t index, localCRC;
   uint8_t j;
 
-  CRC = startvalue;                                  //start value for CRC16
+  localCRC = startvalue;                                  //start value for CRC16
 
   startReadSXBuffer(startadd);                       //begin the buffer read
 
   for (index = startadd; index <= endadd; index++)
   {
-    CRC ^= (((uint16_t) readUint8() ) << 8);
+    localCRC ^= (((uint16_t) readUint8() ) << 8);
     for (j = 0; j < 8; j++)
     {
-      if (CRC & 0x8000)
-        CRC = (CRC << 1) ^ 0x1021;
+      if (localCRC & 0x8000)
+        localCRC = (localCRC << 1) ^ 0x1021;
       else
-        CRC <<= 1;
+        localCRC <<= 1;
     }
   }
+  
+  endReadSXBuffer();                                 //end the buffer read
 
-  return CRC;
+  return localCRC;
 }
 
 
@@ -1036,7 +1038,7 @@ void SX127XLT::setTx(uint32_t timeout)
   Serial.println(F("setTx()"));
 #endif
 
-  UNUSED(timeout);
+  LTUNUSED(timeout);
 
   clearIrqStatus(IRQ_RADIO_ALL);
 
@@ -1058,7 +1060,7 @@ void SX127XLT::setRx(uint32_t timeout)
   Serial.println(F("setRx()"));
 #endif
 
-  UNUSED(timeout);
+  LTUNUSED(timeout);
 
   clearIrqStatus(IRQ_RADIO_ALL);
 
@@ -1569,7 +1571,7 @@ void SX127XLT::setDioIrqParams(uint16_t irqMask, uint16_t dio0Mask, uint16_t dio
 
   uint8_t mask0, mask1, mask2;
 
-  UNUSED(dio2Mask);                      //variable left in call for compatibility with other libraries
+  LTUNUSED(dio2Mask);                      //variable left in call for compatibility with other libraries
 
 
   switch (dio0Mask)

@@ -87,7 +87,7 @@ void loop()
 
 void packet_is_OK()
 {
-  uint16_t IRQStatus, CRC;
+  uint16_t IRQStatus, localCRC;
 
   IRQStatus = LT.readIrqStatus();                  //read the LoRa device IRQ status register
 
@@ -99,9 +99,9 @@ void packet_is_OK()
   LT.readPacket(RXBUFFER, PacketLength);
   LT.printASCIIPacket(RXBUFFER, PacketLength);        //print the packet as ASCII characters
 
-  CRC = LT.CRCCCITT(RXBUFFER, PacketLength, 0xFFFF);  //calculate the CRC, this is the external CRC calculation of the RXBUFFER
+  localCRC = LT.CRCCCITT(RXBUFFER, PacketLength, 0xFFFF);  //calculate the CRC, this is the external CRC calculation of the RXBUFFER
   Serial.print(F(",CRC,"));                        //contents, not the LoRa device internal CRC
-  Serial.print(CRC, HEX);
+  Serial.print(localCRC, HEX);
   Serial.print(F(",RSSI,"));
   Serial.print(PacketRSSI);
   Serial.print(F("dBm,SNR,"));

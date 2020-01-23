@@ -1,5 +1,5 @@
 /*******************************************************************************************************
-  lora Programs for Arduino - Copyright of the author Stuart Robinson - 17/12/19
+  lora Programs for Arduino - Copyright of the author Stuart Robinson - 21/01/20
 
   This program is supplied as is, it is up to the user of the program to decide if the program is
   suitable for the intended purpose and free from errors.
@@ -29,9 +29,6 @@
   packet is acted on and erroneous values displayed.
 
   The pin definitions, LoRa frequency and LoRa modem settings are in the Settings.h file.
-
-  With a standard Arduino Pro Mini and SSD1306 display the current consumption was 20.25mA with the 
-  display and 16.6mA without the display.  
 
   Serial monitor baud rate is set at 9600.
 *******************************************************************************************************/
@@ -87,6 +84,7 @@ void loop()
 
   digitalWrite(LED1, LOW);
   Serial.println();
+  //SPI.endTransaction();
 }
 
 
@@ -178,12 +176,15 @@ uint8_t checkPacketValid(uint8_t len)
 bool checkCRCvalue(uint8_t len)
 {
   uint16_t CRCSensorData;
-  
+  //uint8_t msb, lsb;
+
   CRCSensorData = LT.CRCCCITTSX(3, (len-1), 0xFFFF);    //calculate the CRC of packet sensor data
 
   Serial.print(F("(CRC of Received sensor data "));
   Serial.print(CRCSensorData, HEX);
   Serial.print(F(")"  ));
+
+  //SPI.endTransaction();
 
   TXCRCvalue = ((LT.getByteSXBuffer(17) << 8) + (LT.getByteSXBuffer(16)));
 
@@ -207,9 +208,9 @@ bool checkCRCvalue(uint8_t len)
 
 void printSensorValues()
 {
-  Serial.print(F("Temp,"));
+  Serial.print(F("Temperature,"));
   Serial.print(temperature, 1);
-  Serial.print(F("c,Press,"));
+  Serial.print(F("c,Pressure,"));
   Serial.print(pressure, 0);
   Serial.print(F("Pa,Humidity,"));
   Serial.print(humidity);
@@ -319,6 +320,9 @@ void led_Flash(uint16_t flashes, uint16_t delaymS)
 
 void setup()
 {
+  pinMode(VCCPOWER, OUTPUT);                    //this pin switches power for external devices, lora and SD card
+  digitalWrite(VCCPOWER, LOW);                  //turn power on 
+  
   pinMode(LED1, OUTPUT);
   led_Flash(2, 125);
 

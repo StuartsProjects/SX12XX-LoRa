@@ -27,13 +27,6 @@
   8 seconds using the Atmel processor internal watchdog.
 
   The pin definitions, LoRa frequency and LoRa modem settings are in the Settings.h file.
-
-  The Atmel watchdog timer is a viable option for a very low current sensor node. A 'bare bones' ATmega328P
-  with regulator and LoRa device has a sleep current of 6.6uA, add the LoRa devices and BME280 sensor
-  module and the average sleep current only rises to 6.8uA.
-
-  One of these transmitter programs is running on a long term test with a 175mAh battery, to see how long
-  the battery actually lasts. 
    
   Serial monitor baud rate is set at 9600.
 *******************************************************************************************************/
@@ -42,9 +35,6 @@
 #include <SX127XLT.h>
 #include "Settings.h"
 #include <Program_Definitions.h>
-
-#include <avr/wdt.h>                        //watchdog timer library, integral to Arduino IDE
-#include <LowPower.h>                       //get the library here; https://github.com/rocketscream/Low-Power
 
 SX127XLT LT;
 
@@ -62,6 +52,10 @@ uint16_t voltage;                           //the battery voltage value
 uint8_t statusbyte;                         //a status byte, not currently used
 uint16_t CRCvalue;                          //the CRC value of the packet data up to this point
 uint8_t packetlength;                       //the packet length that was sent, checked against length received
+
+
+#define uS_TO_S_FACTOR 1000000              //Conversion factor for micro seconds to seconds
+#define TIME_TO_SLEEP  16                   //Time ESP32 will go to sleep (in seconds) 
 
 
 void loop()
@@ -88,11 +82,13 @@ void loop()
 
   //now put the sensor, LoRa device and processor to sleep
   sleepBME280();                            //sleep the BME280
-  LT.setSleep(CONFIGURATION_RETENTION);     //sleep LoRa device, keeping register settings in sleep.
-  sleep8seconds(112);                       //sleep Atmel processor in units of approx 8 seconds
+  
+  digitalWrite(VCCPOWER, HIGH);             //VCCOUT off. lora device off
+  esp_sleep_enable_timer_wakeup(TIME_TO_SLEEP * uS_TO_S_FACTOR);
+  esp_deep_sleep_start();
 
   //wait a bit ................
-  Serial.println(F(" - Awake !!"));         //the processor has woken up
+  Serial.println(F("Why are we here, ESP32 should re-start on wakeup ?"));         //the processor has woken up ?
   Serial.println();
   normalBME280();                           //BME280 sensor to normal mode
 }
@@ -144,6 +140,7 @@ void addPacketErrorCheck(uint8_t len)
   LT.startWriteSXBuffer(len);                //start the write packet again at location of CRC, past end of sensor data
   LT.writeUint16(CRCvalue);                  //add the actual CRC value
   LT.endWriteSXBuffer();                     //close the packet
+ 
 }
 
 
@@ -183,19 +180,6 @@ void printSensorValues()
 }
 
 
-void sleep8seconds(uint32_t sleeps)
-{
-  //uses the lowpower library
-  uint32_t index;
-
-  for (index = 1; index <= sleeps; index++)
-  {
-    //sleep 8 seconds
-    LowPower.powerDown(SLEEP_8S, ADC_OFF, BOD_OFF);
-  }
-}
-
-
 void sleepBME280()
 {
   //write this register value to BME280 to put it to sleep
@@ -230,17 +214,16 @@ uint16_t readBatteryVoltage()
 
   digitalWrite(BATTERYREADON, HIGH);            //turn on MOSFET connecting resitor divider in circuit
   
-  analogReference(INTERNAL1V1);
   temp = analogRead(BATTERYAD);
     
-  for (index = 0; index <= 4; index++)                      //sample AD 3 times
+  for (index = 0; index <= 4; index++)          //sample AD 3 times
   {
     temp = analogRead(BATTERYAD);
     volts = volts + temp;
   }
-  volts = ((volts / 5) * ADMultiplier) + DIODEMV;
+  volts = ((volts / 5) * ADMultiplier);
 
-  digitalWrite(BATTERYREADON, LOW);            //turn off MOSFET connecting resitor divider in circuit
+  digitalWrite(BATTERYREADON, LOW);             //turn off MOSFET connection resitor divider in circuit
  
   return volts;
 }
@@ -262,7 +245,14 @@ void led_Flash(uint16_t flashes, uint16_t delaymS)
 
 void setup()
 {
-  pinMode(LED1, OUTPUT);
+  pinMode(LED1, OUTPUT);                      //for PCB LED                              
+  pinMode(GPSPOWER, OUTPUT);                  //For controlling power to GPS                     
+  pinMode(VCCPOWER, OUTPUT);                  //For controlling power to external devices
+  digitalWrite(GPSPOWER, HIGH);               //GPS off
+  digitalWrite(VCCPOWER, LOW);                //VCCOUT on. lora device on
+  
+  
+  
   led_Flash(2, 125);
 
   if (BATTERYREADON)
@@ -271,11 +261,14 @@ void setup()
   }
 
   Serial.begin(9600);
+  Serial.println();
+  Serial.println(F("Reset"));
 
   SPI.begin();
 
   if (LT.begin(NSS, NRESET, DIO0, DIO1, DIO2, LORA_DEVICE))
   {
+    Serial.println(F("lora Device pins initialised"));
     led_Flash(2, 125);
   }
   else
@@ -288,13 +281,17 @@ void setup()
   }
 
   LT.setupLoRa(Frequency, Offset, SpreadingFactor, Bandwidth, CodeRate, Optimisation);
-
+  Serial.println(F("Setup lora device"));
+  
   if (!bme280.init())
   {
     Serial.println("BME280 Device error!");
     led_Flash(100, 15);                     //long very fast speed flash indicates BME280 device error
   }
 
+  Serial.println(F("Initialised BME280"));
+  
+  Serial.println();
   Serial.println(F("Transmitter ready"));
   Serial.println();
 

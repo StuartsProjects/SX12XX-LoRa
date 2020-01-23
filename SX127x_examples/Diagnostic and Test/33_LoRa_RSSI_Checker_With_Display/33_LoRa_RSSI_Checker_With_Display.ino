@@ -7,7 +7,7 @@
 
 /*******************************************************************************************************
   Program Operation - The program listens for incoming packets using the LoRa settings in the 'Settings.h'
-  file. The pins to access the SX127X need to be defined in the 'Settings.h' file also.
+  file. The pins to access the SX127X need to be defined in the 'Settings.h' file also. 
 
   There is a printout of the valid packets received, the packet is assumed to be in ASCII printable text,
   if its not ASCII text characters from 0x20 to 0x7F, expect weird things to happen on the Serial Monitor.
@@ -20,6 +20,8 @@
   If there is a packet error it might look like this, which is showing a CRC error,
 
   1189s PacketError,RSSI,-111dBm,SNR,-12dB,Length,0,Packets,1126,Errors,1,IRQreg,70,IRQ_HEADER_VALID,IRQ_CRC_ERROR,IRQ_RX_DONE
+
+  A summary of the packet reception is sent to the OLED display as well, useful for portable applications. 
 
   Serial monitor baud rate is set at 9600.
 *******************************************************************************************************/
@@ -84,7 +86,7 @@ void loop()
 
 void packet_is_OK()
 {
-  uint16_t CRC;
+  uint16_t localCRC;
 
   RXpacketCount++;
 
@@ -92,9 +94,9 @@ void packet_is_OK()
   Serial.print(F("  "));
   LT.printASCIIPacket(RXBUFFER, RXPacketL);        //print the packet as ASCII characters
 
-  CRC = LT.CRCCCITT(RXBUFFER, RXPacketL, 0xFFFF);  //calculate the CRC, this is the external CRC calculation of the RXBUFFER
+  localCRC = LT.CRCCCITT(RXBUFFER, RXPacketL, 0xFFFF);  //calculate the CRC, this is the external CRC calculation of the RXBUFFER
   Serial.print(F(",CRC,"));                        //contents, not the LoRa device internal CRC
-  Serial.print(CRC, HEX);
+  Serial.print(localCRC, HEX);
   Serial.print(F(",RSSI,"));
   Serial.print(PacketRSSI);
   Serial.print(F("dBm,SNR,"));

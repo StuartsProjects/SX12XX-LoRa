@@ -1,4 +1,20 @@
-## SX12XX Library Example Programs
+## ESP32 - SX127X Library Example Programs
+
+Having originally tested the SX127X part of the library on a ATMega328P based not I decided to check that the library was compatible with another popular processor that can be programmed in the Arduino IDE, the ESP32. 
+
+I had developed a PCB that could be used for a small ESP32 based GPS tracker node, initially for use on The Things Network. The board has a GPS, I2C SSD1306 OLED and RFM98 lora device. There are options for a micro SD card, DS18B20 temperature sensor and a I2C FRAM. With it all assembled, the node consumes around 31uA in deep sleep with all devices connected, and the GPS running in backup mode for hot fixing. 
+
+When building a board where the deep sleep current is important, you need to build it in stages, checking the deep sleep current after adding each component. Debugging a high deep sleep current on a fully assembles board can be very difficult. 
+
+I do not intend to present a fully annotated set of build instructions, bu there are brief notes on the build sequence, which test programs were used and the deep sleep current changes as the build progressed. 
+
+1. First add the power supply and regulator components, the battery connector (2 way 0.1" screw terminal), FS1, power switch, Q2, the HCT7833 regulator, C1, C2, C5. Check output voltage is 3.3V, load current should be circa 4uA.
+2. Fit the PROG connector (6 way 0.1" pin header), C7, D1, R5, R11, BOOT switch, RESET switch and LED L1. Load the program **1\_LED\_Blink\_ESP32** and check the LED blinks at once per second. To load a program you will need to hold down the BOOT switch and press the RESET switch when the program upload has finished. 
+3. Load the program **47\_DeepSleep\_Timed\_Wakeup\_ESP32**, the deep sleep current at this point was around 21uA.
+4.  
+  
+
+
 
 For the majority of the program examples you will need to define the pins used, the frequency and the LoRa settings in the Settings.h file. The default provided settings may not be optimised for long distance. See the 'What is LoRa' document for information on how LoRa settings affect range. 
 
@@ -377,23 +393,6 @@ The program scans the I2C bus and displays the addresses of any devices found. U
 This program is a simple test program for the SSD1306 and SH1106 OLEDs. The program prints a short message on each line, pauses, clears the screen, and starts again. 
 
 OLED address is defined as 0x3C.
-
-#### 33\_LoRa\_RSSI\_Checker\_With\_Display &emsp; &emsp; &emsp;  &emsp; &emsp; &emsp; (Diagnostics and Test folder)
-
-The program listens for incoming packets using the LoRa settings in the 'Settings.h' file. The pins to access the SX127X need to be defined in the 'Settings.h' file also. 
-
-There is a printout of the valid packets received, the packet is assumed to be in ASCII printable text, if its not ASCII text characters from 0x20 to 0x7F, expect weird things to happen on the Serial Monitor. The LED will flash for each packet received and the buzzer will sound, if fitted.
-
-Sample serial monitor output;
-
-1109s  {packet contents}  CRC,3882,RSSI,-69dBm,SNR,10dB,Length,19,Packets,1026,Errors,0,IRQreg,50
-
-If there is a packet error it might look like this, which is showing a CRC error,
-
-1189s PacketError,RSSI,-111dBm,SNR,-12dB,Length,0,Packets,1126,Errors,1,IRQreg,70,IRQ\_HEADER\_VALID,IRQ\_CRC\_ERROR,IRQ\_RX\_DONE
-
-A summary of the packet reception is sent to the OLED display as well, useful for portable applications. 
-
 
 #### 34\_ATmel\_Sleep\_with\_Watchdog\_Wakeup &emsp; &emsp; &emsp; &emsp; &emsp; &emsp; (Sleep folder) 
 

@@ -68,13 +68,13 @@ void loop()
 void packet_is_OK()
 {
   //if here packet has been sent OK
-  uint16_t CRC;
+  uint16_t localCRC;
 
   Serial.print(F("  BytesSent,"));
   Serial.print(TXPacketL);                             //print transmitted packet length
-  CRC = LT.CRCCCITT(buff, TXPacketL, 0xFFFF);
+  localCRC = LT.CRCCCITT(buff, TXPacketL, 0xFFFF);
   Serial.print(F("  CRC,"));
-  Serial.print(CRC, HEX);                              //print CRC of sent packet
+  Serial.print(localCRC, HEX);                              //print CRC of sent packet
   Serial.print(F("  TransmitTime,"));
   Serial.print(endmS - startmS);                       //print transmit time of packet
   Serial.print(F("mS"));
@@ -88,7 +88,7 @@ void packet_is_Error()
   //if here there was an error transmitting packet
   uint16_t IRQStatus;
   IRQStatus = LT.readIrqStatus();                  //read the the interrupt register
-  Serial.print(F("SendError,"));
+  Serial.print(F(" SendError,"));
   Serial.print(F("Length,"));
   Serial.print(TXPacketL);                         //print transmitted packet length
   Serial.print(F(",IRQreg,"));

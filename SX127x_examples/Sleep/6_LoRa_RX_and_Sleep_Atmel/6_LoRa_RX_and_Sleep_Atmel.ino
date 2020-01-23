@@ -124,7 +124,7 @@ void wakeUp()
 
 void packet_is_OK()
 {
-  uint16_t IRQStatus, CRC;
+  uint16_t IRQStatus, localCRC;
 
   IRQStatus = LT.readIrqStatus();
   RXpacketCount++;
@@ -134,9 +134,9 @@ void packet_is_OK()
   Serial.print(F("Packet> "));
   LT.printASCIIPacket(RXBUFFER, RXPacketL);
 
-  CRC = LT.CRCCCITT(RXBUFFER, RXPacketL, 0xFFFF);
+  localCRC = LT.CRCCCITT(RXBUFFER, RXPacketL, 0xFFFF);
   Serial.print(F("  CRC,"));
-  Serial.print(CRC, HEX);
+  Serial.print(localCRC, HEX);
   Serial.print(F(",RSSI,"));
   Serial.print(PacketRSSI);
   Serial.print(F("dBm,SNR,"));
