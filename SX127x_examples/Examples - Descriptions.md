@@ -1,5 +1,6 @@
 ## SX12XX Library Example Programs
 
+
 For the majority of the program examples you will need to define the pins used, the frequency and the LoRa settings in the Settings.h file. The default provided settings may not be optimised for long distance. See the 'What is LoRa' document for information on how LoRa settings affect range. 
 
 Some of the examples use sleep mode on the processor and LoRa device to save power. Typical sleep currents may be mentioned in the description of the program. In most all cases a 'bare bones' Arduino has been used to measure the sleep currents and you may not get even close to the quoted figures using standard Arduinos such as Pro Minis or similar. Optimising particular Arduino boards for low power sleep is outside of the scope of this library and examples.  
