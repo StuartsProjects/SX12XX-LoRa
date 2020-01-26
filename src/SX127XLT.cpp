@@ -1,7 +1,7 @@
 /*
   Copyright 2019 - Stuart Robinson 
   Licensed under a MIT license displayed at the bottom of this document.
-  17/12/19
+  17/12/19 
 */
 
 #include <SX127XLT.h>
@@ -185,24 +185,24 @@ uint16_t SX127XLT::CRCCCITT(uint8_t *buffer, uint8_t size, uint16_t startvalue)
   Serial.println(F("CRCCCITT()"));
 #endif
 
-  uint16_t index, localCRC;
+  uint16_t index, libraryCRC;
   uint8_t j;
 
-  localCRC = startvalue;                                  //start value for CRC16
+  libraryCRC = startvalue;                                  //start value for CRC16
 
   for (index = 0; index < size; index++)
   {
-    localCRC ^= (((uint16_t)buffer[index]) << 8);
+    libraryCRC ^= (((uint16_t)buffer[index]) << 8);
     for (j = 0; j < 8; j++)
     {
-      if (localCRC & 0x8000)
-        localCRC = (localCRC << 1) ^ 0x1021;
+      if (libraryCRC & 0x8000)
+        libraryCRC = (libraryCRC << 1) ^ 0x1021;
       else
-        localCRC <<= 1;
+        libraryCRC <<= 1;
     }
   }
 
-  return localCRC;
+  return libraryCRC;
 }
 
 
@@ -215,28 +215,28 @@ uint16_t SX127XLT::CRCCCITTSX(uint8_t startadd, uint8_t endadd, uint16_t startva
 #endif
 
 
-  uint16_t index, localCRC;
+  uint16_t index, libraryCRC;
   uint8_t j;
 
-  localCRC = startvalue;                                  //start value for CRC16
+  libraryCRC = startvalue;                                  //start value for CRC16
 
   startReadSXBuffer(startadd);                       //begin the buffer read
 
   for (index = startadd; index <= endadd; index++)
   {
-    localCRC ^= (((uint16_t) readUint8() ) << 8);
+    libraryCRC ^= (((uint16_t) readUint8() ) << 8);
     for (j = 0; j < 8; j++)
     {
-      if (localCRC & 0x8000)
-        localCRC = (localCRC << 1) ^ 0x1021;
+      if (libraryCRC & 0x8000)
+        libraryCRC = (libraryCRC << 1) ^ 0x1021;
       else
-        localCRC <<= 1;
+        libraryCRC <<= 1;
     }
   }
   
   endReadSXBuffer();                                 //end the buffer read
 
-  return localCRC;
+  return libraryCRC;
 }
 
 
