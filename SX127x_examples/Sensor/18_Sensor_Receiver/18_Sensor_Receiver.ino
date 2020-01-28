@@ -39,7 +39,7 @@
 #include <SPI.h>
 #include <SX127XLT.h>
 #include "Settings.h"
-#include <Program_Definitions.h>
+#include <ProgramLT_Definitions.h>
 
 SX127XLT LT;
 

@@ -50,7 +50,7 @@
 SX127XLT LT;
 
 #include "Settings.h"
-#include <Program_Definitions.h>
+#include <ProgramLT_Definitions.h>
 
 #include <U8x8lib.h>                                        //https://github.com/olikraus/u8g2 
 U8X8_SSD1306_128X64_NONAME_HW_I2C disp(U8X8_PIN_NONE);      //standard 0.96" SSD1306

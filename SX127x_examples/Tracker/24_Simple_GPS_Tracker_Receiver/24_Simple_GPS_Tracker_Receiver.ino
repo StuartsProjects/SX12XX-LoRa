@@ -24,7 +24,7 @@
 SX127XLT LT;
 
 #include "Settings.h"
-#include <Program_Definitions.h>
+#include <ProgramLT_Definitions.h>
 
 
 uint32_t RXpacketCount;        //count of received packets

@@ -41,7 +41,7 @@
 #include <SPI.h>
 #include <SX127XLT.h>
 #include "Settings.h"
-#include <Program_Definitions.h>
+#include <ProgramLT_Definitions.h>
 
 #include <avr/wdt.h>                        //watchdog timer library, integral to Arduino IDE
 #include <LowPower.h>                       //get the library here; https://github.com/rocketscream/Low-Power

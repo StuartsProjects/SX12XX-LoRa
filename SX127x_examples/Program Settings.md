@@ -71,7 +71,7 @@ In order to keep the software simple and allow for the receipt of signals from m
 
 In general the control bytes have been restricted to ASCII printable characters so that they can be shown directly on a terminal monitor. The 3 bytes are;
 
-**Packet type**. This either describes the content of the packet, which could be a GPS location payload or is a command to do something and there is no payload. Details of the packet types defined are in the library file 'Program_Definitions.h'
+**Packet type**. This either describes the content of the packet, which could be a GPS location payload or is a command to do something and there is no payload. Details of the packet types defined are in the library file 'ProgramLT_Definitions.h'
 
 **Packet Destination**. The node number that the packet is destined for.
 

@@ -44,7 +44,7 @@
 #include <SPI.h>
 #include <SX127XLT.h>
 #include "Settings.h"
-#include <Program_Definitions.h>
+#include <ProgramLT_Definitions.h>
 
 SX127XLT LT;
 
@@ -90,13 +90,13 @@ uint8_t sendJoystickPacket(uint16_t X1value, uint16_t Y1value, uint8_t switches)
   //uint8_t len;
   uint32_t packetStartmS, packettimemS;
 
-  LT.startWriteSXBuffer(0);                       //start the write packet to buffer process
+  LT.startWriteSXBuffer(0);                      //start the write packet to buffer process
   LT.writeUint8(RControl1);                      //this is the packet type
   LT.writeUint8(TXIdentity);                     //this value represents the transmitter number
   LT.writeUint8(X1value);                        //this byte contains joystick pot AD X1 value to be sent
   LT.writeUint8(Y1value);                        //this byte contains joystick pot AD Y1 value to be sent
-  LT.writeUint8(switches);                        //switches value
-  LT.endWriteSXBuffer();                          //close the packet, thee are 5 bytes to send
+  LT.writeUint8(switches);                       //switches value
+  LT.endWriteSXBuffer();                         //close the packet, thee are 5 bytes to send
 
   //now transmit the packet, 10 second timeout, and wait for it to complete sending
   packetStartmS = millis();
