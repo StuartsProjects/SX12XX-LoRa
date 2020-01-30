@@ -42,7 +42,7 @@ void loop()
       Serial.print(F("I2C device found at address 0x"));
       if (address < 16)
         Serial.print(F("0"));
-      Serial.print(address, HEX);
+      Serial.println(address, HEX);
       nDevices++;
     }
     else if (error == 4)
