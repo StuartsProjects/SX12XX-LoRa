@@ -10,9 +10,6 @@
   using the ESp32 hardware serial port and sends them (echoes) to the IDE serial monitor. If your ever
   having problems with a GPS (or just think you are) use this program first.
 
-  The program allows for a logic pin that may be being used to turn the GPS on\off (GPSPOWER). If this
-  feature is not used, set GPSPOWER to -1. 
-
   If you get no data displayed on the serial monitor, the most likely cause is that you have the receive
   data pin into the Arduino (RX) pin connected incorrectly.
 
@@ -32,7 +29,6 @@
 
 #define GPSTX 16              //pin number for TX output from Arduino - RX into GPS
 #define GPSRX 17              //pin number for RX input into Arduino - TX from GPS
-#define GPSPOWER 26           //pin controls power to external GPS, LOW for on. Set to -1 if not used.
 
 #define GPSserial Serial2     //define GPSserial as ESP32 Serial2 
 
@@ -48,13 +44,6 @@ void loop()
 
 void setup()
 {
-  
-  if (GPSPOWER >= 0)
-  {
-  pinMode(GPSPOWER, OUTPUT);                                 //for GPS power control
-  digitalWrite(GPSPOWER, LOW);
-  }
-
   
   GPSserial.begin(9600, SERIAL_8N1, GPSTX, GPSRX);           //format is baud, mode, UART RX data, UART TX data 
                                                                  
