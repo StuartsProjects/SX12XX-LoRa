@@ -8,9 +8,11 @@
 
 SX126XLT	KEYWORD1
 SX127XLT	KEYWORD1
+SX128XLT	KEYWORD1
 ProgramLT_Definitions	KEYWORD1
 SX127XLT_Definitions	KEYWORD1
 SX126XLT_Definitions	KEYWORD1
+SX128XLT_Definitions	KEYWORD1
 
 #######################################
 # Methods and Functions (KEYWORD2)

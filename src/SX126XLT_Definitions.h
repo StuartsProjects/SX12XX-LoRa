@@ -42,6 +42,7 @@
 #define REG_OCP                                     0x08E7
 #define REG_XTA_TRIM                                0x0911
 
+
 #define LORA_MAC_PRIVATE_SYNCWORD                   0x1424
 #define LORA_MAC_PUBLIC_SYNCWORD                    0x3444
 

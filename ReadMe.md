@@ -1,5 +1,15 @@
 # SX12XX Library
 
+	Update: 06/02/20
+
+	SX126X basic library and examples added with required antenna switch support for Dorji DRF1268
+    ESP32 examples added for SX127X
+    STM32 examples added for SX127X 
+
+
+<cr>
+
+
 This library currently supports the SX1272, SX1276, SX1277, SX1278 and SX1279 Semtech LoRa devices. These Semtech devices are used to manufacture a range of LoRa modules sold by companies such as Hope, Dorji, NiceRF and others.
 At a later date the library will be extended to support the SX1261,SX1262, SX1268, SX1280 and SX1281 devices whilst using the same sketch function style used here. 
 
