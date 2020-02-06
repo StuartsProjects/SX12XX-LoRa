@@ -8,21 +8,21 @@ Below is a list of the example programs and the folders they appear in. For inst
     2_Register_Test_SX1272
 	3_LoRa_Transmit
 	4_LoRa_Receive
+    14_LoRa_TX_Structure
+	15_LoRa_RX_Structure  
 
 ## Sleep 
 
 	5_LoRa_TX_Sleep_Timed_Wakeup_Atmel
 	6_LoRa_RX_and_Sleep_Atmel
 	7_LoRa_TX_Sleep_Switch_Wakeup_Atmel
-    19_Timed_Sleep_Atmel 
-	34_ATmel_Sleep_with_Watchdog_Wakeup
+
 
 ## Low Memory 
 
     8_LoRa_LowMemory_TX
     9_LoRa_LowMemory_RX
-    14_LoRa_TX_Structure
-	15_LoRa_RX_Structure    
+  
     
 ## Diagnostic and Test
 
@@ -31,9 +31,6 @@ Below is a list of the example programs and the folders they appear in. For inst
     13_Frequency_and_Power_Check_TX
     16_LoRa_RX_Frequency_Error_Check
     20_LoRa_Link_Test_Receiver
-    30_I2C_Scanner
-    31_SSD1306_OLED_Checker
-    
 
 ## Sensor
 
@@ -53,11 +50,20 @@ Below is a list of the example programs and the folders they appear in. For inst
     23_Simple_GPS_Tracker_Transmitter
     24_Simple_GPS_Tracker_Receiver
     25_GPS_Tracker_Receiver_with_Display_and_GPS
-	26_GPS_Echo
-    28_GPS_Checker
-    29_GPS_Checker_With_Display
+
 
 ## Implicit
 
 	40_LoRa_Transmitter_ImplicitPacket
 	41_LoRa_Receiver_ImplicitPacket
+
+##Hardware\_Checks
+
+    12_ATmel_Sleep_with_Switch_Wakeup 
+    19_Timed_Sleep_Atmel
+    26_GPS_Echo
+    28_GPS_Checker
+    29_GPS_Checker_With_Display
+    30_I2C_Scanner
+    31_SSD1306_OLED_Checker
+	34_ATmel_Sleep_with_Watchdog_Wakeup

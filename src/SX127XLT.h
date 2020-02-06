@@ -13,67 +13,7 @@
 /**************************************************************************
 
   ToDO
-  DONE - Investigate use of clearDeviceErrors() - not possible on SX1276
-  DONE - Check rxEnable and txenable are working - not possible - comment out
-  ABANDON - Check Single Reception Operating Mode and RXsymbols timeout - not practical for long RX timeouts
-  DONE - Check setDioIrqParams(); for use with DIO3,4,5
-  DONE - Timeouts for TX and RX
-  DONE - Register flags are different to flags set via DIO, eg header valid - Add MSB to IRQflags
-  DONE - For FIFO TX & RX Check writeUint8 readUint8 works with characters TX2 and Rx2
-  DONE - For FIFO TX & RX Check bytes sent for writeInt16 vs writeUInt16 for positive numbers they are same
-  DONE - Investigate LNA boost effect on RX, register 0x0c, RX in
-  DONE - Check whether Invert Iq set in LoraWAN mode, downlinks are, uplinks not
-  DONE - Add  _DonePin = pinDIO0; to begin
-  ABANDON - setBufferBaseAddress(0, 0); in send and read packet routines, base address register read during routines
-  DONE - Check that  setStandby(MODE_STDBY_RC); in correct position in TX and RX functions
-  DONE - SX127XLT.calibrateDevice(ALLDevices) and SX127XLT.calibrateImage(Frequency); - calibrate image created
-  DONE - Check this Frequency,434399968hz - roundign error, all can do is display as float.......
-  DONE - Check operation of clearIrqStatus(uint16_t irqMask) 16 bit ?
-  DONE - Is a default ramp time needed for setTxParams(txpower, RADIO_RAMP_40_US); - Create RADIO_RAMP_DEFAULT (40uS)
-  DONE - review setting of TXpower, 17dBm max ? - working 2dBm to 20dBm
-  DONE - All TX funtions to use setTxParams(txpower, RADIO_RAMP_40_US);
-  DONE - Check setting of OCP current, default is 100mA - added variable settings to setTXparams
-  DONE - Relavent to SX127x ? - SX127XLT.setPaConfig(0x04, HPMAXAUTO, DEVICE_SX1262); - No concept of duty cycle in SX127x
-  DONE - test getFrequencyErrorRegValue() with uin8_t varibles for usb,mid,lsb - no difference
-  DONE - Why are input pullups needed for DIOs in begin pinMode( _DIO0, INPUT_PULLUP); - Not needed, wrong DIO selected
-  DONE - Remove setDioIrqParams from examples - setupLora
-  DONE - in  setDioIrqParams() Check  writeRegister(RegIrqFlagsMask, 0x00);                           //we need to be able to read all IRQs
-  DONE - Remove print registers from all bar progs 3,4
-  DONE - heck if uint16_t getPreamble(); deals with MSB bits
-  DONE - Replace the  REG_CRC_AND etc.
-  DONE - Check two versions of SX127XLT::packetOK(uint16_t mask)
-  DONE - Investigate this on RX www.LïRaTra3ker.uks,RSSI,-61dBm,SNR,4dB,Length,19,Packets,2,Errors,1,IRQreg,50, use setSTBY in receive etc
-  ABANDONED - Different names for LT.setHighSensitivity(); and setLowPowerReceive();
-  DONE - Change function use of *TXbuffer etc to txbuff to differentiate from SXbuffer
-  DONE - Need to add a non-blocking TX and RX (optional) true enables non-blocking mode, false waits for transmission to be completed (default)
-  DONE - Check if SX127XLT::setDioIrqParams(uint16_t irqMask, uint8_t dio0Mask, uint8_t dio1Mask, uint8_t dio2Mask) viable
-  DONE - Change FIFO functions to Buffer, thats what the Semtech manuals call it, its not a FIFO
-  ABANDONED -  Change LDRO_AUTO to 0xFF ?
-  DONE - Register print does this on SX127x 0x0  00 00 00 00 00 00 00 00 00 00 01 00 00 00 00 00
-  DONE - Change transmit and receive functions to not use LoRa, just in case a common routine is possible for FLRC later
-  ABANDONED -  Does this receiveSXBuffer(uint32_t rxtimeout, uint8_t wait ) need setMode(MODE_STDBY_RC); regdata = readRegister(REGFIFORXBASEADDR);  writeRegister(REGFIFOADDRPTR, regdata);
-  DONE - SX127XLT::setPacketParams(u  regdata = ( (readRegister(RegModemConfig2)) & REG_CRC_AND); incorrect ? - changed to (~READ_HASCRC_AND_X)
-  DONE - In setmodulationparams default: bw = 0xFF;  - chnage to 0x00 for default of BW125000
-  DONE - Check this writeRegister(RegModemConfig2, (regdata + (packetParam4<<2)); //write out with CRC bit 2 set appropriatly
-  ABANDONED - For includes, this is OK for SX126x LORA_CR_4_5 0x01 - No idea, includes can be different
-  DONE - Convert all register defines to upercase
-  DONE - 4 RX on timeout prints last received packet
-  DONE - This is daft; TXPacketL = LT.endWriteSXBuffer(); TXPacketL = LT.transmitSXBuffer(0, TXPacketL, 5000, TXpower, WAIT_TX);   //set a TX timeout of 5000mS
-  DONE - Check setMode(MODE_STDBY_RC);  at start of all SXbuffer read write routines..
-  DONE - Changes transmitSXBuffer(5000, TXpower, WAIT_TX);   to accept a start and an end
-  DONE - Check SX127XLT::setPacketType(uint8_t packettype ) sets moderegister correctly
-  DONE - Add link to #include <TimeLib.h> in examples
-  DONE - Amend LoRa setup to cope with SX1272, plus getbandwidth etc
-  DONE - 11_LoRa_HEX_Print_RX Starting - RX timeout adds to errors, corrected 11,12,20,4,9,15,18,6
-  DONE - rationalise use of LT.printLoraSettings(); include device or not ?
-  DONE - Create a setRXgain for manual gain control
-  DONE - ADD if ( readIrqStatus() != (IRQ_RX_DONE + IRQ_HEADER_VALID) ) to readpacket
-  DONE - Search for RXPacketL = LT.readRXPacketL() in programs as this can bypass error checks
-  DONE - In prog easy_tracker_RX this means packets with CRC error get by if (RXPacketL == 0)
-  DONE - Check use of Serial.print(RXPacketL); when packet errors occur
-  DONE - Ensure that bufferless TX\RX printouts match structure TX\RX
-
-  
+    
   Add ppmoffset to frequency error check program Check this in program 12 LT.writeRegister(RegPpmCorrection,ppmoffset);
   Investigate adding internal SX1278 temperature sensor
   Check sensitivity\current for writeRegister(RegLna, 0x3B );.//at HF 150% LNA current.
