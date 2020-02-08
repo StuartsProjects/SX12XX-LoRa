@@ -28,35 +28,52 @@
   Typical printout;
 
   2_Register_Test Starting
-  Reset device
-  LoRa Device found
-  Registers at reset
-  Reg    0  1  2  3  4  5  6  7  8  9  A  B  C  D  E  F
-  0x6C0  97 23 52 25 56 53 65 64 00 00 00 00 00 00 00 00
-  0x6D0  00 0C 03 00 00 00 00 00 00 00 00 00 00 00 00 00
-  0x6E0  00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-  0x6F0  00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-  0x700  00 00 0C 57 02 04 00 00 00 00 00 00 00 00 00 00
-  0x710  00 00 00 00 00 00 00 00 00 7F 28 00 00 FF 00 01
-  0x720  37 2A 53 00 80 00 40 00 00 0A 0A 00 00 00 00 00
-  0x730  24 00 21 28 B0 30 0D 1A 09 70 00 08 58 0B 19 0A
-  0x740  14 24 6A 96 00 18 00 00 00 00 00 00 00 00 00 00
-  0x750  00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-  0x760  00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-  0x770  00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-  0x780  00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-  0x790  00 00 00 00 00 00 00 28 4C 09 37 00 00 00 00 00
-  0x7A0  0E 03 00 3C 00 05 01 56 00 00 00 00 00 00 00 00
-  0x7B0  02 03 02 03 05 08 06 04 02 FE FC FD 03 0B 13 0A
+Reset device
+LoRa Device found
+Reset device
+Registers at reset
+Reg    0  1  2  3  4  5  6  7  8  9  A  B  C  D  E  F
+0x800  00 00 00 00 01 07 20 1E 00 10 19 04 0F FF 0F FF 
+0x810  10 00 10 00 10 00 10 00 00 00 00 00 00 00 00 00 
+0x820  00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 
+0x830  00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 
+0x840  00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 
+0x850  00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 
+0x860  00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 
+0x870  00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 
+0x880  03 00 00 5F 10 08 00 00 08 05 00 39 30 00 00 0C 
+0x890  00 00 00 00 00 0F 0A 07 10 00 26 01 01 53 06 07 
+0x8A0  10 00 AA 20 5A 04 F0 00 56 56 54 43 94 20 40 00 
+0x8B0  00 83 11 00 01 04 0A 4C 14 0A 2F 01 6B FF FF 00 
+0x8C0  00 A0 20 00 00 00 AC 00 1C 00 00 AB 05 30 00 00 
+0x8D0  0C 14 14 40 06 00 00 10 C8 00 00 00 00 00 31 39 
+0x8E0  90 39 0C 04 40 20 1C 18 03 00 05 04 03 02 01 01 
+0x8F0  00 00 00 00 30 00 00 00 00 00 00 00 00 00 00 00 
+0x900  30 00 00 00 00 00 00 00 00 00 00 00 24 04 47 04 
+0x910  14 12 12 04 00 03 0A 00 15 35 09 00 02 1F 5F 08 
+0x920  01 04 05 00 00 00 00 00 00 00 00 00 00 00 00 00 
+0x930  00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 
+0x940  00 07 00 03 02 00 10 0E 0D 0C 03 04 03 70 0C 00 
+0x950  00 00 00 04 00 00 00 00 00 00 00 00 00 00 00 00 
+0x960  00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 
+0x970  00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 
+0x980  00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 
+0x990  00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 
+0x9A0  00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 
+0x9B0  00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 
+0x9C0  00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 
+0x9D0  00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 
+0x9E0  00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 
+0x9F0  00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 
 
- 
-  Frequency at reset 915000000
-  Reg    0  1  2  3  4  5  6  7  8  9  A  B  C  D  E  F
-  0x880  03 00 00 5F 10 08 00 00 08 05 00 39 30 00 00 0C
-  Change Frequency 434100000
-  Reg    0  1  2  3  4  5  6  7  8  9  A  B  C  D  E  F
-  0x880  03 00 00 5F 10 08 00 00 08 05 00 1B 21 99 A0 0C
-  Changed Frequency 434100000
+
+Frequency at reset 915000000
+Reg    0  1  2  3  4  5  6  7  8  9  A  B  C  D  E  F
+0x880  03 00 00 5F 10 08 00 00 08 05 00 39 30 00 00 0C 
+Change Frequency 434100000
+Reg    0  1  2  3  4  5  6  7  8  9  A  B  C  D  E  F
+0x880  03 00 00 5F 10 08 00 00 08 05 00 1B 21 99 A0 0C 
+Changed Frequency 434100000
 
   Serial monitor baud rate is set at 9600.
 *******************************************************************************************************/
@@ -81,9 +98,9 @@ const uint8_t DEVICE_SX1268 = 0x02;
 
 #define NSS 10                                  //SX126X device select
 #define NRESET 9                                //SX126X reset pin
-#define BUSY 7                                  //SX126X busy pin 
+#define RFBUSY 7                                //SX126X busy pin 
 #define LED1 8                                  //for on board LED, put high for on
-#define SW 5                                    //SW pin on Dorji devices is used to turn RF switch on\off     
+#define SW -1                                   //SW pin on Dorji devices is used to turn RF switch on\off, set to -1 if not used     
 
 #define LORA_DEVICE DEVICE_SX1262               //defines the type of LoRa device used, needed for correct program operation
 
@@ -102,11 +119,11 @@ void setup()
   SPI.beginTransaction(SPISettings(8000000, MSBFIRST, SPI_MODE0));
 
   //The begin function setups the hardware pins used by device and then checks if device is found
-  //the DIO0, DIO1 and DIO2 and RW pins are not used in this example so are set to -1
+  //the DIO1, DIO2 and DIO3 are not used in this example so are set to -1
   //the LT.begin fuction can define the pins and device type directly in this way (for SX16X);
-  //LT.begin(10, 9, 7, -1, -1, -1, -1, DEVICE_SX1272)
+  //LT.begin(10, 9, 7, -1, -1, -1, SW, DEVICE_SX1272)
 
-  if (begin(NSS, NRESET, BUSY, -1, -1, -1, -1, LORA_DEVICE))
+  if (begin(NSS, NRESET, RFBUSY, -1, -1, -1, SW, LORA_DEVICE))
   {
     Serial.println(F("LoRa Device found"));
   }
@@ -122,7 +139,7 @@ void loop()
   uint32_t frequency;
   resetDevice(LORA_DEVICE);                  //reset the device
   Serial.println(F("Registers at reset"));   //show the all registers following a reset
-  printRegisters(0x6C0, 0x7BF);
+  printRegisters(0x800, 0x9FF);
   Serial.println();
   Serial.println();
 
@@ -230,7 +247,7 @@ uint32_t getFreqInt()
 
 void printRegisters(uint16_t Start, uint16_t End)
 {
-  //prints the contents of SX1262 registers to serial monitor
+  //prints the contents of SX126x registers to serial monitor
 
   uint16_t Loopv1, Loopv2, RegData;
 
@@ -284,7 +301,7 @@ void checkBusy()
   uint8_t busy_timeout_cnt;
   busy_timeout_cnt = 0;
 
-  while (digitalRead(BUSY))
+  while (digitalRead(RFBUSY))
   {
     delay(1);
     busy_timeout_cnt++;

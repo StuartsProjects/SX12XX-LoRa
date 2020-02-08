@@ -131,7 +131,7 @@ void setup()
   //SPI.beginTransaction(SPISettings(8000000, MSBFIRST, SPI_MODE0));
 
   //setup hardware pins used by device, then check if device is found
-  if (LT.begin(NSS, NRESET, BUSY, DIO1, DIO2, DIO3, SW, LORA_DEVICE))
+  if (LT.begin(NSS, NRESET, RFBUSY, DIO1, DIO2, DIO3, SW, LORA_DEVICE))
   {
     Serial.println(F("LoRa Device found"));
     led_Flash(2, 125);                                   //two further quick LED flashes to indicate device found
@@ -177,7 +177,7 @@ void setup()
   LT.printOperatingSettings();                           //reads and prints the configured operating settings, useful check
   Serial.println();
   Serial.println();
-  LT.printRegisters(PRINT_LOW_REGISTER, PRINT_HIGH_REGISTER); //print contents of device registers
+  LT.printRegisters(0x800, 0x9FF);                       //print contents of device registers
   Serial.println();
   Serial.println();
 

@@ -31,6 +31,7 @@
   Add a library function for SetRxDutyCycle, or maybe external access to writeCommand
   Check correct setting of optimisation
   Check if SX126X has AGCauto_
+  Check setDIOIRQ is before all setTX calls
 
 **************************************************************************/
 
@@ -50,7 +51,7 @@ class SX126XLT  {
     void resetDevice();
     bool checkDevice();
     void setupLoRa(uint32_t frequency, int32_t offset, uint8_t modParam1, uint8_t modParam2, uint8_t  modParam3, uint8_t modParam4);
-    void setMode(uint8_t StdbyConfig);
+    void setMode(uint8_t modeconfig);
     void setRegulatorMode(uint8_t mode);
 
     void setPaConfig(uint8_t dutycycle, uint8_t hpMax, uint8_t device);
@@ -75,7 +76,7 @@ class SX126XLT  {
     uint32_t getFreqInt();                     //this reads the SX126x registers to get the current frequency
     uint8_t getLoRaSF();
 
-    uint32_t getLoRaBandwidth();
+    //uint32_t getLoRaBandwidth();
     uint8_t getLoRaCodingRate();
     uint8_t getOptimisation();
 

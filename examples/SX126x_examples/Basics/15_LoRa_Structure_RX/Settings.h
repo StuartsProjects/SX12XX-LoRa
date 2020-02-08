@@ -15,14 +15,14 @@
 #define NSS 10                                  //select pin on LoRa device
 #define NRESET 9                                //reset pin on LoRa device
 #define LED1 8                                  //on board LED, high for on
-#define BUSY 7                                  //SX126X busy pin 
+#define RFBUSY 7                                //SX126X busy pin 
 #define DIO1 3                                  //DIO1 pin on LoRa device, used for RX and TX done 
 #define DIO2 -1                                 //DIO2 pin on LoRa device, normally not used so set to -1 
 #define DIO3 -1                                 //DIO3 pin on LoRa device, normally not used so set to -1
-#define SW 5                                    //SW pin on Dorji devices is used to turn RF switch on\off, set to -1 if not used    
+#define SW -1                                   //SW pin on Dorji devices is used to turn RF switch on\off, set to -1 if not used    
 #define BUZZER 4                                //pin for buzzer, on when logic high
 
-#define LORA_DEVICE DEVICE_SX1268               //we need to define the device we are using
+#define LORA_DEVICE DEVICE_SX1262               //we need to define the device we are using
 
 
 //*******  Setup LoRa Parameters Here ! ***************

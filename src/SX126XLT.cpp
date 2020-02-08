@@ -373,7 +373,7 @@ void SX126XLT::setupLoRa(uint32_t frequency, int32_t offset, uint8_t modParam1, 
 }
 
 
-void SX126XLT::setMode(uint8_t standbyconfig)
+void SX126XLT::setMode(uint8_t modeconfig)
 {
 #ifdef SX126XDEBUG
   Serial.println(F("setMode()"));
@@ -387,14 +387,14 @@ void SX126XLT::setMode(uint8_t standbyconfig)
 
   digitalWrite(_NSS, LOW);
   SPI.transfer(RADIO_SET_STANDBY);
-  SPI.transfer(standbyconfig);
+  SPI.transfer(modeconfig);
   digitalWrite(_NSS, HIGH);
 
 #ifdef USE_SPI_TRANSACTION
   SPI.endTransaction();
 #endif
 
-  _OperatingMode = standbyconfig;
+  _OperatingMode = modeconfig;
 }
 
 
@@ -554,6 +554,9 @@ void SX126XLT::setModulationParams(uint8_t modParam1, uint8_t modParam2, uint8_t
 
   regvalue = readRegister(REG_TX_MODULATION);
 
+  savedModParam1 = modParam1;
+  savedModParam2 = modParam2;
+  savedModParam3 = modParam3;
 
   if (modParam2 == LORA_BW_500)
   {
@@ -569,9 +572,6 @@ void SX126XLT::setModulationParams(uint8_t modParam1, uint8_t modParam2, uint8_t
     modParam4 = returnOptimisation(modParam1, modParam2);        //pass Spreading factor then bandwidth to optimisation calc
   }
 
-  savedModParam1 = modParam1;
-  savedModParam2 = modParam2;
-  savedModParam3 = modParam3;
   savedModParam4 = modParam4;
 
   buffer[0] = modParam1;
@@ -594,7 +594,9 @@ uint8_t SX126XLT::returnOptimisation(uint8_t SpreadingFactor, uint8_t Bandwidth)
 
   uint32_t tempBandwidth;
   float symbolTime;
+  
   tempBandwidth = returnBandwidth(Bandwidth);
+  
   symbolTime = calcSymbolTime(tempBandwidth, SpreadingFactor);
 
   if (symbolTime > 16)
@@ -652,6 +654,7 @@ uint32_t SX126XLT::returnBandwidth(uint8_t BWregvalue)
   }
   return 0xFFFF;                      //so that a bandwidth not set can be identified
 }
+
 
 
 float SX126XLT::calcSymbolTime(float Bandwidth, uint8_t SpreadingFactor)
@@ -783,7 +786,8 @@ void SX126XLT::printLoraSettings()
   Serial.print(F("hz,SF"));
   Serial.print(getLoRaSF());
   Serial.print(F(",BW"));
-  Serial.print(getLoRaBandwidth());
+  //Serial.print(getLoRaBandwidth());
+  Serial.print(returnBandwidth(savedModParam2));
   Serial.print(F(",CR4:"));
   Serial.print((getLoRaCodingRate() + 4));
   Serial.print(F(",LDRO_"));
@@ -832,7 +836,7 @@ uint32_t SX126XLT::getFreqInt()
   return uinttemp;
 }
 
-
+/*
 uint32_t SX126XLT::getLoRaBandwidth()
 {
 #ifdef SX126XDEBUG
@@ -877,7 +881,7 @@ uint32_t SX126XLT::getLoRaBandwidth()
   }
   return 0xFFFF;                      //so that a bandwidth not set can be identified
 }
-
+*/
 
 uint8_t SX126XLT::getLoRaCodingRate()
 {
@@ -937,15 +941,16 @@ void SX126XLT::printOperatingSettings()
 
   Serial.print(F(",PacketMode_"));
 
-  if (savedPacketType)
+  if (savedPacketType == PACKET_TYPE_LORA)
   {
     Serial.print(F("LoRa"));
   }
-  else
+  
+  if (savedPacketType == PACKET_TYPE_GFSK)
   {
-    Serial.print(F("FSK"));
+    Serial.print(F("GFSK"));
   }
-
+  
   if (getHeaderMode())
   {
     Serial.print(F(",Implicit"));
@@ -1022,7 +1027,7 @@ void SX126XLT::setTxParams(int8_t TXpower, uint8_t RampTime)
 void SX126XLT::setTx(uint32_t timeout)
 {
   //SX126x base timeout in units of 15.625 µs
-  //timeout passed to function in mS
+  //Note: timeout passed to function is in mS
 
 #ifdef SX126XDEBUG
   Serial.println(F("setTx()"));
@@ -1143,6 +1148,8 @@ uint8_t SX126XLT::transmit(uint8_t *txbuffer, uint8_t size, uint32_t txtimeout, 
   _TXPacketL = size;
   writeRegister(REG_LR_PAYLOADLENGTH, _TXPacketL);
   setTxParams(txpower, RAMP_TIME);
+  
+  setDioIrqParams(IRQ_RADIO_ALL, (IRQ_TX_DONE + IRQ_RX_TX_TIMEOUT), 0, 0);   //set for IRQ on TX done and timeout on DIO1
   setTx(txtimeout);                                                //this starts the TX
 
   if (!wait)
@@ -1150,9 +1157,9 @@ uint8_t SX126XLT::transmit(uint8_t *txbuffer, uint8_t size, uint32_t txtimeout, 
     return _TXPacketL;
   }
 
-  while (!digitalRead(_TXDonePin));                                      //Wait for DIO1 to go high
+  while (!digitalRead(_TXDonePin));                                //Wait for DIO1 to go high
 
-  if (readIrqStatus() & IRQ_RX_TX_TIMEOUT )                         //check for timeout
+  if (readIrqStatus() & IRQ_RX_TX_TIMEOUT )                        //check for timeout
   {
     return 0;
   }
