@@ -18,7 +18,8 @@
   Investigate adding internal SX1278 temperature sensor
   Check sensitivity\current for writeRegister(RegLna, 0x3B );.//at HF 150% LNA current.
   Add packet SF6 support and implicit mode support and examples
-
+  returnBandwidth(byte BWregvalue) does not directly take account of SX1272
+  
 **************************************************************************/
 
 class SX127XLT
