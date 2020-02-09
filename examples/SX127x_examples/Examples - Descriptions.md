@@ -97,9 +97,9 @@ A packet is sent, containing the text 'Before Device Sleep' and the lora device 
 
 Tested on a bare bones ATmega328P board, the current in sleep mode was 2.4uA.
 
-#### 8\_LoRa\_LowMemory\_TX &emsp; &emsp; &emsp;  &emsp; &emsp; &emsp; (Low Memory folder)
+#### 8\_LoRa\_LowMemory\_TX &emsp; &emsp; &emsp;  &emsp; &emsp; &emsp; (LowMemory folder)
 
-The program transmits a packet without using a processor buffer, the LoRa device internal buffer is filled direct with variables. The program is a simulation of the type of packet that might be sent from a GPS tracker. Note that in this example a buffer of text is part of the transmitted packet, this does need a processor buffer which is used to fill the LoRa device internal buffer, if you don't need to transmit text then the uint8_t trackerID[] = "LoRaTracker1"; definition can be omitted.
+The program transmits a packet without using a processor buffer, the LoRa device internal buffer is filled direct with variables. The program is a simulation of the type of packet that might be sent from a GPS tracker. Note that in this example a buffer of text is part of the transmitted packet, this does need a processor buffer which is used to fill the LoRa device internal buffer, if you don't need to transmit text then the uint8_t trackerID[] = "loratracker1"; definition can be omitted.
 
 The matching receiving program '9\_LoRa\_LowMemory\_RX' can be used to receive and display the packet, though the program  '15\_LoRa\_RX\_Structure' should receive it as well, since the packet contents are the same.
 
@@ -114,7 +114,7 @@ The contents of the packet received, and printed to serial monitor, should be;
 3999           (uint16\_t)   - battery voltage 
 -9             (int8_t)      - temperature
 
-#### 9\_LoRa\_LowMemory\_RX &emsp; &emsp; &emsp;  &emsp; &emsp; &emsp; (Low Memory folder)
+#### 9\_LoRa\_LowMemory\_RX &emsp; &emsp; &emsp;  &emsp; &emsp; &emsp; (LowMemory folder)
 
 The program receives a packet without using a processor buffer, the LoRa device internal buffer is read direct and copied to variables. The program is a simulation of the type of packet that might be received from a GPS tracker. Note that in this example a buffer of text is part of the   received packet, this does need a processor buffer which is filled with data from the LoRa device internal buffer, if you don't need to send and receive text then the uint8_t receivebuffer[32]; definition can be   omitted. 
 

@@ -2451,10 +2451,10 @@ float SX127XLT::calcSymbolTime(float Bandwidth, uint8_t SpreadingFactor)
 }
 
 
-void SX127XLT::printLoraSettings()
+void SX127XLT::printModemSettings()
 {
 #ifdef SX127XDEBUG1
-  Serial.println(F("printLoraSettings()"));
+  Serial.println(F("printModemSettings()"));
 #endif
 
   printDevice();
@@ -2595,6 +2595,7 @@ uint8_t SX127XLT::transmitSXBuffer(uint8_t startaddr, uint8_t length, uint32_t t
 
   return _TXPacketL;                                                     //no timeout, so TXdone must have been set
 }
+
 
 
 void SX127XLT::printSXBufferHEX(uint8_t start, uint8_t end)

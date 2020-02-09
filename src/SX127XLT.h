@@ -140,7 +140,7 @@ class SX127XLT
     uint32_t returnBandwidth(uint8_t BWregvalue);      //returns in hz the current set bandwidth
     uint8_t returnOptimisation(uint8_t SpreadingFactor, uint8_t Bandwidth);       //this returns the required optimisation setting
     float calcSymbolTime(float Bandwidth, uint8_t SpreadingFactor);
-    void printLoraSettings();
+    void printModemSettings();
     void setSyncWord(uint8_t syncword);
 
 
@@ -149,7 +149,7 @@ class SX127XLT
     //*******************************************************************************
 
     uint8_t receiveSXBuffer(uint8_t startaddr, uint32_t rxtimeout, uint8_t wait);
-    uint8_t transmitSXBuffer(uint8_t startaddt, uint8_t length, uint32_t txtimeout, int8_t txpower, uint8_t wait);
+    uint8_t transmitSXBuffer(uint8_t startaddr, uint8_t length, uint32_t txtimeout, int8_t txpower, uint8_t wait);
 
     void printSXBufferHEX(uint8_t start, uint8_t end);
     void printSXBufferASCII(uint8_t start, uint8_t end);

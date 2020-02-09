@@ -159,9 +159,9 @@ When using setupLoRa() that library function calls the following functions using
 	setDioIrqParams(IRQ_RADIO_ALL, IRQ_TX_DONE, 0, 0);
  
 
-**printLoraSettings()**
+**printModemSettings()**
 
-Prints the current LoRa settings to the serial monitor for diagnostic purposes. The parameters printed are; device\_type, frequency, spreading factor, bandwidth, coding\_rate, syncword, IQ\_Status, preamble\_length.
+Prints the current modem settings to the serial monitor for diagnostic purposes. The parameters printed for lora are ; device\_type, frequency, spreading factor, bandwidth, coding\_rate, syncword, IQ\_Status, preamble\_length.
 
 **printOperatingSettings()**
 

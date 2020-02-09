@@ -211,7 +211,7 @@ void setup()
   LT.setupLoRa(Frequency, Offset, SpreadingFactor, Bandwidth, CodeRate, Optimisation);
 
   Serial.println();
-  LT.printLoraSettings();
+  LT.printModemSettings();
   Serial.println();
   LT.printOperatingSettings();
   Serial.println();

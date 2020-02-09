@@ -1,14 +1,8 @@
 /*******************************************************************************************************
-
-  One of a series of test programs for LoRa devices on Arduino, the full set of programs and accompanying
-  library can be found here;
-
-  https://github.com/LoRaTracker/SX12XX-LoRa
-
-  lora Programs for Arduino - Copyright of the author Stuart Robinson - 30/12/19
+  lora Programs for Arduino - Copyright of the author Stuart Robinson - 16/12/19
 
   This program is supplied as is, it is up to the user of the program to decide if the program is
-  suitable for the intended purpose and free from errors.
+  suitable for the intended purpose and free from errors. 
 *******************************************************************************************************/
 
 /*******************************************************************************************************

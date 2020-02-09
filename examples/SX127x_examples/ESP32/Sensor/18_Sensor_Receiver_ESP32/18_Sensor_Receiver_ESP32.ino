@@ -116,7 +116,7 @@ void packet_Received_OK()
   statusbyte = LT.readUint8();              //a status byte, not currently used
   /************************************************************************/
 
-  len = LT.endReadSXBuffer();
+  len = LT.endReadSXBuffer();                //note len is bytes read from packet, may be different to actual packet length
 
   printreceptionDetails();                   //print details of reception, RSSI etc
   Serial.println();

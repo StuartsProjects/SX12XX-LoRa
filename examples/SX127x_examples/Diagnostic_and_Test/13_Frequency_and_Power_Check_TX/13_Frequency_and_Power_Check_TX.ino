@@ -131,7 +131,7 @@ void setup()
   Serial.print(F("Transmitter ready - TXBUFFER_SIZE "));
   Serial.println(TXBUFFER_SIZE);
 
-  LT.printLoraSettings();
+  LT.printModemSettings();
   Serial.println();
   Serial.println();
 }

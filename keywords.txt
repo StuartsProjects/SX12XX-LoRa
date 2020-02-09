@@ -41,7 +41,6 @@ calibrateImage	KEYWORD2
 CRCCCITTSX	KEYWORD2
 CRCCCITT	KEYWORD2
 printSXBufferASCII	KEYWORD2
-
 receiveAddressed	KEYWORD2
 getByteSXBuffer	KEYWORD2
 startWriteSXBuffer	KEYWORD2
@@ -54,8 +53,6 @@ transmitSXBuffer	KEYWORD2
 endWriteSXBuffer	KEYWORD2
 writeBuffer	KEYWORD2
 readPacket	KEYWORD2
-setupLoRaRX	KEYWORD2
-setupLoRaTX	KEYWORD2
 setSleep	KEYBOARD2
 getOperatingMode	KEYWORD2
 writeCommand	KEYWORD2
@@ -114,22 +111,12 @@ readRXPacketType	KEYWORD2
 readRXDestination	KEYWORD2
 readRXSource	KEYWORD2
 printAddressInfo	KEYWORD2
-transmitLoRa	KEYWORD2
-receiveAddressedLoRa	KEYWORD2
-transmitFIFOLoRa	KEYWORD2
-sendPacketAddressedLoRa	KEYWORD2
-transmitAddressedLoRa	KEYWORD2
-sendPacketLoRa	KEYWORD2
-readPacketLoRareadPacketReceptionLoRa	KEYWORD2
-printReceptionInfoLoRa	KEYWORD2
-getLoRaBandwidth	KEYWORD2
 returnSF	KEYWORD2
 returnbandwidth	KEYWORD2
-sendFIFOLoRa	KEYWORD2
 readPacketAddressedLoRa	KEYWORD2
 getOptimisation	KEYWORD2
 calcSymbolTime	KEYWORD2
-printLoraSettings	KEYWORD2
+printModemSettings	KEYWORD2
 printOperatingSettings	KEYWORD2
 setSyncWord	KEYWORD2
 startWriteFIFO	KEYWORD2
@@ -153,3 +140,5 @@ readFloat	KEYWORD2
 rxtxInit	KEYWORD2
 rxEnable	KEYWORD2
 txEnable	KEYWORD2
+getLoRaBandwidth	KEYWORD2
+

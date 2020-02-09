@@ -1,8 +1,8 @@
 /*******************************************************************************************************
-  lora Programs for Arduino - Copyright of the author Stuart Robinson - 16/12/19
+  lora Programs for Arduino - Copyright of the author Stuart Robinson - 06/02/20
 
   This program is supplied as is, it is up to the user of the program to decide if the program is
-  suitable for the intended purpose and free from errors. 
+  suitable for the intended purpose and free from errors.
 *******************************************************************************************************/
 
 
@@ -23,11 +23,11 @@
 
 #define Program_Version "V1.0"
 
-#include <SPI.h>                                               //the lora device is SPI based so load the SPI library                                         
-#include <SX127XLT.h>                                          //include the appropriate library  
+#include <SPI.h>                                               //the SX126X device is SPI based so load the SPI library                                         
+#include <SX128XLT.h>                                          //include the appropriate library  
 #include "Settings.h"                                          //include the setiings file, frequencies, LoRa settings etc   
 
-SX127XLT LT;                                                   //create a library class instance called LT
+SX128XLT LT;                                                   //create a library class instance called LT
 
 uint8_t TXPacketL;
 uint32_t TXPacketCount, startmS, endmS;
@@ -48,7 +48,7 @@ void loop()
 
   digitalWrite(LED1, HIGH);
   startmS =  millis();                                         //start transmit timer
-  if (LT.transmit(buff, TXPacketL, 10000, TXpower, WAIT_TX))   //will return packet length sent if OK, otherwise 0 if transmit error
+  if (LT.transmit(buff, TXPacketL, 10000, TXpower, WAIT_TX))   //will return packet length sent if OK, otherwise 0 if transmit, timeout 10 seconds
   {
     endmS = millis();                                          //packet sent, note end time
     TXPacketCount++;
@@ -131,7 +131,7 @@ void setup()
   //SPI.beginTransaction(SPISettings(8000000, MSBFIRST, SPI_MODE0));
 
   //setup hardware pins used by device, then check if device is found
-  if (LT.begin(NSS, NRESET, DIO0, DIO1, DIO2, LORA_DEVICE))
+  if (LT.begin(NSS, NRESET, RFBUSY, DIO1, DIO2, DIO3, LORA_DEVICE))
   {
     Serial.println(F("LoRa Device found"));
     led_Flash(2, 125);                                   //two further quick LED flashes to indicate device found
@@ -146,7 +146,7 @@ void setup()
     }
   }
 
- //The function call list below shows the complete setup for the LoRa device using the information defined in the
+  //The function call list below shows the complete setup for the LoRa device using the information defined in the
   //Settings.h file.
   //The 'Setup LoRa device' list below can be replaced with a single function call;
   //LT.setupLoRa(Frequency, Offset, SpreadingFactor, Bandwidth, CodeRate, Optimisation);
@@ -154,25 +154,25 @@ void setup()
   //***************************************************************************************************
   //Setup LoRa device
   //***************************************************************************************************
-  LT.setMode(MODE_STDBY_RC);                              //got to standby mode to configure device
-  LT.setPacketType(PACKET_TYPE_LORA);                     //set for LoRa transmissions
-  LT.setRfFrequency(Frequency, Offset);                   //set the operating frequency
-  LT.calibrateImage(0);                                   //run calibration after setting frequency
-  LT.setModulationParams(SpreadingFactor, Bandwidth, CodeRate, LDRO_AUTO);  //set LoRa modem parameters
-  LT.setBufferBaseAddress(0x00, 0x00);                    //where in the SX buffer packets start, TX and RX
-  LT.setPacketParams(8, LORA_PACKET_VARIABLE_LENGTH, 255, LORA_CRC_ON, LORA_IQ_NORMAL);  //set packet parameters
-  LT.setSyncWord(LORA_MAC_PRIVATE_SYNCWORD);              //syncword, LORA_MAC_PRIVATE_SYNCWORD = 0x12, or LORA_MAC_PUBLIC_SYNCWORD = 0x34
-  LT.setHighSensitivity();                                //set for highest sensitivity at expense of slightly higher LNA current
-  LT.setDioIrqParams(IRQ_RADIO_ALL, IRQ_TX_DONE, 0, 0);   //set for IRQ on RX done
+  LT.setMode(MODE_STDBY_RC);
+  LT.setRegulatorMode(USE_LDO);
+  LT.setPacketType(PACKET_TYPE_LORA);
+  LT.setRfFrequency(Frequency, Offset);
+  LT.setBufferBaseAddress(0, 0);
+  LT.setModulationParams(SpreadingFactor, Bandwidth, CodeRate);
+  LT.setPacketParams(12, LORA_PACKET_VARIABLE_LENGTH, 255, LORA_CRC_ON, LORA_IQ_NORMAL, 0, 0);
+  LT.setDioIrqParams(IRQ_RADIO_ALL, (IRQ_TX_DONE + IRQ_RX_TX_TIMEOUT), 0, 0);
+  LT.setHighSensitivity();
+  //LT.setLowPowerRX();
   //***************************************************************************************************
 
   Serial.println();
-  LT.printModemSettings();                               //reads and prints the configured LoRa settings, useful check
+  LT.printLoraSettings();                                //reads and prints the configured LoRa settings, useful check
   Serial.println();
   LT.printOperatingSettings();                           //reads and prints the configured operating settings, useful check
   Serial.println();
   Serial.println();
-  LT.printRegisters(0x00, 0x4F);                         //print contents of device registers, normally 0x00 to 0x4F
+  LT.printRegisters(PRINT_LOW_REGISTER, PRINT_HIGH_REGISTER); //print contents of device registers
   Serial.println();
   Serial.println();
 
