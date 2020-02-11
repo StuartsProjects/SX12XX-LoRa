@@ -2171,7 +2171,7 @@ void SX127XLT::setupLoRa(uint32_t Frequency, int32_t Offset, uint8_t modParam1, 
 }
 
 
-
+/*
 uint32_t SX127XLT::getLoRaBandwidth()
 {
 #ifdef SX127XDEBUG1
@@ -2242,7 +2242,7 @@ uint32_t SX127XLT::getLoRaBandwidth()
 
   }
 }
-
+*/
 
 uint8_t SX127XLT::getLoRaSF()
 {
@@ -2353,11 +2353,81 @@ uint16_t SX127XLT::getPreamble()
 }
 
 
-
 uint32_t SX127XLT::returnBandwidth(byte BWregvalue)
 {
 #ifdef SX127XDEBUG1
   Serial.println(F("returnBandwidth()"));
+#endif
+
+  //uint8_t regdata;
+
+  if (_Device == DEVICE_SX1272)
+  {
+    //regdata = (readRegister(REG_MODEMCONFIG1) & READ_BW_AND_2);
+    switch (BWregvalue)
+    {
+      case 0:
+        return 125000;
+
+      case 64:
+        return 250000;
+
+      case 128:
+        return 500000;
+
+      default:
+        return 0xFF;                      //so that a bandwidth invalid entry can be identified ?
+    }
+  }
+  else
+  {
+    //regdata = (readRegister(REG_MODEMCONFIG1) & READ_BW_AND_X);
+
+    switch (BWregvalue)
+    {
+      case 0:
+        return 7800;
+
+      case 16:
+        return 10400;
+
+      case 32:
+        return 15600;
+
+      case 48:
+        return 20800;
+
+      case 64:
+        return 31200;
+
+      case 80:
+        return 41700;
+
+      case 96:
+        return 62500;
+
+      case 112:
+        return 125000;
+
+      case 128:
+        return 250000;
+
+      case 144:
+        return 500000;
+
+      default:
+        return 0xFF;                      //so that a bandwidth invalid entry can be identified ?
+    }
+
+  }
+}
+
+ 
+
+uint32_t SX127XLT::returnBandwidth2(byte BWregvalue)
+{
+#ifdef SX127XDEBUG1
+  Serial.println(F("returnBandwidth2()"));
 #endif
 
   switch (BWregvalue)
@@ -2456,14 +2526,28 @@ void SX127XLT::printModemSettings()
 #ifdef SX127XDEBUG1
   Serial.println(F("printModemSettings()"));
 #endif
-
+   
+  uint8_t regdata;
+  
   printDevice();
   Serial.print(F(","));
   Serial.print(getFreqInt());
   Serial.print(F("hz,SF"));
   Serial.print(getLoRaSF());
   Serial.print(F(",BW"));
-  Serial.print(getLoRaBandwidth());
+  
+  
+  if (_Device == DEVICE_SX1272)
+  {
+    regdata = (readRegister(REG_MODEMCONFIG1) & READ_BW_AND_2);
+  }
+  else
+  {
+    regdata = (readRegister(REG_MODEMCONFIG1) & READ_BW_AND_X);
+  }
+
+  //Serial.print(getLoRaBandwidth());
+  Serial.print(returnBandwidth(regdata));
   Serial.print(F(",CR4:"));
   Serial.print(getLoRaCodingRate());
   Serial.print(F(",LDRO_"));
