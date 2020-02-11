@@ -9,13 +9,18 @@
 
   ToDO
 
+  DONE - Check setDIOIRQ is before all setTX SetRX calls
+  DONE - Check for checkbusy, before all uses of SPI
+  DONE - Match printlorasettings and printdevice settings with sx127x library
+  DONE - Check if SX126X has AGCauto_
+  DONE - Check correct setting of optimisation
+  
+    
   setPAconfig needs to allow for SX1268 - if (TXpower > 14){setPaConfig(0x04, 0x07, _Device)} else { setPaConfig(0x02, 0x01, _Device)}             //hpMax is quoted as 0-7, but 0 seems to be an invalid value
-
   Check Timeouts for TX and RX
   review setting of TXpower, 17dBm max ?
   Why is it << 8 - timeout = timeout << 8;         //timeout passed in mS, multiply by 64 to convert units of 15.625us to 1mS
   Description of how to include RxGain register in the retention memory, see Section 9.6 - manual p58
-  Check that all IRQs are not masked and can be read
   Investigate if setPacketParams(savedPacketParam1, savedPacketParam2 in send routine can be avoided - TXpacketL
   Investigate use of clearDeviceErrors()
   Check recovery from busy timeout error.
@@ -23,16 +28,11 @@
   For FIFO TX & RX Check writeUint8 readUint8 works with characters
   For FIFO TX & RX Check bytes sent for writeInt16 vs writeUInt16
   For FIFO TX & RX Check bytes sent for writeInt32 vs writeUInt32
-  Why get this sometimes at startup --- ERROR - Busy Timeout!, check iterations for busy check
-  Review readpacketLoRa for (index = RXstart; index < RXend; index++)
   Check in addressed send  txpacketL = 3 + size;  //we have added 3 header bytes to size
-  Match printlorasettings and printdevice settings with sx127x library
-  Check Single Reception Operating Mode and RXsymbols timeout
+  Check Single Reception Operating Mode and RX symbols timeout
   Add a library function for SetRxDutyCycle, or maybe external access to writeCommand
-  Check correct setting of optimisation
-  Check if SX126X has AGCauto_
-  Check setDIOIRQ is before all setTX calls
-
+  
+  
 **************************************************************************/
 
 class SX126XLT  {
@@ -71,7 +71,7 @@ class SX126XLT  {
     void setHighSensitivity();
     void setLowPowerRX();
     void setSyncWord(uint16_t syncword);
-    void printLoraSettings();
+    void printModemSettings();
     void printDevice();
     uint32_t getFreqInt();                     //this reads the SX126x registers to get the current frequency
     uint8_t getLoRaSF();
@@ -99,13 +99,53 @@ class SX126XLT  {
     uint8_t readPacketSNR();
     uint8_t readRXPacketL();
     void setRx(uint32_t timeout);
-    void readPacketReceptionLoRa();
+    //void readPacketReceptionLoRa();
 
     void printIrqStatus();
     void rxEnable();
     void txEnable();
     bool config();
 
+/***************************************************************************
+//Start direct access SX buffer routines
+***************************************************************************/
+
+    void startWriteSXBuffer(uint8_t ptr);
+    uint8_t endWriteSXBuffer();
+    void startReadSXBuffer(uint8_t ptr);
+    uint8_t endReadSXBuffer();
+
+    void writeUint8(uint8_t x);
+    uint8_t readUint8();
+
+    void writeInt8(int8_t x);
+    int8_t readInt8();
+
+    void writeInt16(int16_t x);
+    int16_t readInt16();
+
+    void writeUint16(uint16_t x);
+    uint16_t readUint16();
+
+    void writeInt32(int32_t x);
+    int32_t readInt32();
+
+    void writeUint32(uint32_t x);
+    uint32_t readUint32();
+
+    void writeFloat(float x);
+    float readFloat();
+
+    uint8_t transmitSXBuffer(uint8_t startaddr, uint8_t length, uint32_t txtimeout, int8_t txpower, uint8_t wait);
+    void writeBuffer(uint8_t *txbuffer, uint8_t size);
+    uint8_t receiveSXBuffer(uint8_t startaddr, uint32_t rxtimeout, uint8_t wait);
+    uint8_t readBuffer(uint8_t *rxbuffer);
+
+/***************************************************************************
+//End direct access SX buffer routines
+***************************************************************************/	
+
+  
   private:
 
     int8_t _NSS, _NRESET, _RFBUSY, _DIO1, _DIO2, _DIO3, _SW;

@@ -86,6 +86,44 @@ If there is a packet error it might look like this, which is showing a CRC error
 
 <br>
 
+#### 8\_LoRa\_LowMemory\_TX &emsp; &emsp; &emsp;  &emsp; &emsp; &emsp; (LowMemory folder)
+
+
+The program transmits a packet without using a processor buffer, the LoRa device internal buffer is filled direct with variables. The program is a simulation of the type of packet that might be sent from a GPS tracker. Note that in this example a buffer of text is part of the transmitted packet, this does need a processor buffer which is used to fill the LoRa device internal buffer, if you don't need to transmit text then the uint8_t trackerID[] = "loratracker1"; definition can be omitted.
+
+The matching receiving program '9_LoRa_LowMemory_RX' can be used to receive and display the packet, though the program  '15_LoRa_RX_Structure' should receive it as well, since the packet contents are   the same.
+
+The contents of the packet received, and printed to serial monitor, should be;
+  
+	"loratracker1" (buffer)      - trackerID 
+	1+             (uint32_t)    - packet count    
+	51.23456       (float)       - latitude   
+	-3.12345       (float)       - longitude
+	199            (uint16_t)    - altitude  
+	8              (uint8_t)     - number of satellites 
+	3999           (uint16_t)    - battery voltage 
+	-9             (int8_t)      - temperature
+
+Serial monitor baud rate is set at 9600.
+
+
+#### 9\_LoRa\_LowMemory\_RX &emsp; &emsp; &emsp;  &emsp; &emsp; &emsp; (LowMemory folder)
+
+
+The program receives a packet without using a processor buffer, the LoRa device internal buffer is read direct and copied to variables. The program is a simulation of the type of packet that might be received from a GPS tracker. Note that in this example a buffer of text is part of the received packet, this does need a processor buffer which is filled with data from the LoRa device internal buffer, if you don't need to send and receive text then the uint8_t receivebuffer[32]; definition can be   ommited.
+
+The contents of the packet received, and printed to serial monitor, should be;
+
+	"loratracker1" (buffer)      - trackerID
+	1+             (uint32_t)    - packet count
+	51.23456       (float)       - latitude
+	-3.12345       (float)       - longitude
+	199            (uint16_t)    - altitude
+	8              (uint8_t)     - number of satellites
+	3999           (uint16_t)    - battery voltage
+	-9             (int8_t)      - temperature
+
+Serial monitor baud rate is set at 9600.
 
 
 #### 14\_LoRa\_Structure\_TX &emsp; &emsp; &emsp;  &emsp; &emsp; &emsp; (Basics folder)
@@ -98,7 +136,7 @@ Note that the structure definition and variable order (including the buffer size
 
 The contents of the packet transmitted should be;
   
-"LoRaTracker1" (buffer)      - trackerID  
+"loratracker1" (buffer)      - trackerID  
 1+             (uint32\_t)   - packet count     
 51.23456       (float)       - latitude   
 -3.12345       (float)       - longitude  

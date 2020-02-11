@@ -5,6 +5,7 @@
 */
 
 
+
 #include <SX126XLT.h>
 #include <SPI.h>
 
@@ -119,7 +120,6 @@ bool SX126XLT::begin(int8_t pinNSS, int8_t pinNRESET, int8_t pinRFBUSY, int8_t p
 }
 
 
-
 void SX126XLT::checkBusy()
 {
 #ifdef SX126XDEBUG
@@ -210,7 +210,6 @@ void SX126XLT::readCommand(uint8_t Opcode, uint8_t *buffer, uint16_t size)
   SPI.endTransaction();
 #endif
 
-  checkBusy();
 }
 
 
@@ -245,8 +244,6 @@ void SX126XLT::writeRegisters(uint16_t address, uint8_t *buffer, uint16_t size)
 #ifdef USE_SPI_TRANSACTION
   SPI.endTransaction();
 #endif
-
-  checkBusy();
 }
 
 
@@ -292,8 +289,6 @@ void SX126XLT::readRegisters(uint16_t address, uint8_t *buffer, uint16_t size)
   SPI.endTransaction();
 #endif
 
-
-  checkBusy();
 }
 
 
@@ -774,10 +769,10 @@ void SX126XLT::setSyncWord(uint16_t syncword)
 }
 
 
-void SX126XLT::printLoraSettings()
+void SX126XLT::printModemSettings()
 {
 #ifdef SX126XDEBUG
-  Serial.println(F("printLoraSettings()"));
+  Serial.println(F("printModemSettings()"));
 #endif
 
   printDevice();
@@ -786,7 +781,6 @@ void SX126XLT::printLoraSettings()
   Serial.print(F("hz,SF"));
   Serial.print(getLoRaSF());
   Serial.print(F(",BW"));
-  //Serial.print(getLoRaBandwidth());
   Serial.print(returnBandwidth(savedModParam2));
   Serial.print(F(",CR4:"));
   Serial.print((getLoRaCodingRate() + 4));
@@ -836,52 +830,6 @@ uint32_t SX126XLT::getFreqInt()
   return uinttemp;
 }
 
-/*
-uint32_t SX126XLT::getLoRaBandwidth()
-{
-#ifdef SX126XDEBUG
-  Serial.println(F("getLoRaBandwidth()"));
-#endif
-
-
-  switch (savedModParam2)
-  {
-    case 0:
-      return 7800;
-
-    case 8:
-      return 10400;
-
-    case 1:
-      return 15600;
-
-    case 9:
-      return 20800;
-
-    case 2:
-      return 31200;
-
-    case 10:
-      return 41700;
-
-    case 3:
-      return 62500;
-
-    case 4:
-      return 125000;
-
-    case 5:
-      return 250000;
-
-    case 6:
-      return 500000;
-
-    default:
-      break;
-  }
-  return 0xFFFF;                      //so that a bandwidth not set can be identified
-}
-*/
 
 uint8_t SX126XLT::getLoRaCodingRate()
 {
@@ -960,19 +908,7 @@ void SX126XLT::printOperatingSettings()
     Serial.print(F(",Explicit"));
   }
 
-  /*
-    Serial.print(F(",AGCauto_"));
-    if (getAGC())
-    {
-    Serial.print(F("On"));
-    }
-    else
-    {
-    Serial.print(F("Off"));
-    }
-  */
-
-  Serial.print(F(",LNAgain_"));
+   Serial.print(F(",LNAgain_"));
 
   if (getLNAgain() == BOOSTED_GAIN)
   {
@@ -1122,6 +1058,7 @@ uint8_t SX126XLT::transmit(uint8_t *txbuffer, uint8_t size, uint32_t txtimeout, 
 
   setMode(MODE_STDBY_RC);
   setBufferBaseAddress(0, 0);
+  
   checkBusy();
 
 #ifdef USE_SPI_TRANSACTION     //to use SPI_TRANSACTION enable define at beginning of CPP file 
@@ -1144,7 +1081,6 @@ uint8_t SX126XLT::transmit(uint8_t *txbuffer, uint8_t size, uint32_t txtimeout, 
   SPI.endTransaction();
 #endif
 
-  checkBusy();
   _TXPacketL = size;
   writeRegister(REG_LR_PAYLOADLENGTH, _TXPacketL);
   setTxParams(txpower, RAMP_TIME);
@@ -1339,8 +1275,6 @@ void SX126XLT::setRfFrequency( uint32_t frequency, int32_t offset )
 
   frequency = ( uint32_t )( ( double )frequency / ( double )FREQ_STEP );
 
-  checkBusy();
-
   Rf_Freq[0] = (frequency >> 24) & 0xFF; //MSB
   Rf_Freq[1] = (frequency >> 16) & 0xFF;
   Rf_Freq[2] = (frequency >> 8) & 0xFF;
@@ -1450,6 +1384,8 @@ uint8_t SX126XLT::receive(uint8_t *rxbuffer, uint8_t size, uint32_t rxtimeout, u
 
   RXend = RXstart + _RXPacketL;
 
+  checkBusy();
+  
 #ifdef USE_SPI_TRANSACTION           //to use SPI_TRANSACTION enable define at beginning of CPP file 
   SPI.beginTransaction(SPISettings(LTspeedMaximum, LTdataOrder, LTdataMode));
 #endif
@@ -1481,7 +1417,13 @@ uint8_t SX126XLT::readPacketRSSI()
   Serial.println(F("readPacketRSSI()"));
 #endif
 
-  readPacketReceptionLoRa();
+  //readPacketReceptionLoRa();
+  
+  uint8_t status[5];
+
+  readCommand(RADIO_GET_PACKETSTATUS, status, 5) ;
+  _PacketRSSI = -status[0] / 2;
+
   return _PacketRSSI;
 }
 
@@ -1491,7 +1433,21 @@ uint8_t SX126XLT::readPacketSNR()
 #ifdef SX126XDEBUG
   Serial.println(F("readPacketSNR()"));
 #endif
-  readPacketReceptionLoRa();
+  //readPacketReceptionLoRa();
+  
+  uint8_t status[5];
+
+  readCommand(RADIO_GET_PACKETSTATUS, status, 5) ;
+
+  if ( status[1] < 128 )
+  {
+    _PacketSNR = status[1] / 4 ;
+  }
+  else
+  {
+    _PacketSNR = (( status[1] - 256 ) / 4);
+  }
+  
   return _PacketSNR;
 }
 
@@ -1508,7 +1464,7 @@ uint8_t SX126XLT::readRXPacketL()
   return _RXPacketL;
 }
 
-
+/*
 void SX126XLT::readPacketReceptionLoRa()
 {
 #ifdef SX126XDEBUG
@@ -1530,7 +1486,7 @@ void SX126XLT::readPacketReceptionLoRa()
   }
 
 }
-
+*/
 
 void SX126XLT::setRx(uint32_t timeout)
 {
@@ -1549,14 +1505,476 @@ void SX126XLT::setRx(uint32_t timeout)
     rxEnable();
   }
 
-  timeout = timeout << 8;         //timeout passed in mS, multiply by 64 to convert units of 15.625us to 1mS
+  timeout = timeout << 8;           //timeout passed in mS, multiply by 64 to convert units of 15.625us to 1mS
 
-  checkBusy();
   buffer[0] = (timeout >> 16) & 0xFF;
   buffer[1] = (timeout >> 8) & 0xFF;
   buffer[2] = timeout & 0xFF;
   writeCommand(RADIO_SET_RX, buffer, 3 );
 }
+
+/***************************************************************************
+//Start direct access SX buffer routines
+***************************************************************************/
+
+void SX126XLT::startWriteSXBuffer(uint8_t ptr)
+{
+#ifdef SX126XDEBUG
+  Serial.println(F("startWriteSXBuffer()"));
+#endif
+
+  _TXPacketL = 0;                   //this variable used to keep track of bytes written
+  setMode(MODE_STDBY_RC);
+  setBufferBaseAddress(ptr, 0);     //TX,RX
+  
+  checkBusy();
+  
+  #ifdef USE_SPI_TRANSACTION     //to use SPI_TRANSACTION enable define at beginning of CPP file 
+  SPI.beginTransaction(SPISettings(LTspeedMaximum, LTdataOrder, LTdataMode));
+#endif
+  
+  digitalWrite(_NSS, LOW);
+  SPI.transfer(RADIO_WRITE_BUFFER);
+  SPI.transfer(0);
+  //SPI interface ready for byte to write to buffer
+}
+
+
+uint8_t  SX126XLT::endWriteSXBuffer()
+{
+#ifdef SX126XDEBUG
+  Serial.println(F("endWriteSXBuffer()"));
+#endif
+
+  digitalWrite(_NSS, HIGH);
+  
+  #ifdef USE_SPI_TRANSACTION
+  SPI.endTransaction();
+#endif
+
+  return _TXPacketL;
+  
+}
+
+
+void SX126XLT::startReadSXBuffer(uint8_t ptr)
+{
+#ifdef SX126XDEBUG
+  Serial.println(F("startReadSXBuffer"));
+#endif
+
+  //uint8_t rxstart;
+  //uint8_t buffer[2];
+
+  _RXPacketL = 0;
+  
+  //setBufferBaseAddress(0, ptr);          //TX,RX
+  
+  checkBusy();
+  
+  #ifdef USE_SPI_TRANSACTION             //to use SPI_TRANSACTION enable define at beginning of CPP file 
+  SPI.beginTransaction(SPISettings(LTspeedMaximum, LTdataOrder, LTdataMode));
+  #endif
+
+  digitalWrite(_NSS, LOW);               //start the burst read
+  SPI.transfer(RADIO_READ_BUFFER);
+  SPI.transfer(ptr);
+  SPI.transfer(0xFF);
+
+  //next line would be data = SPI.transfer(0);
+  //SPI interface ready for byte to read from
+}
+
+
+uint8_t SX126XLT::endReadSXBuffer()
+{
+#ifdef SX126XDEBUG
+  Serial.println(F("endReadSXBuffer()"));
+#endif
+
+  digitalWrite(_NSS, HIGH);
+  
+  #ifdef USE_SPI_TRANSACTION
+  SPI.endTransaction();
+#endif
+  
+  return _RXPacketL;
+}
+
+
+void SX126XLT::writeUint8(uint8_t x)
+{
+#ifdef SX126XDEBUG
+  Serial.println(F("writeUint8()"));
+#endif
+
+  SPI.transfer(x);
+
+  _TXPacketL++;                     //increment count of bytes written
+}
+
+uint8_t SX126XLT::readUint8()
+{
+#ifdef SX126XDEBUG
+  Serial.println(F("readUint8()"));
+#endif
+  byte x;
+
+  x = SPI.transfer(0);
+
+  _RXPacketL++;                      //increment count of bytes read
+  return (x);
+}
+
+
+void SX126XLT::writeInt8(int8_t x)
+{
+#ifdef SX126XDEBUG
+  Serial.println(F("writeInt8()"));
+#endif
+
+  SPI.transfer(x);
+
+  _TXPacketL++;                      //increment count of bytes written
+}
+
+
+int8_t SX126XLT::readInt8()
+{
+#ifdef SX126XDEBUG
+  Serial.println(F("readInt8()"));
+#endif
+  int8_t x;
+
+  x = SPI.transfer(0);
+
+  _RXPacketL++;                      //increment count of bytes read
+  return (x);
+}
+
+
+void SX126XLT::writeInt16(int16_t x)
+{
+#ifdef SX126XDEBUG
+  Serial.println(F("writeInt16()"));
+#endif
+
+  SPI.transfer(lowByte(x));
+  SPI.transfer(highByte(x));
+
+  _TXPacketL = _TXPacketL + 2;         //increment count of bytes written
+}
+
+
+int16_t SX126XLT::readInt16()
+{
+#ifdef SX126XDEBUG
+  Serial.println(F("readInt16()"));
+#endif
+  byte lowbyte, highbyte;
+
+  lowbyte = SPI.transfer(0);
+  highbyte = SPI.transfer(0);
+
+  _RXPacketL = _RXPacketL + 2;         //increment count of bytes read
+  return ((highbyte << 8) + lowbyte);
+}
+
+
+void SX126XLT::writeUint16(uint16_t x)
+{
+#ifdef SX126XDEBUG
+  Serial.println(F("writeUint16()"));
+#endif
+
+  SPI.transfer(lowByte(x));
+  SPI.transfer(highByte(x));
+
+  _TXPacketL = _TXPacketL + 2;         //increment count of bytes written
+}
+
+
+uint16_t SX126XLT::readUint16()
+{
+#ifdef SX126XDEBUG
+  Serial.println(F("writeUint16()"));
+#endif
+  byte lowbyte, highbyte;
+
+  lowbyte = SPI.transfer(0);
+  highbyte = SPI.transfer(0);
+
+  _RXPacketL = _RXPacketL + 2;         //increment count of bytes read
+  return ((highbyte << 8) + lowbyte);
+}
+
+
+void SX126XLT::writeInt32(int32_t x)
+{
+#ifdef SX126XDEBUG
+  Serial.println(F("writeInt32()"));
+#endif
+
+  byte i, j;
+
+  union
+  {
+    byte b[4];
+    int32_t f;
+  } data;
+  data.f = x;
+
+  for (i = 0; i < 4; i++)
+  {
+    j = data.b[i];
+    SPI.transfer(j);
+  }
+
+  _TXPacketL = _TXPacketL + 4;         //increment count of bytes written
+}
+
+
+int32_t SX126XLT::readInt32()
+{
+#ifdef SX126XDEBUG
+  Serial.println(F("readInt32()"));
+#endif
+
+  byte i, j;
+
+  union
+  {
+    byte b[4];
+    int32_t f;
+  } readdata;
+
+  for (i = 0; i < 4; i++)
+  {
+    j = SPI.transfer(0);
+    readdata.b[i] = j;
+  }
+  _RXPacketL = _RXPacketL + 4;         //increment count of bytes read
+  return readdata.f;
+}
+
+
+void SX126XLT::writeUint32(uint32_t x)
+{
+#ifdef SX126XDEBUG
+  Serial.println(F("writeUint32()"));
+#endif
+
+  byte i, j;
+
+  union
+  {
+    byte b[4];
+    uint32_t f;
+  } data;
+  data.f = x;
+
+  for (i = 0; i < 4; i++)
+  {
+    j = data.b[i];
+    SPI.transfer(j);
+  }
+
+  _TXPacketL = _TXPacketL + 4;         //increment count of bytes written
+}
+
+
+uint32_t SX126XLT::readUint32()
+{
+#ifdef SX126XDEBUG
+  Serial.println(F("readUint32()"));
+#endif
+
+  byte i, j;
+
+  union
+  {
+    byte b[4];
+    uint32_t f;
+  } readdata;
+
+  for (i = 0; i < 4; i++)
+  {
+    j = SPI.transfer(0);
+    readdata.b[i] = j;
+  }
+  _RXPacketL = _RXPacketL + 4;         //increment count of bytes read
+  return readdata.f;
+}
+
+
+void SX126XLT::writeFloat(float x)
+{
+#ifdef SX126XDEBUG
+  Serial.println(F("writeFloat()"));
+#endif
+
+  byte i, j;
+
+  union
+  {
+    byte b[4];
+    float f;
+  } data;
+  data.f = x;
+
+  for (i = 0; i < 4; i++)
+  {
+    j = data.b[i];
+    SPI.transfer(j);
+  }
+
+  _TXPacketL = _TXPacketL + 4;         //increment count of bytes written
+}
+
+
+float SX126XLT::readFloat()
+{
+#ifdef SX126XDEBUG
+  Serial.println(F("readFloat()"));
+#endif
+
+  byte i, j;
+
+  union
+  {
+    byte b[4];
+    float f;
+  } readdata;
+
+  for (i = 0; i < 4; i++)
+  {
+    j = SPI.transfer(0);
+    readdata.b[i] = j;
+  }
+  _RXPacketL = _RXPacketL + 4;         //increment count of bytes read
+  return readdata.f;
+}
+
+
+uint8_t SX126XLT::transmitSXBuffer(uint8_t startaddr, uint8_t length, uint32_t txtimeout, int8_t txpower, uint8_t wait)
+{
+#ifdef SX126XDEBUG
+  Serial.println(F("transmitSXBuffer()"));
+#endif
+
+  setBufferBaseAddress(startaddr, 0);          //TX, RX
+
+  setPacketParams(savedPacketParam1, savedPacketParam2, length, savedPacketParam4, savedPacketParam5);
+  setTxParams(txpower, RAMP_TIME);
+  
+  setDioIrqParams(IRQ_RADIO_ALL, (IRQ_TX_DONE + IRQ_RX_TX_TIMEOUT), 0, 0);   //set for IRQ on TX done and timeout on DIO1
+  setTx(txtimeout);                            //this starts the TX
+
+  if (!wait)
+  {
+    return _TXPacketL;
+  }
+
+  while (!digitalRead(_TXDonePin));            //Wait for DIO1 to go high
+
+  if (readIrqStatus() & IRQ_RX_TX_TIMEOUT )    //check for timeout
+  {
+    return 0;
+  }
+  else
+  {
+    return _TXPacketL;
+  }
+}
+
+
+void SX126XLT::writeBuffer(uint8_t *txbuffer, uint8_t size)
+{
+#ifdef SX126XDEBUG1
+  Serial.println(F("writeBuffer()"));
+#endif
+
+  uint8_t index, regdata;
+
+  _TXPacketL = _TXPacketL + size;      //these are the number of bytes that will be added
+
+  size--;                              //loose one byte from size, the last byte written MUST be a 0
+
+  for (index = 0; index < size; index++)
+  {
+    regdata = txbuffer[index];
+    SPI.transfer(regdata);
+  }
+
+  SPI.transfer(0);                     //this ensures last byte of buffer written really is a null (0)
+
+}
+
+
+uint8_t SX126XLT::receiveSXBuffer(uint8_t startaddr, uint32_t rxtimeout, uint8_t wait )
+{
+#ifdef SX127XDEBUG1
+  Serial.println(F("receiveSXBuffer()"));
+#endif
+
+  uint16_t regdata;
+  uint8_t buffer[2];
+
+  setMode(MODE_STDBY_RC);
+  
+  setBufferBaseAddress(0, startaddr);               //order is TX RX
+  
+  setDioIrqParams(IRQ_RADIO_ALL, (IRQ_RX_DONE + IRQ_RX_TX_TIMEOUT), 0, 0);  //set for IRQ on RX done or timeout
+  setRx(rxtimeout);                                 //no actual RX timeout in this function
+
+  if (!wait)
+  {
+    return 0;
+  }
+  
+  while (!digitalRead(_RXDonePin));                  //Wait for DIO1 to go high 
+  
+  setMode(MODE_STDBY_RC);                            //ensure to stop further packet reception
+
+  regdata = readIrqStatus();
+  
+  if ( (regdata & IRQ_HEADER_ERROR) | (regdata & IRQ_CRC_ERROR) | (regdata & IRQ_RX_TX_TIMEOUT ) )
+  {
+    return 0;                                        //no RX done and header valid only, could be CRC error
+  }
+
+   readCommand(RADIO_GET_RXBUFFERSTATUS, buffer, 2);
+  _RXPacketL = buffer[0];
+
+  return _RXPacketL;                           
+}
+
+
+uint8_t SX126XLT::readBuffer(uint8_t *rxbuffer)
+{
+#ifdef SX126XDEBUG1
+  Serial.println(F("readBuffer()"));
+#endif
+
+  uint8_t index = 0, regdata;
+
+  do                                     //need to find the size of the buffer first
+  {
+    regdata = SPI.transfer(0);
+    rxbuffer[index] = regdata;           //fill the buffer.
+    index++;
+  } while (regdata != 0);                //keep reading until we have reached the null (0) at the buffer end
+                                         //or exceeded size of buffer allowed
+  return index;                          //return the actual size of the buffer, till the null (0) detected
+
+}
+
+/***************************************************************************
+//End direct access SX buffer routines
+***************************************************************************/
+
+
+
 
 
 
