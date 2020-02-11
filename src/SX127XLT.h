@@ -1,7 +1,7 @@
 /*
   Copyright 2019 - Stuart Robinson
   Licensed under a MIT license displayed at the bottom of this document.
-  17/12/19 
+  Original published 17/12/19 
 */
 
 #ifndef SX127XLT_h
@@ -128,7 +128,6 @@ class SX127XLT
 
     void setupLoRa(uint32_t Frequency, int32_t Offset, uint8_t modParam1, uint8_t modParam2, uint8_t  modParam3, uint8_t modParam4);
 
-    //uint32_t getLoRaBandwidth();
     uint8_t getLoRaSF();
     uint8_t getLoRaCodingRate();
     uint8_t getOptimisation();
@@ -137,9 +136,9 @@ class SX127XLT
     uint8_t getVersion();
     uint16_t getPreamble();
 
-    uint32_t returnBandwidth(uint8_t BWregvalue);      //returns in hz the current set bandwidth
-    uint32_t returnBandwidth2(uint8_t BWregvalue);      //returns in hz the current set bandwidth
-	uint8_t returnOptimisation(uint8_t SpreadingFactor, uint8_t Bandwidth);       //this returns the required optimisation setting
+    uint32_t returnBandwidth(uint8_t BWregvalue);                           //returns in hz the current set bandwidth
+    uint32_t returnBandwidth2(uint8_t BWregvalue);                          //returns in hz the current set bandwidth
+	uint8_t returnOptimisation(uint8_t SpreadingFactor, uint8_t Bandwidth); //this returns the required optimisation setting
     float calcSymbolTime(float Bandwidth, uint8_t SpreadingFactor);
     void printModemSettings();
     void setSyncWord(uint8_t syncword);
@@ -194,9 +193,9 @@ class SX127XLT
     //RXTX Switch routines - Not yet tested as of 02/12/19
     //*******************************************************************************
 
-    void rxtxInit(int8_t pinRXEN, int8_t pinTXEN);
-    void rxEnable();                //not used on current SX127x modules
-    void txEnable();                //not used on current SX127x modules
+    void rxtxInit(int8_t pinRXEN, int8_t pinTXEN);  //not used on current SX127x modules
+    void rxEnable();                                //not used on current SX127x modules
+    void txEnable();                                //not used on current SX127x modules
 
 
     //*******************************************************************************

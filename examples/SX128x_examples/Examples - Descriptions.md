@@ -107,3 +107,37 @@ The contents of the packet received, and printed to serial monitor, should be;
 8              (uint8\_t)    - number of satellites   
 3999           (uint16\_t)   - battery voltage 
 -9             (int8_t)      - temperature
+
+
+#### 52\_FLRC\_Transmitter &emsp; &emsp; &emsp;  &emsp; &emsp; &emsp; (Basics folder)
+
+This is a test transmitter for the Fast Long Range Communication (FLRC) mode introduced in the SX128X devices. A packet containing ASCII text is sent according to the frequency and FLRC settings specified in the 'Settings.h' file. The pins to access the SX128X device need to be defined
+in the 'Settings.h' file also.
+
+The details of the packet sent and any errors are shown on the Serial Monitor, together with the transmit
+power used, the packet length and the CRC of the packet. The matching receive program, '53_FLRC_Receiver'
+can be used to check the packets are being sent correctly, the frequency and FLRC settings (in Settings.h)
+must be the same for the Transmit and Receive program. Sample Serial Monitor output;
+
+10dBm Packet> {packet contents*}  BytesSent,19  CRC,3882  TransmitTime,54mS  PacketsSent,1
+
+Serial monitor baud rate is set at 9600
+
+#### 53\_FLRC\_Receiver &emsp; &emsp; &emsp;  &emsp; &emsp; &emsp; (Basics folder)
+
+This is a test receiver for the Fast Long Range Communication (FLRC) mode introduced in the SX128X devices. The program listens for incoming packets using the FLRC settings in the 'Settings.h' file. The pins to access the SX128X device need to be defined in the 'Settings.h' file also.
+
+There is a printout of the valid packets received, the packet is assumed to be in ASCII printable text,
+if its not ASCII text characters from 0x20 to 0x7F, expect weird things to happen on the Serial Monitor.
+The LED will flash for each packet received and the buzzer will sound, if fitted.
+
+Sample serial monitor output;
+
+1109s  {packet contents}  CRC,3882,RSSI,-69dBm,Length,19,Packets,1026,Errors,0,IRQreg,50
+
+If there is a packet error it might look like this, which is showing a CRC error,
+
+1189s -  PacketError,RSSI,-111dBm,Length,0,Packets,1126,Errors,1,IRQreg,70,IRQ_HEADER_VALID,IRQ_CRC_ERROR,IRQ_RX_DONE
+
+Serial monitor baud rate is set at 9600.
+

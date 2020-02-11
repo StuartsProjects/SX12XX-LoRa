@@ -1,7 +1,7 @@
 /*
   Copyright 2019 - Stuart Robinson
   Licensed under a MIT license displayed at the bottom of this document.
-  17/12/19
+  Original published 17/12/19 
 */
 
 #define LORA_MAC_PRIVATE_SYNCWORD                   0x12

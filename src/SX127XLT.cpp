@@ -1,17 +1,17 @@
 /*
   Copyright 2019 - Stuart Robinson 
   Licensed under a MIT license displayed at the bottom of this document.
-  17/12/19 
+  Original published 17/12/19  
 */
 
 #include <SX127XLT.h>
 #include <SPI.h>
 
 #define LTUNUSED(v) (void) (v)       //add LTUNUSED(variable); in functions to avoid compiler warnings 
-#define USE_SPI_TRANSACTION        //this is the standard behaviour of library, use SPI Transaction switching
+#define USE_SPI_TRANSACTION          //this is the standard behaviour of library, use SPI Transaction switching
 
-//#define SX127XDEBUG1             //enable level 1 debug messages
-//#define DEBUGPHANTOM             //used to set bebuging for Phantom packets
+//#define SX127XDEBUG1               //enable level 1 debug messages
+//#define DEBUGPHANTOM               //used to set bebuging for Phantom packets
 
 
 SX127XLT::SX127XLT()
@@ -377,7 +377,6 @@ uint8_t SX127XLT::readRegister(uint8_t address)
 
   return regdata;
 }
-
 
 
 void SX127XLT::printRegisters(uint16_t Start, uint16_t End)
@@ -1093,7 +1092,6 @@ void SX127XLT::setRXGain(uint8_t config)
 }
 
 
-
 uint8_t SX127XLT::getAGC()
 {
 #ifdef SX127XDEBUG1
@@ -1348,7 +1346,7 @@ uint8_t SX127XLT::packetOK()
 
   bool packetHasCRC;
 
-  packetHasCRC = (readRegister(REG_HOPCHANNEL) & 0x40);                      //read the packet has CRC bit in RegHopChannel
+  packetHasCRC = (readRegister(REG_HOPCHANNEL) & 0x40);                  //read the packet has CRC bit in RegHopChannel
 
 #ifdef DEBUGPHANTOM
   Serial.print(F("PacketHasCRC = "));
@@ -1399,7 +1397,6 @@ uint8_t SX127XLT::readRXSource()
 
   return _RXSource;
 }
-
 
 
 void SX127XLT::setBufferBaseAddress(uint8_t txBaseAddress, uint8_t rxBaseAddress)
@@ -1536,7 +1533,6 @@ void SX127XLT::setDioIrqParams(uint16_t irqMask, uint16_t dio0Mask, uint16_t dio
 }
 
 
-
 void SX127XLT::printIrqStatus()
 {
 #ifdef SX127XDEBUG1
@@ -1642,8 +1638,6 @@ void SX127XLT::printHEXPacket(uint8_t *buffer, uint8_t size)
     Serial.print(F(" "));
   }
 }
-
-
 
 
 void SX127XLT::printASCIIorHEX(uint8_t temp)
@@ -1754,7 +1748,6 @@ void SX127XLT:: setRXDonePin(uint8_t pin)
 
   _RXDonePin = pin;
 }
-
 
 
 uint8_t SX127XLT::receive(uint8_t *rxbuffer, uint8_t size, uint32_t rxtimeout, uint8_t wait )
@@ -1908,7 +1901,6 @@ uint8_t SX127XLT::receiveAddressed(uint8_t *rxbuffer, uint8_t size, uint32_t rxt
 
   return _RXPacketL;                           //so we can check for packet having enough buffer space
 }
-
 
 
 uint8_t SX127XLT::readPacket(uint8_t *rxbuffer, uint8_t size)
@@ -2073,7 +2065,6 @@ uint8_t SX127XLT::transmit(uint8_t *txbuffer, uint8_t size, uint32_t txtimeout, 
 }
 
 
-
 uint8_t SX127XLT::transmitAddressed(uint8_t *txbuffer, uint8_t size, char txpackettype, char txdestination, char txsource, uint32_t txtimeout, int8_t txpower, uint8_t wait )
 {
 #ifdef SX127XDEBUG1
@@ -2152,7 +2143,6 @@ uint8_t SX127XLT::transmitAddressed(uint8_t *txbuffer, uint8_t size, char txpack
 }
 
 
-
 void SX127XLT::setupLoRa(uint32_t Frequency, int32_t Offset, uint8_t modParam1, uint8_t modParam2, uint8_t  modParam3, uint8_t modParam4)
 {
 #ifdef SX127XDEBUG1
@@ -2170,79 +2160,6 @@ void SX127XLT::setupLoRa(uint32_t Frequency, int32_t Offset, uint8_t modParam1, 
   setHighSensitivity();
 }
 
-
-/*
-uint32_t SX127XLT::getLoRaBandwidth()
-{
-#ifdef SX127XDEBUG1
-  Serial.println(F("getLoRaBandwidth()"));
-#endif
-
-  uint8_t regdata;
-
-
-  if (_Device == DEVICE_SX1272)
-  {
-    regdata = (readRegister(REG_MODEMCONFIG1) & READ_BW_AND_2);
-    switch (regdata)
-    {
-      case 0:
-        return 125000;
-
-      case 64:
-        return 250000;
-
-      case 128:
-        return 500000;
-
-      default:
-        return 0xFF;                      //so that a bandwidth invalid entry can be identified ?
-    }
-  }
-  else
-  {
-
-    regdata = (readRegister(REG_MODEMCONFIG1) & READ_BW_AND_X);
-
-    switch (regdata)
-    {
-      case 0:
-        return 7800;
-
-      case 16:
-        return 10400;
-
-      case 32:
-        return 15600;
-
-      case 48:
-        return 20800;
-
-      case 64:
-        return 31200;
-
-      case 80:
-        return 41700;
-
-      case 96:
-        return 62500;
-
-      case 112:
-        return 125000;
-
-      case 128:
-        return 250000;
-
-      case 144:
-        return 500000;
-
-      default:
-        return 0xFF;                      //so that a bandwidth invalid entry can be identified ?
-    }
-
-  }
-}
-*/
 
 uint8_t SX127XLT::getLoRaSF()
 {
@@ -2363,7 +2280,6 @@ uint32_t SX127XLT::returnBandwidth(byte BWregvalue)
 
   if (_Device == DEVICE_SX1272)
   {
-    //regdata = (readRegister(REG_MODEMCONFIG1) & READ_BW_AND_2);
     switch (BWregvalue)
     {
       case 0:
@@ -2381,7 +2297,6 @@ uint32_t SX127XLT::returnBandwidth(byte BWregvalue)
   }
   else
   {
-    //regdata = (readRegister(REG_MODEMCONFIG1) & READ_BW_AND_X);
 
     switch (BWregvalue)
     {
@@ -2422,7 +2337,6 @@ uint32_t SX127XLT::returnBandwidth(byte BWregvalue)
   }
 }
 
- 
 
 uint32_t SX127XLT::returnBandwidth2(byte BWregvalue)
 {
@@ -2606,7 +2520,7 @@ uint8_t SX127XLT::receiveSXBuffer(uint8_t startaddr, uint32_t rxtimeout, uint8_t
 
   if (rxtimeout == 0)
   {
-    while (!digitalRead(_RXDonePin));                                    //Wait for DIO0 to go high, no timeout, RX DONE
+    while (!digitalRead(_RXDonePin));                                       //Wait for DIO0 to go high, no timeout, RX DONE
   }
   else
   {
@@ -2614,9 +2528,9 @@ uint8_t SX127XLT::receiveSXBuffer(uint8_t startaddr, uint32_t rxtimeout, uint8_t
     while (!digitalRead(_RXDonePin) && (millis() < endtimeoutmS));
   }
 
-  setMode(MODE_STDBY_RC);                                          //ensure to stop further packet reception
+  setMode(MODE_STDBY_RC);                                                   //ensure to stop further packet reception
 
-  if (!digitalRead(_RXDonePin))                                         //check if not DIO still low, is so must be RX timeout
+  if (!digitalRead(_RXDonePin))                                             //check if not DIO still low, is so must be RX timeout
   {
     _IRQmsb = IRQ_RX_TIMEOUT;
     return 0;
@@ -2624,7 +2538,7 @@ uint8_t SX127XLT::receiveSXBuffer(uint8_t startaddr, uint32_t rxtimeout, uint8_t
 
   if ( readIrqStatus() != (IRQ_RX_DONE + IRQ_HEADER_VALID) )
   {
-    return 0;                       //no RX done and header valid only, could be CRC error
+    return 0;                                  //no RX done and header valid only, could be CRC error
   }
 
   _RXPacketL = readRegister(REG_RXNBBYTES);
@@ -2644,7 +2558,7 @@ uint8_t SX127XLT::transmitSXBuffer(uint8_t startaddr, uint8_t length, uint32_t t
 
   setMode(MODE_STDBY_RC);
 
-  writeRegister(REG_FIFOTXBASEADDR, startaddr);          //set start address of packet in buffer
+  writeRegister(REG_FIFOTXBASEADDR, startaddr);         //set start address of packet in buffer
   writeRegister(REG_PAYLOADLENGTH, length);
 
   setTxParams(txpower, RADIO_RAMP_DEFAULT);             //TX power and ramp time
@@ -2659,7 +2573,7 @@ uint8_t SX127XLT::transmitSXBuffer(uint8_t startaddr, uint8_t length, uint32_t t
 
   if (txtimeout == 0)
   {
-    while (!digitalRead(_TXDonePin));                    //Wait for DIO0 to go high, TX finished
+    while (!digitalRead(_TXDonePin));                   //Wait for DIO0 to go high, TX finished
   }
   else
   {
@@ -2667,17 +2581,17 @@ uint8_t SX127XLT::transmitSXBuffer(uint8_t startaddr, uint8_t length, uint32_t t
     while (!digitalRead(_TXDonePin) && (millis() < endtimeoutmS));
   }
 
-  setMode(MODE_STDBY_RC);                                 //ensure we leave function with TX off
+  setMode(MODE_STDBY_RC);                               //ensure we leave function with TX off
 
 
-  if (millis() >= endtimeoutmS)                           //flag if TX timeout
+  if (millis() >= endtimeoutmS)                         //flag if TX timeout
   {
     _IRQmsb = IRQ_TX_TIMEOUT;
 
     return 0;
   }
 
-  return _TXPacketL;                                                     //no timeout, so TXdone must have been set
+  return _TXPacketL;                                    //no timeout, so TXdone must have been set
 }
 
 
@@ -2691,7 +2605,7 @@ void SX127XLT::printSXBufferHEX(uint8_t start, uint8_t end)
   uint8_t index, regdata;
 
   setMode(MODE_STDBY_RC);
-  writeRegister(REG_FIFOADDRPTR, start);          //set FIFO access ptr to start
+  writeRegister(REG_FIFOADDRPTR, start);         //set FIFO access ptr to start
 
 #ifdef USE_SPI_TRANSACTION     //to use SPI_TRANSACTION enable define at beginning of CPP file 
   SPI.beginTransaction(SPISettings(LTspeedMaximum, LTdataOrder, LTdataMode));
@@ -2725,7 +2639,7 @@ void SX127XLT::printSXBufferASCII(uint8_t start, uint8_t end)
   uint8_t index, regdata;
   setMode(MODE_STDBY_RC);
 
-  writeRegister(REG_FIFOADDRPTR, start);     //and save in FIFO access ptr
+  writeRegister(REG_FIFOADDRPTR, start);      //and save in FIFO access ptr
 
 #ifdef USE_SPI_TRANSACTION   //to use SPI_TRANSACTION enable define at beginning of CPP file 
   SPI.beginTransaction(SPISettings(LTspeedMaximum, LTdataOrder, LTdataMode));
@@ -2758,11 +2672,11 @@ void SX127XLT::fillSXBuffer(uint8_t startaddress, uint8_t size, uint8_t characte
   setMode(MODE_STDBY_RC);
   writeRegister(REG_FIFOADDRPTR, startaddress);     //and save in FIFO access ptr
 
-#ifdef USE_SPI_TRANSACTION                       //to use SPI_TRANSACTION enable define at beginning of CPP file 
+#ifdef USE_SPI_TRANSACTION                          //to use SPI_TRANSACTION enable define at beginning of CPP file 
   SPI.beginTransaction(SPISettings(LTspeedMaximum, LTdataOrder, LTdataMode));
 #endif
 
-  digitalWrite(_NSS, LOW);                         //start the burst write
+  digitalWrite(_NSS, LOW);                          //start the burst write
   SPI.transfer(WREG_FIFO);
 
   for (index = 0; index < size; index++)
@@ -2788,9 +2702,9 @@ uint8_t SX127XLT::getByteSXBuffer(uint8_t addr)
   uint8_t regdata;
   setMode(MODE_STDBY_RC);                     //this is needed to ensure we can read from buffer OK.
 
-  writeRegister(REG_FIFOADDRPTR, addr);        //set FIFO access ptr to location
+  writeRegister(REG_FIFOADDRPTR, addr);       //set FIFO access ptr to location
 
-#ifdef USE_SPI_TRANSACTION   //to use SPI_TRANSACTION enable define at beginning of CPP file 
+#ifdef USE_SPI_TRANSACTION                    //to use SPI_TRANSACTION enable define at beginning of CPP file 
   SPI.beginTransaction(SPISettings(LTspeedMaximum, LTdataOrder, LTdataMode));
 #endif
 
@@ -2815,9 +2729,9 @@ void SX127XLT::writeByteSXBuffer(uint8_t addr, uint8_t regdata)
 
   setMode(MODE_STDBY_RC);                 //this is needed to ensure we can write to buffer OK.
 
-  writeRegister(REG_FIFOADDRPTR, addr);    //set FIFO access ptr to location
+  writeRegister(REG_FIFOADDRPTR, addr);   //set FIFO access ptr to location
 
-#ifdef USE_SPI_TRANSACTION   //to use SPI_TRANSACTION enable define at beginning of CPP file 
+#ifdef USE_SPI_TRANSACTION                //to use SPI_TRANSACTION enable define at beginning of CPP file 
   SPI.beginTransaction(SPISettings(LTspeedMaximum, LTdataOrder, LTdataMode));
 #endif
 
@@ -2833,7 +2747,6 @@ void SX127XLT::writeByteSXBuffer(uint8_t addr, uint8_t regdata)
 }
 
 
-
 void SX127XLT::startWriteSXBuffer(uint8_t ptr)
 {
 #ifdef SX127XDEBUG1
@@ -2843,7 +2756,7 @@ void SX127XLT::startWriteSXBuffer(uint8_t ptr)
   setMode(MODE_STDBY_RC);
 
   _TXPacketL = 0;                               //this variable used to keep track of bytes written
-  writeRegister(REG_FIFOADDRPTR, ptr);           //set buffer access ptr
+  writeRegister(REG_FIFOADDRPTR, ptr);          //set buffer access ptr
 
 #ifdef USE_SPI_TRANSACTION                      //to use SPI_TRANSACTION enable define at beginning of CPP file 
   SPI.beginTransaction(SPISettings(LTspeedMaximum, LTdataOrder, LTdataMode));
@@ -2880,11 +2793,11 @@ void SX127XLT::startReadSXBuffer(uint8_t ptr)
   _RXPacketL = 0;
   writeRegister(REG_FIFOADDRPTR, ptr);           //set buffer access ptr
 
-#ifdef USE_SPI_TRANSACTION   //to use SPI_TRANSACTION enable define at beginning of CPP file 
+#ifdef USE_SPI_TRANSACTION                       //to use SPI_TRANSACTION enable define at beginning of CPP file 
   SPI.beginTransaction(SPISettings(LTspeedMaximum, LTdataOrder, LTdataMode));
 #endif
 
-  digitalWrite(_NSS, LOW);               //start the burst read
+  digitalWrite(_NSS, LOW);                       //start the burst read
   SPI.transfer(REG_FIFO);
 
   //next line would be data = SPI.transfer(0);
@@ -3229,37 +3142,37 @@ uint8_t SX127XLT::readBuffer(uint8_t *rxbuffer)
   do                                     //need to find the size of the buffer first
   {
     regdata = SPI.transfer(0);
-    rxbuffer[index] = regdata;             //fill the buffer.
+    rxbuffer[index] = regdata;           //fill the buffer.
     index++;
   } while (regdata != 0);                //keep reading until we have reached the null (0) at the buffer end
-  //or exceeded size of buffer allowed
+                                         //or exceeded size of buffer allowed
   return index;                          //return the actual size of the buffer, till the null (0) detected
 
 }
 
 
-
 void SX127XLT::rxtxInit(int8_t pinRXEN, int8_t pinTXEN)
 {
-  //not used on current SX127x modules
+ //not used on current SX127x modules
 
 #ifdef SX127XDEBUG1
   Serial.println(F("rxtxInit()"));
 #endif
 
-  //_rxtxpinmode = true;
   _RXEN = pinRXEN;
   _TXEN = pinTXEN;
 
   pinMode(pinRXEN, OUTPUT);
-  digitalWrite(pinRXEN, LOW);           //pins needed for E28-2G4M20S
+  digitalWrite(pinRXEN, LOW);           //pins needed for RX\TX switching
   pinMode(pinTXEN, OUTPUT);
-  digitalWrite(pinTXEN, LOW);           //pins needed for E28-2G4M20S
+  digitalWrite(pinTXEN, LOW);           //pins needed for RX\TX switching
 }
 
 
 void SX127XLT::rxEnable()
 {
+//not used on current SX127x modules
+
 #ifdef SX127XDEBUG1
   Serial.println(F("rxEnable()"));
 #endif
@@ -3271,6 +3184,8 @@ void SX127XLT::rxEnable()
 
 void SX127XLT::txEnable()
 {
+//not used on current SX127x modules
+
 #ifdef SX127XDEBUG1
   Serial.println(F("txEnable()"));
 #endif
@@ -3278,12 +3193,6 @@ void SX127XLT::txEnable()
   digitalWrite(_RXEN, LOW);
   digitalWrite(_TXEN, HIGH);
 }
-
-
-
-
-
-
 
 
 /*
