@@ -8,16 +8,20 @@
 
   ToDO
 
-  Why is SX1280LT.setPacketType(PACKET_TYPE_LORA) required before getFreqInt works (example 1)
-  Review error rate in FLRC mode
-  Ranging requestor 0dBm in packet receipt mode ?
+  DONE - Why is SX1280LT.setPacketType(PACKET_TYPE_LORA) required before getFreqInt works with FLRC (example 1)
+       - The register addresses where the frequency is stored are differnt for FLRC and LORA
+  DONE - Checkbusy at end of setmode ? - not needed, Checkbusy before all SPI activity
+  
   Question the frequency error corection in the data sheet, is it really 1600/bandwithkhz ?
-  Checkbusy at end of setmode ?
-  Syncword for LoRa possible
-  Check whether getfreqint() needs packet mode set
+  Syncword for LoRa is possible ?
   Add routine to change period_base for RX,TX timeout
-  Review ranging operation
-
+  Is there a direct register access to packet length for transmit ?
+  Test RSSI and SNR are realistic for LoRa and FLRC
+  Review error rate in FLRC mode
+  Error packets at -99dBm due to noise ?
+  Check RX\TX enable
+  Trap use of devices wit RX\TX switching in ranging mode 
+  
 **************************************************************************/
 
 class SX128XLT  {
@@ -26,9 +30,9 @@ class SX128XLT  {
 
     SX128XLT();
 
-    bool begin(int8_t pinNSS, int8_t pinNRESET, int8_t pinRFBUSY, int8_t pinDIO1, int8_t pinDIO2, int8_t pinDIO3, uint8_t device);
+    bool begin(int8_t pinNSS, int8_t pinNRESET, int8_t pinRFBUSY, int8_t pinDIO1, int8_t pinDIO2, int8_t pinDIO3, int8_t pinRXEN, int8_t pinTXEN, uint8_t device);
 
-    void rxtxInit(int8_t RXEN, int8_t TXEN);
+    //void rxtxInit(int8_t RXEN, int8_t TXEN);
     void rxEnable();
     void txEnable();
 
@@ -53,7 +57,7 @@ class SX128XLT  {
     void setDioIrqParams(uint16_t irqMask, uint16_t dio1Mask, uint16_t dio2Mask, uint16_t dio3Mask );
     void setHighSensitivity();
     void setLowPowerRX();
-    void printLoraSettings();
+    void printModemSettings();
     void printDevice();
     uint32_t getFreqInt();
     uint8_t getLoRaSF();
@@ -77,7 +81,48 @@ class SX128XLT  {
     uint8_t readPacketRSSI();
     uint8_t readPacketSNR();
     uint8_t readRXPacketL();
+    //void readPacketReceptionLoRa();
     void setRx(uint16_t timeout);
+	void setSyncWord1(uint32_t syncword);
+
+/***************************************************************************
+//Start direct access SX buffer routines
+***************************************************************************/
+
+    void startWriteSXBuffer(uint8_t ptr);
+    uint8_t endWriteSXBuffer();
+    void startReadSXBuffer(uint8_t ptr);
+    uint8_t endReadSXBuffer();
+
+    void writeUint8(uint8_t x);
+    uint8_t readUint8();
+
+    void writeInt8(int8_t x);
+    int8_t readInt8();
+
+    void writeInt16(int16_t x);
+    int16_t readInt16();
+
+    void writeUint16(uint16_t x);
+    uint16_t readUint16();
+
+    void writeInt32(int32_t x);
+    int32_t readInt32();
+
+    void writeUint32(uint32_t x);
+    uint32_t readUint32();
+
+    void writeFloat(float x);
+    float readFloat();
+
+    uint8_t transmitSXBuffer(uint8_t startaddr, uint8_t length, uint32_t txtimeout, int8_t txpower, uint8_t wait);
+    void writeBuffer(uint8_t *txbuffer, uint8_t size);
+    uint8_t receiveSXBuffer(uint8_t startaddr, uint32_t rxtimeout, uint8_t wait);
+    uint8_t readBuffer(uint8_t *rxbuffer);
+
+/***************************************************************************
+//End direct access SX buffer routines
+***************************************************************************/
 
 
   private:
@@ -99,7 +144,9 @@ class SX128XLT  {
     uint8_t _Device;                //saved device type
     uint8_t _TXDonePin;             //the pin that will indicate TX done
     uint8_t _RXDonePin;             //the pin that will indicate RX done
-    uint8_t _PERIODBASE = PERIODBASE_01_MS; //set default PERIODBASE
+    //uint8_t _PERIODBASE = PERIODBASE_01_MS; //set default PERIODBASEPERIODBASE_62_US
+
+    uint8_t _PERIODBASE = PERIODBASE_01_MS; 
 
     //config variables are 36 bytes, allows for device to be reset and reconfigured via config();
     uint8_t  savedRegulatorMode;

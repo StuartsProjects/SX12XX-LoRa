@@ -131,9 +131,15 @@
 #define REG_LNA_REGIME                    0x0891
 #define REG_LR_PAYLOADLENGTH              0x901
 #define REG_LR_PACKETPARAMS               0x903
+
 #define REG_RFFrequency23_16              0x906
 #define REG_RFFrequency15_8               0x907
 #define REG_RFFrequency7_0                0x908
+
+#define REG_FLRC_RFFrequency23_16         0x9A3          //found by experiment
+#define REG_FLRC_RFFrequency15_8          0x9A4
+#define REG_FLRC_RFFrequency7_0           0x9A5
+
 #define REG_LR_REQUESTRANGINGADDR         0x0912
 
 #define REG_LR_DEVICERANGINGADDR          0x0916

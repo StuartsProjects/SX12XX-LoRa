@@ -1,13 +1,15 @@
 /*******************************************************************************************************
-  lora Programs for Arduino - Copyright of the author Stuart Robinson - 08/02/20
+  lora Programs for Arduino - Copyright of the author Stuart Robinson - 09/02/20
 
   This program is supplied as is, it is up to the user of the program to decide if the program is
   suitable for the intended purpose and free from errors. 
 *******************************************************************************************************/
 
+
 /*******************************************************************************************************
-  Program Operation - The program listens for incoming packets using the LoRa settings in the 'Settings.h'
-  file. The pins to access the lora device need to be defined in the 'Settings.h' file also.
+  Program Operation - This is a test receiver for the Fast Long Range Communication (FLRC) mode introduced
+  in the SX128X devices. The program listens for incoming packets using the FLRC settings in the 'Settings.h'
+  file. The pins to access the SX128X device need to be defined in the 'Settings.h' file also.
 
   There is a printout of the valid packets received, the packet is assumed to be in ASCII printable text,
   if its not ASCII text characters from 0x20 to 0x7F, expect weird things to happen on the Serial Monitor.
@@ -219,19 +221,18 @@ void setup()
   //***************************************************************************************************
   LT.setMode(MODE_STDBY_RC);
   LT.setRegulatorMode(USE_LDO);
-  LT.setPacketType(PACKET_TYPE_LORA);
+  LT.setPacketType(PACKET_TYPE_FLRC);
   LT.setRfFrequency(Frequency, Offset);
   LT.setBufferBaseAddress(0, 0);
-  LT.setModulationParams(SpreadingFactor, Bandwidth, CodeRate);
-  LT.setPacketParams(12, LORA_PACKET_VARIABLE_LENGTH, 255, LORA_CRC_ON, LORA_IQ_NORMAL, 0, 0);
-  LT.setDioIrqParams(IRQ_RADIO_ALL, (IRQ_TX_DONE + IRQ_RX_TX_TIMEOUT), 0, 0);
-  LT.setHighSensitivity();
-  //LT.setLowPowerRX();
+  LT.setModulationParams(BandwidthBitRate, CodingRate, BT);
+  LT.setPacketParams(PREAMBLE_LENGTH_32_BITS, FLRC_SYNC_WORD_LEN_P32S, RADIO_RX_MATCH_SYNCWORD_1, RADIO_PACKET_VARIABLE_LENGTH, 127, RADIO_CRC_3_BYTES, RADIO_WHITENING_OFF);
+  LT.setDioIrqParams(IRQ_RADIO_ALL, (IRQ_TX_DONE + IRQ_RX_TX_TIMEOUT), 0, 0);              //set for IRQ on TX done and timeout on DIO1
+  LT.setSyncWord1(Sample_Syncword);
   //***************************************************************************************************
 
 
   Serial.println();
-  LT.printModemSettings();                                     //reads and prints the configured LoRa settings, useful check
+  LT.printModemSettings();                                     //reads and prints the configured modem settings, useful check
   Serial.println();
   LT.printOperatingSettings();                                 //reads and prints the configured operting settings, useful check
   Serial.println();

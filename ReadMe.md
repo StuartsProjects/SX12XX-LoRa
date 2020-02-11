@@ -1,8 +1,8 @@
 # SX12XX Library
 
-	Update: 06/02/20
+    Update: 11/02/20 - SX128X basic library and examples added
 
-	SX126X basic library and examples added with required antenna switch support for Dorji DRF1268
+	Update: 06/02/20 - SX126X basic library and examples added with required antenna switch support for Dorji DRF1268
     ESP32 examples added for SX127X
     STM32 examples added for SX127X 
 
@@ -10,10 +10,62 @@
 <cr>
 
 
-This library currently supports the SX1272, SX1276, SX1277, SX1278 and SX1279 Semtech LoRa devices. These Semtech devices are used to manufacture a range of LoRa modules sold by companies such as Hope, Dorji, NiceRF and others.
-At a later date the library will be extended to support the SX1261,SX1262, SX1268, SX1280 and SX1281 devices whilst using the same sketch function style used here. 
+This library currently has full support for the SX1272, SX1276, SX1277, SX1278 and SX1279 Semtech SPI based LoRa devices. There is a wide range of examples for these devices. These Semtech devices are used to manufacture a range of LoRa modules sold by companies such as Hope, Dorji, NiceRF and others. The library does not support LoRa modules with a UART based interface such as those from Ebyte and Microchip. 
 
-The objective of the library was to allow the same program sketches to be used across the range of SX126x, SX127x and SX128x modules. A sketch written for the SX1278 (for example) should then run with very minor changes on the SX1262 or SX1280. However, whilst the SX126x and SX128x modules use the same style of device programming, the SX127x programming is completely different. The function style used for the SX126x and SX128x devices has been copied to create a matching style for the SX127x. 
+There is now basic support in the library for SX1261, SX1262, SX1268 (all UHF) and the SX1280 (2.4Ghz) devices. 
+
+At a later date the wide range of examples available for the SX127x devices will be extended to cover the SX126X and SX128X devices. 
+
+The objective of the library was to allow the same program sketches to be used across the range of UHF lora modules SX126x and SX127x (UHF) as well as the 2.4Ghz SX128x modules. A sketch written for the SX1278 (for example) should then run with very minor changes on the SX1262 or SX1280. However, whilst the SX126x and SX128x modules use the same style of device programming, the SX127x programming is completely different. The function style used for the SX126x and SX128x devices has been copied to create a matching style for the SX127x.
+
+A conventional lora library normally uses a buffer of data created within the Arduino sketch to create the data packet to be sent. This library has those functions, see the examples in the 'Basics' folder. There are examples for sending\receiving a simple character buffer ("Hello World") and for sending\receiving a data structure which can also include a character buffer. 
+
+###Special considerations for pin usage
+
+Pins settings and usage must be set up the the 'Settings.h' file that is include in each sketch folder. Program **2\_Register\_Test** does not use a 'Settings.h' file however. 
+
+The library supports the SPI based LoRa modules and these all require that the SPI bus pins, SCK, MOSI and MISO are connected. All modules also need a NSS (chip select pin) and NRESET (reset) pin. In theory the NRESET pin could be omitted, but the programs would loose the ability to reset the device. All devices need the RFBUSY pin to be used also. 
+
+Of the DIO pins the library in standard form only uses DIO0 (SX127X) and DIO1 (SX126X and SX128X). The pin definitions for DIO1 and DIO2 (SX127x) and DIO2 and DIO3 (SX126x and SX128x) are not currently used by the library or examples so can be defined as -1 meaning they will not be configured. 
+
+The Dorji DRF1262 and DRF1268 modules has a SW pin which must be configured, it provides power to the antenna switch used on these modules. 
+Some SX126x modules have RX or TX enable pins, these are currently not supported by the library. 
+
+Some of the SX128x modules also have RX or TX enable pins, such as the Ebyte modules, these are supported by the library, and you need to define the pins RX_EN and TX_EN pins used, otherwise leave unused by defining them as -1.  
+
+###Direct access to devices internal data buffer
+
+ 
+An additional library feature has been implemented to enable variables or character data to be written direct to the lora devices internal buffer. This has the benefit of not requiring a memory buffer in the Arduino, but also lends itself to a simple way of sending and receiving packets. For instance this is the routine to create a packet for transmission taken from the 'LowMemory' folder;
+
+	LT.startWriteSXBuffer(0);                         //start the write at location 0
+	LT.writeBuffer(trackerID, sizeof(trackerID));     //= 13 bytes (12 characters plus null (0) at end)
+	LT.writeUint32(TXpacketCount);                    //+4 = 17 bytes
+	LT.writeFloat(latitude);                          //+4 = 21 bytes
+	LT.writeFloat(longitude);                         //+4 = 25 bytes
+	LT.writeUint16(altitude);                         //+2 = 27 bytes
+	LT.writeUint8(satellites);                        //+1 = 28 bytes
+	LT.writeUint16(voltage);                          //+2 = 30 bytes
+	LT.writeInt8(temperature);                        //+1 = 31 bytes total to send
+	len = LT.endWriteSXBuffer();
+
+This is the matching code for the receiver;
+
+	LT.startReadSXBuffer(0);               //start buffer read at location 0
+	LT.readBuffer(receivebuffer);          //read in the character buffer
+	txcount  = LT.readUint32();            //read in the TXCount
+	latitude = LT.readFloat();             //read in the latitude
+	longitude = LT.readFloat();            //read in the longitude
+	altitude = LT.readUint16();            //read in the altitude
+	satellites = LT.readUint8();           //read in the number of satellites
+	voltage = LT.readUint16();             //read in the voltage
+	temperature = LT.readInt8();           //read in the temperature
+	RXPacketL = LT.endReadSXBuffer();
+  
+
+Clearly as with other methods of sending data the order in which the packet data is created in the transmitter had to match the order that it is read in the receiver.
+
+
 ### Warning
 **The Semtech devices that this library supports are all 3.3V logic level devices so do not use directly with 5V logic level Arduinos, some form of logic level conversion is needed.** There are no specific logic level converters I could recommend. The programs have only been tested on 3.3V 8Mhz ATMega328P and ATMega1284P processors.
 
@@ -80,12 +132,10 @@ Investigate adding internal SX1278 temperature sensor
 
 Check sensitivity\current for writeRegister(RegLna, 0x3B );.//at HF 150% LNA current.
 
-Add packet SF6 support and implicit mode support and examples
-
 <br>
 
 
 ### Stuart Robinson
 
-### December 2019
+### February 2020
 

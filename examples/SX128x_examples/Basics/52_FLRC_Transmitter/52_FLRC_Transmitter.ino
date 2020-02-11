@@ -1,5 +1,5 @@
 /*******************************************************************************************************
-  lora Programs for Arduino - Copyright of the author Stuart Robinson - 06/02/20
+  lora Programs for Arduino - Copyright of the author Stuart Robinson - 09/02/20
 
   This program is supplied as is, it is up to the user of the program to decide if the program is
   suitable for the intended purpose and free from errors.
@@ -7,13 +7,14 @@
 
 
 /*******************************************************************************************************
-  Program Operation - This is a simple LoRa test transmitter. A packet containing ASCII text is sent
-  according to the frequency and LoRa settings specified in the 'Settings.h' file. The pins to access
-  the lora device need to be defined in the 'Settings.h' file also.
+  Program Operation - This is a test transmitter for the Fast Long Range Communication (FLRC) mode
+  introduced in the SX128X devices. A packet containing ASCII text is sent according to the frequency and
+  FLRC settings specified in the 'Settings.h' file. The pins to access the SX128X device need to be defined
+  in the 'Settings.h' file also.
 
   The details of the packet sent and any errors are shown on the Serial Monitor, together with the transmit
-  power used, the packet length and the CRC of the packet. The matching receive program, '4_LoRa_Receive'
-  can be used to check the packets are being sent correctly, the frequency and LoRa settings (in Settings.h)
+  power used, the packet length and the CRC of the packet. The matching receive program, '53_FLRC_Receiver'
+  can be used to check the packets are being sent correctly, the frequency and FLRC settings (in Settings.h)
   must be the same for the Transmit and Receive program. Sample Serial Monitor output;
 
   10dBm Packet> {packet contents*}  BytesSent,19  CRC,3882  TransmitTime,54mS  PacketsSent,1
@@ -122,7 +123,7 @@ void setup()
   Serial.println(F(__DATE__));
   Serial.println(F(Program_Version));
   Serial.println();
-  Serial.println(F("3_LoRa_Transmitter Starting"));
+  Serial.println(F("52_FLRC_Transmitter Starting"));
 
   SPI.begin();
 
@@ -152,27 +153,26 @@ void setup()
   //LT.setupLoRa(Frequency, Offset, SpreadingFactor, Bandwidth, CodeRate, Optimisation);
 
   //***************************************************************************************************
-  //Setup LoRa device
+  //Setup FLRC
   //***************************************************************************************************
   LT.setMode(MODE_STDBY_RC);
   LT.setRegulatorMode(USE_LDO);
-  LT.setPacketType(PACKET_TYPE_LORA);
+  LT.setPacketType(PACKET_TYPE_FLRC);
   LT.setRfFrequency(Frequency, Offset);
   LT.setBufferBaseAddress(0, 0);
-  LT.setModulationParams(SpreadingFactor, Bandwidth, CodeRate);
-  LT.setPacketParams(12, LORA_PACKET_VARIABLE_LENGTH, 255, LORA_CRC_ON, LORA_IQ_NORMAL, 0, 0);
-  LT.setDioIrqParams(IRQ_RADIO_ALL, (IRQ_TX_DONE + IRQ_RX_TX_TIMEOUT), 0, 0);
-  LT.setHighSensitivity();
-  //LT.setLowPowerRX();
+  LT.setModulationParams(BandwidthBitRate, CodingRate, BT);
+  LT.setPacketParams(PREAMBLE_LENGTH_32_BITS, FLRC_SYNC_WORD_LEN_P32S, RADIO_RX_MATCH_SYNCWORD_1, RADIO_PACKET_VARIABLE_LENGTH, 127, RADIO_CRC_3_BYTES, RADIO_WHITENING_OFF);
+  LT.setDioIrqParams(IRQ_RADIO_ALL, (IRQ_TX_DONE + IRQ_RX_TX_TIMEOUT), 0, 0);              //set for IRQ on TX done and timeout on DIO1
+  LT.setSyncWord1(Sample_Syncword);
   //***************************************************************************************************
 
   Serial.println();
-  LT.printModemSettings();                               //reads and prints the configured LoRa settings, useful check
+  LT.printModemSettings();                               //reads and prints the configured modem settings, useful check
   Serial.println();
   LT.printOperatingSettings();                           //reads and prints the configured operating settings, useful check
   Serial.println();
   Serial.println();
-  LT.printRegisters(PRINT_LOW_REGISTER, PRINT_HIGH_REGISTER); //print contents of device registers
+  LT.printRegisters(PRINT_LOW_REGISTER, PRINT_HIGH_REGISTER);  //print contents of device registers
   Serial.println();
   Serial.println();
 

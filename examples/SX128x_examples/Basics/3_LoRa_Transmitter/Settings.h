@@ -18,7 +18,10 @@
 #define LED1 8
 #define DIO1 3
 #define DIO2 -1                 //not used 
-#define DIO3 -1                 //not used                      
+#define DIO3 -1                 //not used
+#define RX_EN -1                //pin for RX enable, used on some SX1280 devices, set to -1 if not used
+#define TX_EN -1                //pin for TX enable, used on some SX1280 devices, set to -1 if not used  
+                       
 #define BUZZER -1               //connect a buzzer here if wanted        
 
 #define LORA_DEVICE DEVICE_SX1280               //we need to define the device we are using  
@@ -32,5 +35,5 @@
 
 const uint8_t TXpower = -18;                     //Start power for transmissions in dBm
 
-const uint16_t packet_delay = 1000;             //mS delay between packets
+const uint16_t packet_delay = 1000;              //mS delay between packets
 
