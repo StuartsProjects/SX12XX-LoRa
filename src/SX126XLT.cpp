@@ -4,6 +4,10 @@
   17/12/19
 */
 
+/*
+Parts of code Copyright (c) 2013, SEMTECH S.A.
+See LICENSE.TXT file included in the library
+*/
 
 
 #include <SX126XLT.h>

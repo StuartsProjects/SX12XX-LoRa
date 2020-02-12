@@ -4,6 +4,10 @@
   06/02/20
 */
 
+/*
+Parts of code Copyright (c) 2013, SEMTECH S.A.
+See LICENSE.TXT file included in the library
+*/
 
 #include <SX128XLT.h>
 #include <SPI.h>

@@ -12,6 +12,7 @@
        - The register addresses where the frequency is stored are differnt for FLRC and LORA
   DONE - Checkbusy at end of setmode ? - not needed, Checkbusy before all SPI activity
   
+  Ranging in complement2 - warning: comparison between signed and unsigned integer
   Question the frequency error corection in the data sheet, is it really 1600/bandwithkhz ?
   Syncword for LoRa is possible ?
   Add routine to change period_base for RX,TX timeout
