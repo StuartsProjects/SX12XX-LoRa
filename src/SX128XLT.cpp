@@ -1029,7 +1029,6 @@ uint8_t SX128XLT::transmit(uint8_t *txbuffer, uint8_t size, uint32_t txtimeout, 
   
   if (!wait)
   {
-    digitalWrite(A6, LOW);
     return _TXPacketL;
   }
 
@@ -1081,7 +1080,6 @@ void SX128XLT::setTx(uint16_t timeout)
   buffer[0] = _PERIODBASE;
   buffer[1] = ( uint8_t )( ( timeout >> 8 ) & 0x00FF );
   buffer[2] = ( uint8_t )( timeout & 0x00FF );
-  digitalWrite(A6, HIGH);
   writeCommand(RADIO_SET_TX, buffer, 3 );
 }
 
