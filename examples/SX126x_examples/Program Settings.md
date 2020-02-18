@@ -1,4 +1,4 @@
-The Examples folder contains a series of test programs and applications that demonstrate how to use the library with the SX127x LoRa devices. 
+The Examples folder contains a series of test programs and applications that demonstrate how to use the library with the SX126x LoRa devices. 
 
 A common feature of the programs is the use of a series of definitions in the Settings.h file found in the Sketch folder. These defines determine the frequency used and LoRa parameters such as the bandwidth, spreading factor, coding rate and frequency used, for example;
 
