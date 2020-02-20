@@ -1,5 +1,5 @@
 /*******************************************************************************************************
-  lora Programs for Arduino - Copyright of the author Stuart Robinson - 09/02/20
+  lora Programs for Arduino - Copyright of the author Stuart Robinson - 06/02/20
 
   This program is supplied as is, it is up to the user of the program to decide if the program is
   suitable for the intended purpose and free from errors.
@@ -20,26 +20,23 @@
 #define DIO2 -1                 //not used 
 #define DIO3 -1                 //not used
 #define RX_EN -1                //pin for RX enable, used on some SX1280 devices, set to -1 if not used
-#define TX_EN -1                //pin for TX enable, used on some SX1280 devices, set to -1 if not used                       
+#define TX_EN -1                //pin for TX enable, used on some SX1280 devices, set to -1 if not used                        
 #define BUZZER -1               //connect a buzzer here if wanted        
 
-#define LORA_DEVICE DEVICE_SX1280               //we need to define the device we are using  
-
-
-//*******  Setup LoRa Parameters Here ! ***************
+#define LORA_DEVICE DEVICE_SX1280                         //we need to define the device we are using  
 
 //FLRC Modem Parameters
-#define Frequency 2445000000                     //frequency of transmissions
-#define Offset 0                                 //offset frequency for calibration purposes 
-#define BandwidthBitRate FLRC_BR_1_300_BW_1_2    //FLRC bandwidth and bit rate, 1.3Mbs               
-#define CodingRate FLRC_CR_1_2                   //FLRC coding rate
-#define BT RADIO_MOD_SHAPING_BT_1_0              //FLRC BT
-#define Sample_Syncword 0x01234567               //FLRC uses syncword
+const uint32_t Frequency = 2445000000;                    //frequency of transmissions
+const int32_t Offset = 0;                                 //offset frequency for calibration purposes   
 
+const uint8_t BandwidthBitRate = FLRC_BR_1_300_BW_1_2;    //FLRC bandwidth and bit rate, 1.3Mbs               
+const uint8_t CodingRate = FLRC_CR_1_2;                   //FLRC coding rate
+const uint8_t BT = RADIO_MOD_SHAPING_BT_1_0;              //FLRC BT
+const uint32_t Sample_Syncword = 0x01234567;              //FLRC uses syncword
 
-const uint8_t TXpower = 0;                       //Start power for transmissions in dBm
+const int8_t TXpower  = 0;                                //power for transmissions in dBm
 
-const uint16_t packet_delay = 1000;              //mS delay between packets
+const uint16_t packet_delay = 1000;                       //mS delay between packets
 
 #define RXBUFFER_SIZE 32                         //RX buffer size  
 

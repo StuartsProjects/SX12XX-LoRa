@@ -32,7 +32,7 @@
 #define SpreadingFactor LORA_SF7                 //LoRa spreading factor
 #define CodeRate LORA_CR_4_5                     //LoRa coding rate
 
-const uint8_t TXpower = -18;                     //Start power for transmissions in dBm
+#define TXpower  -18                             //power for transmissions in dBm
 
-const uint16_t packet_delay = 1000;             //mS delay between packets
+#define packet_delay 1000                        //mS delay between packets
 
