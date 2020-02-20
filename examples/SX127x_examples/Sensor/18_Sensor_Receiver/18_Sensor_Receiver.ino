@@ -44,8 +44,8 @@
 SX127XLT LT;
 
 #include <U8x8lib.h>                                        //get library here >  https://github.com/olikraus/u8g2 
-U8X8_SSD1306_128X64_NONAME_HW_I2C disp(U8X8_PIN_NONE);      //use this line for standard 0.96" SSD1306
-//U8X8_SH1106_128X64_NONAME_HW_I2C disp(U8X8_PIN_NONE);     //use this line for 1.3" OLED often sold as 1.3" SSD1306
+//U8X8_SSD1306_128X64_NONAME_HW_I2C disp(U8X8_PIN_NONE);      //use this line for standard 0.96" SSD1306
+U8X8_SH1106_128X64_NONAME_HW_I2C disp(U8X8_PIN_NONE);     //use this line for 1.3" OLED often sold as 1.3" SSD1306
 
 uint32_t RXpacketCount;          //count of all packets received
 uint32_t ValidPackets;           //count of packets received with valid data
@@ -103,9 +103,10 @@ void packet_Received_OK()
   Serial.print(F(",PacketsReceived,"));
 
   LT.startReadSXBuffer(0);
-  RXPacketType = LT.readUint8();
-  RXDestination = LT.readUint8();
-  RXSource = LT.readUint8();
+  
+  RXPacketType = LT.readUint8();           //the packet type received
+  RXDestination = LT.readUint8();          //the destination address the packet was sent to 
+  RXSource = LT.readUint8();               //the source address, where the packet came from
 
   /************************************************************************
     Highlighted section - this is where the actual sensor data is read from

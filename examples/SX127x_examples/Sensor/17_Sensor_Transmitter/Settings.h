@@ -44,4 +44,12 @@ const int8_t TXpower = 14;                      //LoRa transmit power in dBm
 #define BME280_ADDRESS  0x76                    //I2C bus address of BME280 
 #define BME280_REGISTER_CONTROL 0xF4            //BME280 register number for power control
 
-const uint8_t sleeps = 2;                       //number of 8 second sleeps, gap between transmissions 
+const uint8_t sleeps = 112;                     //number of 8 second sleeps, gap between transmissions
+
+
+//*******  Setup node addressing here ! ***************
+
+const uint8_t TXPacketType = Sensor1;           //the packet type sent
+const uint8_t TXDestination = 'B';              //the destination address of the receiver where the packet is being sent to 
+const uint8_t TXSource = 2;                     //the source address, the address of this node, where the packet came from
+ 

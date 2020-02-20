@@ -28,6 +28,23 @@
 
   The pin definitions, LoRa frequency and LoRa modem settings are in the Settings.h file.
 
+  Each sending sensor needs its own address and needs to know the address of the receiver its sending to.
+  This information is in the Settings.h file, see this section;
+
+  //*******  Setup node addressing here ! ***************
+  const uint8_t TXPacketType = Sensor1;           //the packet type sent
+  const uint8_t TXDestination = 'B'               //the destination address of the receiver. 
+  const uint8_t TXSource = 1;                     //the source address, the address of this node.
+  
+  The TXDestination byte needs to match the RXDestination set in the receiver. The TXSource byte identifies
+  a particular sender node, and needs to be different for each sender. 
+
+  How often the sensor data is sent is controlled by this line in the Settings.h file;
+
+  const uint8_t sleeps = 112;                     //number of 8 second sleeps, gap between transmissions
+
+  In the above case 112 sleeps is approximatly 112 x 8 = 900seconds, 15 minutes. 
+  
   There is also an option of using a logic pin to turn the resistor divider used to read battery voltage on
   and off. This reduces current used in sleep mode. To use the feature set the define for pin BATVREADON
   in 'Settings.h' to the pin used. If not using the feature set the pin number to -1.
@@ -44,8 +61,8 @@
 
 #include <SPI.h>
 #include <SX127XLT.h>
-#include "Settings.h"
 #include <ProgramLT_Definitions.h>
+#include "Settings.h"
 
 #include <avr/wdt.h>                        //watchdog timer library, integral to Arduino IDE
 #include <LowPower.h>                       //get the library here; https://github.com/rocketscream/Low-Power
@@ -111,8 +128,8 @@ uint8_t sendSensorPacket()
   LT.startWriteSXBuffer(0);                 //start the write packet to buffer process
 
   LT.writeUint8(Sensor1);                   //this byte defines the packet type
-  LT.writeUint8('B');                       //this byte identifies the destination node of the packet
-  LT.writeUint8(1);                         //this byte identifies the source node of the packet
+  LT.writeUint8(TXDestination);             //destination address of the packet, the receivers address
+  LT.writeUint8(TXSource);                  //source address of this node
 
   /************************************************************************
     Highlighted section - this is where the actual sensor data is added to the packet

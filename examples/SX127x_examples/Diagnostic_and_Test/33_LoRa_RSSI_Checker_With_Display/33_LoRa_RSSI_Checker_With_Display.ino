@@ -267,12 +267,12 @@ void setup()
   LT.setupLoRa(Frequency, Offset, SpreadingFactor, Bandwidth, CodeRate, Optimisation);
 
   Serial.println();
-  LT.printModemSettings();                                      //reads and prints the configured LoRa settings, useful check
+  LT.printModemSettings();                                     //reads and prints the configured LoRa settings, useful check
   Serial.println();
   LT.printOperatingSettings();                                 //reads and prints the configured operting settings, useful check
   Serial.println();
   Serial.println();
-  LT.printRegisters(PRINT_LOW_REGISTER, PRINT_HIGH_REGISTER);  //print contents of device registers
+  LT.printRegisters(0x00, 0x4F);                               //print contents of device registers
   Serial.println();
   Serial.println();
 

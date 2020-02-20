@@ -37,7 +37,10 @@ const uint8_t Optimisation = LDRO_AUTO;         //low data rate optimisation set
 const int8_t TXpower = 2;                       //LoRa TX power
 
 #define packet_delay 1000                       //mS delay between packets
-#define This_Node 'B'                           //this is the node that the remote sensors send data to   
+
+//*******  Setup node addressing here ! ***************
+
+#define This_Node 'B'                           //this identifies this node, needs to match TXDestination on senders   
 
 //****************  Setup Display Parameters Here  ****************
 
