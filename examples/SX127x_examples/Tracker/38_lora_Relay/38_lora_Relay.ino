@@ -7,9 +7,14 @@
 
 /*******************************************************************************************************
   Program Operation - This program will receive a lora packet and relay (re-transmit) it. The receiving
-  and transmitting can use different frequencies and lora settings. The receiving and transmitting settings
-  are in the 'Settings.h' file. For an example of it's use see this
-  report;
+  and transmitting can use different frequencies and lora settings, although in this example they are 
+  the same. The receiving and transmitting settings are in the 'Settings.h' file. If the relay is located
+  in an advantageous position, for instance on top of a tall tree, building or in an radio controlled model
+  then the range at which trackers or nodes on the ground can be received is considerably increased. 
+  In these circumstances the relay may listen at a long range setting using SF12 for example and then 
+  re-transmit back to the ground at SF7. 
+  
+  For an example of the use of such a program see this report;
 
   How to Search 500 Square Kilometres in 10 minutes.pdf in the libraries 'Test_Reports' folder. 
 
@@ -154,6 +159,14 @@ void setup()
     }
   }
 
+  LT.setupLoRa(Frequency, Offset, SpreadingFactor, Bandwidth, CodeRate, Optimisation);
+  Serial.print("ListenSettings,");
+  LT.printModemSettings();
+  Serial.println();
+  LT.setupLoRa(RelayFrequency, RelayOffset, RelaySpreadingFactor, RelayBandwidth, RelayCodeRate, RelayOptimisation);
+  Serial.print("RelaySettings,");
+  LT.printModemSettings();
+  Serial.println();
   Serial.println("Relay Ready");
 }
 

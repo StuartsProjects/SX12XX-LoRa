@@ -1,5 +1,5 @@
 /*******************************************************************************************************
-  lora Programs for Arduino - Copyright of the author Stuart Robinson - 16/12/19
+  lora Programs for Arduino - Copyright of the author Stuart Robinson - 02/02/20
 
   This program is supplied as is, it is up to the user of the program to decide if the program is
   suitable for the intended purpose and free from errors.
@@ -27,16 +27,16 @@
 //*******  Setup LoRa Test Parameters Here ! ***************
 
 //LoRa receiving parameters
-const uint32_t Frequency = 434000000;           //frequency of transmissions
+const uint32_t Frequency = 434400000;           //frequency of transmissions
 const uint32_t Offset = 0;                      //offset frequency for calibration purposes
 
-const uint8_t Bandwidth = LORA_BW_062;          //LoRa bandwidth
-const uint8_t SpreadingFactor = LORA_SF12;      //LoRa spreading factor
+const uint8_t Bandwidth = LORA_BW_125;          //LoRa bandwidth
+const uint8_t SpreadingFactor = LORA_SF7;       //LoRa spreading factor
 const uint8_t CodeRate = LORA_CR_4_5;           //LoRa coding rate
 const uint8_t Optimisation = LDRO_AUTO;         //low data rate optimisation setting
 
 //LoRa relay (re-transmitting) parameters
-const uint32_t RelayFrequency = 434000000;      //frequency of transmissions
+const uint32_t RelayFrequency = 434400000;      //frequency of transmissions
 const uint32_t RelayOffset = 0;                 //offset frequency for calibration purposes
 
 const uint8_t RelayBandwidth = LORA_BW_125;     //LoRa bandwidth
@@ -47,5 +47,5 @@ const uint8_t RelayOptimisation = LDRO_AUTO;    //low data rate optimisation set
 
 const int8_t TXpower = 10;                      //LoRa TX power in dBm
 
-#define packet_delay 500                        //mS delay between retransmit of packets
+#define packet_delay 500                        //mS delay before received packet transmitted
 
