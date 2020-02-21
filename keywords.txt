@@ -141,4 +141,17 @@ rxtxInit	KEYWORD2
 rxEnable	KEYWORD2
 txEnable	KEYWORD2
 getLoRaBandwidth	KEYWORD2
-
+setRangingRangingAddress	KEYWORD2
+setRangingRequestAddress	KEYWORD2
+setRangingRole	KEYWORD2
+setRangingCalibration	KEYWORD2
+getRangingResult	KEYWORD2
+complement2	KEYWORD2
+getRangingResultRegValue	KEYWORD2
+setupRanging	KEYWORD2
+transmitRanging	KEYWORD2
+receiveRanging	KEYWORD2
+getRangingDistance	KEYWORD2
+setRangingMasterAddress	KEYWORD2
+setRangingSlaveAddress	KEYWORD2
+getRangingCalibrationValue	KEYWORD2 
