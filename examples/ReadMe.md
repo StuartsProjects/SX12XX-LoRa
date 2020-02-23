@@ -60,7 +60,7 @@ The program listens for incoming packets using the LoRa settings in the 'Setting
 
 Sample serial monitor output;
 
-	1109s  {packet contents}  CRC,3882,RSSI,-69dBm,SNR,10dB,Length,19,Packets,1026,Errors,0,IRQreg,50
+	1109s  Hello World 1234567890*,CRC,DAAB,RSSI,-61dBm,SNR,9dB,Length,23,Packets,1026,Errors,0,IRQreg,50
 
 If there is a packet error it might look like this, which is showing a CRC error,
 
@@ -507,4 +507,13 @@ The program reads a single DS18B20 temperature sensor and prints the result to t
 
 The program also has the option of using a logic pin to control the power to the lora and SD card devices, which can save power in sleep mode. If the hardware is fitted to your board then these devices are assumed to be powered on by setting the VCCPOWER pin low. If your board does not have this feature set VCCPOWER to -1.
 
+
+#### 58\_FM\_Tone &emsp; &emsp; &emsp; &emsp; &emsp; &emsp; (Basics folder) 
+
+Transmits a FM tone using the LoRa device that can be picked up on an FM UHF handheld receiver. The tones are not true FM but the UHF receiver does not know that. 
+
+
+#### 59\_Play\_Star\_Wars\_Tune &emsp; &emsp; &emsp; &emsp; &emsp; &emsp; (Silly folder) 
+
+A silly program really, but does demonstrate that you can use a LoRa device to play audio tones that can be picked up on an FM UHF handheld receiver. The tones are not true FM but the receiver does not know that. 
 

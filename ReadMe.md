@@ -375,6 +375,30 @@ Prints to the serial monitor the interrupt flags set.
 <br>
  
 
+## Packet Addressing
+
+LoRa is a two way technology, each device is a transceiver. Most often on a particular frequency there will be one transmitter and one receiver. However, this may not always be the case and there could be several nodes in use on the same frequency. 
+
+In order to keep the software simple and allow for the receipt of signals from multiple receivers or directed commands to a particular node, a basic addressing scheme can be used and is implemented by some example programs, see '17_Sensor_Transmitter' for an example. There are library routines to send and receive packets in addressed and non-addressed format so you choose which to send. When using addressed mode regardless of the data content of the actual payload each packet sent has 3 control bytes at the beginning of the packet. In the case of the sensor example mentioned above, the use of the addressing allows the receiver to know from which sensor transmitter the packet came. 
+
+In general the control bytes have been restricted to ASCII printable characters so that they can be shown directly on a terminal monitor. The 3 bytes are;
+
+**Packet type**. This either describes the content of the packet, which could be a GPS location payload or is a command to do something and there is no payload. Details of the packet types defined are in the library file 'ProgramLT_Definitions.h'
+
+**Packet Destination**. The node number that the packet is destined for.
+
+**Packet Source**. The node number that the packet was sent from.
+
+The destination and source packet bytes mean that node ‘2’ (could be your base station receiver) can send a command that only station ‘3’ will respond to. This command could be a reset command, a request to turn on and off certain transmission types etc. Node ‘3’ can be set-up so that it only accepts commands from a particular node.
+
+In addressed mode the 3 control bytes are automatically stripped from each received packet.
+
+An example of the 3 control bytes from a tracker would be;
+
+T*2
+
+Which means there is a test packet (T) its been sent as a broadcast (*) and its from node 2.
+
 ### Compatibility
 
 Full tested on 3.3V 8Mhz ATMega328P and ATMega1284P only.
