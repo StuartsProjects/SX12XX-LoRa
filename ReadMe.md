@@ -1,5 +1,7 @@
 # SX12XX Library
 
+    Update: 27/02/20 - Added tone generation    
+
     Update: 11/02/20 - SX128X basic library and examples added
 
 	Update: 06/02/20 - SX126X basic library and examples added with required antenna switch support for Dorji DRF1268
