@@ -9,19 +9,21 @@
 
 //These are the pin definitions for one of my own boards, the Easy Mikrobus Pro Mini,
 //be sure to change the definitions to match your own setup. Some pins such as DIO2,
-//DIO3, BUZZER may not be in used by this sketch so they do not need to be
-//connected and should be included and be set to -1.
+//DIO3, RX_EN, TX_EN are not used by this sketch so they do not need to be connected
+//and should be set to -1.
 
-#define NSS 10                                  //select pin on LoRa device
-#define NRESET 9                                //reset pin on LoRa device
-#define LED1 8                                  //on board LED, high for on
-#define RFBUSY 7                                //SX126X busy pin 
-#define DIO1 3                                  //DIO1 pin on LoRa device, used for RX and TX done 
-#define DIO2 -1                                 //DIO2 pin on LoRa device, normally not used so set to -1 
-#define DIO3 -1                                 //DIO3 pin on LoRa device, normally not used so set to -1
-#define SW -1                                   //SW pin on Dorji devices is used to turn RF switch on\off, set to -1 if not used    
+#define NSS 10                      //select pin on LoRa device
+#define NRESET 9                    //reset pin on LoRa device
+#define LED1 8                      //on board LED, high for on
+#define RFBUSY 7                    //SX126X busy pin 
+#define DIO1 3                      //DIO1 pin on LoRa device, used for RX and TX done 
+#define DIO2 -1                     //DIO2 pin on LoRa device, normally not used so set to -1 
+#define DIO3 -1                     //DIO3 pin on LoRa device, normally not used so set to -1
+#define SW -1                       //SW pin on Dorji devices is used to turn RF switch on\off, set to -1 if not used    
+#define RX_EN -1                    //pin for RX enable, used on some SX126X devices, set to -1 if not used
+#define TX_EN -1                    //pin for TX enable, used on some SX126X devices, set to -1 if not used
 
-#define LORA_DEVICE DEVICE_SX1262               //we need to define the device we are using
+#define LORA_DEVICE DEVICE_SX1262   //we need to define the device we are using
 
 
 //*******  Setup LoRa Parameters Here ! ***************
