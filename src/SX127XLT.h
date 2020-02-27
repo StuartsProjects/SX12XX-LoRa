@@ -1,7 +1,7 @@
 /*
   Copyright 2019 - Stuart Robinson
   Licensed under a MIT license displayed at the bottom of this document.
-  Original published 17/12/19 
+  Original published 17/12/19
 */
 
 #ifndef SX127XLT_h
@@ -13,13 +13,13 @@
 /**************************************************************************
 
   ToDO
-    
+
   Add ppmoffset to frequency error check program Check this in program 12 LT.writeRegister(RegPpmCorrection,ppmoffset);
   Investigate adding internal SX1278 temperature sensor
   Check sensitivity\current for writeRegister(RegLna, 0x3B );.//at HF 150% LNA current.
   Add packet SF6 support and implicit mode support and examples
   returnBandwidth(byte BWregvalue) does not directly take account of SX1272
-  
+
 **************************************************************************/
 
 class SX127XLT
@@ -109,7 +109,7 @@ class SX127XLT
     bool isTXdoneIRQ();
     void setTXDonePin(uint8_t pin);
     void setRXDonePin(uint8_t pin);
-    
+
     //*******************************************************************************
     //Packet Read and Write Routines
     //*******************************************************************************
@@ -137,12 +137,14 @@ class SX127XLT
     uint16_t getPreamble();
 
     uint32_t returnBandwidth(uint8_t BWregvalue);                           //returns in hz the current set bandwidth
-    uint32_t returnBandwidth2(uint8_t BWregvalue);                          //returns in hz the current set bandwidth
-	uint8_t returnOptimisation(uint8_t SpreadingFactor, uint8_t Bandwidth); //this returns the required optimisation setting
+    //uint32_t returnBandwidth2(uint8_t BWregvalue);                          //returns in hz the current set bandwidth
+    uint8_t returnOptimisation(uint8_t SpreadingFactor, uint8_t Bandwidth); //this returns the required optimisation setting
     float calcSymbolTime(float Bandwidth, uint8_t SpreadingFactor);
     void printModemSettings();
     void setSyncWord(uint8_t syncword);
-
+    void setTXDirect();
+    void setupDirect(uint32_t frequency, int32_t offset);
+    void toneFM(uint16_t frequency, uint32_t length, uint32_t deviation, float adjust, int8_t txpower);
 
     //*******************************************************************************
     //Read Write SX12xxx Buffer commands, this is the buffer internal to the SX12xxxx
@@ -219,6 +221,9 @@ class SX127XLT
     uint8_t _UseCRC;                //when packet parameters set this flag enabled if CRC on packets in use
     int8_t _RXEN, _TXEN;            //not currently used
     uint8_t _PACKET_TYPE;           //used to save the set packet type
+    uint8_t _freqregH, _freqregM, _freqregL;
+    uint8_t _SHfreqregH, _SHfreqregM, _SHfreqregL;
+    uint8_t _SLfreqregH, _SLfreqregM, _SLfreqregL;
 };
 #endif
 

@@ -1,12 +1,12 @@
 /*
-  Copyright 2019 - Stuart Robinson 
+  Copyright 2019 - Stuart Robinson
   Licensed under a MIT license displayed at the bottom of this document.
-  Original published 17/12/19  
+  Original published 17/12/19
 */
 
 /*
-Parts of code Copyright (c) 2013, SEMTECH S.A.
-See LICENSE.TXT file included in the library
+  Parts of code Copyright (c) 2013, SEMTECH S.A.
+  See LICENSE.TXT file included in the library
 */
 
 #include <SX127XLT.h>
@@ -16,6 +16,8 @@ See LICENSE.TXT file included in the library
 #define USE_SPI_TRANSACTION          //this is the standard behaviour of library, use SPI Transaction switching
 
 //#define SX127XDEBUG1               //enable level 1 debug messages
+//#define SX127XDEBUG2               //enable level 2 debug messages
+//#define SX127XDEBUG3               //enable level 3 debug messages
 //#define DEBUGPHANTOM               //used to set bebuging for Phantom packets
 
 
@@ -238,7 +240,7 @@ uint16_t SX127XLT::CRCCCITTSX(uint8_t startadd, uint8_t endadd, uint16_t startva
         libraryCRC <<= 1;
     }
   }
-  
+
   endReadSXBuffer();                                 //end the buffer read
 
   return libraryCRC;
@@ -563,17 +565,17 @@ void SX127XLT::setTxParams(int8_t txPower, uint8_t rampTime)
   uint8_t param1, param2;
 
   writeRegister(REG_PARAMP, rampTime);       //Reg 0x0A this is same for SX1272 and SX1278
-  
+
   if (txPower > 20)
   {
-   txPower = 20;
+    txPower = 20;
   }
-  
+
   if (txPower < 2)
   {
-   txPower = 2;
+    txPower = 2;
   }
-  
+
   if (txPower > 17)
   {
     writeRegister(REG_PADAC, 0x87);          //Reg 0x4D this is same for SX1272 and SX1278
@@ -583,12 +585,12 @@ void SX127XLT::setTxParams(int8_t txPower, uint8_t rampTime)
     writeRegister(REG_PADAC, 0x84);          //Reg 0x4D this is same for SX1272 and SX1278
   }
 
-//now the device specifif settings
-  
+  //now the device specific settings
+
   if (_Device != DEVICE_SX1272)
   {
     //for all devices apart from SX1272
-    
+
     if (txPower > 17)
     {
       param1 = (txPower + 0xEB);
@@ -606,7 +608,7 @@ void SX127XLT::setTxParams(int8_t txPower, uint8_t rampTime)
       param1 = txPower + 0xEE;
       param2 = OCP_TRIM_80MA;
     }
-    
+
   }
   else
   {
@@ -629,7 +631,7 @@ void SX127XLT::setTxParams(int8_t txPower, uint8_t rampTime)
       param1 = txPower + 0x82;
       param2 = OCP_TRIM_80MA;
     }
-    
+
   }
 
   writeRegister(REG_PACONFIG, param1);       //Reg 0x09 this changes for SX1272 and SX1278
@@ -659,7 +661,7 @@ void SX127XLT::setPacketParams(uint16_t packetParam1, uint8_t  packetParam2, uin
 
   //TX Packetlength reg 0x22
   writeRegister(REG_PAYLOADLENGTH, packetParam3);                //when in implicit mode, this is used as receive length also
-  
+
   //IQ mode reg 0x33
   regdata = ( (readRegister(REG_INVERTIQ)) & 0xBF );             //mask off invertIQ bit 6
   writeRegister(REG_INVERTIQ, (regdata + packetParam5));
@@ -2038,7 +2040,7 @@ uint8_t SX127XLT::transmit(uint8_t *txbuffer, uint8_t size, uint32_t txtimeout, 
   _TXPacketL = size;
   writeRegister(REG_PAYLOADLENGTH, _TXPacketL);
 
-  setTxParams(txpower, RADIO_RAMP_DEFAULT);             //TX power and ramp time
+  setTxParams(txpower, RADIO_RAMP_DEFAULT);            //TX power and ramp time
 
   setDioIrqParams(IRQ_RADIO_ALL, IRQ_TX_DONE, 0, 0);   //set for IRQ on TX done on first DIO pin
   setTx(0);                                            //TX timeout is not handled in setTX()
@@ -2342,12 +2344,12 @@ uint32_t SX127XLT::returnBandwidth(byte BWregvalue)
   }
 }
 
-
-uint32_t SX127XLT::returnBandwidth2(byte BWregvalue)
-{
-#ifdef SX127XDEBUG1
+/*
+  uint32_t SX127XLT::returnBandwidth2(byte BWregvalue)
+  {
+  #ifdef SX127XDEBUG1
   Serial.println(F("returnBandwidth2()"));
-#endif
+  #endif
 
   switch (BWregvalue)
   {
@@ -2385,8 +2387,8 @@ uint32_t SX127XLT::returnBandwidth2(byte BWregvalue)
       break;
   }
   return 0xFFFF;                      //so that a bandwidth not set can be identified
-}
-
+  }
+*/
 
 uint8_t SX127XLT::returnOptimisation(uint8_t Bandwidth, uint8_t SpreadingFactor)
 {
@@ -2445,17 +2447,17 @@ void SX127XLT::printModemSettings()
 #ifdef SX127XDEBUG1
   Serial.println(F("printModemSettings()"));
 #endif
-   
+
   uint8_t regdata;
-  
+
   printDevice();
   Serial.print(F(","));
   Serial.print(getFreqInt());
   Serial.print(F("hz,SF"));
   Serial.print(getLoRaSF());
   Serial.print(F(",BW"));
-  
-  
+
+
   if (_Device == DEVICE_SX1272)
   {
     regdata = (readRegister(REG_MODEMCONFIG1) & READ_BW_AND_2);
@@ -2663,7 +2665,7 @@ void SX127XLT::printSXBufferASCII(uint8_t start, uint8_t end)
 #ifdef USE_SPI_TRANSACTION
   SPI.endTransaction();
 #endif
- 
+
 }
 
 
@@ -3150,7 +3152,7 @@ uint8_t SX127XLT::readBuffer(uint8_t *rxbuffer)
     rxbuffer[index] = regdata;           //fill the buffer.
     index++;
   } while (regdata != 0);                //keep reading until we have reached the null (0) at the buffer end
-                                         //or exceeded size of buffer allowed
+  //or exceeded size of buffer allowed
   return index;                          //return the actual size of the buffer, till the null (0) detected
 
 }
@@ -3158,7 +3160,7 @@ uint8_t SX127XLT::readBuffer(uint8_t *rxbuffer)
 
 void SX127XLT::rxtxInit(int8_t pinRXEN, int8_t pinTXEN)
 {
- //not used on current SX127x modules
+  //not used on current SX127x modules
 
 #ifdef SX127XDEBUG1
   Serial.println(F("rxtxInit()"));
@@ -3176,7 +3178,7 @@ void SX127XLT::rxtxInit(int8_t pinRXEN, int8_t pinTXEN)
 
 void SX127XLT::rxEnable()
 {
-//not used on current SX127x modules
+  //not used on current SX127x modules
 
 #ifdef SX127XDEBUG1
   Serial.println(F("rxEnable()"));
@@ -3189,7 +3191,7 @@ void SX127XLT::rxEnable()
 
 void SX127XLT::txEnable()
 {
-//not used on current SX127x modules
+  //not used on current SX127x modules
 
 #ifdef SX127XDEBUG1
   Serial.println(F("txEnable()"));
@@ -3197,6 +3199,152 @@ void SX127XLT::txEnable()
 
   digitalWrite(_RXEN, LOW);
   digitalWrite(_TXEN, HIGH);
+}
+
+
+void SX127XLT::setTXDirect()
+{
+  //turns on transmitter, in direct mode for FSK and audio  power level is from 2 to 17
+#ifdef SX127XDEBUG1
+  Serial.print(F("setTXDirect()"));
+#endif
+  writeRegister(REG_OPMODE, 0x0B);           //TX on direct mode, low frequency mode
+}
+
+
+void SX127XLT::toneFM(uint16_t frequency, uint32_t length, uint32_t deviation, float adjust, int8_t txpower)
+{
+#ifdef SX127XDEBUG1
+  Serial.print(F("toneFM()"));
+#endif
+
+  uint16_t index;
+  uint32_t ToneDelayus;
+  uint32_t registershift;
+  uint32_t freqreg;
+  uint32_t shiftedfreqregH, shiftedfreqregL;
+  uint32_t loopcount;
+  uint8_t freqregH, freqregM, freqregL;
+
+  #ifdef USE_SPI_TRANSACTION         //to use SPI_TRANSACTION enable define at beginning of CPP file 
+  SPI.beginTransaction(SPISettings(LTspeedMaximum, LTdataOrder, LTdataMode));
+  #endif
+  
+  digitalWrite(_NSS, LOW);           //set NSS low
+  SPI.transfer(REG_FRMSB & 0x7F);    //mask address for read
+  freqregH = SPI.transfer(0);
+  freqregM = SPI.transfer(0);
+  freqregL = SPI.transfer(0);
+  digitalWrite(_NSS, HIGH);          //set NSS high
+    
+  freqreg = ( ( (uint32_t) freqregH << 16 ) | ( (uint32_t) freqregM << 8 ) | ( freqregL ) );
+
+  registershift = deviation / FREQ_STEP;
+  shiftedfreqregH = freqreg + registershift;
+  shiftedfreqregL = freqreg - registershift;
+
+  uint8_t ShiftH = shiftedfreqregH >> 16;
+  uint8_t ShiftM = shiftedfreqregH >> 8;
+  uint8_t ShiftL = shiftedfreqregH;
+  uint8_t NoShiftH = shiftedfreqregL >> 16;
+  uint8_t NoShiftM = shiftedfreqregL >> 8;
+  uint8_t NoShiftL = shiftedfreqregL;
+
+  ToneDelayus = ((500000 / frequency));
+  loopcount = (length * 500) / (ToneDelayus);
+  ToneDelayus = ToneDelayus * adjust;
+
+#ifdef SX127XDEBUG3
+  Serial.print(F("frequency "));
+  Serial.println(frequency);
+  Serial.print(F("length "));
+  Serial.println(length);
+
+  Serial.print(F("freqreg "));
+  Serial.println(freqreg, HEX);
+  Serial.print(F("registershift "));
+  Serial.println(registershift);
+  shiftedfreqregH = freqreg + (registershift / 2);
+  shiftedfreqregL = freqreg - (registershift / 2);
+  Serial.print(F("shiftedfreqregH "));
+  Serial.println(shiftedfreqregH, HEX);
+  Serial.print(F("shiftedfreqregL "));
+  Serial.println(shiftedfreqregL, HEX);
+
+  Serial.print(F("ShiftedHigh,"));
+  Serial.print(ShiftH, HEX);
+  Serial.print(F(","));
+  Serial.print(ShiftM, HEX);
+  Serial.print(F(","));
+  Serial.println(ShiftL, HEX);
+
+  Serial.print(F("ShiftedLow,"));
+  Serial.print(NoShiftH, HEX);
+  Serial.print(F(","));
+  Serial.print(NoShiftM, HEX);
+  Serial.print(F(","));
+  Serial.println(NoShiftL, HEX);
+  Serial.print(F("ToneDelayus,"));
+  Serial.println(ToneDelayus);
+  Serial.print(F("loopcount,"));
+  Serial.println(loopcount);
+  Serial.println();
+  Serial.println();
+#endif
+
+  writeRegister(REG_PLLHOP, 0xAD);          //set fast hop mode, needed for fast changes of frequency
+  setTxParams(txpower, RADIO_RAMP_DEFAULT);
+  setTXDirect();
+
+  
+  for (index = 1; index <= loopcount; index++)
+  {
+    digitalWrite(_NSS, LOW);                  //set NSS low
+    SPI.transfer(0x86);                       //address for write to REG_FRMSB
+    SPI.transfer(ShiftH);
+    SPI.transfer(ShiftM);
+    SPI.transfer(ShiftL);
+    digitalWrite(_NSS, HIGH);                 //set NSS high
+
+    delayMicroseconds(ToneDelayus);
+
+    digitalWrite(_NSS, LOW);                  //set NSS low
+    SPI.transfer(0x86);                       //address for write to REG_FRMSB
+    SPI.transfer(NoShiftH);
+    SPI.transfer(NoShiftM);
+    SPI.transfer(NoShiftL);
+    digitalWrite(_NSS, HIGH);                 //set NSS high
+
+    delayMicroseconds(ToneDelayus);
+  }
+  //now set the frequency registers back to centre
+  digitalWrite(_NSS, LOW);                  //set NSS low
+  SPI.transfer(0x86);                       //address for write to REG_FRMSB
+  SPI.transfer(freqregH);
+  SPI.transfer(freqregM);
+  SPI.transfer(freqregL);
+  digitalWrite(_NSS, HIGH);                 //set NSS high
+
+#ifdef USE_SPI_TRANSACTION
+  SPI.endTransaction();
+#endif
+
+  writeRegister(REG_PLLHOP, 0x2D);          //restore PLLHOP register value
+  setMode(MODE_STDBY_RC);                   //turns off carrier
+}
+
+
+void SX127XLT::setupDirect(uint32_t frequency, int32_t offset)
+{
+  //setup LoRa device for direct modulation mode
+#ifdef SX127XDEBUG1
+  Serial.print(F("setupDirect()"));
+#endif
+  setMode(MODE_STDBY_RC);
+  writeRegister(REG_DETECTOPTIMIZE, 0x00);    //set continuous mode
+  setRfFrequency(frequency, offset);          //set the operating frequncy
+  calibrateImage(0);                          //run calibration after setting frequency
+  writeRegister(REG_FDEVLSB, 0);              //We are generating a tone by frequency shift so set deviation to 0
 }
 
 

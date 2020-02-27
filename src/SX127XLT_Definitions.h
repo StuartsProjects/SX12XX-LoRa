@@ -1,7 +1,7 @@
 /*
   Copyright 2019 - Stuart Robinson
   Licensed under a MIT license displayed at the bottom of this document.
-  Original published 17/12/19 
+  Original published 17/12/19
 */
 
 #define LORA_MAC_PRIVATE_SYNCWORD                   0x12
@@ -99,6 +99,8 @@
 #define    WAIT_RX                                  0x01
 #define    WAIT_TX                                  0x01
 #define    NO_WAIT                                  0x00
+
+#define    FREQ_STEP                                61.03515625
 
 //These are the &/AND values for reading a parameter from a register.
 //For example the Bandwidth on a SX1278 is stored in bits 7-4 and those bits are
@@ -245,6 +247,8 @@ const uint8_t REG_PADAC = 0x4D;
 #define LTspeedMaximum  8000000
 #define LTdataOrder     MSBFIRST
 #define LTdataMode      SPI_MODE0
+
+#define Deviation5khz   0x52
 
 
 /*
