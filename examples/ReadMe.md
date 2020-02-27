@@ -492,12 +492,46 @@ If there is a packet error it might look like this, which is showing a CRC error
 1189s PacketError,RSSI,-111dBm,SNR,-12dB,Length,0,Packets,1126,Errors,1,IRQreg,70,IRQ\_HEADER\_VALID,IRQ\_CRC\_ERROR,IRQ\_RX\_DONE
 
 
+#### 42\_WiFi\_Scanner\_Display\_ESP32 &emsp; &emsp; &emsp; &emsp; &emsp; &emsp; (Hardware Checks\ESP32 folder) 
+
+When the ESP32 turns on the WiFi function, there is a short high current pulse that can cause the ESP32 brownout detect to operate.
+
+This test program at startup flashes an LED, leaves it on and then starts the WiFi. If the Wifi initiates a brownout, you will see the LED flash again. The LED stays on when scanning, the program reports the networks found to the serial console and displays them on an attached SSD1306 OLED.
+
+Thus if you see the LED continually doing short bursts of flashing the turn on off the WiFi is causing the ESP32 to reset. There will also be a message on the serial monitor that the brownout detector operated.
+
+
+#### 43\_SD\_Card\_Test\_ESP32 &emsp; &emsp; &emsp; &emsp; &emsp; &emsp; (Hardware Checks\ESP32 folder)
+
+This test program has been written to check that a connected SD card adapter, Micro or standard, is functional. To use the program first copy the file (in this programs directory) called testfile.txt to the root directory of the SD card.
+
+When the program runs it will attempt to open 'testfile.txt' and spool the contents to the Arduino IDE serial monitor. The testfile is part of the source code for the Apollo 11 Lunar Lander navigation and guidance computer. There are LED flashes at power up or reset, then at start of every loop of the test. The LED is on whilst the testfile is being read. If the LED flashes very rapidly then there is a problem accessing the SD card.
+
+The program also has the option of using a logic pin to control the power to the lora and SD card devices, which can save power in sleep mode. If the hardware is fitted to your board these devices are powered on by setting the VCCPOWER pin low. If your board does not have this feature set VCCPOWER to -1.
+
+#### 44\_SD\_Card\_Test\_With\_FS\_ESP322 &emsp; &emsp; &emsp; &emsp; &emsp; &emsp; (Hardware Checks\ESP32 folder)
+
+This test program has been written to check that a connected SD card adapter, Micro or standard, is functional with the FS functions. To use the program first copy the file (in this programs directory) called testfile.txt to the root directory of the SD card.
+
+When the program runs it will attempt to open 'testfile.txt' and spool the contents to the Arduino IDE serial monitor. The testfile is part of the source code for the Apollo 11 Lunar Lander navigation and guidance computer. There are LED flashes at power up or reset, then at start of every loop of the test. The LED is on whilst the testfile is being read. If the LED flashes very rapidly then there is a problem accessing the SD card.
+
+The program also has the option of using a logic pin to control the power to the lora and SD card devices, which can save power in sleep mode. If the hardware is fitted to your board these devices are powered on by setting the VCCPOWER pin low. If your board does not have this feature set VCCPOWER to -1.
+
+
 #### 45\_Battery\_Voltage\_Read\_Test &emsp; &emsp; &emsp; &emsp; &emsp; &emsp; (Hardware_Checks folder) 
 
 
 This test program has been written to check that hardware for reading the battery voltage has been assembled correctly such that it is funtional. The value defined as 'ADMultiplier' in settings.h is used to adjust the value read from the 91K\11K resistor divider and convert into mV. 
 
 There is also an option of using a logic pin to turn the resistor divider used to read battery voltage on and off. This reduces current used in sleep mode. To use the feature set the define for pin BATVREADON in 'Settings.h' to the pin used. If not using the feature set the pin number to -1.
+
+#### 47\_DeepSleep\_Timed\_Wakeup\_ESP32 &emsp; &emsp; &emsp; &emsp; &emsp; &emsp; (Hardware_Checks\ESP32 folder) 
+
+This program flashes a LED connected to the pin defined by LED1, and puts the ESP32 to deep_sleep for a period determined by the TIME_TO_SLEEP variable (in seconds).
+
+The program also has the option of using a logic pin to control the power to the lora and SD card devices, which can save power in sleep mode. If the hardware is fitted to your board these devices are powered on by setting the VCCPOWER pin low. If your board does not have this feature set VCCPOWER to -1.
+
+Current in deep_sleep for a bare bones ESP32 with regulator and no other devices was 27uA.
 
 
 #### 48\_DS18B20\_Test &emsp; &emsp; &emsp; &emsp; &emsp; &emsp; (Hardware_Checks folder) 
@@ -508,6 +542,47 @@ The program reads a single DS18B20 temperature sensor and prints the result to t
 The program also has the option of using a logic pin to control the power to the lora and SD card devices, which can save power in sleep mode. If the hardware is fitted to your board then these devices are assumed to be powered on by setting the VCCPOWER pin low. If your board does not have this feature set VCCPOWER to -1.
 
 
+
+#### 50\_LightSleep\_Timed\_Wakeup\_ESP32 &emsp; &emsp; &emsp; &emsp; &emsp; &emsp; (ESP32 folder) 
+
+The program flashes a LED connected to the pin defined by LED1, and puts the ESP32 to light_sleep for a period determined by TIME_TO_SLEEP (in seconds).
+
+The program also has the option of using a logic pin to control the power to the lora device, SD card and DS18B20 devices, which can save power in sleep mode. If the hardware is fitted to your board these devices are   powered on by setting the VCCPOWER pin low. If your board does not have this feature set VCCPOWER to -1.
+
+#### 51\_DeepSleep\_Switch\_Wakeup\_ESP32 &emsp; &emsp; &emsp; &emsp; &emsp; &emsp; (ESP32 folder) 
+
+The program flashes a LED connected to the pin defined by LED1, and puts the ESP32 to deep_sleep. Pressing BOOT switch should wake up the ESP32 from sleep.
+
+Only the specific RTC IO pins can be used as a source for external wakeup. 
+These are pins: 0,2,4,12-15,25-27,32-39.
+
+Current in deep sleep for a bare bones ESP32 with regulator and no other devices was 27uA.
+
+#### 52\_FLRC\_Transmitter &emsp; &emsp; &emsp; &emsp; &emsp; &emsp; (SX128X\Examples\Basics folder) 
+
+This is a test transmitter for the Fast Long Range Communication (FLRC) mode introduced in the SX128X devices. A packet containing ASCII text is sent according to the frequency and FLRC settings specified in the 'Settings.h' file. The pins to access the SX128X device need to be defined
+in the 'Settings.h' file also.
+
+The details of the packet sent and any errors are shown on the Serial Monitor, together with the transmit power used, the packet length and the CRC of the packet. The matching receive program, '53_FLRC_Receiver' can be used to check the packets are being sent correctly, the frequency and FLRC settings (in Settings.h) must be the same for the Transmit and Receive program. Sample Serial Monitor output;
+
+10dBm Packet> {packet contents*}  BytesSent,19  CRC,3882  TransmitTime,54mS  PacketsSent,1
+
+
+#### 53\_FLRC\_Receiver &emsp; &emsp; &emsp; &emsp; &emsp; &emsp; (SX128X_Examples\Basics folder) 
+
+This is a test receiver for the Fast Long Range Communication (FLRC) mode introduced in the SX128X devices. The program listens for incoming packets using the FLRC settings in the 'Settings.h' file. The pins to access the SX128X device need to be defined in the 'Settings.h' file also.
+
+There is a printout of the valid packets received, the packet is assumed to be in ASCII printable text, if its not ASCII text characters from 0x20 to 0x7F, expect weird things to happen on the Serial Monitor. The LED will flash for each packet received and the buzzer will sound, if fitted.
+
+Sample serial monitor output;
+
+3s  Hello World 1234567890*,CRC,DAAB,RSSI,-73dB,Length,23,Packets,1,Errors,0,IRQreg,6
+
+If there is a packet error it might look like this, which is showing a CRC error,
+
+6s PacketError,RSSI,-103dB,Length,119,Packets,3,Errors,1,IRQreg,46,IRQ\_RX\_DONE,IRQ\_SYNCWORD\_VALID,IRQ\_CRC\_ERROR
+
+
 #### 58\_FM\_Tone &emsp; &emsp; &emsp; &emsp; &emsp; &emsp; (Basics folder) 
 
 Transmits a FM tone using the LoRa device that can be picked up on an FM UHF handheld receiver. The tones are not true FM but the UHF receiver does not know that. 
@@ -515,5 +590,5 @@ Transmits a FM tone using the LoRa device that can be picked up on an FM UHF han
 
 #### 59\_Play\_Star\_Wars\_Tune &emsp; &emsp; &emsp; &emsp; &emsp; &emsp; (Silly folder) 
 
-A silly program really, but does demonstrate that you can use a LoRa device to play audio tones that can be picked up on an FM UHF handheld receiver. The tones are not true FM but the receiver does not know that. 
+A silly program really, but does demonstrate that you can shift a carrier generated by the LoRa device in FSK mode fast enough to play audio tones that can be picked up on an FM UHF handheld receiver. The tones are not true FM but the receiver does not know that. 
 
