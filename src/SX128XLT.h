@@ -22,6 +22,8 @@
   Error packets at -99dBm due to noise ?
   Check RX\TX enable
   Trap use of devices wit RX\TX switching in ranging mode 
+  Ensure ranging distance is not negative
+  Purpose of printPacketStatus3 for FLRC
   
 **************************************************************************/
 
@@ -32,8 +34,8 @@ class SX128XLT  {
     SX128XLT();
 
     bool begin(int8_t pinNSS, int8_t pinNRESET, int8_t pinRFBUSY, int8_t pinDIO1, int8_t pinDIO2, int8_t pinDIO3, int8_t pinRXEN, int8_t pinTXEN, uint8_t device);
+    bool begin(int8_t pinNSS, int8_t pinNRESET, int8_t pinRFBUSY, int8_t pinDIO1, int8_t pinDIO2, int8_t pinDIO3, uint8_t device);
 
-    //void rxtxInit(int8_t RXEN, int8_t TXEN);
     void rxEnable();
     void txEnable();
 
@@ -70,21 +72,19 @@ class SX128XLT  {
     uint8_t getLNAgain();
     void printRegisters(uint16_t Start, uint16_t End);
     void printASCIIPacket(uint8_t *buff, uint8_t tsize);
-    uint8_t transmit(uint8_t *txbuffer, uint8_t size, uint32_t txtimeout, int8_t txpower, uint8_t wait);
+    uint8_t transmit(uint8_t *txbuffer, uint8_t size, uint16_t timeout, int8_t txpower, uint8_t wait);
     void setTxParams(int8_t TXpower, uint8_t RampTime);
     void setTx(uint16_t timeout);
-    //void setTx(uint8_t _periodBase, uint16_t _periodBaseCount);
     void clearIrqStatus( uint16_t irq );
     uint16_t readIrqStatus();
     void printIrqStatus();
     uint16_t CRCCCITT(uint8_t *buffer, uint8_t size, uint16_t start);
-    uint8_t receive(uint8_t *rxbuffer, uint8_t size, uint32_t rxtimeout, uint8_t wait);
+    uint8_t receive(uint8_t *rxbuffer, uint8_t size, uint16_t timeout, uint8_t wait);
     uint8_t readPacketRSSI();
     uint8_t readPacketSNR();
     uint8_t readRXPacketL();
-    //void readPacketReceptionLoRa();
     void setRx(uint16_t timeout);
-	void setSyncWord1(uint32_t syncword);
+    void setSyncWord1(uint32_t syncword);
 
 /***************************************************************************
 //Start direct access SX buffer routines
@@ -116,16 +116,39 @@ class SX128XLT  {
     void writeFloat(float x);
     float readFloat();
 
-    uint8_t transmitSXBuffer(uint8_t startaddr, uint8_t length, uint32_t txtimeout, int8_t txpower, uint8_t wait);
+    uint8_t transmitSXBuffer(uint8_t startaddr, uint8_t length, uint16_t timeout, int8_t txpower, uint8_t wait);
     void writeBuffer(uint8_t *txbuffer, uint8_t size);
-    uint8_t receiveSXBuffer(uint8_t startaddr, uint32_t rxtimeout, uint8_t wait);
+    uint8_t receiveSXBuffer(uint8_t startaddr, uint16_t timeout, uint8_t wait);
     uint8_t readBuffer(uint8_t *rxbuffer);
+    
 
 /***************************************************************************
 //End direct access SX buffer routines
 ***************************************************************************/
 
 
+/***************************************************************************
+//Start ranging routines
+***************************************************************************/
+
+
+    void setRangingSlaveAddress(uint32_t address);
+    void setRangingMasterAddress(uint32_t address);
+    void setRangingCalibration(uint16_t cal);
+    void setRangingRole(uint8_t role);
+    double getRangingDistance(uint8_t resultType, float adjust);
+    uint32_t getRangingResultRegValue(uint8_t resultType);
+    int32_t complement2( int32_t num, uint8_t bitCnt );
+    bool setupRanging(uint32_t frequency, int32_t offset, uint8_t modParam1, uint8_t modParam2, uint8_t  modParam3, uint32_t address, uint8_t role);
+    bool transmitRanging(uint32_t address, uint16_t timeout, int8_t txpower, uint8_t wait);
+    uint8_t receiveRanging(uint32_t address, uint16_t timeout, int8_t txpower, uint8_t wait);
+    uint16_t lookupCalibrationValue(uint8_t spreadingfactor, uint8_t bandwidth);
+    uint16_t getSetCalibrationValue();
+	
+/***************************************************************************
+//End ranging routines
+***************************************************************************/
+ 
   private:
 
     int8_t _NSS, _NRESET, _RFBUSY, _DIO1, _DIO2, _DIO3;
@@ -145,11 +168,8 @@ class SX128XLT  {
     uint8_t _Device;                //saved device type
     uint8_t _TXDonePin;             //the pin that will indicate TX done
     uint8_t _RXDonePin;             //the pin that will indicate RX done
-    //uint8_t _PERIODBASE = PERIODBASE_01_MS; //set default PERIODBASEPERIODBASE_62_US
-
     uint8_t _PERIODBASE = PERIODBASE_01_MS; 
 
-    //config variables are 36 bytes, allows for device to be reset and reconfigured via config();
     uint8_t  savedRegulatorMode;
     uint8_t  savedPacketType;
     uint32_t savedFrequency, savedOffset;
@@ -157,6 +177,7 @@ class SX128XLT  {
     uint8_t  savedPacketParam1, savedPacketParam2, savedPacketParam3, savedPacketParam4, savedPacketParam5, savedPacketParam6, savedPacketParam7;
     uint16_t savedIrqMask, savedDio1Mask, savedDio2Mask, savedDio3Mask;
     int8_t   savedTXPower;
-
+	uint16_t savedCalibration;
+	
 };
 #endif

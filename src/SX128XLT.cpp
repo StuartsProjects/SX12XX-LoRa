@@ -91,6 +91,7 @@ bool SX128XLT::begin(int8_t pinNSS, int8_t pinNRESET, int8_t pinRFBUSY, int8_t p
     //Serial.println(F("DIO3 not used"));
   }
   
+  
   if ((_RXEN >= 0) && (_TXEN >= 0))
   {
    #ifdef SX128XDEBUGRXTX
@@ -119,6 +120,88 @@ bool SX128XLT::begin(int8_t pinNSS, int8_t pinNRESET, int8_t pinRFBUSY, int8_t p
 }
 
 
+
+bool SX128XLT::begin(int8_t pinNSS, int8_t pinNRESET, int8_t pinRFBUSY, int8_t pinDIO1, int8_t pinDIO2, int8_t pinDIO3, uint8_t device)
+{
+
+  //assign the passed pins to the class private variable
+  _NSS = pinNSS;
+  _NRESET = pinNRESET;
+  _RFBUSY = pinRFBUSY;
+  _DIO1 = pinDIO1;
+  _DIO2 = pinDIO2;
+  _DIO3 = pinDIO3;
+  _RXEN = -1;                  //not defined, so mark as unused
+  _TXEN = -1;                  //not defined, so mark as unused
+  _Device = device;
+  _TXDonePin = pinDIO1;        //this is defalt pin for sensing TX done
+  _RXDonePin = pinDIO1;        //this is defalt pin for sensing RX done
+
+  pinMode(_NSS, OUTPUT);
+  digitalWrite(_NSS, HIGH);
+  pinMode(_NRESET, OUTPUT);
+  digitalWrite(_NRESET, LOW);
+  pinMode(_RFBUSY, INPUT);
+
+
+#ifdef SX128XDEBUG
+  Serial.println(F("begin()"));
+  Serial.println(F("SX128XLT constructor instantiated successfully"));
+  Serial.print(F("NSS "));
+  Serial.println(_NSS);
+  Serial.print(F("NRESET "));
+  Serial.println(_NRESET);
+  Serial.print(F("RFBUSY "));
+  Serial.println(_RFBUSY);
+  Serial.print(F("DIO1 "));
+  Serial.println(_DIO1);
+  Serial.print(F("DIO2 "));
+  Serial.println(_DIO2);
+  Serial.print(F("DIO3 "));
+  Serial.println(_DIO3);
+#endif
+
+  if (_DIO1 >= 0)
+  {
+    pinMode( _DIO1, INPUT);
+  }
+  else
+  {
+    //Serial.println(F("DIO1 not used"));
+  }
+
+  if (_DIO2 >= 0)
+  {
+    pinMode( _DIO2, INPUT);
+  }
+  else
+  {
+    //Serial.println(F("DIO2 not used"));
+  }
+
+  if (_DIO3 >= 0)
+  {
+    pinMode( _DIO3, INPUT);
+  }
+  else
+  {
+    //Serial.println(F("DIO3 not used"));
+  }
+  
+  _rxtxpinmode = false;
+  
+  resetDevice();
+
+  if (checkDevice())
+  {
+    return true;
+  }
+
+  return false;
+}
+
+
+
 void SX128XLT::rxEnable()
 {
   //Enable RX mode on device such as Ebyte E28-2G4M20S which have RX and TX enable pins
@@ -129,7 +212,6 @@ void SX128XLT::rxEnable()
   digitalWrite(_RXEN, HIGH);
   digitalWrite(_TXEN, LOW);
 }
-
 
 
 void SX128XLT::txEnable()
@@ -222,7 +304,6 @@ void SX128XLT::readRegisters(uint16_t address, uint8_t *buffer, uint16_t size)
   SPI.endTransaction();
 #endif
 
-  //checkBusy();
 }
 
 
@@ -407,7 +488,6 @@ void SX128XLT::setupLoRa(uint32_t frequency, int32_t offset, uint8_t modParam1, 
 }
 
 
-
 void SX128XLT::setMode(uint8_t modeconfig)
 {
 #ifdef SX128XDEBUG
@@ -493,6 +573,8 @@ void SX128XLT::setBufferBaseAddress(uint8_t txBaseAddress, uint8_t rxBaseAddress
 
 void SX128XLT::setModulationParams(uint8_t modParam1, uint8_t modParam2, uint8_t  modParam3)
 {
+//sequence is spreading factor, bandwidth, coding rate.
+
 #ifdef SX128XDEBUG
   Serial.println(F("setModulationParams()"));
 #endif
@@ -828,7 +910,7 @@ uint8_t SX128XLT::getLoRaCodingRate()
 
 uint8_t SX128XLT::getInvertIQ()
 {
-  //IQ mode reg 0x33
+//IQ mode reg 0x33
 #ifdef SX128XDEBUG
   Serial.println(F("getInvertIQ"));
 #endif
@@ -974,7 +1056,7 @@ void SX128XLT::printASCIIPacket(uint8_t *buffer, uint8_t size)
 }
 
 
-uint8_t SX128XLT::transmit(uint8_t *txbuffer, uint8_t size, uint32_t txtimeout, int8_t txpower, uint8_t wait)
+uint8_t SX128XLT::transmit(uint8_t *txbuffer, uint8_t size, uint16_t timeout, int8_t txpower, uint8_t wait)
 {
 #ifdef SX128XDEBUG
   Serial.println(F("transmit()"));
@@ -1011,7 +1093,6 @@ uint8_t SX128XLT::transmit(uint8_t *txbuffer, uint8_t size, uint32_t txtimeout, 
   SPI.endTransaction();
 #endif
 
-  //checkBusy();
   _TXPacketL = size;
 
   if (savedPacketType == PACKET_TYPE_LORA)
@@ -1025,7 +1106,7 @@ uint8_t SX128XLT::transmit(uint8_t *txbuffer, uint8_t size, uint32_t txtimeout, 
 
   setTxParams(txpower, RAMP_TIME);
   setDioIrqParams(IRQ_RADIO_ALL, (IRQ_TX_DONE + IRQ_RX_TX_TIMEOUT), 0, 0);   //set for IRQ on TX done and timeout on DIO1
-  setTx(txtimeout);                                                          //this starts the TX
+  setTx(timeout);                                                          //this starts the TX
   
   if (!wait)
   {
@@ -1074,6 +1155,11 @@ void SX128XLT::setTx(uint16_t timeout)
     txEnable();
   }
 
+  //Serial.print(F("timeout ")); 
+  //Serial.println(timeout);
+  //Serial.print(F("_PERIODBASE ")); 
+  //Serial.println(_PERIODBASE);
+  
   uint8_t buffer[3];
 
   clearIrqStatus(IRQ_RADIO_ALL);                             //clear all interrupt flags
@@ -1247,7 +1333,7 @@ uint16_t SX128XLT::CRCCCITT(uint8_t *buffer, uint8_t size, uint16_t start)
 }
 
 
-uint8_t SX128XLT::receive(uint8_t *rxbuffer, uint8_t size, uint32_t rxtimeout, uint8_t wait)
+uint8_t SX128XLT::receive(uint8_t *rxbuffer, uint8_t size, uint16_t timeout, uint8_t wait)
 {
 #ifdef SX128XDEBUG
   Serial.println(F("receive()"));
@@ -1258,34 +1344,30 @@ uint8_t SX128XLT::receive(uint8_t *rxbuffer, uint8_t size, uint32_t rxtimeout, u
   uint8_t buffer[2];
 
   setDioIrqParams(IRQ_RADIO_ALL, (IRQ_RX_DONE + IRQ_RX_TX_TIMEOUT), 0, 0);  //set for IRQ on RX done or timeout
-  setRx(rxtimeout);
+  setRx(timeout);
 
   if (!wait)
   {
-    return 0;                                                                 //not wait requested so no packet length to pass
+    return 0;                                                               //not wait requested so no packet length to pass
   }
 
   while (!digitalRead(_RXDonePin));                                         //Wait for DIO1 to go high
 
-  setMode(MODE_STDBY_RC);                                                //ensure to stop further packet reception
+  setMode(MODE_STDBY_RC);                                                   //ensure to stop further packet reception
 
   regdata = readIrqStatus();
 
   if ( (regdata & IRQ_HEADER_ERROR) | (regdata & IRQ_CRC_ERROR) | (regdata & IRQ_RX_TX_TIMEOUT ) ) //check if any of the preceding IRQs is set
   {
-    //packet is errored somewhere so return 0
-    return 0;
+    return 0;                          //packet is errored somewhere so return 0
   }
 
   readCommand(RADIO_GET_RXBUFFERSTATUS, buffer, 2);
   _RXPacketL = buffer[0];
   
-   //Serial.print(F("_RXPacketL "));
-   //Serial.println(_RXPacketL);
-
   if (_RXPacketL > size)               //check passed buffer is big enough for packet
   {
-    _RXPacketL = size;                   //truncate packet if not enough space
+    _RXPacketL = size;                 //truncate packet if not enough space
   }
 
   RXstart = buffer[1];
@@ -1324,7 +1406,7 @@ uint8_t SX128XLT::readPacketRSSI()
 #ifdef SX128XDEBUG
   Serial.println(F("readPacketRSSI()"));
 #endif
-  //readPacketReceptionLoRa();
+
   uint8_t status[5];
 
   readCommand(RADIO_GET_PACKETSTATUS, status, 5) ;
@@ -1339,7 +1421,7 @@ uint8_t SX128XLT::readPacketSNR()
 #ifdef SX128XDEBUG
   Serial.println(F("readPacketSNR()"));
 #endif
-  //readPacketReceptionLoRa();
+
   uint8_t status[5];
 
   readCommand(RADIO_GET_PACKETSTATUS, status, 5) ;
@@ -1370,30 +1452,6 @@ uint8_t SX128XLT::readRXPacketL()
   return _RXPacketL;
 }
 
-
-/*
-void SX128XLT::readPacketReceptionLoRa()
-{
-#ifdef SX126XDEBUG
-  Serial.println(F("readPacketReceptionLoRa()"));
-#endif
-
-  uint8_t status[5];
-
-  readCommand(RADIO_GET_PACKETSTATUS, status, 5) ;
-  _PacketRSSI = -status[0] / 2;
-
-  if ( status[1] < 128 )
-  {
-    _PacketSNR = status[1] / 4 ;
-  }
-  else
-  {
-    _PacketSNR = (( status[1] - 256 ) / 4);
-  }
-
-}
-*/
 
 void SX128XLT::setRx(uint16_t timeout)
 {
@@ -1453,7 +1511,6 @@ uint8_t  SX128XLT::endWriteSXBuffer()
   SPI.endTransaction();
 #endif
   
-  //checkBusy();
   return _TXPacketL;
   
 }
@@ -1465,12 +1522,7 @@ void SX128XLT::startReadSXBuffer(uint8_t ptr)
   Serial.println(F("startReadSXBuffer"));
 #endif
 
-  //uint8_t rxstart;
-  //uint8_t buffer[2];
-
   _RXPacketL = 0;
-  
-  //setBufferBaseAddress(0, ptr);          //TX,RX
   
   checkBusy();
   
@@ -1499,8 +1551,6 @@ uint8_t SX128XLT::endReadSXBuffer()
   #ifdef USE_SPI_TRANSACTION
   SPI.endTransaction();
 #endif
-  
-  //checkBusy();
   
   return _RXPacketL;
 }
@@ -1760,7 +1810,7 @@ float SX128XLT::readFloat()
 }
 
 
-uint8_t SX128XLT::transmitSXBuffer(uint8_t startaddr, uint8_t length, uint32_t txtimeout, int8_t txpower, uint8_t wait)
+uint8_t SX128XLT::transmitSXBuffer(uint8_t startaddr, uint8_t length, uint16_t timeout, int8_t txpower, uint8_t wait)
 {
 #ifdef SX128XDEBUG
   Serial.println(F("transmitSXBuffer()"));
@@ -1771,7 +1821,7 @@ uint8_t SX128XLT::transmitSXBuffer(uint8_t startaddr, uint8_t length, uint32_t t
   setPacketParams(savedPacketParam1, savedPacketParam2, length, savedPacketParam4, savedPacketParam5, savedPacketParam6, savedPacketParam7);
   setTxParams(txpower, RAMP_TIME);
   setDioIrqParams(IRQ_RADIO_ALL, (IRQ_TX_DONE + IRQ_RX_TX_TIMEOUT), 0, 0);   //set for IRQ on TX done and timeout on DIO1
-  setTx(txtimeout);                            //this starts the TX
+  setTx(timeout);                            //this starts the TX
 
   if (!wait)
   {
@@ -1814,7 +1864,7 @@ void SX128XLT::writeBuffer(uint8_t *txbuffer, uint8_t size)
 }
 
 
-uint8_t SX128XLT::receiveSXBuffer(uint8_t startaddr, uint32_t rxtimeout, uint8_t wait )
+uint8_t SX128XLT::receiveSXBuffer(uint8_t startaddr, uint16_t timeout, uint8_t wait )
 {
 #ifdef SX127XDEBUG1
   Serial.println(F("receiveSXBuffer()"));
@@ -1828,7 +1878,7 @@ uint8_t SX128XLT::receiveSXBuffer(uint8_t startaddr, uint32_t rxtimeout, uint8_t
   setBufferBaseAddress(0, startaddr);               //order is TX RX
   setDioIrqParams(IRQ_RADIO_ALL, (IRQ_RX_DONE + IRQ_RX_TX_TIMEOUT), 0, 0);  //set for IRQ on RX done or timeout
   
-  setRx(rxtimeout);                                 //no actual RX timeout in this function
+  setRx(timeout);                                 //no actual RX timeout in this function
 
   if (!wait)
   {
@@ -1894,6 +1944,288 @@ void SX128XLT::setSyncWord1(uint32_t syncword)
 ***************************************************************************/
 
 
+
+//*******************************************************************************
+//Start Ranging routines
+//*******************************************************************************
+
+
+void SX128XLT::setRangingSlaveAddress(uint32_t address)
+{
+//sets address of ranging slave
+#ifdef SX128XDEBUG
+  Serial.println(F("SetRangingSlaveAddress()"));
+#endif
+
+  uint8_t buffer[4];
+
+  buffer[0] = (address >> 24u ) & 0xFFu;
+  buffer[1] = (address >> 16u) & 0xFFu;
+  buffer[2] = (address >>  8u) & 0xFFu;
+  buffer[3] = (address & 0xFFu);
+
+  writeRegisters(0x916, buffer, 4 );
+}
+
+
+void SX128XLT::setRangingMasterAddress(uint32_t address)
+{
+//sets address of ranging master
+#ifdef SX128XDEBUG
+  Serial.println(F("SetRangingMasterAddress()"));
+#endif
+
+  uint8_t buffer[4];
+
+  buffer[0] = (address >> 24u ) & 0xFFu;
+  buffer[1] = (address >> 16u) & 0xFFu;
+  buffer[2] = (address >>  8u) & 0xFFu;
+  buffer[3] = (address & 0xFFu);
+
+  writeRegisters(0x912, buffer, 4 );
+}
+
+
+void SX128XLT::setRangingCalibration(uint16_t cal)
+{
+   #ifdef SX128XDEBUG
+  Serial.println(F("setRangingCalibration()"));
+#endif
+  savedCalibration = cal;
+  writeRegister( REG_LR_RANGINGRERXTXDELAYCAL, ( uint8_t )( ( cal >> 8 ) & 0xFF ) );
+  writeRegister( REG_LR_RANGINGRERXTXDELAYCAL + 1, ( uint8_t )( ( cal ) & 0xFF ) );
+}
+
+
+void SX128XLT::setRangingRole(uint8_t role)
+{
+#ifdef SX128XDEBUG
+  Serial.println(F("setRangingRole()"));
+#endif
+
+  uint8_t buffer[1];
+
+  buffer[0] = role;
+
+  writeCommand(RADIO_SET_RANGING_ROLE, buffer, 1 );
+}
+
+
+double SX128XLT::getRangingDistance(uint8_t resultType, float adjust)
+{
+   #ifdef SX128XDEBUG
+  Serial.println(F("getRangingDistance()"));
+#endif
+
+uint32_t valLsb = 0;
+  double val = 0.0;
+
+  setMode(MODE_STDBY_XOSC);
+  writeRegister( 0x97F, readRegister( 0x97F ) | ( 1 << 1 ) ); // enable LORA modem clock
+  writeRegister( REG_LR_RANGINGRESULTCONFIG, ( readRegister( REG_LR_RANGINGRESULTCONFIG ) & MASK_RANGINGMUXSEL ) | ( ( ( ( uint8_t )resultType ) & 0x03 ) << 4 ) );
+  valLsb = ( ( (uint32_t) readRegister( REG_LR_RANGINGRESULTBASEADDR ) << 16 ) | ( readRegister( REG_LR_RANGINGRESULTBASEADDR + 1 ) << 8 ) | ( readRegister( REG_LR_RANGINGRESULTBASEADDR + 2 ) ) );
+  setMode(MODE_STDBY_RC);
+
+  // Conversion from LSB to distance. For explanation on the formula, refer to Datasheet of SX1280
+  // Convert the ranging value to distance in meter. The theoretical conversion from register value
+  // to distance [m] is given by:
+  // distance [m] = ( complement2( register ) * 150 ) / ( 2^12 * bandwidth[MHz] ) ). 
+  // The API provide BW in [Hz] so the implemented formula is;
+  // complement2( register ) / bandwidth[Hz] * A, where A = 150 / (2^12 / 1e6) = 36621.09375 
+  
+  switch (resultType)
+  {
+    case RANGING_RESULT_RAW:
+      
+      val = ( double )complement2( valLsb, 24 ) / ( double ) returnBandwidth(savedModParam2) * 36621.09375;
+      break;
+
+    case RANGING_RESULT_AVERAGED:
+    case RANGING_RESULT_DEBIASED:
+    case RANGING_RESULT_FILTERED:
+      val = ( double )valLsb * 20.0 / 100.0;
+      break;
+    default:
+      val = 0.0;
+      break;
+  }
+
+  return (val * adjust);              //return adjusted distance value
+}
+
+
+uint32_t SX128XLT::getRangingResultRegValue(uint8_t resultType)
+{
+   #ifdef SX128XDEBUG
+  Serial.println(F("getRangingResultRegValue()"));
+#endif
+
+uint32_t valLsb = 0;
+
+  setMode(MODE_STDBY_XOSC);
+  writeRegister( 0x97F, readRegister( 0x97F ) | ( 1 << 1 ) ); // enable LORA modem clock
+  writeRegister( REG_LR_RANGINGRESULTCONFIG, ( readRegister( REG_LR_RANGINGRESULTCONFIG ) & MASK_RANGINGMUXSEL ) | ( ( ( ( uint8_t )resultType ) & 0x03 ) << 4 ) );
+  valLsb = ( ( (uint32_t) readRegister( REG_LR_RANGINGRESULTBASEADDR ) << 16 ) | ( (uint32_t) readRegister( REG_LR_RANGINGRESULTBASEADDR + 1 ) << 8 ) | ( readRegister( REG_LR_RANGINGRESULTBASEADDR + 2 ) ) );
+  setMode(MODE_STDBY_RC);
+  return valLsb;
+}
+
+
+int32_t SX128XLT::complement2( int32_t num, uint8_t bitCnt )
+{
+ #ifdef SX128XDEBUG
+  Serial.println(F("complement2()"));
+#endif
+   
+    int32_t retVal = ( int32_t )num;
+    
+    if( num >= 2<<( bitCnt - 2 ) )
+    {
+     //Serial.print(F(" (*****) "));
+     retVal -=  2<<( bitCnt - 1 );
+     return retVal;
+    }
+    else
+    {
+    return retVal;
+    }
+}
+
+
+bool SX128XLT::setupRanging(uint32_t frequency, int32_t offset, uint8_t modParam1, uint8_t modParam2, uint8_t  modParam3, uint32_t address, uint8_t role)
+{
+ //sequence is frequency, offset, spreading factor, bandwidth, coding rate, calibration, role.  
+ #ifdef SX128XDEBUG
+  Serial.println(F("setupRanging()"));
+#endif
+ 
+  setMode(MODE_STDBY_RC);
+  setPacketType(PACKET_TYPE_RANGING);
+  setModulationParams(modParam1, modParam2, modParam3);  
+  setPacketParams(12, LORA_PACKET_VARIABLE_LENGTH, 0, LORA_CRC_ON, LORA_IQ_NORMAL, 0, 0);
+  setRfFrequency(frequency, offset);
+  setRangingSlaveAddress(address);
+  setRangingMasterAddress(address);
+  setRangingCalibration(lookupCalibrationValue(modParam1, modParam2));
+  setRangingRole(role);
+  writeRegister(REG_RANGING_FILTER_WINDOW_SIZE, 8); //set up window size for ranging averaging
+  setHighSensitivity();
+  //setLowPowerRX();
+  return true;
+}
+
+
+bool SX128XLT::transmitRanging(uint32_t address, uint16_t timeout, int8_t txpower, uint8_t wait)
+{
+#ifdef SX128XDEBUG
+  Serial.println(F("transmitRanging()"));
+#endif
+
+  if ((_RXEN >= 0) || (_TXEN >= 0))
+  {
+   return false;
+  }    
+  
+  setMode(MODE_STDBY_RC);
+  setRangingMasterAddress(address);
+  setTxParams(txpower, RADIO_RAMP_02_US);
+  setDioIrqParams(IRQ_RADIO_ALL, (IRQ_TX_DONE + IRQ_RANGING_MASTER_RESULT_VALID + IRQ_RANGING_MASTER_RESULT_TIMEOUT), 0, 0);
+  setTx(timeout);                               //this sends the ranging packet
+    
+  if (!wait)
+  {
+    return true;
+  }
+
+  while (!digitalRead(_TXDonePin));                               //Wait for DIO1 to go high
+
+  if (readIrqStatus() & IRQ_RANGING_MASTER_RESULT_VALID )       //check for timeout
+  {
+    return true;
+  }
+  else
+  {
+    return false;
+  }
+}
+
+
+uint8_t SX128XLT::receiveRanging(uint32_t address, uint16_t timeout, int8_t txpower, uint8_t wait)
+{
+#ifdef SX128XDEBUG
+  Serial.println(F("receiveRanging()"));
+#endif
+  
+  setTxParams(txpower, RADIO_RAMP_02_US);
+  setRangingSlaveAddress(address);
+  setDioIrqParams(IRQ_RADIO_ALL, (IRQ_RANGING_SLAVE_RESPONSE_DONE + IRQ_RANGING_SLAVE_REQUEST_DISCARDED), 0, 0);
+  setRx(timeout);
+
+  if (!wait)
+  {
+    return NO_WAIT;                                                            //not wait requested so no packet length to pass
+  }
+
+  while (!digitalRead(_RXDonePin));
+    
+  setMode(MODE_STDBY_RC);                                                    //ensure to stop further packet reception
+  
+  if (readIrqStatus() & IRQ_RANGING_SLAVE_REQUEST_VALID)
+  {
+  return true; 
+  }
+  else
+  { 
+  return false;                                                               //so we can check for packet having enough buffer space
+  }
+}
+
+
+uint16_t SX128XLT::lookupCalibrationValue(uint8_t spreadingfactor, uint8_t bandwidth)
+{
+//this looks up the calibration value from the table in SX128XLT_Definitions.hifdef SX128XDEBUG
+#ifdef SX128XDEBUG
+Serial.println(F("lookupCalibrationValue()"));
+#endif
+
+
+switch (bandwidth)
+  {
+    case LORA_BW_0400:
+      savedCalibration = RNG_CALIB_0400[(spreadingfactor>>4)-5];
+      return savedCalibration;
+  
+    case LORA_BW_0800:
+      savedCalibration = RNG_CALIB_0800[(spreadingfactor>>4)-5];
+      return savedCalibration;
+  
+
+    case LORA_BW_1600:
+     savedCalibration = RNG_CALIB_1600[(spreadingfactor>>4)-5];
+     return savedCalibration;
+
+    default:
+      return 0xFFFF;
+
+  }
+  
+}
+
+
+uint16_t SX128XLT::getSetCalibrationValue()
+{
+#ifdef SX128XDEBUG
+  Serial.println(F("getCalibrationValue()"));
+#endif
+
+return savedCalibration;;
+  
+}
+
+
+//*******************************************************************************
+//End Ranging routines
+//*******************************************************************************
 
 
 /*

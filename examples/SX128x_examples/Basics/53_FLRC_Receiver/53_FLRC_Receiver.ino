@@ -17,11 +17,11 @@
 
   Sample serial monitor output;
 
-  1109s  {packet contents}  CRC,3882,RSSI,-69dBm,SNR,10dB,Length,19,Packets,1026,Errors,0,IRQreg,50
+  3s  Hello World 1234567890*,CRC,DAAB,RSSI,-73dB,Length,23,Packets,1,Errors,0,IRQreg,6
 
   If there is a packet error it might look like this, which is showing a CRC error,
 
-  1189s PacketError,RSSI,-111dBm,SNR,-12dB,Length,0,Packets,1126,Errors,1,IRQreg,70,IRQ_HEADER_VALID,IRQ_CRC_ERROR,IRQ_RX_DONE
+  6s PacketError,RSSI,-103dB,Length,119,Packets,3,Errors,1,IRQreg,46,IRQ_RX_DONE,IRQ_SYNCWORD_VALID,IRQ_CRC_ERROR
 
   Serial monitor baud rate is set at 9600.
 *******************************************************************************************************/
@@ -41,7 +41,6 @@ uint8_t RXBUFFER[RXBUFFER_SIZE];                 //create the buffer that receiv
 
 uint8_t RXPacketL;                               //stores length of packet received
 int8_t  PacketRSSI;                              //stores RSSI of received packet
-int8_t  PacketSNR;                               //stores signal to noise ratio of received packet
 
 
 void loop()
@@ -56,7 +55,6 @@ void loop()
   }
 
   PacketRSSI = LT.readPacketRSSI();              //read the recived RSSI value
-  PacketSNR = LT.readPacketSNR();                //read the received SNR value
 
   if (RXPacketL == 0)                            //if the LT.receive() function detects an error, RXpacketL == 0
   {
@@ -95,8 +93,6 @@ void packet_is_OK()
   Serial.print(localCRC, HEX);
   Serial.print(F(",RSSI,"));
   Serial.print(PacketRSSI);
-  Serial.print(F("dBm,SNR,"));
-  Serial.print(PacketSNR);
   Serial.print(F("dB,Length,"));
   Serial.print(RXPacketL);
   Serial.print(F(",Packets,"));
@@ -125,8 +121,6 @@ void packet_is_Error()
     Serial.print(F(" PacketError"));
     Serial.print(F(",RSSI,"));
     Serial.print(PacketRSSI);
-    Serial.print(F("dBm,SNR,"));
-    Serial.print(PacketSNR);
     Serial.print(F("dB,Length,"));
     Serial.print(LT.readRXPacketL());               //get the real packet length
     Serial.print(F(",Packets,"));

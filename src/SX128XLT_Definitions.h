@@ -140,8 +140,8 @@
 #define REG_FLRC_RFFrequency15_8          0x9A4
 #define REG_FLRC_RFFrequency7_0           0x9A5
 
-#define REG_LR_REQUESTRANGINGADDR         0x0912
-
+#define REG_RANGING_FILTER_WINDOW_SIZE    0x091E
+#define REG_LR_DEVICERANGINGADDR          0x0916
 #define REG_LR_DEVICERANGINGADDR          0x0916
 #define REG_LR_RANGINGRESULTCONFIG        0x0924
 #define REG_LR_RANGINGRERXTXDELAYCAL      0x092C
@@ -208,8 +208,8 @@
 
 #define MASK_RANGINGMUXSEL              0xCF
 
-#define RADIO_RANGING_ROLE_SLAVE        0x00
-#define RADIO_RANGING_ROLE_MASTER       0x01
+#define RANGING_SLAVE                   0x00
+#define RANGING_MASTER                  0x01
 
 
 //*************************************************************
@@ -363,7 +363,6 @@
 #endif
 
 
-
 #define DEVICE_SX1280  0x20
 #define DEVICE_SX1281  0x21
 
@@ -373,9 +372,16 @@
 #define LTdataOrder     MSBFIRST
 #define LTdataMode      SPI_MODE0
 
+#define    RANGING_VALID                            0x03
+#define    RANGING_TIMEOUT                          0x02 
 #define    WAIT_RX                                  0x01  
 #define    WAIT_TX                                  0x01
 #define    NO_WAIT                                  0x00
 
-#define PRINT_LOW_REGISTER                           0x900
-#define PRINT_HIGH_REGISTER                          0x9FF
+#define CalibrationSF10BW400                        10180     //calibration value for ranging, SF10, BW400
+#define CalibrationSF5BW1600                        13100     //calibration value for ranging, SF5, BW1600
+
+
+const uint16_t RNG_CALIB_0400[] = { 10260,  10244,  10228,  10212,  10196,  10180  };   //SF5 to SF10
+const uint16_t RNG_CALIB_0800[] = { 11380,  11370,  11360,  11350,  11340,  11330  };
+const uint16_t RNG_CALIB_1600[] = { 13100,  13160,  13220,  13280,  13340,  13400  };
