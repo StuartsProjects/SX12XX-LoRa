@@ -7,9 +7,8 @@
 /*
 
 ****************************************************************************************************************
-  Program operation - This program is for the ESP32_LoRa_Micro_Node which has circuitry to switch off the power to
-  external devices fitted, such as the LoRa device, SD card and GPS. The program flashes a LED connected to the pin
-  defined by LED1, and puts the ESP32 to light_sleep for a period determined by TIME_TO_SLEEP (in seconds).
+  Program operation - The program flashes a LED connected to the pin defined by LED1, and puts the ESP32 to
+  light_sleep for a period determined by TIME_TO_SLEEP (in seconds).
 
   The program also has the option of using a logic pin to control the power to the lora.SD card and DS18B20  
   devices, which can save power in sleep mode. If the hardware is fitted to your board these devices are

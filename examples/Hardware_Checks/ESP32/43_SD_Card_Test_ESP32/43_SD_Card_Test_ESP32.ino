@@ -7,13 +7,15 @@
 
 
 /*******************************************************************************************************
-  Program Operation - This test program has been written to check that a connected SD card adapter, Micro or standard, is funtional. To use
-  the program first copy the file (in this programs directory) called testfile.txt to the root directory of the SD card.
+  Program Operation - This test program has been written to check that a connected SD card adapter, Micro
+  or standard, is functional. To use the program first copy the file (in this programs directory) called
+  testfile.txt to the root directory of the SD card.
 
-  When the program runs it will attempt to open 'testfile.txt' and spool the contents to the Arduino IDE serial monitor.
-  The testfile is part of the source code for the Apollo 11 Lunar Lander navigation and guidance computer. There are LED
-  flashes at power up or reset, then at start of every loop of the test. The LED is on whilst the testfile is being read.
-  If the LED flashes very rapidly then there is a problem accessin the SD card.
+  When the program runs it will attempt to open 'testfile.txt' and spool the contents to the Arduino IDE
+  serial monitor. The testfile is part of the source code for the Apollo 11 Lunar Lander navigation and
+  guidance computer. There are LED flashes at power up or reset, then at start of every loop of the test.
+  The LED is on whilst the testfile is being read. If the LED flashes very rapidly then there is a problem
+  accessing the SD card.
 
   The program also has the option of using a logic pin to control the power to the lora and SD card
   devices, which can save power in sleep mode. If the hardware is fitted to your board these devices are

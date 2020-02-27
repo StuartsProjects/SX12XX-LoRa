@@ -155,3 +155,5 @@ getRangingDistance	KEYWORD2
 setRangingMasterAddress	KEYWORD2
 setRangingSlaveAddress	KEYWORD2
 getRangingCalibrationValue	KEYWORD2 
+toneFM	 KEYWORD2
+setupDirect	KEYWORD2

@@ -14,8 +14,8 @@
   a brownout, you will see the LED flash again. The LED stays on when scanning, the program reports the
   networks found to the serial console and displays them on an attached SSD1306 OLED.
 
-  Thus if you see the LED continually doing short bursts of flashing the turn on of the WiFi is causing
-  the ESP32 to reset. There will also be a message on the console that the brownout detector operated.
+  Thus if you see the LED continually doing short bursts of flashing the turn on\off the WiFi is causing
+  the ESP32 to reset. There will also be a message on the serial monitor that the brownout detector operated.
 
   Serial monitor baud rate is set at 9600
 *******************************************************************************************************/

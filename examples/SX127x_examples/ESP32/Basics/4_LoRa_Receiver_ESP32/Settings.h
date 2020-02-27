@@ -18,6 +18,8 @@
 #define MOSI 23                                 //MOSI on SPI3 
 
 #define NRESET 27                               //reset pin on LoRa device
+#define RFBUSY 25                               //busy line
+
 #define LED1 2                                  //on board LED, high for on
 #define DIO0 35                                 //DIO0 pin on LoRa device, used for RX and TX done 
 #define DIO1 -1                                 //DIO1 pin on LoRa device, normally not used so set to -1 
