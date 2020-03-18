@@ -9,8 +9,8 @@
 
 //These are the pin definitions for one of my own boards, the Easy Mikrobus Pro Mini,
 //be sure to change the definitions to match your own setup. Some pins such as DIO2,
-//DIO3, RX_EN, TX_EN are not used by this sketch so they do not need to be connected
-//and should be set to -1.
+//DIO3 are not used by this sketch so they do not need to be connected and should be
+//set to -1.
 
 #define NSS 10                      //select pin on LoRa device
 #define NRESET 9                    //reset pin on LoRa device
@@ -20,8 +20,7 @@
 #define DIO2 -1                     //DIO2 pin on LoRa device, normally not used so set to -1 
 #define DIO3 -1                     //DIO3 pin on LoRa device, normally not used so set to -1
 #define SW -1                       //SW pin on Dorji devices is used to turn RF switch on\off, set to -1 if not used    
-#define RX_EN -1                    //pin for RX enable, used on some SX126X devices, set to -1 if not used
-#define TX_EN -1                    //pin for TX enable, used on some SX126X devices, set to -1 if not used
+
 
 #define LORA_DEVICE DEVICE_SX1262   //we need to define the device we are using
 
