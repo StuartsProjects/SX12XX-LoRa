@@ -1,5 +1,5 @@
 /*******************************************************************************************************
-  lora Programs for Arduino - Copyright of the author Stuart Robinson - 16/12/19
+  lora Programs for Arduino - Copyright of the author Stuart Robinson - 18/03/20
 
   This program is supplied as is, it is up to the user of the program to decide if the program is
   suitable for the intended purpose and free from errors. 
@@ -11,43 +11,59 @@
 
   The program checks that a lora device can be accessed by doing a test register write and read.
   If there is no device found a message is printed on the serial monitor. The contents of the registers
-  from 0x00 to 0x7F are printed, there is a copy of a typical printout below. Note that the read back
-  changed frequency may be slightly different to the programmed frequency, there is a rounding error due
-  to the use of floats to calculate the frequency.
+  from 0x00 to 0x7F are printed and the program then changes the frequency between two values and prints
+  out the registers. This is to prove that the device registers are being read and written correctly. 
+  There is a copy of the typical printout below. Note that the read back changed frequency may be slightly
+  different to the programmed frequency, there is a rounding error due to the use of floats to calculate
+  the frequency. Although the program sets the frequency in the 434Mhz band, it will work on 868Mhz and
+  915Mhz devices and there is no attempt to confugure the device for transmission or reception. 
 
-  The Arduino pin numbers that the NSS and NRESET pins on the LoRa device are connected to must be
-  specified in the hardware definitions section below. The LoRa device type in use, SX1272, SX1276,
-  SX1277, SX1278 or SX1279 must be specified also.
-
+  The Arduino pin number that NSS on the LoRa device is connected to must be specified in #define NSS
+  line below. Leave the NRESET and DIOx pins not connected.
+  
   Typical printout;
 
-  SX1276-79 Selected
+  2_Register_Test Starting
   LoRa Device found
   Device version 0x12
-  Frequency at reset 434000000
-  Registers at reset
+  Frequency at Start 434000000
+  Registers at Start 
   Reg    0  1  2  3  4  5  6  7  8  9  A  B  C  D  E  F
   0x00  00 09 1A 0B 00 52 6C 80 00 4F 09 2B 20 08 02 0A 
   0x10  FF 70 15 0B 28 0C 12 47 32 3E 00 00 00 00 00 40 
   0x20  00 00 00 00 05 00 03 93 55 55 55 55 55 55 55 55 
-  0x30  90 40 40 00 00 0F 00 00 00 F5 20 82 04 02 80 40 
+  0x30  90 40 40 00 00 0F 00 00 00 F5 20 82 FD 02 80 40 
   0x40  00 00 12 24 2D 00 03 00 04 23 00 09 05 84 32 2B 
-  0x50  14 00 00 10 00 00 00 0F E0 00 0C 04 06 00 5C 78 
-  0x60  00 19 0C 4B CC 0D FD 20 04 47 AF 3F F2 3F D9 0B 
+  0x50  14 00 00 10 00 00 00 0F E0 00 0C FD 06 00 5C 78 
+  0x60  00 19 0C 4B CC 0D FD 20 04 47 AF 3F F6 3F DB 0B 
   0x70  D0 01 10 00 00 00 00 00 00 00 00 00 00 00 00 00 
 
 
+  Change Frequency to 434100000
   Changed Frequency 434099968
   Reg    0  1  2  3  4  5  6  7  8  9  A  B  C  D  E  F
   0x00  00 09 1A 0B 00 52 6C 86 66 4F 09 2B 20 08 02 0A 
   0x10  FF 70 15 0B 28 0C 12 47 32 3E 00 00 00 00 00 40 
   0x20  00 00 00 00 05 00 03 93 55 55 55 55 55 55 55 55 
-  0x30  90 40 40 00 00 0F 00 00 00 F5 20 82 04 02 80 40 
+  0x30  90 40 40 00 00 0F 00 00 00 F5 20 82 FD 02 80 40 
   0x40  00 00 12 24 2D 00 03 00 04 23 00 09 05 84 32 2B 
-  0x50  14 00 00 10 00 00 00 0F E0 00 0C 04 06 00 5C 78 
-  0x60  00 19 0C 4B CC 0D FD 20 04 47 AF 3F F2 3F D9 0B 
+  0x50  14 00 00 10 00 00 00 0F E0 00 0C FD 06 00 5C 78 
+  0x60  00 19 0C 4B CC 0D FD 20 04 47 AF 3F F6 3F DB 0B 
   0x70  D0 01 10 00 00 00 00 00 00 00 00 00 00 00 00 00 
 
+  Change Frequency to 434200000
+  Changed Frequency 434199936
+  Reg    0  1  2  3  4  5  6  7  8  9  A  B  C  D  E  F
+  0x00  00 09 1A 0B 00 52 6C 8C CC 4F 09 2B 20 08 02 0A 
+  0x10  FF 70 15 0B 28 0C 12 47 32 3E 00 00 00 00 00 40 
+  0x20  00 00 00 00 05 00 03 93 55 55 55 55 55 55 55 55 
+  0x30  90 40 40 00 00 0F 00 00 00 F5 20 82 FD 02 80 40 
+  0x40  00 00 12 24 2D 00 03 00 04 23 00 09 05 84 32 2B 
+  0x50  14 00 00 10 00 00 00 0F E0 00 0C FD 06 00 5C 78 
+  0x60  00 19 0C 4B CC 0D FD 20 04 47 AF 3F F6 3F DB 0B  
+  0x70  D0 01 10 00 00 00 00 00 00 00 00 00 00 00 00 00 
+
+  Note: An SX1272 will report as version 0x22 and the frequency at power up is 915000000hz. 
 
   Serial monitor baud rate is set at 9600.
 *******************************************************************************************************/
@@ -57,30 +73,17 @@ const uint8_t REG_FRMID = 0x07;                 //register number for setting se
 const uint8_t REG_FRLSB = 0x08;                 //register number for setting setting and reading frequency, low byte
 const uint8_t REG_VERSION = 0x42;               //register containg version number of device
 
-const uint8_t DEVICE_SX1272 = 0x10;             //SX1272
-const uint8_t DEVICE_SX1276 = 0x11;             //SX1276
-const uint8_t DEVICE_SX1277 = 0x12;             //SX1277
-const uint8_t DEVICE_SX1278 = 0x13;             //SX1278
-const uint8_t DEVICE_SX1279 = 0x14;             //SX1279
 
-//*********  Setup hardware definitions here ! *****************
-
-//These are the pin definitions for one of the LoRaTracker boards, be sure to change them to match your
-//own setup. You will also need to connect up the pins for the SPI bus, which on an Arduino Pro Mini are
-//SCK pin 13, MISO pin 12, and MOSI pin 11.
+//*********  Setup hardware pin definition here ! **************
 
 #define NSS 10                                  //lora device select
-#define NRESET 9                                //lora reset pin
-#define DIO0 -1                                 //DIO0 pin on LoRa device, not used here so set to -1 
-#define DIO1 -1                                 //DIO1 pin on LoRa device, normally not used so set to -1 
-#define DIO2 -1                                 //DIO2 pin on LoRa device, normally not used so set to -1
-
-#define LORA_DEVICE DEVICE_SX1278               //defines the type of LoRa device used, needed for correct program operation
 
 //**************************************************************/
 
 
 #include <SPI.h>
+
+uint32_t frequency;
 
 
 void setup()
@@ -92,11 +95,8 @@ void setup()
   SPI.beginTransaction(SPISettings(8000000, MSBFIRST, SPI_MODE0));
 
   //The begin function setups the hardware pins used by device and then checks if device is found
-  //the DIO0, DIO1 and DIO2 pins are not used in this example so are set to -1
-  //the LT.begin fuction can define the pins and device type directly in this way (for SX1278);
-  //LT.begin(10, 9, -1, -1, -1, DEVICE_SX1278)
-
-  if (begin(NSS, NRESET, -1, -1, -1, LORA_DEVICE))
+  
+  if (begin(NSS))
   {
     Serial.println(F("LoRa Device found"));
   }
@@ -112,31 +112,38 @@ void setup()
     Serial.print(F("0"));
   }
   Serial.println(deviceversion, HEX);
+
+  frequency = getFreqInt();                  //read the set frequency following a reset
+  Serial.print(F("Frequency at Start "));
+  Serial.println(frequency);
+
+  Serial.println(F("Registers at Start "));   //show the all registers following a power up
+  printRegisters(0x00, 0x7F);
 }
 
 
 void loop()
 {
-  uint32_t frequency;
-
-  frequency = getFreqInt();                  //read the set frequency following a reset
-  Serial.print(F("Frequency at reset "));
-  Serial.println(frequency);
-
-  Serial.println(F("Registers at reset"));   //show the all registers following a reset
-  printRegisters(0x00, 0x7F);
-
   Serial.println();
   Serial.println();
 
+  Serial.println(F("Change Frequency to 434100000"));
   setRfFrequency(434100000, 0);              //change the frequency at reset, in hertz
   frequency = getFreqInt();                  //read back the changed frequency
   Serial.print(F("Changed Frequency "));
   Serial.println(frequency);                 //print the changed frequency, did the write work (allow for rounding errors) ?
   printRegisters(0x00, 0x7F);                //show the registers after frequency change
   Serial.println();
+  
+  Serial.println(F("Change Frequency to 434200000"));
+  setRfFrequency(434200000, 0);              //change the frequency at reset, in hertz
+  frequency = getFreqInt();                  //read back the changed frequency
+  Serial.print(F("Changed Frequency "));
+  Serial.println(frequency);                 //print the changed frequency, did the write work (allow for rounding errors) ?
+  printRegisters(0x00, 0x7F);                //show the registers after frequency change
+  Serial.println();
+   
   delay(5000);
-  resetDevice(LORA_DEVICE);                  //reset the device and start again
 }
 
 
@@ -221,50 +228,10 @@ void setRfFrequency(uint64_t freq64, int32_t offset)
 }
 
 
-void resetDevice(uint8_t device)
-{
-  if (device == DEVICE_SX1272)
-  {
-    digitalWrite(NRESET, HIGH);
-    delay(2);
-    digitalWrite(NRESET, LOW);
-    delay(20);
-    Serial.println(F("SX1272 Selected"));
-  }
-  else
-  {
-    digitalWrite(NRESET, LOW);
-    delay(2);
-    digitalWrite(NRESET, HIGH);
-    delay(20);
-    Serial.println(F("SX1276-79 Selected"));
-  }
-}
-
-
-bool begin(int8_t pinNSS, int8_t pinNRESET, int8_t pinDIO0, int8_t pinDIO1, int8_t pinDIO2, uint8_t device)
+bool begin(int8_t pinNSS)
 {
   pinMode(pinNSS, OUTPUT);
   digitalWrite(pinNSS, HIGH);
-  pinMode(pinNRESET, OUTPUT);
-  digitalWrite(pinNRESET, LOW);
-
-  if (pinDIO0 >= 0)
-  {
-    pinMode( pinDIO0, INPUT);
-  }
-
-  if (pinDIO1 >= 0)
-  {
-    pinMode( pinDIO1,  INPUT);
-  }
-
-  if (pinDIO2 >= 0)
-  {
-    pinMode( pinDIO2,  INPUT);
-  }
-
-  resetDevice(device);
 
   if (checkDevice())
   {
