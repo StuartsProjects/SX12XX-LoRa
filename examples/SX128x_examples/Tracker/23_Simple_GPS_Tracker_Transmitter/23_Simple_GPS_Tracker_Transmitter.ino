@@ -80,11 +80,11 @@ void loop()
 }
 
 
-bool gpsWaitFix(uint16_t waitSecs)
+bool gpsWaitFix(uint32_t waitSecs)
 {
   //waits a specified number of seconds for a fix, returns true for good fix
   uint32_t endwaitmS, GPSonTime;
-  bool GPSfix;
+  bool GPSfix = false;
   float tempfloat;
   uint8_t GPSchar;
 
