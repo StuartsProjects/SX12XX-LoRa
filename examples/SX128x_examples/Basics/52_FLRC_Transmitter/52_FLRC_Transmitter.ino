@@ -24,7 +24,7 @@
 
 #define Program_Version "V1.0"
 
-#include <SPI.h>                                               //the SX126X device is SPI based so load the SPI library                                         
+#include <SPI.h>                                               //the SX128X device is SPI based so load the SPI library                                         
 #include <SX128XLT.h>                                          //include the appropriate library  
 #include "Settings.h"                                          //include the setiings file, frequencies, LoRa settings etc   
 

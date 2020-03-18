@@ -343,6 +343,7 @@
 #define RETAIN_INSTRUCTION_RAM   0x04 
 #define RETAIN_DATABUFFER        0x02
 #define RETAIN_DATA_RAM          0x01
+#define CONFIGURATION_RETENTION  0x01         //included for libray compatibility
 #define RETAIN_None              0x00
 
 

@@ -1,5 +1,5 @@
 /*******************************************************************************************************
-  lora Programs for Arduino - Copyright of the author Stuart Robinson - 20/02/20
+  lora Programs for Arduino - Copyright of the author Stuart Robinson - 01/03/20
 
   This program is supplied as is, it is up to the user of the program to decide if the program is
   suitable for the intended purpose and free from errors.
@@ -32,7 +32,7 @@ const uint8_t Bandwidth = LORA_BW_0400;          //LoRa bandwidth
 const uint8_t SpreadingFactor = LORA_SF7;        //LoRa spreading factor
 const uint8_t CodeRate = LORA_CR_4_5;            //LoRa coding rate
 
-const uint8_t TXpower = 0;                       //Power for transmissions in dBm
+const uint8_t TXpower = 10;                      //Power for transmissions in dBm
 
 const uint16_t packet_delay = 1000;              //mS delay between packets
 

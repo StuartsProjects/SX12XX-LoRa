@@ -23,7 +23,7 @@
 
 #define Program_Version "V1.0"
 
-#include <SPI.h>                                               //the SX126X device is SPI based so load the SPI library                                         
+#include <SPI.h>                                               //the SX128X device is SPI based so load the SPI library                                         
 #include <SX128XLT.h>                                          //include the appropriate library  
 #include "Settings.h"                                          //include the setiings file, frequencies, LoRa settings etc   
 
@@ -131,6 +131,7 @@ void setup()
   //SPI.beginTransaction(SPISettings(8000000, MSBFIRST, SPI_MODE0));
 
   //setup hardware pins used by device, then check if device is found
+
   if (LT.begin(NSS, NRESET, RFBUSY, DIO1, DIO2, DIO3, RX_EN, TX_EN, LORA_DEVICE))
   {
     Serial.println(F("LoRa Device found"));
@@ -149,7 +150,7 @@ void setup()
   //The function call list below shows the complete setup for the LoRa device using the information defined in the
   //Settings.h file.
   //The 'Setup LoRa device' list below can be replaced with a single function call;
-  //LT.setupLoRa(Frequency, Offset, SpreadingFactor, Bandwidth, CodeRate, Optimisation);
+  //LT.setupLoRa(Frequency, Offset, SpreadingFactor, Bandwidth, CodeRate);
 
   //***************************************************************************************************
   //Setup LoRa device

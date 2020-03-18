@@ -18,16 +18,23 @@ See LICENSE.TXT file included in the library
 //#define SX128XDEBUG             //enable debug messages
 //#define RANGINGDEBUG            //enable debug messages for ranging
 //#define  SX128XDEBUGRXTX        //enable debug messages for RX TX switching
+#define SX128XDEBUGPINS           //enable pin allocation debug messages
 
 SX128XLT::SX128XLT()
 {
 }
 
+/* Formats for :begin
+1 All pins > begin(int8_t pinNSS, int8_t pinNRESET, int8_t pinRFBUSY, int8_t pinDIO1, int8_t pinDIO2, int8_t pinDIO3, int8_t pinRXEN, int8_t pinTXEN, uint8_t device)
+2 NiceRF   > begin(int8_t pinNSS, int8_t pinNRESET, int8_t pinRFBUSY, int8_t pinDIO1, uint8_t device)
+3 Ebyte    > begin(int8_t pinNSS, int8_t pinNRESET, int8_t pinRFBUSY, int8_t pinDIO1, int8_t pinRXEN, int8_t pinTXEN, uint8_t device); 
+*/
+
 
 bool SX128XLT::begin(int8_t pinNSS, int8_t pinNRESET, int8_t pinRFBUSY, int8_t pinDIO1, int8_t pinDIO2, int8_t pinDIO3, int8_t pinRXEN, int8_t pinTXEN, uint8_t device)
 {
-
-  //assign the passed pins to the class private variable
+  
+  //format 1 pins, assign all available pins 
   _NSS = pinNSS;
   _NRESET = pinNRESET;
   _RFBUSY = pinRFBUSY;
@@ -47,7 +54,7 @@ bool SX128XLT::begin(int8_t pinNSS, int8_t pinNRESET, int8_t pinRFBUSY, int8_t p
   pinMode(_RFBUSY, INPUT);
 
 
-#ifdef SX128XDEBUG
+#ifdef SX128XDEBUGPINS
   Serial.println(F("begin()"));
   Serial.println(F("SX128XLT constructor instantiated successfully"));
   Serial.print(F("NSS "));
@@ -62,39 +69,30 @@ bool SX128XLT::begin(int8_t pinNSS, int8_t pinNRESET, int8_t pinRFBUSY, int8_t p
   Serial.println(_DIO2);
   Serial.print(F("DIO3 "));
   Serial.println(_DIO3);
+  Serial.print(F("RX_EN "));
+  Serial.println(_RXEN);
+  Serial.print(F("TX_EN "));
+  Serial.println(_TXEN);
 #endif
 
   if (_DIO1 >= 0)
   {
     pinMode( _DIO1, INPUT);
   }
-  else
-  {
-    //Serial.println(F("DIO1 not used"));
-  }
-
+ 
   if (_DIO2 >= 0)
   {
     pinMode( _DIO2, INPUT);
   }
-  else
-  {
-    //Serial.println(F("DIO2 not used"));
-  }
-
+ 
   if (_DIO3 >= 0)
   {
     pinMode( _DIO3, INPUT);
   }
-  else
-  {
-    //Serial.println(F("DIO3 not used"));
-  }
-  
-  
+   
   if ((_RXEN >= 0) && (_TXEN >= 0))
   {
-   #ifdef SX128XDEBUGRXTX
+   #ifdef SX128XDEBUGPINS
    Serial.println(F("RX_EN & TX_EN switching enabled"));
    #endif
    pinMode(_RXEN, OUTPUT);
@@ -103,8 +101,8 @@ bool SX128XLT::begin(int8_t pinNSS, int8_t pinNRESET, int8_t pinRFBUSY, int8_t p
   }
   else
   {
-  #ifdef SX128XDEBUGRXTX
-  Serial.println(F("RX_EN & TX_EN not used"));
+  #ifdef SX128XDEBUGPINS
+  Serial.println(F("RX_EN & TX_EN switching disabled"));
   #endif
   _rxtxpinmode = false;
   }
@@ -120,17 +118,15 @@ bool SX128XLT::begin(int8_t pinNSS, int8_t pinNRESET, int8_t pinRFBUSY, int8_t p
 }
 
 
-
-bool SX128XLT::begin(int8_t pinNSS, int8_t pinNRESET, int8_t pinRFBUSY, int8_t pinDIO1, int8_t pinDIO2, int8_t pinDIO3, uint8_t device)
+bool SX128XLT::begin(int8_t pinNSS, int8_t pinNRESET, int8_t pinRFBUSY, int8_t pinDIO1, uint8_t device)
 {
-
-  //assign the passed pins to the class private variable
+  //format 2 pins for NiceRF, NSS, NRESET, RFBUSY, DIO1
   _NSS = pinNSS;
   _NRESET = pinNRESET;
   _RFBUSY = pinRFBUSY;
   _DIO1 = pinDIO1;
-  _DIO2 = pinDIO2;
-  _DIO3 = pinDIO3;
+  _DIO2 = -1;
+  _DIO3 = -1;
   _RXEN = -1;                  //not defined, so mark as unused
   _TXEN = -1;                  //not defined, so mark as unused
   _Device = device;
@@ -143,9 +139,8 @@ bool SX128XLT::begin(int8_t pinNSS, int8_t pinNRESET, int8_t pinRFBUSY, int8_t p
   digitalWrite(_NRESET, LOW);
   pinMode(_RFBUSY, INPUT);
 
-
-#ifdef SX128XDEBUG
-  Serial.println(F("begin()"));
+#ifdef SX128XDEBUGPINS
+  Serial.println(F("format 2 NiceRF begin()"));
   Serial.println(F("SX128XLT constructor instantiated successfully"));
   Serial.print(F("NSS "));
   Serial.println(_NSS);
@@ -159,34 +154,20 @@ bool SX128XLT::begin(int8_t pinNSS, int8_t pinNRESET, int8_t pinRFBUSY, int8_t p
   Serial.println(_DIO2);
   Serial.print(F("DIO3 "));
   Serial.println(_DIO3);
+  Serial.print(F("RX_EN "));
+  Serial.println(_RXEN);
+  Serial.print(F("TX_EN "));
+  Serial.println(_TXEN);
 #endif
 
   if (_DIO1 >= 0)
   {
     pinMode( _DIO1, INPUT);
   }
-  else
-  {
-    //Serial.println(F("DIO1 not used"));
-  }
-
-  if (_DIO2 >= 0)
-  {
-    pinMode( _DIO2, INPUT);
-  }
-  else
-  {
-    //Serial.println(F("DIO2 not used"));
-  }
-
-  if (_DIO3 >= 0)
-  {
-    pinMode( _DIO3, INPUT);
-  }
-  else
-  {
-    //Serial.println(F("DIO3 not used"));
-  }
+  
+  #ifdef SX128XDEBUGPINS
+  Serial.println(F("RX_EN & TX_EN switching disabled"));
+  #endif
   
   _rxtxpinmode = false;
   
@@ -200,6 +181,80 @@ bool SX128XLT::begin(int8_t pinNSS, int8_t pinNRESET, int8_t pinRFBUSY, int8_t p
   return false;
 }
 
+
+bool SX128XLT::begin(int8_t pinNSS, int8_t pinNRESET, int8_t pinRFBUSY, int8_t pinDIO1, int8_t pinRXEN, int8_t pinTXEN, uint8_t device)
+{
+  //format 3 pins for Ebyte, NSS, NRESET, RFBUSY, DIO1, RX_EN, TX_EN 
+  _NSS = pinNSS;
+  _NRESET = pinNRESET;
+  _RFBUSY = pinRFBUSY;
+  _DIO1 = pinDIO1;
+  _DIO2 = -1;
+  _DIO3 = -1;
+  _RXEN = pinRXEN;
+  _TXEN = pinTXEN;
+  _Device = device;
+  _TXDonePin = pinDIO1;        //this is defalt pin for sensing TX done
+  _RXDonePin = pinDIO1;        //this is defalt pin for sensing RX done
+
+  pinMode(_NSS, OUTPUT);
+  digitalWrite(_NSS, HIGH);
+  pinMode(_NRESET, OUTPUT);
+  digitalWrite(_NRESET, LOW);
+  pinMode(_RFBUSY, INPUT);
+
+#ifdef SX128XDEBUGPINS
+  Serial.println(F("format 3 Ebyte begin()"));
+  Serial.println(F("SX128XLT constructor instantiated successfully"));
+  Serial.print(F("NSS "));
+  Serial.println(_NSS);
+  Serial.print(F("NRESET "));
+  Serial.println(_NRESET);
+  Serial.print(F("RFBUSY "));
+  Serial.println(_RFBUSY);
+  Serial.print(F("DIO1 "));
+  Serial.println(_DIO1);
+  Serial.print(F("DIO2 "));
+  Serial.println(_DIO2);
+  Serial.print(F("DIO3 "));
+  Serial.println(_DIO3);
+  Serial.print(F("RX_EN "));
+  Serial.println(_RXEN);
+  Serial.print(F("TX_EN "));
+  Serial.println(_TXEN);
+#endif
+
+  if (_DIO1 >= 0)
+  {
+    pinMode( _DIO1, INPUT);
+  }
+ 
+  if ((_RXEN >= 0) && (_TXEN >= 0))
+  {
+   #ifdef SX128XDEBUGPINS
+   Serial.println(F("RX_EN & TX_EN switching enabled"));
+   #endif
+   pinMode(_RXEN, OUTPUT);
+   pinMode(_TXEN, OUTPUT);
+   _rxtxpinmode = true;
+  }
+  else
+  {
+  #ifdef SX128XDEBUGPINS
+  Serial.println(F("RX_EN & TX_EN switching disabled"));
+  #endif
+  _rxtxpinmode = false;
+  }
+
+  resetDevice();
+
+  if (checkDevice())
+  {
+    return true;
+  }
+
+  return false;
+}
 
 
 void SX128XLT::rxEnable()
@@ -1488,13 +1543,13 @@ void SX128XLT::startWriteSXBuffer(uint8_t ptr)
   setBufferBaseAddress(ptr, 0);     //TX,RX
   checkBusy();
   
-  #ifdef USE_SPI_TRANSACTION     //to use SPI_TRANSACTION enable define at beginning of CPP file 
+  #ifdef USE_SPI_TRANSACTION        //to use SPI_TRANSACTION enable define at beginning of CPP file 
   SPI.beginTransaction(SPISettings(LTspeedMaximum, LTdataOrder, LTdataMode));
 #endif
   
   digitalWrite(_NSS, LOW);
   SPI.transfer(RADIO_WRITE_BUFFER);
-  SPI.transfer(0);
+  SPI.transfer(ptr);                //address in SX buffer to write to     
   //SPI interface ready for byte to write to buffer
 }
 
@@ -2011,56 +2066,9 @@ void SX128XLT::setRangingRole(uint8_t role)
 }
 
 
-double SX128XLT::getRangingDistance(uint8_t resultType, float adjust)
-{
-   #ifdef SX128XDEBUG
-  Serial.println(F("getRangingDistance()"));
-#endif
-
-uint32_t valLsb = 0;
-  double val = 0.0;
-
-  setMode(MODE_STDBY_XOSC);
-  writeRegister( 0x97F, readRegister( 0x97F ) | ( 1 << 1 ) ); // enable LORA modem clock
-  writeRegister( REG_LR_RANGINGRESULTCONFIG, ( readRegister( REG_LR_RANGINGRESULTCONFIG ) & MASK_RANGINGMUXSEL ) | ( ( ( ( uint8_t )resultType ) & 0x03 ) << 4 ) );
-  valLsb = ( ( (uint32_t) readRegister( REG_LR_RANGINGRESULTBASEADDR ) << 16 ) | ( readRegister( REG_LR_RANGINGRESULTBASEADDR + 1 ) << 8 ) | ( readRegister( REG_LR_RANGINGRESULTBASEADDR + 2 ) ) );
-  setMode(MODE_STDBY_RC);
-
-  // Conversion from LSB to distance. For explanation on the formula, refer to Datasheet of SX1280
-  // Convert the ranging value to distance in meter. The theoretical conversion from register value
-  // to distance [m] is given by:
-  // distance [m] = ( complement2( register ) * 150 ) / ( 2^12 * bandwidth[MHz] ) ). 
-  // The API provide BW in [Hz] so the implemented formula is;
-  // complement2( register ) / bandwidth[Hz] * A, where A = 150 / (2^12 / 1e6) = 36621.09375 
-  
-  switch (resultType)
-  {
-    case RANGING_RESULT_RAW:
-      
-      val = ( double )complement2( valLsb, 24 ) / ( double ) returnBandwidth(savedModParam2) * 36621.09375;
-      break;
-
-    case RANGING_RESULT_AVERAGED:
-    case RANGING_RESULT_DEBIASED:
-    case RANGING_RESULT_FILTERED:
-      val = ( double )valLsb * 20.0 / 100.0;
-      break;
-    default:
-      val = 0.0;
-      break;
-  }
-
-  return (val * adjust);              //return adjusted distance value
-}
-
-
 uint32_t SX128XLT::getRangingResultRegValue(uint8_t resultType)
 {
-   #ifdef SX128XDEBUG
-  Serial.println(F("getRangingResultRegValue()"));
-#endif
-
-uint32_t valLsb = 0;
+  uint32_t valLsb = 0;
 
   setMode(MODE_STDBY_XOSC);
   writeRegister( 0x97F, readRegister( 0x97F ) | ( 1 << 1 ) ); // enable LORA modem clock
@@ -2071,24 +2079,39 @@ uint32_t valLsb = 0;
 }
 
 
-int32_t SX128XLT::complement2( int32_t num, uint8_t bitCnt )
+double SX128XLT::getRangingDistance(uint8_t resultType, int32_t regval, float adjust)
 {
- #ifdef SX128XDEBUG
-  Serial.println(F("complement2()"));
-#endif
-   
-    int32_t retVal = ( int32_t )num;
-    
-    if( num >= 2<<( bitCnt - 2 ) )
-    {
-     //Serial.print(F(" (*****) "));
-     retVal -=  2<<( bitCnt - 1 );
-     return retVal;
-    }
-    else
-    {
-    return retVal;
-    }
+  float val = 0.0;
+
+  if (regval >= 0x800000)                  //raw reg value at low distance can goto 0x800000 which is negative, set distance to zero if this happens
+  {
+    regval = 0;
+  }
+
+  // Conversion from LSB to distance. For explanation on the formula, refer to Datasheet of SX1280
+
+  switch (resultType)
+  {
+    case RANGING_RESULT_RAW:
+      // Convert the ranging LSB to distance in meter. The theoretical conversion from register value to distance [m] is given by:
+      // distance [m] = ( complement2( register ) * 150 ) / ( 2^12 * bandwidth[MHz] ) ). The API provide BW in [Hz] so the implemented
+      // formula is complement2( register ) / bandwidth[Hz] * A, where A = 150 / (2^12 / 1e6) = 36621.09
+      val = ( double ) regval / ( double ) returnBandwidth(savedModParam2) * 36621.09375;
+      break;
+
+    case RANGING_RESULT_AVERAGED:
+    case RANGING_RESULT_DEBIASED:
+    case RANGING_RESULT_FILTERED:
+      Serial.print(F("??"));
+      val = ( double )regval * 20.0 / 100.0;
+      break;
+    default:
+      val = 0.0;
+      break;
+  }
+  
+  val = val * adjust;
+  return val;
 }
 
 
@@ -2108,11 +2131,10 @@ bool SX128XLT::setupRanging(uint32_t frequency, int32_t offset, uint8_t modParam
   setRangingMasterAddress(address);
   setRangingCalibration(lookupCalibrationValue(modParam1, modParam2));
   setRangingRole(role);
-  writeRegister(REG_RANGING_FILTER_WINDOW_SIZE, 8); //set up window size for ranging averaging
   setHighSensitivity();
-  //setLowPowerRX();
   return true;
 }
+
 
 
 bool SX128XLT::transmitRanging(uint32_t address, uint16_t timeout, int8_t txpower, uint8_t wait)
@@ -2226,6 +2248,226 @@ return savedCalibration;;
 //*******************************************************************************
 //End Ranging routines
 //*******************************************************************************
+
+
+void SX128XLT::setSleep(uint8_t sleepconfig)
+{
+#ifdef SX128XDEBUG
+  Serial.println(F("setSleep()"));
+#endif
+  
+  setMode(MODE_STDBY_RC);
+  checkBusy();
+  
+  #ifdef USE_SPI_TRANSACTION     //to use SPI_TRANSACTION enable define at beginning of CPP file 
+  SPI.beginTransaction(SPISettings(LTspeedMaximum, LTdataOrder, LTdataMode));
+#endif
+
+  //need to save registers to device RAM first
+  digitalWrite(_NSS, LOW);
+  SPI.transfer(RADIO_SET_SAVECONTEXT);
+  digitalWrite(_NSS, HIGH);
+  
+  checkBusy();
+  
+  digitalWrite(_NSS, LOW);
+  SPI.transfer(RADIO_SET_SLEEP);
+  SPI.transfer(sleepconfig);
+  digitalWrite(_NSS, HIGH);
+  
+  #ifdef USE_SPI_TRANSACTION
+  SPI.endTransaction();
+#endif
+  delay(1);           //allow time for shutdown
+}
+
+
+uint16_t SX128XLT::CRCCCITTSX(uint8_t startadd, uint8_t endadd, uint16_t startvalue)
+{
+  //genrates a CRC of an area of the internal SX buffer
+
+#ifdef SX126XDEBUG1
+  Serial.println(F("CRCCCITTSX()"));
+#endif
+
+
+  uint16_t index, libraryCRC;
+  uint8_t j;
+
+  libraryCRC = startvalue;                                  //start value for CRC16
+
+  startReadSXBuffer(startadd);                       //begin the buffer read
+
+  for (index = startadd; index <= endadd; index++)
+  {
+    libraryCRC ^= (((uint16_t) readUint8() ) << 8);
+    for (j = 0; j < 8; j++)
+    {
+      if (libraryCRC & 0x8000)
+        libraryCRC = (libraryCRC << 1) ^ 0x1021;
+      else
+        libraryCRC <<= 1;
+    }
+  }
+  
+  endReadSXBuffer();                                 //end the buffer read
+
+  return libraryCRC;
+}
+
+
+
+uint8_t SX128XLT::getByteSXBuffer(uint8_t addr)
+{
+#ifdef SX128XDEBUG1
+  Serial.println(F("getByteSXBuffer()"));
+#endif
+
+  uint8_t regdata;
+  setMode(MODE_STDBY_RC);                     //this is needed to ensure we can read from buffer OK.
+
+#ifdef USE_SPI_TRANSACTION                    //to use SPI_TRANSACTION enable define at beginning of CPP file 
+  SPI.beginTransaction(SPISettings(LTspeedMaximum, LTdataOrder, LTdataMode));
+#endif
+
+  digitalWrite(_NSS, LOW);             //start the burst read
+  SPI.transfer(RADIO_READ_BUFFER);
+  SPI.transfer(addr);
+  SPI.transfer(0xFF);
+  regdata = SPI.transfer(0);
+  digitalWrite(_NSS, HIGH);
+
+#ifdef USE_SPI_TRANSACTION
+  SPI.endTransaction();
+#endif
+
+  return regdata;
+}
+
+
+void SX128XLT::printSXBufferHEX(uint8_t start, uint8_t end)
+{
+#ifdef SX128XDEBUG
+  Serial.println(F("printSXBufferHEX()"));
+#endif
+
+  uint8_t index, regdata;
+
+  setMode(MODE_STDBY_RC);
+
+#ifdef USE_SPI_TRANSACTION     //to use SPI_TRANSACTION enable define at beginning of CPP file 
+  SPI.beginTransaction(SPISettings(LTspeedMaximum, LTdataOrder, LTdataMode));
+#endif
+
+  digitalWrite(_NSS, LOW);                       //start the burst read
+  SPI.transfer(RADIO_READ_BUFFER);
+  SPI.transfer(start);
+  SPI.transfer(0xFF);
+
+  for (index = start; index <= end; index++)
+  {
+    regdata = SPI.transfer(0);
+    printHEXByte(regdata);
+    Serial.print(F(" "));
+
+  }
+  digitalWrite(_NSS, HIGH);
+  
+  #ifdef USE_SPI_TRANSACTION
+  SPI.endTransaction();
+#endif
+
+}
+
+
+void SX128XLT::printHEXByte(uint8_t temp)
+{
+  if (temp < 0x10)
+  {
+    Serial.print(F("0"));
+  }
+  Serial.print(temp, HEX);
+}
+
+
+void SX128XLT::wake()
+{
+#ifdef SX128XDEBUG
+  Serial.println(F("wake()"));
+#endif
+
+digitalWrite(_NSS, LOW);
+delay(1);
+digitalWrite(_NSS, HIGH);
+delay(1);
+}
+
+
+
+int32_t SX128XLT::getFrequencyErrorRegValue()
+{
+  #ifdef SX128XDEBUG
+  Serial.println(F("getFrequencyErrorRegValue()"));
+#endif
+  
+  int32_t FrequencyError;
+  uint32_t regmsb, regmid, reglsb, allreg;
+  
+  setMode(MODE_STDBY_XOSC);
+  
+  regmsb = readRegister( REG_LR_ESTIMATED_FREQUENCY_ERROR_MSB );
+  regmsb = regmsb & 0x0F;       //clear bit 20 which is always set
+  
+  regmid = readRegister( REG_LR_ESTIMATED_FREQUENCY_ERROR_MSB + 1 );
+  
+  reglsb = readRegister( REG_LR_ESTIMATED_FREQUENCY_ERROR_MSB + 2 );
+  setMode(MODE_STDBY_RC);
+
+  #ifdef LORADEBUG
+  Serial.println();
+  Serial.print(F("Registers "));
+  Serial.print(regmsb,HEX);
+  Serial.print(F(" "));
+  Serial.print(regmid,HEX);
+  Serial.print(F(" "));
+  Serial.println(reglsb,HEX);
+  #endif
+    
+  allreg = (uint32_t) ( regmsb << 16 ) | ( regmid << 8 ) | reglsb;
+
+  if (allreg & 0x80000)
+  {
+  FrequencyError = (0xFFFFF - allreg) * -1;
+  }
+  else
+  {
+  FrequencyError = allreg; 
+  }
+
+  return FrequencyError;
+}
+
+
+int32_t SX128XLT::getFrequencyErrorHz()
+{
+    #ifdef SX128XDEBUG
+  Serial.println(F("getFrequencyErrorHz()"));
+#endif
+  
+  int32_t error, regvalue;
+  uint32_t bandwidth;
+  float divider;
+
+  bandwidth =   returnBandwidth(savedModParam2);                   //gets the last configured bandwidth
+  
+  divider = (float) 1625000 / bandwidth;
+  regvalue = getFrequencyErrorRegValue();
+  error = (FREQ_ERROR_CORRECTION * regvalue) / divider;
+
+  return error;
+}
+
+
 
 
 /*

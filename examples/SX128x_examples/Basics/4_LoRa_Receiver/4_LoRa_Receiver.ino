@@ -212,7 +212,7 @@ void setup()
   //The function call list below shows the complete setup for the LoRa device using the information defined in the
   //Settings.h file.
   //The 'Setup LoRa device' list below can be replaced with a single function call;
- //LT.setupLoRa(Frequency, Offset, SpreadingFactor, Bandwidth, CodeRate, Optimisation);
+ //LT.setupLoRa(Frequency, Offset, SpreadingFactor, Bandwidth, CodeRate);
 
   //***************************************************************************************************
   //Setup LoRa device

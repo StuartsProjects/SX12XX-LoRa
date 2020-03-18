@@ -34,7 +34,8 @@ class SX128XLT  {
     SX128XLT();
 
     bool begin(int8_t pinNSS, int8_t pinNRESET, int8_t pinRFBUSY, int8_t pinDIO1, int8_t pinDIO2, int8_t pinDIO3, int8_t pinRXEN, int8_t pinTXEN, uint8_t device);
-    bool begin(int8_t pinNSS, int8_t pinNRESET, int8_t pinRFBUSY, int8_t pinDIO1, int8_t pinDIO2, int8_t pinDIO3, uint8_t device);
+    bool begin(int8_t pinNSS, int8_t pinNRESET, int8_t pinRFBUSY, int8_t pinDIO1, uint8_t device);
+    bool begin(int8_t pinNSS, int8_t pinNRESET, int8_t pinRFBUSY, int8_t pinDIO1, int8_t pinRXEN, int8_t pinTXEN, uint8_t device); 
 
     void rxEnable();
     void txEnable();
@@ -85,6 +86,11 @@ class SX128XLT  {
     uint8_t readRXPacketL();
     void setRx(uint16_t timeout);
     void setSyncWord1(uint32_t syncword);
+	void setSleep(uint8_t sleepconfig); 
+    uint16_t CRCCCITTSX(uint8_t startadd, uint8_t endadd, uint16_t startvalue);
+    uint8_t getByteSXBuffer(uint8_t addr);
+	int32_t getFrequencyErrorRegValue();
+    int32_t getFrequencyErrorHz();
 
 /***************************************************************************
 //Start direct access SX buffer routines
@@ -120,7 +126,9 @@ class SX128XLT  {
     void writeBuffer(uint8_t *txbuffer, uint8_t size);
     uint8_t receiveSXBuffer(uint8_t startaddr, uint16_t timeout, uint8_t wait);
     uint8_t readBuffer(uint8_t *rxbuffer);
-    
+    void printSXBufferHEX(uint8_t start, uint8_t end);
+	void printHEXByte(uint8_t temp);
+	void wake();
 
 /***************************************************************************
 //End direct access SX buffer routines
@@ -136,15 +144,15 @@ class SX128XLT  {
     void setRangingMasterAddress(uint32_t address);
     void setRangingCalibration(uint16_t cal);
     void setRangingRole(uint8_t role);
-    double getRangingDistance(uint8_t resultType, float adjust);
+    double getRangingDistance(uint8_t resultType, int32_t regval, float adjust);
     uint32_t getRangingResultRegValue(uint8_t resultType);
-    int32_t complement2( int32_t num, uint8_t bitCnt );
+    int32_t complement2( uint32_t num, uint8_t bitCnt );
     bool setupRanging(uint32_t frequency, int32_t offset, uint8_t modParam1, uint8_t modParam2, uint8_t  modParam3, uint32_t address, uint8_t role);
     bool transmitRanging(uint32_t address, uint16_t timeout, int8_t txpower, uint8_t wait);
     uint8_t receiveRanging(uint32_t address, uint16_t timeout, int8_t txpower, uint8_t wait);
     uint16_t lookupCalibrationValue(uint8_t spreadingfactor, uint8_t bandwidth);
     uint16_t getSetCalibrationValue();
-	
+
 /***************************************************************************
 //End ranging routines
 ***************************************************************************/
@@ -173,11 +181,12 @@ class SX128XLT  {
     uint8_t  savedRegulatorMode;
     uint8_t  savedPacketType;
     uint32_t savedFrequency, savedOffset;
-    uint8_t  savedModParam1, savedModParam2, savedModParam3;
+    uint8_t  savedModParam1, savedModParam2, savedModParam3; //sequence is spreading factor, bandwidth, coding rate
     uint8_t  savedPacketParam1, savedPacketParam2, savedPacketParam3, savedPacketParam4, savedPacketParam5, savedPacketParam6, savedPacketParam7;
     uint16_t savedIrqMask, savedDio1Mask, savedDio2Mask, savedDio3Mask;
     int8_t   savedTXPower;
 	uint16_t savedCalibration;
+	uint32_t savedFrequencyReg;
 	
 };
 #endif
