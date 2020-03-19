@@ -14,7 +14,10 @@
 
   Checked for correct operation with lora bandwidths of 500000hz, 125000 and 7800hz. At higher bandwidths
   the reported frequency errors can be within 10-20hz at minimum bandwidth, 7800hz, the reported frequency
-  can be circa 100hz out.  
+  can be circa 100hz out.
+
+  Note: Semtech appear to have stated that the frequency error function that this example uses, is not
+  supported for SX126X, for reasons that have not been given, so use at your own risk.   
 
   Serial monitor baud rate is set at 9600.
 *******************************************************************************************************/
