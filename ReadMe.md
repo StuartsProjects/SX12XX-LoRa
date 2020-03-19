@@ -1,12 +1,10 @@
 # SX12XX Library
 
-    Update: 27/02/20 - Added tone generation    
+    Update: 19/03/20 - Added SX128X Ranging examples. Added GPS tracker and Sensor examples for SX126X and SX128X.
+
+    Update: 27/02/20 - Added tone generation
 
     Update: 11/02/20 - SX128X basic library and examples added
-
-	Update: 06/02/20 - SX126X basic library and examples added with required antenna switch support for Dorji DRF1268
-    ESP32 examples added for SX127X
-    STM32 examples added for SX127X 
 
 
 <cr>
@@ -135,7 +133,12 @@ The use of SPI.beginTransaction and SPI.endTransaction can be disabled by commen
 
 **begin(NSS, NRESET, RFBUSY, DIO1, DIO2, DIO3, RX\_EN, TX\_EN, LORA\_DEVICE)**     (SX128X library)
 
-The begin function initialises the hardware pins used by the device. The begin functions are slightly different for the SX127X, SX126X and SX128X libraries due to the different pins used. NSS, NRESET and DIO0 (SX127X) or DIO1 (SX126x and SX128X) are required, other DIOs are optional and when not used define as -1. The SX126X and SX128X devices have an RFBUSY pin. To ensure compatibility with Dorji SX1262 and SX1268 devices the SW pin needs to be defined. This pin turns on\off the antenna switch on Dorji devices. Set to -1 if not used. Some of the SX128X devices for example from eByte require TX and RX enable pins, set to -1 if your not using them. 
+The begin function initialises the hardware pins used by the device. The begin functions are slightly different for the SX127X, SX126X and SX128X libraries due to the different pins used. NSS, NRESET and DIO0 (SX127X) or DIO1 (SX126x and SX128X) are required, other DIOs are optional and when not used define as -1. The SX126X and SX128X devices have an RFBUSY pin. To ensure compatibility with Dorji SX1262 and SX1268 devices the SW pin needs to be defined. This pin turns on\off the antenna switch on Dorji devices. Set to -1 if not used. Some of the SX128X devices for example from eByte require TX and RX enable pins, set to -1 if your not using them.
+
+The library examples for the SX128x do use the long form of the begin command (begin(NSS, NRESET, RFBUSY, DIO1, DIO2, DIO3, RX\_EN, TX\_EN, LORA\_DEVICE) but if your device does not have TX and RX enable pins you can use the short form of the begin command;
+
+**begin(NSS, NRESET, RFBUSY, DIO1, DIO2, DIO3, LORA\_DEVICE)**     (SX128X library)
+
 
 LoRA\_DEVICE tells the library which actual LoRa RF IC is being used, the choices are;
 
