@@ -230,7 +230,7 @@
 #define    RADIO_SET_LORASYMBTIMEOUT                0xA0
 
 
-//Table 13-2 Sleep modes
+//Table 13-2 SX126X Sleep modes
 #define CONFIGURATION_RETENTION 0x04 
 #define RTC_TIMEOUT_ENABLE 0x01
 

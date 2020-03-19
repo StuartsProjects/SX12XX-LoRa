@@ -14,23 +14,19 @@
   DONE - Match printlorasettings and printdevice settings with sx127x library
   DONE - Check if SX126X has AGCauto_
   DONE - Check correct setting of optimisation
+  DONE - Check in addressed send  txpacketL = 3 + size;  //we have added 3 header bytes to size
+  DONE - Investigate use of clearDeviceErrors() - Not used in Semtech sample code
+  ABANDONED - Investigate if setPacketParams(savedPacketParam1, savedPacketParam2 in send routine can be avoided - TXpacketL
   
-    
   setPAconfig needs to allow for SX1268 - if (TXpower > 14){setPaConfig(0x04, 0x07, _Device)} else { setPaConfig(0x02, 0x01, _Device)}             //hpMax is quoted as 0-7, but 0 seems to be an invalid value
-  Check Timeouts for TX and RX
-  review setting of TXpower, 17dBm max ?
   Why is it << 8 - timeout = timeout << 8;         //timeout passed in mS, multiply by 64 to convert units of 15.625us to 1mS
+  
+  Check TX power settings at 17dBm + 
   Description of how to include RxGain register in the retention memory, see Section 9.6 - manual p58
-  Investigate if setPacketParams(savedPacketParam1, savedPacketParam2 in send routine can be avoided - TXpacketL
-  Investigate use of clearDeviceErrors()
   Check recovery from busy timeout error.
-  Check rxEnable and txenable are working.
-  For FIFO TX & RX Check writeUint8 readUint8 works with characters
-  For FIFO TX & RX Check bytes sent for writeInt16 vs writeUInt16
-  For FIFO TX & RX Check bytes sent for writeInt32 vs writeUInt32
-  Check in addressed send  txpacketL = 3 + size;  //we have added 3 header bytes to size
-  Check Single Reception Operating Mode and RX symbols timeout
-  Add a library function for SetRxDutyCycle, or maybe external access to writeCommand
+  Test rxEnable and txenable functionality.
+  Add a library function for SetRxDutyCycle
+  Add a library function to allow changing of ramptime from RADIO_RAMP_200_US
   
   
 **************************************************************************/
@@ -40,7 +36,11 @@ class SX126XLT  {
 
     SX126XLT();
 
-    bool begin(int8_t pinNSS, int8_t pinNRESET, int8_t pinRFBUSY, int8_t pinDIO1, int8_t pinDIO2, int8_t pinDIO3, int8_t pinSW, uint8_t device);
+    bool begin(int8_t pinNSS, int8_t pinNRESET, int8_t pinRFBUSY, int8_t pinDIO1, int8_t pinDIO2, int8_t pinDIO3, int8_t pinRXEN, int8_t pinTXEN, int8_t pinSW, uint8_t device);
+    bool begin(int8_t pinNSS, int8_t pinNRESET, int8_t pinRFBUSY, int8_t pinDIO1, uint8_t device);
+    bool begin(int8_t pinNSS, int8_t pinNRESET, int8_t pinRFBUSY, int8_t pinDIO1, int8_t pinSW, uint8_t device);
+    bool begin(int8_t pinNSS, int8_t pinNRESET, int8_t pinRFBUSY, int8_t pinDIO1, int8_t pinRXEN, int8_t pinTXEN, uint8_t device);
+
     void checkBusy();
     void writeCommand(uint8_t Opcode, uint8_t *buffer, uint16_t size );
     void readCommand( uint8_t Opcode, uint8_t *buffer, uint16_t size );
@@ -76,7 +76,6 @@ class SX126XLT  {
     uint32_t getFreqInt();                     //this reads the SX126x registers to get the current frequency
     uint8_t getLoRaSF();
 
-    //uint32_t getLoRaBandwidth();
     uint8_t getLoRaCodingRate();
     uint8_t getOptimisation();
 
@@ -99,7 +98,6 @@ class SX126XLT  {
     uint8_t readPacketSNR();
     uint8_t readRXPacketL();
     void setRx(uint32_t timeout);
-    //void readPacketReceptionLoRa();
 
     void printIrqStatus();
     void rxEnable();
@@ -140,11 +138,30 @@ class SX126XLT  {
     void writeBuffer(uint8_t *txbuffer, uint8_t size);
     uint8_t receiveSXBuffer(uint8_t startaddr, uint32_t rxtimeout, uint8_t wait);
     uint8_t readBuffer(uint8_t *rxbuffer);
+    void setupDirect(uint32_t frequency, int32_t offset);
+    void toneFM(uint16_t frequency, uint32_t length, uint32_t deviation, float adjust, uint8_t txpower);
+    void setTXDirect();
+    uint8_t getByteSXBuffer(uint8_t addr);
+    void printSXBufferHEX(uint8_t start, uint8_t end);
+    int32_t getFrequencyErrorHz();
+    int32_t getFrequencyErrorRegValue();
+    void printHEXByte(uint8_t temp);
+    uint8_t transmitAddressed(uint8_t *txbuffer, uint8_t size, char txpackettype, char txdestination, char txsource, uint32_t txtimeout, int8_t txpower, uint8_t wait);
+    uint8_t readRXPacketType();
+    uint8_t readRXDestination();
+    uint8_t readRXSource();
+    uint8_t receiveAddressed(uint8_t *rxbuffer, uint8_t size, uint32_t rxtimeout, uint8_t wait);
+    void clearDeviceErrors();
+    void printDeviceErrors();
+
 
 /***************************************************************************
 //End direct access SX buffer routines
 ***************************************************************************/	
-
+    
+     uint16_t CRCCCITTSX(uint8_t startadd, uint8_t endadd, uint16_t startvalue);
+     void setSleep(uint8_t sleepconfig);
+     void wake();
   
   private:
 
@@ -161,17 +178,16 @@ class SX126XLT  {
     uint8_t _TXcount;               //used to keep track of the bytes written to SX126X buffer during writeFloat() etc
     uint8_t _RXBufferPointer;       //pointer to first byte of packet in buffer
     uint8_t _OperatingMode;         //current operating mode
-    bool _rxtxpinmode = false;      //set to true if RX and TX pin mode is used.
+    bool _rxtxpinmode = false;      //set to true if RX and TX enable pin mode is used.
     uint8_t _Device;                //saved device type
     uint8_t _TXDonePin;             //the pin that will indicate TX done
     uint8_t _RXDonePin;             //the pin that will indicate RX done
 
-    //config variables 36 bytes, allows for device to be reset and reconfigured via confg();
+    uint32_t savedFrequencyReg;
     uint32_t savedFrequency;
     uint32_t savedOffset;
     uint8_t  savedPacketType;
     uint8_t  savedRegulatorMode;
-
 
     uint8_t  savedModParam1, savedModParam2, savedModParam3, savedModParam4;
     uint16_t savedPacketParam1;
