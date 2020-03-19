@@ -7,21 +7,13 @@
 /**************************************************************************
 
   ToDO
-
-  DONE - Why is SX1280LT.setPacketType(PACKET_TYPE_LORA) required before getFreqInt works with FLRC
-       - The register addresses where the frequency is stored are different for FLRC and LORA
-  DONE - Checkbusy at end of setmode ? - not needed, Checkbusy before all SPI activity
-  DONE - Ranging in complement2 - warning: comparison between signed and unsigned integer
-  DONE - Trap use of devices with RX\TX switching in ranging mode 
-  DONE - Ensure ranging distance is not negative
-  
   
   Add routine to change period_base for RX,TX timeout
   Is there a direct register access to packet length for transmit ?
   Test RSSI and SNR are realistic for LoRa and FLRC
   Review error rate in FLRC mode
   Error packets at -99dBm due to noise ?
-  Purpose of printPacketStatus3 for FLRC
+  Add support for printPacketStatus for FLRC
   
 **************************************************************************/
 
