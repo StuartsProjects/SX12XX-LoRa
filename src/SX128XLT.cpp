@@ -18,7 +18,7 @@ See LICENSE.TXT file included in the library
 //#define SX128XDEBUG             //enable debug messages
 //#define RANGINGDEBUG            //enable debug messages for ranging
 //#define  SX128XDEBUGRXTX        //enable debug messages for RX TX switching
-#define SX128XDEBUGPINS           //enable pin allocation debug messages
+//#define SX128XDEBUGPINS           //enable pin allocation debug messages
 
 SX128XLT::SX128XLT()
 {
@@ -296,7 +296,7 @@ void SX128XLT::checkBusy()
     delay(1);
     busy_timeout_cnt++;
 
-    if (busy_timeout_cnt > 5)                     //wait 5mS for busy to complete
+    if (busy_timeout_cnt > 10)                     //wait 5mS for busy to complete
     {
       Serial.println(F("ERROR - Busy Timeout!"));
       resetDevice();
@@ -650,6 +650,9 @@ void SX128XLT::setModulationParams(uint8_t modParam1, uint8_t modParam2, uint8_t
 
 void SX128XLT::setPacketParams(uint8_t packetParam1, uint8_t  packetParam2, uint8_t packetParam3, uint8_t packetParam4, uint8_t packetParam5, uint8_t packetParam6, uint8_t packetParam7)
 {
+//for LoRa order is PreambleLength, HeaderType, PayloadLength, CRC, InvertIQ/chirp invert, not used, not used
+//for FLRC order is PreambleLength, SyncWordLength, SyncWordMatch, HeaderType, PayloadLength, CrcLength, Whitening
+
 #ifdef SX128XDEBUG
   Serial.println(F("SetPacketParams()"));
 #endif
@@ -2466,8 +2469,158 @@ int32_t SX128XLT::getFrequencyErrorHz()
   return error;
 }
 
+uint8_t SX128XLT::transmitAddressed(uint8_t *txbuffer, uint8_t size, char txpackettype, char txdestination, char txsource, uint32_t timeout, int8_t txpower, uint8_t wait)
+{
+#ifdef SX128XDEBUG
+  Serial.println(F("transmitAddressed()"));
+#endif
+  uint8_t index;
+  uint8_t bufferdata;
+
+  if (size == 0)
+  {
+    return false;
+  }
+
+  setMode(MODE_STDBY_RC);
+  setBufferBaseAddress(0, 0);
+  checkBusy();
+
+#ifdef USE_SPI_TRANSACTION     //to use SPI_TRANSACTION enable define at beginning of CPP file 
+  SPI.beginTransaction(SPISettings(LTspeedMaximum, LTdataOrder, LTdataMode));
+#endif
+
+  digitalWrite(_NSS, LOW);
+  SPI.transfer(RADIO_WRITE_BUFFER);
+  SPI.transfer(0);
+  
+  SPI.transfer(txpackettype);                     //Write the packet type
+  SPI.transfer(txdestination);                    //Destination node
+  SPI.transfer(txsource);                         //Source node
+  _TXPacketL = 3 + size;                          //we have added 3 header bytes to size
+
+  for (index = 0; index < size; index++)
+  {
+    bufferdata = txbuffer[index];
+    SPI.transfer(bufferdata);
+  }
+
+  digitalWrite(_NSS, HIGH);
+
+#ifdef USE_SPI_TRANSACTION
+  SPI.endTransaction();
+#endif
+
+  
+  if (savedPacketType == PACKET_TYPE_LORA)
+  {
+   writeRegister(REG_LR_PAYLOADLENGTH, _TXPacketL);                           //only seems to work for lora  
+  }  
+  else if (savedPacketType == PACKET_TYPE_FLRC)
+  {
+  setPacketParams(savedPacketParam1, savedPacketParam2, savedPacketParam3, savedPacketParam4, _TXPacketL, savedPacketParam6, savedPacketParam7);
+  }
+
+  setTxParams(txpower, RAMP_TIME);
+  setDioIrqParams(IRQ_RADIO_ALL, (IRQ_TX_DONE + IRQ_RX_TX_TIMEOUT), 0, 0);   //set for IRQ on TX done and timeout on DIO1
+  setTx(timeout);                                                          //this starts the TX
+  
+  if (!wait)
+  {
+    return _TXPacketL;
+  }
+
+  while (!digitalRead(_TXDonePin));                                //Wait for DIO1 to go high
+
+  if (readIrqStatus() & IRQ_RX_TX_TIMEOUT )                        //check for timeout
+  {
+    return 0;
+  }
+  else
+  {
+    return _TXPacketL;
+  }
+}
 
 
+uint8_t SX128XLT::receiveAddressed(uint8_t *rxbuffer, uint8_t size, uint16_t timeout, uint8_t wait)
+{
+#ifdef SX128XDEBUG
+  Serial.println(F("receiveAddressed()"));
+#endif
+
+  uint8_t index, RXstart, RXend;
+  uint16_t regdata;
+  uint8_t buffer[2];
+
+  setDioIrqParams(IRQ_RADIO_ALL, (IRQ_RX_DONE + IRQ_RX_TX_TIMEOUT), 0, 0);  //set for IRQ on RX done or timeout
+  setRx(timeout);
+
+  if (!wait)
+  {
+    return 0;                                                               //not wait requested so no packet length to pass
+  }
+
+  while (!digitalRead(_RXDonePin));                                         //Wait for DIO1 to go high
+
+  setMode(MODE_STDBY_RC);                                                   //ensure to stop further packet reception
+
+  regdata = readIrqStatus();
+
+  if ( (regdata & IRQ_HEADER_ERROR) | (regdata & IRQ_CRC_ERROR) | (regdata & IRQ_RX_TX_TIMEOUT ) ) //check if any of the preceding IRQs is set
+  {
+    return 0;                          //packet is errored somewhere so return 0
+  }
+
+  readCommand(RADIO_GET_RXBUFFERSTATUS, buffer, 2);
+  _RXPacketL = buffer[0];
+  
+  if (_RXPacketL > size)               //check passed buffer is big enough for packet
+  {
+    _RXPacketL = size;                 //truncate packet if not enough space
+  }
+
+  RXstart = buffer[1];
+
+  RXend = RXstart + _RXPacketL;
+
+  checkBusy();
+  
+#ifdef USE_SPI_TRANSACTION           //to use SPI_TRANSACTION enable define at beginning of CPP file 
+  SPI.beginTransaction(SPISettings(LTspeedMaximum, LTdataOrder, LTdataMode));
+#endif
+
+  digitalWrite(_NSS, LOW);             //start the burst read
+  SPI.transfer(RADIO_READ_BUFFER);
+  SPI.transfer(RXstart);
+  SPI.transfer(0xFF);
+  
+  _RXPacketType = SPI.transfer(0);
+  _RXDestination = SPI.transfer(0);
+  _RXSource = SPI.transfer(0);
+
+  for (index = RXstart; index < RXend; index++)
+  {
+    regdata = SPI.transfer(0);
+    rxbuffer[index] = regdata;
+  }
+
+  digitalWrite(_NSS, HIGH);
+
+#ifdef USE_SPI_TRANSACTION
+  SPI.endTransaction();
+#endif
+
+  return _RXPacketL;                     //so we can check for packet having enough buffer space
+}
+
+uint8_t SX128XLT::readRXPacketType()
+{
+#ifdef SX128XDEBUG
+  Serial.println(F("readRXPacketType()"));
+#endif
+return _RXPacketType;
+}
 
 /*
   MIT license

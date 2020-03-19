@@ -84,11 +84,16 @@ class SX128XLT  {
     uint8_t readRXPacketL();
     void setRx(uint16_t timeout);
     void setSyncWord1(uint32_t syncword);
-	void setSleep(uint8_t sleepconfig); 
+    void setSleep(uint8_t sleepconfig); 
     uint16_t CRCCCITTSX(uint8_t startadd, uint8_t endadd, uint16_t startvalue);
     uint8_t getByteSXBuffer(uint8_t addr);
-	int32_t getFrequencyErrorRegValue();
+    int32_t getFrequencyErrorRegValue();
     int32_t getFrequencyErrorHz();
+    void printHEXByte(uint8_t temp);
+    void wake()	;
+    uint8_t transmitAddressed(uint8_t *txbuffer, uint8_t size, char txpackettype, char txdestination, char txsource, uint32_t timeout, int8_t txpower, uint8_t wait);
+    uint8_t receiveAddressed(uint8_t *rxbuffer, uint8_t size, uint16_t timeout, uint8_t wait);
+    uint8_t readRXPacketType();
 
 /***************************************************************************
 //Start direct access SX buffer routines
@@ -125,8 +130,6 @@ class SX128XLT  {
     uint8_t receiveSXBuffer(uint8_t startaddr, uint16_t timeout, uint8_t wait);
     uint8_t readBuffer(uint8_t *rxbuffer);
     void printSXBufferHEX(uint8_t start, uint8_t end);
-	void printHEXByte(uint8_t temp);
-	void wake();
 
 /***************************************************************************
 //End direct access SX buffer routines

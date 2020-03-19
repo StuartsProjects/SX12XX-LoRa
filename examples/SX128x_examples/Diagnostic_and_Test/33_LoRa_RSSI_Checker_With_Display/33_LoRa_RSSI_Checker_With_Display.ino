@@ -272,7 +272,7 @@ void setup()
   LT.printOperatingSettings();                                 //reads and prints the configured operting settings, useful check
   Serial.println();
   Serial.println();
-  LT.printRegisters(0x00, 0x4F);                               //print contents of device registers
+  LT.printRegisters(0x900, 0x9FF);                               //print contents of device registers
   Serial.println();
   Serial.println();
 
