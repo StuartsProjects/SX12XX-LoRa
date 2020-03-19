@@ -54,6 +54,9 @@ void setup()
 {
   pinMode(LED1, OUTPUT);                       //setup pin as output for indicator LED
   pinMode(13, OUTPUT);                         //setup pin as output for some Arduino boards that include an LED on pin 13
+  digitalWrite(LED1, HIGH);
+  digitalWrite(13, HIGH);
+  
   led_Flash(2, 125);                           //two quick LED flashes to indicate program start
 
   Serial.begin(9600);
