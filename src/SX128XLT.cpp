@@ -299,8 +299,8 @@ void SX128XLT::checkBusy()
     if (busy_timeout_cnt > 5)                     //wait 5mS for busy to complete
     {
       Serial.println(F("ERROR - Busy Timeout!"));
-      setMode(0);                              //0:STDBY_RC; 1:STDBY_XOSC
       resetDevice();
+      setMode(MODE_STDBY_RC);
       config();                                   //re-run saved config
       break;
     }
@@ -2403,7 +2403,6 @@ delay(1);
 }
 
 
-
 int32_t SX128XLT::getFrequencyErrorRegValue()
 {
   #ifdef SX128XDEBUG
@@ -2460,7 +2459,7 @@ int32_t SX128XLT::getFrequencyErrorHz()
 
   bandwidth =   returnBandwidth(savedModParam2);                   //gets the last configured bandwidth
   
-  divider = (float) 1625000 / bandwidth;
+  divider = (float) 1625000 / bandwidth;                           //data sheet says 1600000, but bandwidth is 1625000
   regvalue = getFrequencyErrorRegValue();
   error = (FREQ_ERROR_CORRECTION * regvalue) / divider;
 
