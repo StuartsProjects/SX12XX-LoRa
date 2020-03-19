@@ -1,6 +1,8 @@
 # SX12XX Library
 
-    Update: 19/03/20 - Added SX128X Ranging examples. Added GPS tracker and Sensor examples for SX126X and SX128X.
+    Update: 19/03/20 - Added SX126X and SX128X remote control on\off and joystick servo examples.
+
+    Update: 19/03/20 - Added SX128X Ranging examples. Added GPS tracker and Sensor examples for SX126X and SX128X. 
 
     Update: 27/02/20 - Added tone generation
 
