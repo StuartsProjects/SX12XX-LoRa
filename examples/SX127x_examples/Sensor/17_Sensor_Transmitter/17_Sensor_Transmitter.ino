@@ -51,9 +51,9 @@
 
   The Atmel watchdog timer is a viable option for a very low current sensor node. A 'bare bones' ATmega328P
   with regulator and LoRa device has a sleep current of 6.6uA, add the LoRa devices and BME280 sensor
-  module and the average sleep current only rises to 6.8uA.
+  module and the average sleep current only rises to 7.9uA.
 
-  One of these transmitter programs is running on a long term test with a 175mAh battery, to see how long
+  One of these transmitter programs is running on a long term test with a 150mAh battery, to see how long
   the battery actually lasts.
 
   Serial monitor baud rate is set at 9600.

@@ -1,5 +1,5 @@
 /*******************************************************************************************************
-  lora Programs for Arduino - Copyright of the author Stuart Robinson - 17/12/19
+  lora Programs for Arduino - Copyright of the author Stuart Robinson - 29/02/20
 
   This program is supplied as is, it is up to the user of the program to decide if the program is
   suitable for the intended purpose and free from errors. 
@@ -186,7 +186,7 @@ bool checkCRCvalue(uint8_t len)
   Serial.print(CRCSensorData, HEX);
   Serial.print(F(")"  ));
 
-  TXCRCvalue = ((LT.getByteSXBuffer(17) << 8) + (LT.getByteSXBuffer(16)));
+  TXCRCvalue = ((LT.getByteSXBuffer(len + 1) << 8) + (LT.getByteSXBuffer(len)));
 
   Serial.print(F("(CRC transmitted "));
   Serial.print(TXCRCvalue, HEX);
