@@ -30,6 +30,7 @@ class SX127XLT
     SX127XLT();
 
     bool begin(int8_t pinNSS, int8_t pinNRESET, int8_t pinDIO0, int8_t pinDIO1, int8_t pinDIO2, uint8_t device);
+    bool begin(int8_t pinNSS, int8_t pinNRESET, int8_t pinDIO0, uint8_t device);
     void resetDevice();
     void setMode(uint8_t modeconfig);         //same function as setStandby()
     void setSleep(uint8_t sleepconfig);
@@ -145,6 +146,7 @@ class SX127XLT
     void setTXDirect();
     void setupDirect(uint32_t frequency, int32_t offset);
     void toneFM(uint16_t frequency, uint32_t length, uint32_t deviation, float adjust, int8_t txpower);
+    int8_t getDeviceTemperature();
 
     //*******************************************************************************
     //Read Write SX12xxx Buffer commands, this is the buffer internal to the SX12xxxx

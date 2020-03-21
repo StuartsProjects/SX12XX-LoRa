@@ -19,18 +19,24 @@
 //#define SX127XDEBUG2               //enable level 2 debug messages
 //#define SX127XDEBUG3               //enable level 3 debug messages
 //#define DEBUGPHANTOM               //used to set bebuging for Phantom packets
-
+//#define SX127XDEBUGPINS            //enable pin allocation debug messages
 
 SX127XLT::SX127XLT()
 {
 
 }
 
+/* Formats for :begin
+1 original   > begin(int8_t pinNSS, int8_t pinNRESET, int8_t pinDIO0, int8_t pinDIO1, int8_t pinDIO2, uint8_t device);
+2 Simplified > begin(int8_t pinNSS, int8_t pinNRESET, int8_t pinDIO0, uint8_t device);
+*/
+
 
 bool SX127XLT::begin(int8_t pinNSS, int8_t pinNRESET, int8_t pinDIO0, int8_t pinDIO1, int8_t pinDIO2, uint8_t device)
 {
+//format 1 pins, assign the all available pins 
 #ifdef SX127XDEBUG1
-  Serial.println(F("begin()"));
+  Serial.println(F("1 begin()"));
 #endif
 
   //assign the passed pins to the class private variabled
@@ -47,7 +53,7 @@ bool SX127XLT::begin(int8_t pinNSS, int8_t pinNRESET, int8_t pinDIO0, int8_t pin
   digitalWrite(_NSS, HIGH);
   pinMode(_NRESET, OUTPUT);
   digitalWrite(_NRESET, LOW);
-
+  
   if (_DIO0 >= 0)
   {
     pinMode( _DIO0, INPUT);
@@ -64,6 +70,84 @@ bool SX127XLT::begin(int8_t pinNSS, int8_t pinNRESET, int8_t pinDIO0, int8_t pin
   }
 
   resetDevice();
+     
+  #ifdef SX128XDEBUGPINS
+  Serial.println(F("format 1 begin()"));
+  Serial.println(F("SX128XLT constructor instantiated successfully"));
+  Serial.print(F("NSS "));
+  Serial.println(_NSS);
+  Serial.print(F("NRESET "));
+  Serial.print(F("DIO0 "));
+  Serial.println(_DIO0;
+  Serial.print(F("DIO1 "));
+  Serial.println(_DIO1);
+  Serial.print(F("DIO2 "));
+  Serial.println(_DIO2);
+#endif
+
+  if (checkDevice())
+  {
+    return true;
+  }
+
+  return false;
+}
+
+
+
+bool SX127XLT::begin(int8_t pinNSS, int8_t pinNRESET, int8_t pinDIO0, uint8_t device)
+{
+//format 2 pins, simplified 
+#ifdef SX127XDEBUG1
+  Serial.println(F("2 begin()"));
+#endif
+
+  //assign the passed pins to the class private variabled
+  _NSS = pinNSS;
+  _NRESET = pinNRESET;
+  _DIO0 = pinDIO0;
+  _DIO1 = -1;                  //pin not used
+  _DIO2 = -1;                  //pin not used 
+  _Device = device;            //device type needs to be assigned before reset
+  _TXDonePin = pinDIO0;        //this is defalt pin for sensing TX done
+  _RXDonePin = pinDIO0;        //this is defalt pin for sensing RX done
+
+  pinMode(_NSS, OUTPUT);
+  digitalWrite(_NSS, HIGH);
+  pinMode(_NRESET, OUTPUT);
+  digitalWrite(_NRESET, LOW);
+ 
+  if (_DIO0 >= 0)
+  {
+    pinMode( _DIO0, INPUT);
+  }
+
+  if (_DIO1 >= 0)
+  {
+    pinMode( _DIO1,  INPUT);
+  }
+
+  if (_DIO2 >= 0)
+  {
+    pinMode( _DIO2,  INPUT);
+  }
+
+  resetDevice();
+  
+  
+  #ifdef SX128XDEBUGPINS
+  Serial.println(F("format 2 begin()"));
+  Serial.println(F("SX128XLT constructor instantiated successfully"));
+  Serial.print(F("NSS "));
+  Serial.println(_NSS);
+  Serial.print(F("NRESET "));
+  Serial.print(F("DIO0 "));
+  Serial.println(_DIO0;
+  Serial.print(F("DIO1 "));
+  Serial.println(_DIO1);
+  Serial.print(F("DIO2 "));
+  Serial.println(_DIO2);
+  #endif
 
   if (checkDevice())
   {
@@ -161,7 +245,7 @@ void SX127XLT::wake()
   uint8_t regdata;
 
   regdata = readRegister(REG_OPMODE);
-  writeRegister(REG_OPMODE, (regdata | 0x01));       //set bit 0 to goto stdby mode
+  writeRegister(REG_OPMODE, (regdata | 0x01));      //set bit 0 to goto stdby mode
 }
 
 
@@ -3346,6 +3430,51 @@ void SX127XLT::setupDirect(uint32_t frequency, int32_t offset)
   calibrateImage(0);                          //run calibration after setting frequency
   writeRegister(REG_FDEVLSB, 0);              //We are generating a tone by frequency shift so set deviation to 0
 }
+
+
+int8_t SX127XLT::getDeviceTemperature()
+{
+  #ifdef SX127XDEBUG1
+  Serial.print(F("getDeviceTemperature()"));
+  #endif
+  
+  int8_t temperature;
+  uint8_t regdata;
+  
+  regdata = readRegister(REG_IMAGECAL & 0xFE);
+  
+  writeRegister(REG_IMAGECAL, 0x00);                //register back to power up default 
+
+  writeRegister(REG_OPMODE, 0x00);                  //goto sleep
+  writeRegister(REG_OPMODE, 0x00);                  //make sure switch to FSK mode 
+  writeRegister(REG_OPMODE, 0x01);                  //go into FSK standby
+  delay(5);                                        //wait for oscillator startup 
+  writeRegister(REG_OPMODE, 0x04);                  //put device in FSK RX synth mode
+  
+  writeRegister(REG_IMAGECAL, 0x00);                //set TempMonitorOff = 0
+  delay(1);                                        //wait at least 140uS 
+  writeRegister(REG_IMAGECAL, 0x01);                //set TempMonitorOff = 1
+  setMode(MODE_STDBY_RC);                          //go back to standby
+  
+  writeRegister(REG_IMAGECAL, (regdata + 1));       //register back to previous setting, with TempMonitorOff set
+    
+  temperature = readRegister(REG_TEMP);
+  
+  if (temperature & 0x80 )                         //The sign bit is 1
+  {
+    temperature = ( ( ~temperature + 1 ) & 0xFF ); //Invert and divide by 4
+  }
+  else
+  {
+    temperature = ( temperature & 0xFF );          //Divide by 4
+  }
+  
+  writeRegister(REG_OPMODE,MODE_STDBY);
+   
+
+  return temperature;
+}
+
 
 
 /*
