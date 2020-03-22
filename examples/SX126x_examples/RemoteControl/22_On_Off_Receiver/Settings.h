@@ -20,8 +20,8 @@ const int8_t DIO1 = 3;                          //DIO1 on LoRa device, used for 
 const int8_t DIO2 = -1;                         //DIO2 on LoRa device, normally not used so set to -1
 const int8_t DIO3 = -1;                         //DIO3 on LoRa device, normally not used so set to -1
 const int8_t LED1 = 8;                          //On board LED, logic high is on
-const int8_t RX_EN = -1;                        //pin for RX enable, used on some SX1280 devices, set to -1 if not used
-const int8_t TX_EN = -1;                        //pin for TX enable, used on some SX1280 devices, set to -1 if not used
+const int8_t RX_EN = -1;                        //pin for RX enable, used on some SX126X devices, set to -1 if not used
+const int8_t TX_EN = -1;                        //pin for TX enable, used on some SX126X devices, set to -1 if not used
 const int8_t SW = -1;                           //SW pin on Dorji devices is used to turn RF switch on\off, set to -1 if not used    
 const int8_t BUZZER = -1;                       //pin for buzzer, set to -1 if not used
 
