@@ -9,7 +9,7 @@
 #define FREQ_DIV                                    33554432
 #define FREQ_STEP                                   0.95367431640625   
 #define FREQ_ERR                                    0.47683715820312
-#define FREQ_ERROR_CORRECTION                       1.55               //this was measured on SX1280 for bandwidth of 400khz
+#define FREQ_ERROR_CORRECTION                       1.55  //this was measured on SX1280 for bandwidth of 400khz
 
 #define AUTO_RX_TX_OFFSET                           2
 

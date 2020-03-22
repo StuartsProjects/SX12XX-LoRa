@@ -2504,6 +2504,10 @@ void SX126XLT::printSXBufferHEX(uint8_t start, uint8_t end)
 
 int32_t SX126XLT::getFrequencyErrorHz()
 {
+  //Note: Semtech appear to have stated that the frequency error function that this code uses,
+  //is not supported for SX126X, for reasons that have not been given, so use at your own risk.
+  //The fuctions here are a replication of the routines for the very similar SX128X  
+    
   int32_t error, regvalue;
   uint32_t bandwidth;
   float divider;
@@ -2619,7 +2623,7 @@ uint8_t SX126XLT::transmitAddressed(uint8_t *txbuffer, uint8_t size, char txpack
   SPI.endTransaction();
 #endif
   
-  checkBusy();
+  //checkBusy();
 
   writeRegister(REG_LR_PAYLOADLENGTH, _TXPacketL);
   setTxParams(txpower, RAMP_TIME);
