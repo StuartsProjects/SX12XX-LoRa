@@ -298,7 +298,7 @@ To prevent false triggering at the receiver the packet also contains a 32 bit nu
 The pin definitions, LoRa frequency and LoRa modem settings are in the Settings.h file.
 
 
-#### 23\_Simple\_GPS\_Tracker\_Transmitter &emsp; &emsp; &emsp;  &emsp; &emsp; &emsp; (Tracker folder) 
+#### 23\_GPS\_Tracker\_Transmitter &emsp; &emsp; &emsp;  &emsp; &emsp; &emsp; (Tracker folder) 
 
 This program is an example of a basic GPS tracker. The program reads the GPS, waits for an updated fix and transmits location and altitude, number of satellites in view, the HDOP value, the fix time of the GPS and the battery voltage. This transmitter can be also be used to investigate GPS performance. At start-up there should be a couple of seconds of  recognisable text from the GPS printed to the serial monitor. If you see garbage or funny characters its likely the GPS baud rate is wrong. If the transmitter is turned on from cold, the receiver will pick up the cold fix time, which is an indication of GPS performance. The GPS will be powered on for around 4 seconds before the timing of the fix starts. Outside with a good view of the sky most GPSs should produce a fix in around 45 seconds. The number of satellites and HDOP are good indications to how well a GPS is working. 
 
@@ -309,7 +309,7 @@ The LoRa settings are configured in the Settings.h file.
 The program has the option of using a pin to control the power to the GPS, if the GPS module being used has this feature. To use the option change the define in the Settings.h file; '#define GPSPOWER -1' from -1 to the pin number being used. Also set the GPSONSTATE and GPSOFFSTATE to the appropriate logic levels.
 
 
-#### 24\_Simple\_GPS\_Tracker\_Receiver  &emsp; &emsp; &emsp;  &emsp; &emsp; &emsp; (Tracker folder) 
+#### 24\_GPS\_Tracker\_Receiver  &emsp; &emsp; &emsp;  &emsp; &emsp; &emsp; (Tracker folder) 
 
 This program is an basic receiver for the '23\_Simple\_GPS\_Tracker\_Transmitter' program. 
 

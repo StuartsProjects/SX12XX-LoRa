@@ -1,5 +1,5 @@
 /*******************************************************************************************************
-  lora Programs for Arduino - Copyright of the author Stuart Robinson - 29/02/20
+  lora Programs for Arduino - Copyright of the author Stuart Robinson - 22/03/20
 
   This program is supplied as is, it is up to the user of the program to decide if the program is
   suitable for the intended purpose and free from errors.
@@ -16,7 +16,7 @@
   Serial monitor baud rate is set at 9600.
 *******************************************************************************************************/
 
-#define Program_Version "V1.0"
+#define Program_Version "V1.1"
 
 #include <SPI.h>
 #include <SX126XLT.h>
@@ -35,15 +35,15 @@ int8_t PacketSNR;              //signal to noise ratio of received packet
 uint8_t PacketType;            //for packet addressing, identifies packet type
 uint8_t Destination;           //for packet addressing, identifies the destination (receiving) node
 uint8_t Source;                //for packet addressing, identifies the source (transmiting) node
-uint8_t TRStatus;              //A status byte
-float TRLat;                   //latitude
-float TRLon;                   //longitude
-float TRAlt;                   //altitude
-uint32_t TRHdop;               //HDOP, indication of fix quality, horizontal dilution of precision, low is good
-uint32_t TRGPSFixTime;         //time in mS for fix
-uint16_t TRVolts;              //supply\battery voltage
-uint8_t TRSats;                //number of sattelites in use
-
+uint8_t TXStatus;              //A status byte
+float TXLat;                   //latitude
+float TXLon;                   //longitude
+float TXAlt;                   //altitude
+uint32_t TXHdop;               //HDOP, indication of fix quality, horizontal dilution of precision, low is good
+uint32_t TXGPSFixTime;         //time in mS for fix
+uint16_t TXVolts;              //supply\battery voltage
+uint8_t TXSats;                //number of sattelites in use
+uint32_t TXupTimemS;           //up time of TX in mS
 
 void loop()
 {
@@ -105,52 +105,88 @@ void packet_is_OK()
     LT.readUint8();                              //read byte from FIFO, not used
     LT.readUint8();                              //read byte from FIFO, not used
     LT.readUint8();                              //read byte from FIFO, not used
-    TRVolts = LT.readUint16();
+    TXVolts = LT.readUint16();
     LT.endReadSXBuffer();
     Serial.print(F("Tracker transmitter powerup - battery "));
-    Serial.print(TRVolts);
+    Serial.print(TXVolts);
     Serial.print(F("mV"));
   }
 
-  if (PacketType == LocationBinaryPacket)
+
+  if (PacketType == LocationPacket)
   {
-    //packet has been received, now read from the SX126X FIFO in the correct order.
+    //packet has been received, now read from the SX12XX FIFO in the correct order.
+    Serial.print(F("LocationPacket "));
     LT.startReadSXBuffer(0);
     PacketType = LT.readUint8();
     Destination = LT.readUint8();
     Source = LT.readUint8();
-    TRLat = LT.readFloat();
-    TRLon = LT.readFloat();
-    TRAlt = LT.readFloat();
-    TRSats = LT.readUint8();
-    TRHdop = LT.readUint32();
-    TRStatus = LT.readUint8();
-    TRGPSFixTime = LT.readUint32();
-    TRVolts = LT.readUint16();
+    TXLat = LT.readFloat();
+    TXLon = LT.readFloat();
+    TXAlt = LT.readFloat();
+    TXSats = LT.readUint8();
+    TXHdop = LT.readUint32();
+    TXStatus = LT.readUint8();
+    TXGPSFixTime = LT.readUint32();
+    TXVolts = LT.readUint16();
+    TXupTimemS = LT.readUint32();
     RXPacketL = LT.endReadSXBuffer();
 
-    tempHdop = ( (float) TRHdop / 100);           //need to convert Hdop read from GPS as uint32_t to a float for display
+    tempHdop = ( (float) TXHdop / 100);           //need to convert Hdop read from GPS as uint32_t to a float for display
 
     Serial.write(PacketType);
     Serial.write(Destination);
     Serial.write(Source);
     Serial.print(F(","));
-    Serial.print(TRLat, 5);
+    Serial.print(TXLat, 5);
     Serial.print(F(","));
-    Serial.print(TRLon, 5);
+    Serial.print(TXLon, 5);
     Serial.print(F(","));
-    Serial.print(TRAlt, 1);
+    Serial.print(TXAlt, 1);
     Serial.print(F("m,"));
-    Serial.print(TRSats);
+    Serial.print(TXSats);
     Serial.print(F(","));
     Serial.print(tempHdop, 2);
     Serial.print(F(","));
-    Serial.print(TRStatus);
+    Serial.print(TXStatus);
     Serial.print(F(","));
-    Serial.print(TRGPSFixTime);
+    Serial.print(TXGPSFixTime);
     Serial.print(F("mS,"));
-    Serial.print(TRVolts);
-    Serial.print(F("mV"));
+    Serial.print(TXVolts);
+    Serial.print(F("mV,"));
+    Serial.print((TXupTimemS / 1000));
+    Serial.print(F("s,"));
+    printpacketDetails();
+    return;
+  }
+
+  if (PacketType == LocationBinaryPacket)
+  {
+    //packet from locator has been received, now read from the SX12XX FIFO in the correct order.
+    Serial.print(F("LocationBinaryPacket "));
+    LT.startReadSXBuffer(0);
+    PacketType = LT.readUint8();
+    Destination = LT.readUint8();
+    Source = LT.readUint8();
+    TXLat = LT.readFloat();
+    TXLon = LT.readFloat();
+    TXAlt = LT.readInt16();
+    TXStatus = LT.readUint8();
+    RXPacketL = LT.endReadSXBuffer();
+
+    tempHdop = ( (float) TXHdop / 100);           //need to convert Hdop read from GPS as uint32_t to a float for display
+
+    Serial.write(PacketType);
+    Serial.write(Destination);
+    Serial.write(Source);
+    Serial.print(F(","));
+    Serial.print(TXLat, 5);
+    Serial.print(F(","));
+    Serial.print(TXLon, 5);
+    Serial.print(F(","));
+    Serial.print(TXAlt, 0);
+    Serial.print(F("m,"));
+    Serial.print(TXStatus);
     printpacketDetails();
     return;
   }
@@ -244,7 +280,7 @@ void setup()
   Serial.println(F(Program_Version));
   Serial.println();
 
-  Serial.println(F("24_Simple_GPS_Tracker_Receiver Starting"));
+  Serial.println(F("24_GPS_Tracker_Receiver Starting"));
 
   if (BUZZER >= 0)
   {
@@ -273,6 +309,10 @@ void setup()
   }
 
   LT.setupLoRa(Frequency, Offset, SpreadingFactor, Bandwidth, CodeRate, Optimisation);
+
+  Serial.println();
+  LT.printModemSettings();                           //reads and prints the configured LoRa settings, useful check
+  Serial.println();
 
   Serial.println(F("Receiver ready"));
   Serial.println();

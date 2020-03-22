@@ -1,5 +1,5 @@
 /*******************************************************************************************************
-  lora Programs for Arduino - Copyright of the author Stuart Robinson - 29/02/20
+  lora Programs for Arduino - Copyright of the author Stuart Robinson - 21/03/20
 
   This program is supplied as is, it is up to the user of the program to decide if the program is
   suitable for the intended purpose and free from errors.
@@ -32,7 +32,7 @@
   Serial monitor baud rate is set at 9600.
 *******************************************************************************************************/
 
-#define Program_Version "V1.0"
+#define Program_Version "V1.1"
 #define authorname "Stuart Robinson"
 
 #include <SPI.h>
@@ -46,8 +46,14 @@ SX126XLT LT;
 #include <TinyGPS++.h>                             //get library here > http://arduiniana.org/libraries/tinygpsplus/
 TinyGPSPlus gps;                                   //create the TinyGPS++ object
 
+
+#ifdef USE_SOFTSERIAL_GPS
 #include <SoftwareSerial.h>
 SoftwareSerial GPSserial(RXpin, TXpin);
+#else
+#define GPSserial HardwareSerialPort               //hardware serial port (eg Serial1) is configured in the Settings.h file
+#endif
+
 
 uint8_t TXStatus = 0;                              //used to store current status flag bits of Tracker transmitter (TX)
 uint8_t TXPacketL;                                 //length of LoRa packet (TX)
@@ -165,7 +171,7 @@ void sendLocationBinary(float Lat, float Lon, float Alt, uint32_t Hdop, uint32_t
   TXVolts = readSupplyVoltage();              //get the latest supply\battery volts
 
   LT.startWriteSXBuffer(0);                   //initialise buffer write at address 0
-  LT.writeUint8(LocationBinaryPacket);        //indentify type of packet
+  LT.writeUint8(LocationPacket);              //indentify type of packet
   LT.writeUint8(Broadcast);                   //who is the packet sent too
   LT.writeUint8(ThisNode);                    //tells receiver where is packet from
   LT.writeFloat(Lat);                         //add latitude
@@ -176,6 +182,7 @@ void sendLocationBinary(float Lat, float Lon, float Alt, uint32_t Hdop, uint32_t
   LT.writeUint8(TXStatus);                    //add tracker status
   LT.writeUint32(fixtime);                    //add GPS fix time in mS
   LT.writeUint16(TXVolts);                    //add tracker supply volts
+  LT.writeUint32(millis());                   //add uptime in mS
   len = LT.endWriteSXBuffer();                //close buffer write
 
   digitalWrite(LED1, HIGH);
@@ -344,7 +351,7 @@ void setup()
   Serial.println(F(Program_Version));
   Serial.println();
 
-  Serial.println(F("23_Simple_GPS_Tracker_Transmitter Starting"));
+  Serial.println(F("23_GPS_Tracker_Transmitter Starting"));
 
   SPI.begin();
 

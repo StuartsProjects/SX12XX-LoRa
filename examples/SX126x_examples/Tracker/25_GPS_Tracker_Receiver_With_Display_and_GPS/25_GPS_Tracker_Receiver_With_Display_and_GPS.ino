@@ -1,39 +1,49 @@
 /*******************************************************************************************************
-  lora Programs for Arduino - Copyright of the author Stuart Robinson - 29/02/20
-
+  lora Programs for Arduino - Copyright of the author Stuart Robinson - 21/03/20
   This program is supplied as is, it is up to the user of the program to decide if the program is
   suitable for the intended purpose and free from errors.
 *******************************************************************************************************/
 
 /*******************************************************************************************************
-  Program Operation -  This program is an example of a basic portable GPS tracker receiver. The program
-  receives the location packets from the remote tracker and displays them on an OLED display. The program
-  also reads a local GPS and when that has a fix, will display the distance and direction to the remote
-  tracker.
+  Program Operation -  This program is an example of a functional GPS tracker receiver using lora.
+  It is capable of picking up the trackers location packets from many kilometres away with only basic antennas.
 
-  The program writes direct to the LoRa devices internal buffer, no memory buffer is used.
+  The program receives the location packets from the remote tracker transmitter and writes them on an OLED
+  display and also prints the information to the Arduino IDE serial monitor. The program can read a locally
+  attached GPS and when that has a fix, will display the distance and direction to the remote tracker.
 
-  The LoRa settings are configured in the Settings.h file.
+  The program writes direct to the lora devices internal buffer, no memory buffer is used. The lora settings
+  are configured in the Settings.h file.
 
-  The received information is printed to screen in this order top to bottom;
+  The receiver recognises two types of tracker packet, the one from the matching program '23_GPS_Tracker_Transmitter'
+  (LocationPacket, 27 bytes) which causes these fields to be printed to the serial monitor;
 
-  Latitude, Longitude, Altitude, HDOP, GPS Fixtime, Tracker battery mV, Number of received packets, Distance
-  and direction to tracker, if local GPS fix. In addition if there is a recent tracker transmitter GPS fix
-  a 'T' is shown on line 0 right of screen and if there is a recent local (receiver) GPS fix a 'R' is displayed
-  line 1 right of screen.
+  Latitude, Longitude, Altitude, Satellites, HDOP, TrackerStatusByte, GPS Fixtime, Battery mV, Distance, Direction,
+  Distance, Direction, PacketRSSI, PacketSNR, NumberPackets, PacketLength, IRQRegister.
 
-  The received information is printed to the Serial Monitor as CSV data in this order;
+  This is a long packet which at the long range LoRa settings takes just over 3 seconds to transmit.
 
-  Packet Address information, Latitude, Longitude, Altitude, Satellites in use, HDOP, TX status byte,
-  GPS Fixtime, Tracker battery mV, Number of received packets, Distance and direction to tracker, if local
-  GPS fix.
+  The receiver also recognises a much shorter location only packet (LocationBinaryPacket, 11 bytes) and when
+  received this is printed to the serial monitor;
 
-  The program has the option of using a pin to control the power to the GPS, if the GPS module being used
-  has this feature. To use the option change the define in Settings.h; '#define GPSPOWER -1' from -1 to
-  the pin number being used. Also set the GPSONSTATE and GPSOFFSTATE to the appropriate logic levels.
+  Latitude, Longitude, Altitude, TrackerStatusByte, Distance, Direction, PacketRSSI, PacketSNR, NumberPackets,
+  PacketLength, IRQRegister.
 
-  The program by default uses software serial to read the GPS, you can use hardware serial by commenting
-  out this line in the Settings.h file;
+  Most of the tracker information (for both types of packet) is shown on the OLED display. If there has been a
+  tracker transmitter GPS fix the number\identifier of that tracker is shown on row 0 right of screen and if there
+  is a recent local (receiver) GPS fix an 'R' is displayed  row 1 right of screen.
+
+  When the tracker transmitter starts up or is reset its sends a power up message containing the battery voltage
+  which is shown on the OLED and printer to the serial monitor.
+
+  The program has the option of using a pin to control the power to the GPS, if the GPS module being used has this
+  feature. To use the option change the define in Settings.h;
+
+  '#define GPSPOWER -1' from -1 to the pin number being used. Also set the GPSONSTATE and GPSOFFSTATE defines to
+  the appropriate logic levels.
+
+  The program by default uses software serial to read the GPS, you can use hardware serial by commenting out this
+  line in the Settings.h file;
 
   #define USE_SOFTSERIAL_GPS
 
@@ -43,7 +53,7 @@
 *******************************************************************************************************/
 
 
-#define Program_Version "V1.0"
+#define Program_Version "V1.1"
 
 #include <SPI.h>
 #include <SX126XLT.h>
@@ -53,8 +63,8 @@ SX126XLT LT;
 #include <ProgramLT_Definitions.h>
 
 #include <U8x8lib.h>                                        //https://github.com/olikraus/u8g2 
-U8X8_SSD1306_128X64_NONAME_HW_I2C disp(U8X8_PIN_NONE);      //standard 0.96" SSD1306
-//U8X8_SH1106_128X64_NONAME_HW_I2C disp(U8X8_PIN_NONE);       //1.3" OLED often sold as 1.3" SSD1306
+//U8X8_SSD1306_128X64_NONAME_HW_I2C disp(U8X8_PIN_NONE);    //standard 0.96" SSD1306
+U8X8_SH1106_128X64_NONAME_HW_I2C disp(U8X8_PIN_NONE);       //1.3" OLED often sold as 1.3" SSD1306
 
 
 #include <TinyGPS++.h>                                      //http://arduiniana.org/libraries/tinygpsplus/
@@ -89,11 +99,12 @@ uint16_t RXVolts;              //supply\battery voltage
 float TXdistance;              //calculated distance to tracker
 uint16_t TXdirection;          //calculated direction to tracker
 uint16_t RXerrors;
+uint32_t TXupTimemS;           //up time of TX in mS
 
 uint32_t LastRXGPSfixCheck;    //used to record the time of the last GPS fix
 
-bool TXLocation;               //set to true when a tracker location packet has been received
-bool RXGPSfix;                 //set tot true if the local GPS has a recent fix
+bool TXLocation = false;       //set to true when at least one tracker location packet has been received
+bool RXGPSfix = false;         //set to true if the local GPS has a recent fix
 
 uint8_t FixCount = DisplayRate;  //used to keep track of number of GPS fixes before display updated
 
@@ -107,8 +118,7 @@ void loop()
     readGPS();                                     //If the DIO pin is low, no packet arrived, so read the GPS
   }
 
-  //something has happened
-
+  //something has happened in receiver
   digitalWrite(LED1, HIGH);
 
   if (BUZZER > 0)
@@ -119,6 +129,7 @@ void loop()
   RXPacketL = LT.readRXPacketL();
   PacketRSSI = LT.readPacketRSSI();
   PacketSNR = LT.readPacketSNR();
+
 
   if (RXPacketL == 0)
   {
@@ -157,7 +168,6 @@ void readGPS()
 
   if (gps.location.isUpdated() && gps.altitude.isUpdated())
   {
-
     RXGPSfix = true;
     RXLat = gps.location.lat();
     RXLon = gps.location.lng();
@@ -183,7 +193,7 @@ bool readTXStatus(byte bitnum)
 
 void printRXLocation()
 {
-  Serial.print(F("Local GPS "));
+  Serial.print(F("LocalGPS "));
   Serial.print(RXLat, 5);
   Serial.print(F(","));
   Serial.print(RXLon, 5);
@@ -205,7 +215,7 @@ void readPacketAddressing()
 
 void packet_is_OK()
 {
-  uint16_t IRQStatus;
+  //uint16_t IRQStatus;
   float tempfloat;
 
   RXpacketCount++;
@@ -226,9 +236,10 @@ void packet_is_OK()
     dispscreen2();
   }
 
-  if (PacketType == LocationBinaryPacket)
+  if (PacketType == LocationPacket)
   {
-    //packet has been received, now read from the SX126X FIFO in the correct order.
+    //packet has been received, now read from the SX12XX FIFO in the correct order.
+    Serial.print(F("LocationPacket "));
     TXLocation = true;
     LT.startReadSXBuffer(0);                //start the read of received packet
     PacketType = LT.readUint8();            //read in the PacketType
@@ -242,12 +253,13 @@ void packet_is_OK()
     TXStatus = LT.readUint8();              //read in the tracker status byte
     TXGPSFixTime = LT.readUint32();         //read in the last fix time of tracker GPS
     TXVolts = LT.readUint16();              //read in the tracker supply\battery volts
+    TXupTimemS = LT.readUint32();           //read in the TX uptime in mS
     RXPacketL = LT.endReadSXBuffer();       //end the read of received packet
 
 
-    if (RXGPSfix)                           //if there has been a local GPS fic do the distance and direction calculation
+    if (RXGPSfix)                           //if there has been a local GPS fix do the distance and direction calculation
     {
-      TXdirection = (int) TinyGPSPlus::courseTo(RXLat, RXLon, TXLat, TXLon);
+      TXdirection = (int16_t) TinyGPSPlus::courseTo(RXLat, RXLon, TXLat, TXLon);
       TXdistance = TinyGPSPlus::distanceBetween(RXLat, RXLon, TXLat, TXLon);
     }
     else
@@ -255,9 +267,6 @@ void packet_is_OK()
       TXdistance = 0;
       TXdirection = 0;
     }
-
-    //the serial monitor printout is in CSV format so that the output can be logged
-    //to a file for later analysis
 
     Serial.write(PacketType);
     Serial.write(Destination);
@@ -279,30 +288,87 @@ void packet_is_OK()
     Serial.print(TXStatus);
     Serial.print(F(","));
 
-    tempfloat = ((float) TXGPSFixTime) / 1000;
-    Serial.print(tempfloat, 2);
+    Serial.print(TXGPSFixTime);
+    Serial.print(F("mS,"));
+    Serial.print(TXVolts);
+    Serial.print(F("mV,"));
+    Serial.print((TXupTimemS / 1000));
+    Serial.print(F("s,"));
 
-    tempfloat = ((float) TXVolts / 1000);
-    disp.print(tempfloat, 2);
+    Serial.print(TXdistance, 0);
+    Serial.print(F("m,"));
+    Serial.print(TXdirection);
+    Serial.print(F("d"));
+    printpacketDetails();
+    dispscreen1();                                  //and show the packet detail it on screen
+    return;
+  }
+
+
+  if (PacketType == LocationBinaryPacket)
+  {
+    //packet from locator has been received, now read from the SX12XX FIFO in the correct order.
+    TXLocation = true;
+    Serial.print(F("LocationBinaryPacket "));
+    LT.startReadSXBuffer(0);
+    PacketType = LT.readUint8();
+    Destination = LT.readUint8();
+    Source = LT.readUint8();
+    TXLat = LT.readFloat();
+    TXLon = LT.readFloat();
+    TXAlt = LT.readInt16();
+    TXStatus = LT.readUint8();
+    RXPacketL = LT.endReadSXBuffer();
+
+    if (RXGPSfix)                           //if there has been a local GPS fix do the distance and direction calculation
+    {
+      TXdirection = (int16_t) TinyGPSPlus::courseTo(RXLat, RXLon, TXLat, TXLon);
+      TXdistance = TinyGPSPlus::distanceBetween(RXLat, RXLon, TXLat, TXLon);
+    }
+    else
+    {
+      TXdistance = 0;
+      TXdirection = 0;
+    }
+
+    Serial.write(PacketType);
+    Serial.write(Destination);
+    Serial.write(Source);
+    Serial.print(F(","));
+    Serial.print(TXLat, 5);
+    Serial.print(F(","));
+    Serial.print(TXLon, 5);
+    Serial.print(F(","));
+    Serial.print(TXAlt, 0);
+    Serial.print(F("m,"));
+    Serial.print(TXStatus);
     Serial.print(F(","));
     Serial.print(TXdistance, 0);
     Serial.print(F("m,"));
     Serial.print(TXdirection);
-    Serial.print(F("d,RSSI,"));
-    Serial.print(PacketRSSI);
-    Serial.print(F("dBm,SNR,"));
-    Serial.print(PacketSNR);
-    Serial.print(F("dB,Packets,"));
-    Serial.print(RXpacketCount);
-
-    Serial.print(F(",Length,"));
-    Serial.print(RXPacketL);
-    IRQStatus = LT.readIrqStatus();
-    Serial.print(F(",IRQreg,"));
-    Serial.print(IRQStatus, HEX);
-    dispscreen1();                                  //and show the packet detail it on screen
+    Serial.print(F("d"));
+    printpacketDetails();
+    dispscreen1();
     return;
   }
+}
+
+
+void printpacketDetails()
+{
+  uint16_t IRQStatus;
+  Serial.print(F(",RSSI,"));
+  Serial.print(PacketRSSI);
+  Serial.print(F("dBm,SNR,"));
+  Serial.print(PacketSNR);
+  Serial.print(F("dB,Packets,"));
+  Serial.print(RXpacketCount);
+
+  Serial.print(F(",Length,"));
+  Serial.print(RXPacketL);
+  IRQStatus = LT.readIrqStatus();
+  Serial.print(F(",IRQreg,"));
+  Serial.print(IRQStatus, HEX);
 }
 
 
@@ -367,35 +433,65 @@ void dispscreen1()
   disp.print(TXLon, 5);
   disp.clearLine(2);
   disp.setCursor(0, 2);
-  disp.print(TXAlt);
+  disp.print(TXAlt, 0);
   disp.print(F("m"));
   disp.clearLine(3);
   disp.setCursor(0, 3);
 
-  tempfloat = ( (float) TXHdop / 100);           //need to convert Hdop read from GPS as uint32_t to a float for display
-
-  disp.print(F("HDOP "));
-  disp.print(tempfloat);
+  disp.print(F("RSSI "));
+  disp.print(PacketRSSI);
+  disp.print(F("dBm"));
   disp.clearLine(4);
   disp.setCursor(0, 4);
+  disp.print(F("SNR  "));
 
-  tempfloat = ((float) TXGPSFixTime) / 1000;
-  disp.print(F("Fix "));
-  disp.print(tempfloat, 2);
-  disp.print(F("s"));
+  if (PacketSNR > 0)
+  {
+    disp.print(F("+"));
+  }
 
-  disp.clearLine(5);
-  disp.setCursor(0, 5);
+  if (PacketSNR == 0)
+  {
+    disp.print(F(" "));
+  }
 
-  tempfloat = ((float) TXVolts / 1000);
-  disp.print(F("Batt "));
-  disp.print(tempfloat, 2);
+  if (PacketSNR < 0)
+  {
+    disp.print(F("-"));
+  }
 
-  disp.print(F("v"));
+  disp.print(PacketSNR);
+  disp.print(F("dB"));
+
+  if (PacketType == LocationPacket)
+  {
+    disp.clearLine(5);
+    disp.setCursor(0, 5);
+    tempfloat = ((float) TXVolts / 1000);
+    disp.print(F("Batt "));
+    disp.print(tempfloat, 2);
+    disp.print(F("v"));
+  }
+
   disp.clearLine(6);
   disp.setCursor(0, 6);
   disp.print(F("Packets "));
   disp.print(RXpacketCount);
+
+  disp.clearLine(7);
+
+  if (RXGPSfix)
+  {
+    disp.setCursor(15, 1);
+    disp.print(F("R"));
+  }
+  else
+  {
+    disp.setCursor(15, 1);
+    disp.print(F(" "));
+    disp.setCursor(0, 7);
+    disp.print(F("No Local Fix"));
+  }
 
   if (RXGPSfix && TXLocation)           //only display distance and direction if have received tracker packet and have local GPS fix
   {
@@ -405,20 +501,12 @@ void dispscreen1()
     disp.print(F("m "));
     disp.print(TXdirection);
     disp.print(F("d"));
-    disp.setCursor(15, 1);
-    disp.print(F("R"));
-  }
-  else
-  {
-    disp.clearLine(7);
-    disp.setCursor(0, 7);
-    disp.print(F("No Local Fix"));
   }
 
   if (readTXStatus(GPSFix))
   {
     disp.setCursor(15, 0);
-    disp.print(F("T"));
+    disp.write(Source);
   }
 
 }
@@ -511,8 +599,7 @@ void setup()
 
   endmS = millis() + echomS;
 
-  //now setup GPS
-
+  //now startup GPS
   if (GPSPOWER >= 0)
   {
     pinMode(GPSPOWER, OUTPUT);
@@ -531,8 +618,6 @@ void setup()
 
   Serial.println(F("Receiver ready"));
   Serial.println();
-  RXGPSfix = false;
-  TXLocation = false;
 }
 
 
