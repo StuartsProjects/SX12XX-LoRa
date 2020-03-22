@@ -8,15 +8,11 @@
 //*******  Setup hardware pin definitions here ! ***************
 
 //These are the pin definitions for one of my own boards, the Easy Mikrobus Pro Mini,
-//be sure to change the definitiosn to match your own setup. Some pins such as DIO1,
-//DIO2, BUZZER SWITCH1 may not be in used by this sketch so they do not need to be
-//connected and should be set to -1.
+//be sure to change the definitiosn to match your own setup. 
 
 #define NSS 10                                  //select on LoRa device
 #define NRESET 9                                //reset on LoRa device
 #define DIO0 3                                  //DIO0 on LoRa device, used for RX and TX done 
-#define DIO1 -1                                 //DIO1 on LoRa device, normally not used so set to -1
-#define DIO2 -1                                 //DIO2 on LoRa device, normally not used so set to -1
 
 #define GPSPOWER -1                             //Pin that controls power to GPS, set to -1 if not used
 #define GPSONSTATE HIGH                         //logic level to turn GPS on via pin GPSPOWER 
@@ -43,8 +39,8 @@ const float ADMultiplier = 10.0;                //multiplier for supply volts ca
 const uint32_t Frequency = 434000000;           //frequency of transmissions
 const uint32_t Offset = 0;                      //offset frequency for calibration purposes
 
-const uint8_t Bandwidth = LORA_BW_125;          //LoRa bandwidth
-const uint8_t SpreadingFactor = LORA_SF7;       //LoRa spreading factor
+const uint8_t Bandwidth = LORA_BW_062;          //LoRa bandwidth
+const uint8_t SpreadingFactor = LORA_SF12;       //LoRa spreading factor
 const uint8_t CodeRate = LORA_CR_4_5;           //LoRa coding rate
 const uint8_t Optimisation = LDRO_AUTO;         //low data rate optimisation setting
 

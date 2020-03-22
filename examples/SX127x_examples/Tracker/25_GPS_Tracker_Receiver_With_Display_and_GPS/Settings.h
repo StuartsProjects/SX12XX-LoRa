@@ -16,15 +16,13 @@
 #define NSS 10                                  //select on LoRa device
 #define NRESET 9                                //reset on LoRa device
 #define DIO0 3                                  //DIO0 on LoRa device, used for RX and TX done 
-#define DIO1 -1                                 //DIO1 on LoRa device, normally not used so set to -1
-#define DIO2 -1                                 //DIO2 on LoRa device, normally not used so set to -1
 #define LED1 8                                  //On board LED, high for on
 #define BUZZER -1                               //Buzzer if fitted, high for on. Set to -1 if not used      
 
 #define RXpin A3                                //pin number for GPS RX input into Arduino - TX from GPS
 #define TXpin A2                                //pin number for GPS TX output from Arduino- RX into GPS
 
-#define GPSPOWER -1                             //Pin that controls power to GPS, set to -1 if not used
+#define GPSPOWER 4                              //Pin that controls power to GPS, set to -1 if not used
 #define GPSONSTATE HIGH                         //logic level to turn GPS on via pin GPSPOWER 
 #define GPSOFFSTATE LOW                         //logic level to turn GPS off via pin GPSPOWER
 
@@ -53,9 +51,9 @@ const int8_t TXpower = 10;                      //LoRa transmit power in dBm
 
 #define GPSBaud 9600                             //GPS Baud rate   
 #define WaitGPSFixSeconds 30                     //time to wait for a new GPS fix 
-#define echomS 2500                              //number of mS to run GPS echo for at startup    
+#define echomS 2000                              //number of mS to run GPS echo for at startup    
 
-#define NoRXGPSfixms 10000                       //max number of mS to allow before no fix flagged 
+#define NoRXGPSfixms 15000                       //max number of mS to allow before no local fix flagged 
 #define DisplayRate 7                            //when working OK the GPS will get a new fix every second or so
                                                  //this rate defines how often the display should be updated
 
