@@ -1,22 +1,24 @@
 # SX12XX Library
 
-    Update: 19/03/20 - Added SX126X and SX128X remote control on\off and joystick servo examples.
+	Update: 22/03/20 - Extend range of example programs for SX126x and SX128x devices. 
+
+	Update: 19/03/20 - Added SX126X and SX128X remote control on\off and joystick servo examples.
 
     Update: 19/03/20 - Added SX128X Ranging examples. Added GPS tracker and Sensor examples for SX126X and SX128X. 
 
-    Update: 27/02/20 - Added tone generation
-
-    Update: 11/02/20 - SX128X basic library and examples added
 
 
 <cr>
+### Library installation
+
+To install the library select the 'Clone or download' button on the main Github page, then select 'Download Zip'. In the Arduino IDE select 'Sketch' then 'Include Library'. Next select 'Add .ZIP library' and browse to and select the ZIP file you downloaded, it's called 'SX12xx-master.zip'.
 
 
-This library currently has full support for the SX1272, SX1276, SX1277, SX1278 and SX1279 Semtech SPI based LoRa devices. There is a wide range of example programs for these devices. These Semtech devices are used to manufacture a range of LoRa modules sold by companies such as Hope, Dorji, NiceRF and others. The library does not support LoRa modules with a UART based interface such as those from Ebyte and Microchip. 
+### Warning
+**The Semtech devices that this library supports are all 3.3V logic level devices so do not use directly with 5V logic level Arduinos, some form of logic level conversion is needed.** There are no specific logic level converters I could recommend. 
 
-There is also basic support in the library for SX1261, SX1262, SX1268 (all UHF) and the SX1280 (2.4Ghz) devices. 
 
-At a later date the wide range of examples available for the SX127x devices will be extended to cover the SX126X and SX128X devices. 
+This library supports the SX126x, SX127x and SX128x Semtech LoRa devices. There is a wide range of example programs for these devices. These Semtech devices are used to manufacture a range of LoRa modules sold by companies such as Hope, Dorji, NiceRF and others. The library does not support LoRa modules with a UART based interface such as those from Ebyte and Microchip. 
 
 The objective of the library was to allow the same program sketches to be used across the range of UHF lora modules SX126x and SX127x (UHF) as well as the 2.4Ghz SX128x modules. A sketch written for the SX1278 (for example) should then run with very minor changes on the SX1262 or SX1280. However, whilst the SX126x and SX128x modules use the same style of device programming, the SX127x programming is completely different. The function style used for the SX126x and SX128x devices has been copied to create a matching style for the SX127x.
 
@@ -68,15 +70,6 @@ The Dorji DRF1262 and DRF1268 modules has a SW pin which must be configured, it 
 Some SX126x modules may have RX or TX enable pins, these are currently not supported by the library. 
 
 Some of the SX128x modules do have RX or TX enable pins, such as the Ebyte modules, these are supported by the library, and you need to define the pins RX_EN and TX_EN pins used, otherwise leave unused by defining them as -1.  
-
-### Library installation
-
-To install the library select the 'Clone or download' button on the main Github page, then select 'Download Zip'. In the Arduino IDE select 'Sketch' then 'Include Library'. Next select 'Add .ZIP library' and browse to and select the ZIP file you downloaded, it's called 'SX12xx-master.zip'.
-
-
-### Warning
-**The Semtech devices that this library supports are all 3.3V logic level devices so do not use directly with 5V logic level Arduinos, some form of logic level conversion is needed.** There are no specific logic level converters I could recommend. 
-
 
 ### Testing
 For testing the library and the example programs I used a board of my own design, it uses a 3.3V/8Mhz Arduino Pro Mini which is soldered with a minimum amount of other components onto a board to which you can plug in a LoRa device as a Mikrobus style module. The board is small enough to be used for a GPS tracker application using the connections for a GPS and display as shown in the picture. The Pro Mini used includes a supply reverse protection diode and a fuse, so the board does not need these components.
