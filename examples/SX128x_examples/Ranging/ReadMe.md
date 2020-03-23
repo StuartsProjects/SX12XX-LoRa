@@ -1,5 +1,7 @@
 ## Ranging Calibration
 
+**Note:** The ranging feature of the SX128X is not supported if the module uses external RX and TX switching. 
+
 To measure a distance the master device transmits a ranging request which a slave receives and then sends a response, if the request was for that particular slave. The master receives the slaves response and knows by use of a timer how long the master slave response exchange took. 
 
 The total time for the master slave exchange includes a fixed processing time for the master and slave to transmit and receive the appropriate packets. This fixed time should be static and should be the same no matter how far apart the master initiator and slave receiver are. 
