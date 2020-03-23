@@ -16,11 +16,11 @@ There is a calibration method described in a Semtech document;
 
 My own approach to the ranging calibration has been simplified. The starting base for the calibration numbers was this table produced by Semtech;
 
-![Picture 1](pictures/SX128X_Ranging_Calibration_Values.jpg)
+![Picture 1](Pictures/SX128X_Ranging_Calibration_Values.jpg)
 
 After running some checks on my own set-ups, I came up with the following set of values, and the ranging programs pick up these numbers by default, you can of course use your own.
 
-![Picture 1](pictures/Calibration_Values.jpg)
+![Picture 1](Pictures/Calibration_Values.jpg)
 
 
 To check the the calibration values from the library a ranging slave was programmed with the **'55\_Ranging\_Slave'** program. Normally the ranging example programs automatically lookup the calibration value from a table in the file 'SX128XLT_Definitions.h'. However the value can be manually configured using the command;
