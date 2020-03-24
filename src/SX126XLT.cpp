@@ -16,10 +16,10 @@ See LICENSE.TXT file included in the library
 #define LTUNUSED(v) (void) (v)       //add LTUNUSED(variable); to avoid compiler warnings 
 #define USE_SPI_TRANSACTION
 
-//#define DEBUGBUSY
+#define DEBUGBUSY                   //comment out if you do not want a busy timeout message
 //#define SX126XDEBUG               //enable debug messages
 //#define SX126XDEBUG3              //enable debug messages
-//#define SX126XDEBUGPINS             //enable pin allocation debug messages
+//#define SX126XDEBUGPINS           //enable pin allocation debug messages
 
 /*
 ****************************************************************************
@@ -394,7 +394,12 @@ void SX126XLT::checkBusy()
   {
     delay(1);
     busy_timeout_cnt++;
+    
 
+    //this function checks for a timeout on the busy pin
+    //if there is a timeout the device is set back to the saved settings
+    //the fuction is of limited benefit, since you cannot know at which stage of the 
+    //operation the timeout occurs, so operation could resume 
     if (busy_timeout_cnt > 10) //wait 10mS for busy to complete
     {
       busy_timeout_cnt = 0;
@@ -1235,7 +1240,7 @@ void SX126XLT::setTx(uint32_t timeout)
 
   if (_rxtxpinmode)
   {
-    txEnable();
+   txEnable();
   }
 
   timeout = timeout << 6;         //timeout passed in mS, convert to units of 15.625us
@@ -1243,6 +1248,7 @@ void SX126XLT::setTx(uint32_t timeout)
   buffer[0] = (timeout >> 16) & 0xFF;
   buffer[1] = (timeout >> 8) & 0xFF;
   buffer[2] = timeout & 0xFF;
+  
   writeCommand(RADIO_SET_TX, buffer, 3 );
   _OperatingMode = MODE_TX;
 }
@@ -1347,7 +1353,7 @@ uint8_t SX126XLT::transmit(uint8_t *txbuffer, uint8_t size, uint32_t txtimeout, 
   setTxParams(txpower, RADIO_RAMP_200_US);
   
   setDioIrqParams(IRQ_RADIO_ALL, (IRQ_TX_DONE + IRQ_RX_TX_TIMEOUT), 0, 0);   //set for IRQ on TX done and timeout on DIO1
-  setTx(txtimeout);                                                //this starts the TX
+  setTx(txtimeout);                                                          //this starts the TX
 
   if (!wait)
   {
@@ -1515,6 +1521,8 @@ bool SX126XLT::config()
   setModulationParams(savedModParam1, savedModParam2, savedModParam3, LDRO_ON);
   setPacketParams(savedPacketParam1, savedPacketParam2, savedPacketParam3, savedPacketParam4, savedPacketParam5);
   setDioIrqParams(savedIrqMask, savedDio1Mask, savedDio2Mask, savedDio3Mask);       //set for IRQ on RX done on DIO1
+  _TXPacketL = 0;
+  _RXPacketL = 0;
   return true;
 }
 
@@ -1582,7 +1590,7 @@ void SX126XLT::rxEnable()
 
 void SX126XLT::txEnable()
 {
-#ifdef SX126XDEBUG
+#ifdef SX126XDEBUGPINS
   Serial.println(F("txEnable()"));
 #endif
 
@@ -1592,7 +1600,7 @@ void SX126XLT::txEnable()
 
 void SX126XLT::printASCIIPacket(uint8_t *buffer, uint8_t size)
 {
-#ifdef SX126XDEBUG
+#ifdef SX126XDEBUGPINS
   Serial.println(F("printASCIIPacket()"));
 #endif
 
@@ -1743,7 +1751,7 @@ void SX126XLT::setRx(uint32_t timeout)
     rxEnable();
   }
 
-  timeout = timeout << 8;           //timeout passed in mS, multiply by 64 to convert units of 15.625us to 1mS
+  timeout = timeout << 6;           //timeout passed in mS, multiply by 64 to convert units of 15.625us to 1mS
 
   buffer[0] = (timeout >> 16) & 0xFF;
   buffer[1] = (timeout >> 8) & 0xFF;

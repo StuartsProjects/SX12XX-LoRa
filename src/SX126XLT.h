@@ -17,14 +17,12 @@
   DONE - Check in addressed send  txpacketL = 3 + size;  //we have added 3 header bytes to size
   DONE - Investigate use of clearDeviceErrors() - Not used in Semtech sample code
   ABANDONED - Investigate if setPacketParams(savedPacketParam1, savedPacketParam2 in send routine can be avoided - TXpacketL
-  
-  setPAconfig needs to allow for SX1268 - if (TXpower > 14){setPaConfig(0x04, 0x07, _Device)} else { setPaConfig(0x02, 0x01, _Device)}             //hpMax is quoted as 0-7, but 0 seems to be an invalid value
-  Why is it << 8 - timeout = timeout << 8;         //timeout passed in mS, multiply by 64 to convert units of 15.625us to 1mS
-  
-  Check TX power settings at 17dBm + 
+  DONE - Test rxEnable and txenable functionality
+  DONE - Check TX power settings at 17dBm + 
+
   Description of how to include RxGain register in the retention memory, see Section 9.6 - manual p58
   Check recovery from busy timeout error.
-  Test rxEnable and txenable functionality.
+
   Add a library function for SetRxDutyCycle
   Add a library function to allow changing of ramptime from RADIO_RAMP_200_US
   
