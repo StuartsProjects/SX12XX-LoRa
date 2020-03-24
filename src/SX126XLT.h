@@ -21,10 +21,9 @@
   DONE - Check TX power settings at 17dBm + 
 
   Description of how to include RxGain register in the retention memory, see Section 9.6 - manual p58
-  Check recovery from busy timeout error.
-
-  Add a library function for SetRxDutyCycle
-  Add a library function to allow changing of ramptime from RADIO_RAMP_200_US
+ 
+  Add a library function for SetRxDutyCycle ?
+  Add a library function to allow changing of ramptime from RADIO_RAMP_200_US ?
   
   
 **************************************************************************/
