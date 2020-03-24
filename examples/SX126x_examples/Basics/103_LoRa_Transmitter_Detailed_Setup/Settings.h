@@ -37,6 +37,9 @@ const uint8_t SpreadingFactor = LORA_SF7;       //LoRa spreading factor
 const uint8_t CodeRate = LORA_CR_4_5;           //LoRa coding rate
 const uint8_t Optimisation = LDRO_AUTO;         //low data rate optimisation setting, normally set to auto
 
+//for SX1262, SX1268 power range is +22dBm to -9dBm
+//for SX1261, power range is +15dBm t0 -9dBm
+
 const int8_t TXpower = 10;                      //LoRa transmit power in dBm
 
 const uint16_t packet_delay = 1000;             //mS delay between packets

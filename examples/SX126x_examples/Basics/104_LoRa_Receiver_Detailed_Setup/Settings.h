@@ -24,7 +24,7 @@
 #define LED1 8                                  //on board LED, high for on
 #define BUZZER 4                                //pin for buzzer, set to -1 if not used
 
-#define LORA_DEVICE DEVICE_SX1268               //we need to define the device we are using
+#define LORA_DEVICE DEVICE_SX1262               //we need to define the device we are using
 
 
 

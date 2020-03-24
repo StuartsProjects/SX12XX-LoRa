@@ -35,7 +35,7 @@ SX126XLT LT;                                    //create a library class instanc
 #define RFBUSY 7                                //SX126X busy pin
 #define DIO1 3                                  //DIO1 pin on LoRa device, used for sensing RX and TX done 
 #define SW 5                                    //SW pin on LoRa device, used to power antenna switch
-#define LORA_DEVICE DEVICE_SX1268               //we need to define the device we are using
+#define LORA_DEVICE DEVICE_SX1262               //we need to define the device we are using
 #define TXpower 10                              //LoRa transmit power in dBm
 
 uint8_t TXPacketL;
