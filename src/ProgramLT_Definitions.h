@@ -18,7 +18,8 @@ const char RControl1 = 'D';             //Remote Control packet
 const char TestMode1 = '1';             //used to switch to Testmode1 settings
 const char TestPacket = 'T';            //Test packet
 const char PowerUp = 'P';               //sent on tracker start
-const char LocationBinaryPacket = 's';  //Short location packet in binary format
+const char LocationPacket = 'L';        //LT library tracker location packet in binary format
+const char LocationBinaryPacket = 's';  //short location packet in binary format
 const char NoFix = 'F';                 //GPS no fix
 
 //GPS Tracker Status byte settings
