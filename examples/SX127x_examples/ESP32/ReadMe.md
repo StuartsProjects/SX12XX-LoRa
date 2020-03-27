@@ -27,8 +27,70 @@ The example programs include options to disable the MOSFET switching mentioned a
 For the majority of the program examples you will need to define the pins used, the frequency and the LoRa settings in the Settings.h file. The default provided settings may not be optimised for long distance. See the 'What is LoRa' document for information on how LoRa settings affect range. 
 Some of the examples use sleep mode on the processor and LoRa device to save power. Typical sleep currents may be mentioned in the description of the program. In most all cases a 'bare bones' Arduino has been used to measure the sleep currents and you may not get even close to the quoted figures using standard Arduinos such as Pro Minis or similar. Optimising particular Arduino boards for low power sleep is outside of the scope of this library and examples.  
 
+**25\_GPS\_Tracker\_Receiver\_With\_Display\_and\_GPS**
 
-**Stuart Robinson**
+The SX12XX example programs are written and tested for ATmega processors such as 328,1284 and 2560. However most will work, with minor modification, on processors such as ESP32.
 
-**February 2020**
+This is a run through of the changes needed to have the tracker receiver example run on the ESP32 bare bones type board shown above. 
+
+The tracker program uses the SPI interface to talk to the lora device, I2C to talk to the OLED display and software serial to talk to the GPS. 
+
+The ESP32 SPI pin connections were;
+
+SCK 18
+<br>
+MISO 19
+<br>
+MOSI 23
+
+NSS 5
+<br>
+NRESET 27
+<br>
+DIO0 35
+
+The ESP32 I2C pin connections were;
+
+SDA 21
+<br>
+SCL 22
+
+The original tracker program uses software serial and there is no need for software serial on the ESP32 as it has an available hardware serial port. These are the pin connections used;
+
+GPSTX 16  &emsp;  &emsp; //this is data out from the GPS into the ESP32
+GPSRX 17  &emsp;  &emsp; //this is data out from the ESP32 into the GPS
+
+The other pins used were;
+
+LED1 2   &emsp;  &emsp;   //On board indicator LED, high for on
+GPSPOWER 26  &emsp;  &emsp;  //Pin that controls power to GPS, set to -1 if not used
+
+The only software changes required were to change the lines in the Settings.h file from;
+
+	#define USE_SOFTSERIAL_GPS                      
+	#define HardwareSerialPort Serial2
+
+to;
+
+	//#define USE_SOFTSERIAL_GPS                      
+	#define HardwareSerialPort Serial2
+
+This removes the definition USE\_SOFTSERIAL\_GPS from the sketch and the effect of this change is to remove these two lines from the Sketch;
+
+	#include <SoftwareSerial.h>
+	SoftwareSerial GPSserial(RXpin, Txpin);
+
+And include this one;
+
+	#define GPSserial HardwareSerialPort
+
+Which sets the commands to read data from the GPS such as GPSserial.read() to be in effect Serial2.read(), which is the ESP32 hardware serial port used. 
+
+Set the Arduino IDE to use the board ‘ESP32 Dev Module’ and load the program. 
+
+
+
+### Stuart Robinson
+
+### March 2020
 
