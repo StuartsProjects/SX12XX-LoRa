@@ -150,8 +150,22 @@ class SX126XLT  {
     uint8_t receiveAddressed(uint8_t *rxbuffer, uint8_t size, uint32_t rxtimeout, uint8_t wait);
     void clearDeviceErrors();
     void printDeviceErrors();
-
-
+    void printHEXPacket(uint8_t *buffer, uint8_t size);
+    void printHEXByte0x(uint8_t temp);
+    uint8_t readsavedModParam1();     //spreading factor
+    uint8_t readsavedModParam2();     //bandwidth
+    uint8_t readsavedModParam3();     //code rate
+    uint8_t readsavedModParam4();     //optimisation
+    uint8_t readsavedPower();
+    uint8_t getPacketMode();
+    uint8_t readsavedPacketParam1();  //preamble
+    uint8_t readsavedPacketParam2();  //header type
+    uint8_t readsavedPacketParam3();  //packet length
+    uint8_t readsavedPacketParam4();  //CRC
+    uint8_t readsavedPacketParam5();  //IQ
+    uint8_t getOpmode();
+    uint8_t getCRCMode();
+    
 /***************************************************************************
 //End direct access SX buffer routines
 ***************************************************************************/	

@@ -1149,8 +1149,6 @@ void SX126XLT::printOperatingSettings()
   Serial.println(F("printOperatingSettings()"));
 #endif
 
-  //uint8_t regdata;
-
   printDevice();
 
   Serial.print(F(",PacketMode_"));
@@ -2515,7 +2513,11 @@ int32_t SX126XLT::getFrequencyErrorHz()
   //Note: Semtech appear to have stated that the frequency error function that this code uses,
   //is not supported for SX126X, for reasons that have not been given, so use at your own risk.
   //The fuctions here are a replication of the routines for the very similar SX128X  
-    
+     
+  #ifdef SX126XDEBUG
+  Serial.println(F("getFrequencyErrorHz()"));
+  #endif
+   
   int32_t error, regvalue;
   uint32_t bandwidth;
   float divider;
@@ -2839,8 +2841,166 @@ void SX126XLT::printDeviceErrors()
 }
 
 
+void SX126XLT::printHEXPacket(uint8_t *buffer, uint8_t size)
+{
+#ifdef SX126XDEBUG
+  Serial.println(F("printHEXPacket()"));
+#endif
+
+  uint8_t index;
+  
+  for (index = 0; index < size; index++)
+  {
+    //Serial.print(F("["));
+    //Serial.print(index);
+    //Serial.print(F("],"));
+    printHEXByte(buffer[index]);
+    Serial.print(F(" "));
+  }
+}
 
 
+void SX126XLT::printHEXByte0x(uint8_t temp)
+{
+  //print a byte, adding 0x
+  Serial.print(F("0x"));
+  if (temp < 0x10)
+  {
+    Serial.print(F("0"));
+  }
+  Serial.print(temp, HEX);
+}
+
+
+uint8_t SX126XLT::readsavedModParam1()
+{
+//return previously set spreading factor
+#ifdef SX126XDEBUG
+  Serial.println(F("readsavedModParam1()"));
+#endif
+return savedModParam1;
+}
+
+
+uint8_t SX126XLT::readsavedModParam2()
+{
+//return previously set bandwidth
+#ifdef SX126XDEBUG
+  Serial.println(F("readsavedModParam2()"));
+#endif
+  return savedModParam2;
+}
+
+
+uint8_t SX126XLT::readsavedModParam3()
+{
+//return previously set code rate
+ #ifdef SX126XDEBUG
+  Serial.println(F("readsavedModParam3()"));
+#endif
+return savedModParam3;
+}
+
+
+uint8_t SX126XLT::readsavedModParam4()
+{
+//return previously set optimisation
+#ifdef SX126XDEBUG
+  Serial.println(F("readsavedModParam4()"));
+#endif
+  return savedModParam4;
+}
+
+uint8_t SX126XLT::readsavedPower()
+{
+ #ifdef SX126XDEBUG
+  Serial.println(F("readsavedPower()"));
+#endif
+return savedTXPower;
+}
+
+uint8_t SX126XLT::getPacketMode()
+{
+  //its either LoRa or FSK
+  
+  #ifdef SX126XDEBUG
+  Serial.println(F("getPacketMode()"));
+  #endif
+
+  return savedPacketType;
+}
+
+
+uint8_t SX126XLT::readsavedPacketParam1()
+{
+//return previously set preamble
+#ifdef SX126XDEBUG
+  Serial.println(F("readsavedPacketParam1()"));
+#endif
+  return savedPacketParam1;
+}
+
+
+uint8_t SX126XLT::readsavedPacketParam2()
+{
+//return previously set header type
+#ifdef SX126XDEBUG
+  Serial.println(F("readsavedPacketParam2()"));
+#endif
+  return savedPacketParam2;
+}
+
+
+uint8_t SX126XLT::readsavedPacketParam3()
+{
+//return previously set packet length
+#ifdef SX126XDEBUG
+  Serial.println(F("readsavedPacketParam3()"));
+#endif
+  return savedPacketParam3;
+}
+
+
+
+uint8_t SX126XLT::readsavedPacketParam4()
+{
+//return previously set CRC
+#ifdef SX126XDEBUG
+  Serial.println(F("readsavedPacketParam4()"));
+#endif
+  return savedPacketParam4;
+}
+
+
+uint8_t SX126XLT::readsavedPacketParam5()
+{
+//return previously set IQ
+#ifdef SX126XDEBUG
+  Serial.println(F("readsavedPacketParam5()"));
+#endif
+  return savedPacketParam5;
+}
+
+uint8_t SX126XLT::getOpmode()
+{
+//return last saved opmode
+#ifdef SX126XDEBUG
+  Serial.println(F("getOpmode()"));
+#endif
+  return _OperatingMode;
+}
+
+uint8_t SX126XLT::getCRCMode()
+{
+//return last saved opmode
+#ifdef SX126XDEBUG
+  Serial.println(F("getCRCMode()"));
+#endif
+  return savedPacketParam4;
+}
+
+
+ 
 /*
   MIT license
 

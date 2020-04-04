@@ -157,3 +157,20 @@ setRangingSlaveAddress	KEYWORD2
 getRangingCalibrationValue	KEYWORD2 
 toneFM	 KEYWORD2
 setupDirect	KEYWORD2
+printDevice	KEYWORD2
+getLoRaSF	KEYWORD2
+getLoRaCodingRate	KEYWORD2
+getSyncWord	KEYWORD2
+getInvertIQ	KEYWORD2
+getPreamble	KEYWORD2
+printOperatingMode	KEYWORD2
+getVersion	KEYWORD2
+getPacketMode	KEYWORD2
+getHeaderMode	KEYWORD2
+getCRCMode	KEYWORD2
+getAGC	KEYWORD2
+getLNAgain	KEYWORD2
+getLNAboostHF	KEYWORD2
+getLNAboostLF	KEYWORD2
+getOpmode	KEYWORD2
+

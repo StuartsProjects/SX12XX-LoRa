@@ -21,6 +21,7 @@ const char PowerUp = 'P';               //sent on tracker start
 const char LocationPacket = 'L';        //LT library tracker location packet in binary format
 const char LocationBinaryPacket = 's';  //short location packet in binary format
 const char NoFix = 'F';                 //GPS no fix
+const char ACK = 'A';                   //Acknowledge
 
 //GPS Tracker Status byte settings
 const byte GPSFix = 0;                  //flag bit number to indicate GPS has current fix
