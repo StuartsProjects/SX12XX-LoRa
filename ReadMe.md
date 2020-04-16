@@ -1,10 +1,11 @@
 # SX12XX Library
 
+    Update: 10/04/20 - Added notes about ESP32 examples
+	
 	Update: 22/03/20 - Extend range of example programs for SX126x and SX128x devices. 
 
 	Update: 19/03/20 - Added SX126X and SX128X remote control on\off and joystick servo examples.
 
-    Update: 19/03/20 - Added SX128X Ranging examples. Added GPS tracker and Sensor examples for SX126X and SX128X. 
 
 
 ### Library installation
@@ -159,9 +160,11 @@ Sets the operation mode of the LoRa device. Choices are;
 Set the type of packet to use, currently only LORA is supported, choices are;
 
 	PACKET_TYPE_LORA
-	PACKET_TYPE_GFSK  (not yet implemented)
-	PACKET_TYPE_NONE
-	PACKET_TYPE_FLRC  (SX128X library only)
+	PACKET_TYPE_GFSK     (not yet implemented)
+	PACKET_TYPE_FLRC     (SX128X library only)
+    PACKET_TYPE_RANGING  (SX128X library only)
+    PACKET_TYPE_BLE      (SX128X library only) (not yet implemented)
+    PACKET_TYPE_NONE
 
 **setRfFrequency(Frequency, Offset)**
 
@@ -399,10 +402,9 @@ Which means there is a test packet (T) its been sent as a broadcast (*) and its 
 
 ### Compatibility
 
-Full tested on 3.3V 8Mhz ATMega328P and ATMega1284P only.
+**Fully tested on 3.3V 8Mhz ATMega328P and ATMega1284P only**.
  
-It was not the intention to specifically support non-Atmel platforms with the library but several programs have been tested and work on an ESP32 WROOM board and an STM32 Xnucleo board. See the Examples\SX127X_Examples\ESP32 and Examples\SX127X_Examples\STM32
-folders.
+It was not the intention to specifically support non-Atmel platforms with the library but several programs have been tested and work on an ESP32 WROOM board and an STM32 Xnucleo board. See the Readme for ESP32 and STM32 in the ESP32 and STM32 examples folders.
 
 
 ### Support
@@ -418,8 +420,6 @@ Add ppmoffset to frequency error check program Check this in program 12 LT.write
 Investigate adding internal SX1278 temperature sensor
 
 Check sensitivity\current for writeRegister(RegLna, 0x3B );.//at HF 150% LNA current.
-
-Check SX126x modules RX and TX enable pin support.
 
 <br>
 
