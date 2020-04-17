@@ -71,7 +71,7 @@ Some SX126x modules may have RX or TX enable pins, these are currently not suppo
 Some of the SX128x modules do have RX or TX enable pins, such as the Ebyte modules, these are supported by the library, and you need to define the pins RX_EN and TX_EN pins used, otherwise leave unused by defining them as -1.  
 
 ### Testing
-For testing the library and the example programs I used a board of my own design, it uses a 3.3V/8Mhz Arduino Pro Mini which is soldered with a minimum amount of other components onto a board to which you can plug in a LoRa device as a Mikrobus style module. The board is small enough to be used for a GPS tracker application using the connections for a GPS and display as shown in the picture. The Pro Mini used includes a supply reverse protection diode and a fuse, so the board does not need these components.
+For testing the library and the example programs I used a board of my own design, it uses a 3.3V/8Mhz Arduino Pro Mini which is soldered with a minimum amount of other components onto a board to which you can plug in a LoRa device as a Mikrobus style module. The board is small enough to be used for a GPS tracker application using the connections for a GPS and display as shown in the picture. The Pro Mini used includes a supply reverse protection diode and a fuse, so the board does not need these components. The the file 'Evaluation_Board.pdf' for details. 
 <br>
   
 All example programs were checked against version 1.8.10 of the Arduino IDE, and the latest copies of any external libraries, as of 16/12/19. The operating system was Windows 10. 
