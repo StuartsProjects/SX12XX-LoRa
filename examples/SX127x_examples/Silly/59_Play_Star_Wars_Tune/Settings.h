@@ -23,7 +23,7 @@
 
 //*******  Setup Direct Modem Parameters Here ! ***************
 
-const uint32_t Frequency = 434400000;           //frequency of transmissions in hertz
+const uint32_t Frequency = 434000000;           //frequency of transmissions in hertz
 const uint32_t Offset = 0;                      //offset frequency for calibration purposes
 const uint16_t deviation = 10000;               //deviation in hz, total frequency shift low to high
 const float adjustfreq = 0.9;                   //adjustment to tone frequency 
