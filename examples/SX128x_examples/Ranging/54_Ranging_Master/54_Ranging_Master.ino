@@ -25,7 +25,6 @@ U8X8_SSD1306_128X64_NONAME_HW_I2C disp(U8X8_PIN_NONE);      //standard 0.96" SSD
 uint16_t rangeing_errors, rangeings_valid, rangeing_results;
 uint16_t IrqStatus;
 uint32_t endwaitmS, startrangingmS, range_result_sum, range_result_average;
-//uint32_t total_ranging_OK;
 float distance, distance_sum, distance_average;
 bool ranging_error;
 int32_t range_result;
@@ -52,9 +51,9 @@ void loop()
       rangeing_results++;
       rangeings_valid++;
       digitalWrite(LED1, HIGH);
-      Serial.print("Valid");
+      Serial.print(F("Valid"));
       range_result = LT.getRangingResultRegValue(RANGING_RESULT_RAW);
-      Serial.print(",Register,");
+      Serial.print(F(",Register,"));
       Serial.print(range_result);
 
       if (range_result > 800000)
@@ -66,9 +65,8 @@ void loop()
       distance = LT.getRangingDistance(RANGING_RESULT_RAW, range_result, distance_adjustment);
       distance_sum = distance_sum + distance;
 
-      Serial.print(",Distance,");
+      Serial.print(F(",Distance,"));
       Serial.print(distance, 1);
-      //Serial.print("m");
       digitalWrite(LED1, LOW);
     }
     else
@@ -76,8 +74,8 @@ void loop()
       rangeing_errors++;
       distance = 0;
       range_result = 0;
-      Serial.print("NotValid");
-      Serial.print(",Irq,");
+      Serial.print(F("NotValid"));
+      Serial.print(F(",Irq,"));
       Serial.print(IrqStatus, HEX);
     }
     delay(packet_delaymS);
@@ -95,9 +93,9 @@ void loop()
         distance_average = (distance_sum / rangeing_results);
       }
       
-      Serial.print(",TotalValid,");
+      Serial.print(F(",TotalValid,"));
       Serial.print(rangeings_valid);
-      Serial.print(",TotalErrors,");
+      Serial.print(F(",TotalErrors,"));
       Serial.print(rangeing_errors);
       Serial.print(F(",AverageRAWResult,"));
       Serial.print(range_result_average);
@@ -107,7 +105,7 @@ void loop()
 #ifdef ENABLEDISPLAY
       display_screen1();
 #endif
-      //Serial.println();
+
       delay(2000);
 
     }
@@ -121,17 +119,16 @@ void display_screen1()
 {
   disp.clear();
   disp.setCursor(0, 0);
-  disp.print("Distance ");
+  disp.print(F("Distance "));
   disp.print(distance_average, 1);
-  disp.print("m");
+  disp.print(F("m"));
   disp.setCursor(0, 2);
-  disp.print("OK,");
+  disp.print(F("OK,"));
   disp.print(rangeings_valid);
-  disp.print(",Err,");
+  disp.print(F(",Err,"));
   disp.print(rangeing_errors);
 }
 #endif
-
 
 
 void led_Flash(uint16_t flashes, uint16_t delaymS)
@@ -190,16 +187,16 @@ void setup()
   disp.begin();
   disp.setFont(u8x8_font_chroma48medium8_r);
   disp.setCursor(0, 0);
-  disp.print("Ranging RAW Ready");
+  disp.print(F("Ranging RAW Ready"));
   disp.setCursor(0, 1);
-  disp.print("Power ");
+  disp.print(F("Power "));
   disp.print(RangingTXPower);
-  disp.print("dBm");
+  disp.print(F("dBm"));
   disp.setCursor(0, 2);
-  disp.print("Cal ");
+  disp.print(F("Cal "));
   disp.print(Calibration);
   disp.setCursor(0, 3);
-  disp.print("Adjust ");
+  disp.print(F("Adjust "));
   disp.print(distance_adjustment, 4);
 #endif
 

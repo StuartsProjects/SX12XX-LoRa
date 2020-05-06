@@ -41,4 +41,7 @@ const uint16_t  rangeingcount = 5;               //number of times ranging is cq
 float distance_adjustment = 1.0000;              //adjustment factor to calculated distance
 
 
-#define ENABLEOLED                               //enable thsi define to use display 
+#define ENABLEOLED                               //enable this define to use display 
+#define ENABLEDISPLAY                            //enable this define to use display
+
+
