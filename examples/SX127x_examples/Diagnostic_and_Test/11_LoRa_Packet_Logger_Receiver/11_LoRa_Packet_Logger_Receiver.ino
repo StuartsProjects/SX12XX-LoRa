@@ -1,5 +1,5 @@
 /*******************************************************************************************************
-  lora Programs for Arduino - Copyright of the author Stuart Robinson - 16/12/19
+  Programs for Arduino - Copyright of the author Stuart Robinson - 16/12/19
 
   This program is supplied as is, it is up to the user of the program to decide if the program is
   suitable for the intended purpose and free from errors.
@@ -176,7 +176,7 @@ void setup()
   Serial.println(F(Program_Version));
   Serial.println();
 
-  Serial.println(F("11_LoRa_Packet_Logger_Receiver Starting"));
+  Serial.println(F("11_Packet_Logger_Receiver Starting"));
   Serial.println();
 
   if (BUZZER > 0)

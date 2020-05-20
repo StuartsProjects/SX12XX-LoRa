@@ -10,6 +10,7 @@ const PROGMEM  uint8_t SetBalloonMode[]  = {0xB5, 0x62, 0x06, 0x24, 0x24, 0x00, 
                                            }; //44
 const PROGMEM  uint8_t SaveConfig[]  = {0xB5, 0x62, 0x06, 0x09, 0x0D, 0x00, 0x00, 0x00, 0x00, 0x00, 0xFF, 0xFF, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x1B, 0xA9}; //22
 const PROGMEM  uint8_t SetCyclicMode[]  = {0xB5, 0x62, 0x06, 0x11, 0x02, 0x00, 0x08, 0x01, 0x22, 0x92}; //10
+const PROGMEM  uint8_t SoftwareBackup[]  = {0xB5, 0x62, 0x02, 0x41, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0x00, 0x00, 0x00, 0x4D, 0x3B};  //16
 const PROGMEM  uint8_t PollNavigation[]  = {0xB5, 0x62, 0x06, 0x24, 0x00, 0x00, 0x2A, 0x84}; //8
 
 //these are the commands to turn off NMEA sentences
@@ -35,6 +36,7 @@ bool GPS_ClearConfig();
 bool GPS_SaveConfig();
 bool GPS_SetBalloonMode();
 bool GPS_SetCyclicMode();
+bool GPS_SoftwareBackup();
 bool GPS_GLONASSOff();
 bool GPS_GPGLLOff();
 bool GPS_GPGLSOff();
@@ -436,6 +438,25 @@ bool GPS_SetCyclicMode()
 
   return false;
 }
+
+
+bool GPS_SoftwareBackup()
+{
+#ifdef GPSDebug
+  Serial.print(F("GPS_SoftwareBackup() "));
+#endif
+
+  Serial.println(F("SoftwareBackup"));
+  size_t SIZE = sizeof(SoftwareBackup);
+  
+  if (GPS_SendConfig(SoftwareBackup, SIZE, 0, GPS_attempts))
+  {
+  return true;
+  }
+
+  return false;
+}
+
 
 
 bool GPS_HotStart()
