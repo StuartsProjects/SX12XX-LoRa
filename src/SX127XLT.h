@@ -19,6 +19,8 @@
   Check sensitivity\current for writeRegister(RegLna, 0x3B );.//at HF 150% LNA current.
   Add packet SF6 support and implicit mode support and examples
   returnBandwidth(byte BWregvalue) does not directly take account of SX1272
+  Check void SX127XLT::fillSXBuffer and use of ptr
+  Add receive callback
 
 **************************************************************************/
 
@@ -80,6 +82,7 @@ class SX127XLT
     uint8_t getPacketMode();           //LoRa or FSK
 
     uint8_t readRXPacketL();
+    uint8_t readTXPacketL();
     uint8_t readPacketRSSI();
     uint8_t readPacketSNR();
     bool readPacketCRCError();
@@ -137,9 +140,8 @@ class SX127XLT
     uint8_t getVersion();
     uint16_t getPreamble();
 
-    uint32_t returnBandwidth(uint8_t BWregvalue);                           //returns in hz the current set bandwidth
-    //uint32_t returnBandwidth2(uint8_t BWregvalue);                          //returns in hz the current set bandwidth
-    uint8_t returnOptimisation(uint8_t SpreadingFactor, uint8_t Bandwidth); //this returns the required optimisation setting
+    uint32_t returnBandwidth(uint8_t BWregvalue);                            //returns in hz the current set bandwidth
+    uint8_t returnOptimisation(uint8_t SpreadingFactor, uint8_t Bandwidth);  //this returns the required optimisation setting
     float calcSymbolTime(float Bandwidth, uint8_t SpreadingFactor);
     void printModemSettings();
     void setSyncWord(uint8_t syncword);
@@ -147,6 +149,15 @@ class SX127XLT
     void setupDirect(uint32_t frequency, int32_t offset);
     void toneFM(uint16_t frequency, uint32_t length, uint32_t deviation, float adjust, int8_t txpower);
     int8_t getDeviceTemperature();
+    void fskCarrierOn(int8_t txpower);
+    void fskCarrierOff();
+    void setRfFrequencyDirect(uint8_t high, uint8_t mid, uint8_t low);
+    void getRfFrequencyRegisters(uint8_t *buff);
+    void startFSKRTTY(uint32_t freqshift, uint8_t pips, uint16_t pipDelaymS, uint16_t pipPeriodmS, uint16_t leadinmS);
+    void transmitFSKRTTY(uint8_t chartosend, uint8_t databits, uint8_t stopbits, uint8_t parity, uint16_t baudPerioduS, int8_t pin);
+    void printRTTYregisters();
+    void endFSKRTTY();
+
 
     //*******************************************************************************
     //Read Write SX12xxx Buffer commands, this is the buffer internal to the SX12xxxx
@@ -223,9 +234,10 @@ class SX127XLT
     uint8_t _UseCRC;                //when packet parameters set this flag enabled if CRC on packets in use
     int8_t _RXEN, _TXEN;            //not currently used
     uint8_t _PACKET_TYPE;           //used to save the set packet type
-    uint8_t _freqregH, _freqregM, _freqregL;
-    uint8_t _SHfreqregH, _SHfreqregM, _SHfreqregL;
-    uint8_t _SLfreqregH, _SLfreqregM, _SLfreqregL;
+    uint8_t _freqregH, _freqregM, _freqregL;  //the registers values for the set frequency
+    uint8_t _ShiftfreqregH, _ShiftfreqregM, _ShiftfreqregL;  //register values for shifted frequency, used in FSK
+    uint32_t savedFrequency;
+    uint32_t savedOffset;
 };
 #endif
 

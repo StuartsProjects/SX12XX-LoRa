@@ -173,4 +173,6 @@ getLNAgain	KEYWORD2
 getLNAboostHF	KEYWORD2
 getLNAboostLF	KEYWORD2
 getOpmode	KEYWORD2
+fillSXBuffer	KEYWORD2
+writeByteSXBuffer	KEYWORD2
 

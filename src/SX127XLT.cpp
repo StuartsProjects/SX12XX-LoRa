@@ -20,6 +20,8 @@
 //#define SX127XDEBUG3               //enable level 3 debug messages
 //#define DEBUGPHANTOM               //used to set bebuging for Phantom packets
 //#define SX127XDEBUGPINS            //enable pin allocation debug messages
+//#define DEBUGFSKRTTY                 //enable for FSKRTTY debugging 
+
 
 SX127XLT::SX127XLT()
 {
@@ -867,11 +869,18 @@ void SX127XLT::setRfFrequency(uint64_t freq64, int32_t offset)
   Serial.println(F("setRfFrequency()"));
 #endif
 
+  savedFrequency = freq64;
+  savedOffset = offset;
+  
   freq64 = freq64 + offset;
   freq64 = ((uint64_t)freq64 << 19) / 32000000;
-  writeRegister(REG_FRMSB, (uint8_t)(freq64 >> 16));
-  writeRegister(REG_FRMID, (uint8_t)(freq64 >> 8));
-  writeRegister(REG_FRLSB, (uint8_t)(freq64 >> 0));
+  _freqregH = freq64 >> 16;
+  _freqregM = freq64 >> 8;
+  _freqregL = freq64;
+    
+  writeRegister(REG_FRMSB, _freqregH);
+  writeRegister(REG_FRMID, _freqregM);
+  writeRegister(REG_FRLSB, _freqregL);
 }
 
 
@@ -1047,7 +1056,7 @@ void SX127XLT::setTx(uint32_t timeout)
   Serial.println(F("setTx()"));
 #endif
 
-  LTUNUSED(timeout);
+  LTUNUSED(timeout);                                  //unused TX timeout passed for compatibility with SX126x, SX128x
 
   clearIrqStatus(IRQ_RADIO_ALL);
 
@@ -1351,6 +1360,17 @@ uint8_t SX127XLT::readRXPacketL()
 
   _RXPacketL = readRegister(REG_RXNBBYTES);
   return _RXPacketL;
+}
+
+
+
+uint8_t SX127XLT::readTXPacketL()
+{
+#ifdef SX127XDEBUG1
+  Serial.println(F("readTXPacketL()"));
+#endif
+
+  return _TXPacketL;
 }
 
 
@@ -2784,6 +2804,7 @@ void SX127XLT::fillSXBuffer(uint8_t startaddress, uint8_t size, uint8_t characte
 }
 
 
+
 uint8_t SX127XLT::getByteSXBuffer(uint8_t addr)
 {
 #ifdef SX127XDEBUG1
@@ -3424,6 +3445,9 @@ void SX127XLT::setupDirect(uint32_t frequency, int32_t offset)
 #ifdef SX127XDEBUG1
   Serial.print(F("setupDirect()"));
 #endif
+  _PACKET_TYPE = PACKET_TYPE_GFSK;            //need to swap packet type
+  setMode(MODE_SLEEP);                        //can only swap to direct mode in sleepmode
+  setMode(MODE_SLEEP);                        //can only swap to direct mode in sleepmode 
   setMode(MODE_STDBY_RC);
   writeRegister(REG_DETECTOPTIMIZE, 0x00);    //set continuous mode
   setRfFrequency(frequency, offset);          //set the operating frequncy
@@ -3474,6 +3498,291 @@ int8_t SX127XLT::getDeviceTemperature()
 
   return temperature;
 }
+
+
+
+void SX127XLT::fskCarrierOn(int8_t txpower)
+{
+#ifdef SX127XDEBUG1
+  Serial.print(F("fskCarrierOn()"));
+#endif
+
+  writeRegister(REG_PLLHOP, 0xAD);          //set fast hop mode, needed for fast changes of frequency
+  setTxParams(txpower, RADIO_RAMP_DEFAULT);
+  setTXDirect();
+
+}
+
+
+void SX127XLT::fskCarrierOff()
+{
+#ifdef SX127XDEBUG1
+  Serial.print(F("fskCarrierOff()"));
+#endif
+
+ setMode(MODE_STDBY_RC);                   //turns off carrier
+
+}
+
+
+void SX127XLT::setRfFrequencyDirect(uint8_t high, uint8_t mid, uint8_t low)
+{   
+  
+  #ifdef SX127XDEBUG1
+  Serial.print(F("setRfFrequencyDirect()"));
+  #endif
+  
+  #ifdef USE_SPI_TRANSACTION         //to use SPI_TRANSACTION enable define at beginning of CPP file 
+  SPI.beginTransaction(SPISettings(LTspeedMaximum, LTdataOrder, LTdataMode));
+  #endif
+  
+  digitalWrite(_NSS, LOW);                  //set NSS low
+  SPI.transfer(0x86);                       //address for write to REG_FRMSB
+  SPI.transfer(high);
+  SPI.transfer(mid);
+  SPI.transfer(low);
+  digitalWrite(_NSS, HIGH);                 //set NSS high
+  
+  #ifdef USE_SPI_TRANSACTION
+  SPI.endTransaction();
+#endif
+
+  
+}
+
+
+void SX127XLT::getRfFrequencyRegisters(uint8_t *buff)
+{
+  //returns the register values for the current set frequency
+  
+  #ifdef SX127XDEBUG1
+  Serial.print(F("getRfFrequencyRegisters()"));
+  #endif
+
+  
+  #ifdef USE_SPI_TRANSACTION         //to use SPI_TRANSACTION enable define at beginning of CPP file 
+  SPI.beginTransaction(SPISettings(LTspeedMaximum, LTdataOrder, LTdataMode));
+  #endif
+  
+  digitalWrite(_NSS, LOW);                  //set NSS low
+  SPI.transfer(REG_FRMSB & 0x7F);           //mask address for read
+  buff[0] = SPI.transfer(0);                //read the byte into buffer
+  buff[1] = SPI.transfer(0);                //read the byte into buffer
+  buff[2] = SPI.transfer(0);                //read the byte into buffer
+  digitalWrite(_NSS, HIGH);                 //set NSS high
+  
+  #ifdef USE_SPI_TRANSACTION
+  SPI.endTransaction();
+#endif
+
+}
+
+
+
+void SX127XLT::startFSKRTTY(uint32_t freqshift, uint8_t pips, uint16_t pipPeriodmS, uint16_t pipDelaymS, uint16_t leadinmS)
+{
+  
+  #ifdef SX127XDEBUG1
+  Serial.print(F("startFSKRTTY()"));
+  #endif
+  
+  uint8_t freqShiftRegs[3];                        //to hold returned registers for shifted frequency 
+  uint32_t setCentreFrequency;                     //the configured centre frequency 
+  uint8_t index;
+  uint32_t endmS;
+  setCentreFrequency = savedFrequency;             //to avoid using the savedFrequency
+    
+  writeRegister(REG_PLLHOP, 0xAD);                 //set fast hop mode, needed for fast changes of frequency
+  
+  setRfFrequency((savedFrequency + freqshift), savedOffset);          //temporaily set the RF frequency
+  getRfFrequencyRegisters(freqShiftRegs);                             //fill first 3 bytes with current frequency registers
+  setRfFrequency(setCentreFrequency, savedOffset);                    //reset the base frequency registers
+   
+  _ShiftfreqregH = freqShiftRegs[0];
+  _ShiftfreqregM = freqShiftRegs[1];
+  _ShiftfreqregL = freqShiftRegs[2];
+  
+  writeRegister(REG_PLLHOP, 0xAD);          //set fast hop mode, needed for fast changes of frequency
+  setTxParams(10, RADIO_RAMP_DEFAULT);
+  
+  for (index = 1; index <= pips; index++)
+  {
+  setRfFrequencyDirect(_ShiftfreqregH, _ShiftfreqregM, _ShiftfreqregL); //set carrier frequency
+  setTXDirect();                                                           //turn on carrier 
+  delay(pipPeriodmS);
+  setMode(MODE_STDBY_RC);                                                  //turns off carrier
+  delay(pipDelaymS);
+  }
+  
+  setRfFrequencyDirect(_ShiftfreqregH, _ShiftfreqregM, _ShiftfreqregL); //set carrier frequency 
+  endmS = millis() + leadinmS; 
+  setTXDirect();                                                           //turn on carrier 
+  while (millis() < endmS);                                                //leave leadin on
+
+}
+
+void SX127XLT::transmitFSKRTTY(uint8_t chartosend, uint8_t databits, uint8_t stopbits, uint8_t parity, uint16_t baudPerioduS, int8_t pin)
+{
+  //micros() will rollover at 4294967295 or 71mins 35secs
+  //assume slowest baud rate is 45 (baud period of 22222us) then with 11 bits max to send if routine starts 
+  //when micros() > (4294967295 - (22222 * 11) = 4294722855 = 0xFFFC4525 then it could overflow during send
+  //Rather than deal with rolloever in the middle of a character lets wait till it overflows and then
+  //start the character  
+  
+
+  #ifdef SX127XDEBUG1
+  Serial.print(F("transmitFSKRTTY()"));
+  #endif
+   
+  uint8_t numbits;
+  uint32_t enduS;
+  uint8_t bitcount = 0;                       //set when a bit is 1
+  
+  if (micros() > 0xFFFB6000)                  //check if micros would overflow within circa 300mS, approx 1 char at 45baud
+  {
+  #ifdef DEBUGFSKRTTY
+  Serial.print(F("Overflow pending - micros() = "));
+  Serial.println(micros(),HEX);
+  #endif
+  while (micros() > 0xFFFB6000);              //wait a short while until micros overflows to 0
+  #ifdef DEBUGFSKRTTY
+  Serial.print(F("Paused - micros() = "));
+  Serial.println(micros(),HEX);
+  #endif
+  }
+  
+  enduS = micros() + baudPerioduS;
+  setRfFrequencyDirect(_freqregH, _freqregM, _freqregL); //set carrier frequency  (low)
+  
+  if (pin >= 0)
+  {
+   digitalWrite(pin, LOW); 
+  }
+  
+  while (micros() < enduS);                   //start bit
+  
+  for (numbits = 1;  numbits <= databits; numbits++) //send bits, LSB first
+  {
+    enduS = micros() + baudPerioduS;          //start the timer 
+    if ((chartosend & 0x01) != 0)             //test for bit set, a 1
+    {
+       bitcount++;
+       if (pin >= 0)
+       {
+       digitalWrite(pin, HIGH); 
+       }
+    setRfFrequencyDirect(_ShiftfreqregH, _ShiftfreqregM, _ShiftfreqregL); //set carrier frequency for a 1 
+    }
+    else
+    {
+       if (pin >= 0)
+       {
+       digitalWrite(pin, LOW); 
+       }     
+      setRfFrequencyDirect(_freqregH, _freqregM, _freqregL);           //set carrier frequency for a 0
+    }
+    chartosend = (chartosend >> 1);           //get the next bit
+    while (micros() < enduS);
+  }
+   
+   enduS = micros() + baudPerioduS;          //start the timer for possible parity bit
+   
+   switch (parity) 
+   {
+    case ParityNone:
+         break;
+    
+    case ParityZero:
+         setRfFrequencyDirect(_freqregH, _freqregM, _freqregL);           //set carrier frequency for a 0
+         while (micros() < enduS);
+		 break;
+    
+    case ParityOne:
+         
+         setRfFrequencyDirect(_ShiftfreqregH, _ShiftfreqregM, _ShiftfreqregL);   //set carrier frequency for a 1
+         while (micros() < enduS);
+		 break;
+
+	case ParityOdd:
+         if (bitRead(bitcount, 0))                                         //test odd bit count, i.e. when bit 0 = 1 
+         {
+         setRfFrequencyDirect(_ShiftfreqregH, _ShiftfreqregM, _ShiftfreqregL);           //set carrier frequency for a 1 
+         }
+		 else
+         {
+         setRfFrequencyDirect(_freqregH, _freqregM, _freqregL);           //set carrier frequency for a 0 
+         }
+         while (micros() < enduS);
+		 break;
+
+    case ParityEven:
+         if (bitRead(bitcount, 0))                                         //test odd bit count, i.e. when bit 0 = 1 
+         {
+         setRfFrequencyDirect(_freqregH, _freqregM, _freqregL);           //set carrier frequency for a 0 
+         }
+		 else
+         {
+         setRfFrequencyDirect(_ShiftfreqregH, _ShiftfreqregM, _ShiftfreqregL);             //set carrier frequency for a 1 
+         }
+		 while (micros() < enduS);
+         break; 
+     
+    default:
+	     break;
+    } 
+
+  //stop bits, normally 1 or 2
+  enduS = micros() + (baudPerioduS * stopbits);
+  
+  if (pin >= 0)
+  {
+  digitalWrite(pin, HIGH); 
+  }
+  
+  setRfFrequencyDirect(_ShiftfreqregH, _ShiftfreqregM, _ShiftfreqregL); //set carrier frequency
+  
+  while (micros() < enduS);
+  
+}
+
+
+void SX127XLT::printRTTYregisters()
+{
+  
+  #ifdef SX127XDEBUG1
+  Serial.print(F("printRTTYregisters()"));
+  #endif
+   
+Serial.print(F("NoShift Registers "));
+Serial.print(_freqregH, HEX);
+Serial.print(F(" "));
+Serial.print(_freqregM, HEX);
+Serial.print(F(" "));
+Serial.println(_freqregL, HEX);
+
+Serial.print(F("Shifted Registers "));
+Serial.print(_ShiftfreqregH, HEX);
+Serial.print(F(" "));
+Serial.print(_ShiftfreqregM, HEX);
+Serial.print(F(" "));
+Serial.println(_ShiftfreqregL, HEX);
+
+}
+
+void SX127XLT::endFSKRTTY()
+{
+  #ifdef SX127XDEBUG1
+  Serial.print(F("endFSKRTTY()"));
+  #endif
+  
+  setMode(MODE_STDBY_RC);
+
+}
+
+
+
+
+
 
 
 

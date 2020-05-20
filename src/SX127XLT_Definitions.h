@@ -30,7 +30,7 @@
 #define LNAGAING5                                   0xA0
 #define LNAGAING6                                   0xC0   //minimum LNA gain 
 
-#define    PACKET_TYPE_GFSK                         0x00   //regopmode setting for FSK
+#define    PACKET_TYPE_GFSK                         0x00   //regopmode setting for FSK and direct mode
 #define    PACKET_TYPE_LORA                         0x80   //regopmode setting for LoRa 
 #define    PACKET_TYPE_NONE                         0x0F
 
@@ -250,6 +250,28 @@ const uint8_t REG_PADAC = 0x4D;
 
 #define Deviation5khz   0x52
 
+
+//FSKRTTY Settings
+#define ParityNone 0
+#define ParityOdd 1
+#define ParityEven 2
+#define ParityZero 0xF0
+#define ParityOne  0xF1 
+
+
+/*
+//Atmel watchdog sleep times
+#define sleep16mS 0x00
+#define sleep32mS 0x01
+#define sleep64mS 0x02
+#define sleep125mS 0x03
+#define sleep250mS 0x04
+#define sleep500mS 0x05
+#define sleep1000mS 0x06
+#define sleep2000mS 0x07
+#define sleep4000mS 0x20
+#define sleep8000mS 0x21
+*/
 
 /*
   MIT license
