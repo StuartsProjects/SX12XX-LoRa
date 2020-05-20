@@ -5,12 +5,6 @@
   suitable for the intended purpose and free from errors.
 *******************************************************************************************************/
 
-/*******************************************************************************************************
-  Program Operation -
-
-  Serial monitor baud rate is set at 9600.
-*******************************************************************************************************/
-
 //*******  Setup hardware pin definitions here ! ***************
 
 //These are the pin definitions for one of my own boards, the Easy Mikrobus Pro Mini, 

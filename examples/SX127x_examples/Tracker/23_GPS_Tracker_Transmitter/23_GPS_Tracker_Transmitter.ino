@@ -165,7 +165,7 @@ void sendLocationBinary(float Lat, float Lon, float Alt, uint32_t Hdop, uint32_t
   TXVolts = readSupplyVoltage();              //get the latest supply\battery volts
 
   LT.startWriteSXBuffer(0);                   //initialise buffer write at address 0
-  LT.writeUint8(LocationPacket);              //indentify type of packet
+  LT.writeUint8(LocationPacket);              //identify type of packet
   LT.writeUint8(Broadcast);                   //who is the packet sent too
   LT.writeUint8(ThisNode);                    //tells receiver where is packet from
   LT.writeFloat(Lat);                         //add latitude

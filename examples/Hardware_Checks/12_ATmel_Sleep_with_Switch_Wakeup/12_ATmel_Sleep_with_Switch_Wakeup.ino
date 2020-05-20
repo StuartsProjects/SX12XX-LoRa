@@ -44,7 +44,7 @@ void loop()
 
 void sleep_permanent()
 {
-  attachInterrupt(digitalPinToInterrupt(SWITCH1), wakeUp, FALLING                                                                                                                                                                                                                                                                                                                                           );   //This is a hardware interrupt
+  attachInterrupt(digitalPinToInterrupt(SWITCH1), wakeUp, FALLING);   //This is a hardware interrupt
 
   ADCSRA = 0;                         //disable ADC
   set_sleep_mode (SLEEP_MODE_PWR_DOWN);

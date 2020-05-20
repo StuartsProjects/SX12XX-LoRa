@@ -20,9 +20,8 @@
 
 #define programversion "V1.0"
 
-#define ONE_WIRE_BUS 33                           //pin the DS18B20 is connected to
-#define LED1 2                                    //LED, on when reading temperature  
-#define VCCPOWER 14                               //controls power to external devices 
+#define ONE_WIRE_BUS 4                            //pin the DS18B20 is connected to
+#define LED1 8                                    //LED, on when reading temperature  
 
 
 #include <OneWire.h>                              //get library here > https://github.com/PaulStoffregen/OneWire  
@@ -71,15 +70,9 @@ void setup()
   Serial.println(__DATE__);
   Serial.println(F(programversion));
   Serial.println();
-  Serial.println("48_DS18B20_Test_ESP32 Starting");
+  Serial.println("48_DS18B20_Test Starting");
 
   pinMode(LED1, OUTPUT);
-
-  if (VCCPOWER >= 0)
-  {
-    pinMode(VCCPOWER, OUTPUT);                  //For controlling power to external devices
-    digitalWrite(VCCPOWER, LOW);                //VCCOUT on. lora device on, DS18B20 on.
-  }
 
   led_Flash(4, 125);                          //one second of flashes
 

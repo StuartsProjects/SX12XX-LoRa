@@ -47,7 +47,7 @@ const int8_t TXpower = 10;                      //LoRa transmit power in dBm
 //**************************************************************************************************
 
 #define USE_SOFTSERIAL_GPS                       //need to include this if we are using softserial for GPS     
-#define HardwareSerialPort Serial1               //if using hardware serial enable this define for hardware serial port 
+//#define HardwareSerialPort Serial1             //if using hardware serial enable this define for hardware serial port 
 
 #define GPSBaud 9600                             //GPS Baud rate   
 #define WaitGPSFixSeconds 30                     //time to wait for a new GPS fix 

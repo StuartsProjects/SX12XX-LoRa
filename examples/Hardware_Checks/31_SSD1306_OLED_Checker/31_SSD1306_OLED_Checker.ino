@@ -11,6 +11,8 @@
 
   OLED address is defined as 0x3C.
 
+  Screen write on 8Mhz Atmel 170mS.
+
   Serial monitor baud rate is set at 9600.
 *******************************************************************************************************/
 
