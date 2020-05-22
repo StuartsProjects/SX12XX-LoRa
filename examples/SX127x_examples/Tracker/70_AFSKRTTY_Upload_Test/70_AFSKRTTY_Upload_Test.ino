@@ -52,18 +52,18 @@ void loop()
   Serial.print(F("Sending AFSK RTTY "));
   Serial.flush();
  
-  start_AFSK_RTTY(AUDIOOUT,tonehighHz,leadinmS);
+  startAFSKRTTY(AUDIOOUT,tonehighHz,leadinmS);
   
   for (index = 0; index < len; index++)
   {
     chartosend = testBuffer[index];
-    SendAFSKRTTY(chartosend,AUDIOOUT,CHECK,tonelowHz,tonehighHz,AFSKRTTYperiod);
+    sendAFSKRTTY(chartosend,AUDIOOUT,CHECK,tonelowHz,tonehighHz,AFSKRTTYperiod);
     Serial.write(chartosend);
     Serial.flush();
   }
 
-  SendAFSKRTTY(13,AUDIOOUT,CHECK,tonelowHz,tonehighHz,AFSKRTTYperiod);
-  SendAFSKRTTY(10,AUDIOOUT,CHECK,tonelowHz,tonehighHz,AFSKRTTYperiod);
+  sendAFSKRTTY(13,AUDIOOUT,CHECK,tonelowHz,tonehighHz,AFSKRTTYperiod);
+  sendAFSKRTTY(10,AUDIOOUT,CHECK,tonelowHz,tonehighHz,AFSKRTTYperiod);
   
   //end_AFSK_RTTY(AUDIOOUT);                                //optional, if enabled prevents noise appearing on FLDIGI decode
   
