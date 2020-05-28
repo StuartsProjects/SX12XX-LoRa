@@ -26,7 +26,7 @@
 #define GPSONSTATE HIGH                         //logic level to turn GPS on via pin GPSPOWER 
 #define GPSOFFSTATE LOW                         //logic level to turn GPS off via pin GPSPOWER
 
-#define AUDIOOUT 4                              //Pin used to output Audio tones  
+#define AUDIOOUT 4                              //Pin used to output Audio tones for HAB packet upload 
 #define CHECK -1                                //This pin is toggled inside the AFSKRTTY library, high for logic 1, low for logic 0, so it can be used to check the timing.
 
 #define LORA_DEVICE DEVICE_SX1278               //this is the device we are using
@@ -53,7 +53,7 @@ const int8_t TrackerTXpower = 10;                      //LoRa TX power in dBm
 const uint8_t TrackerMode = 1;                         //used for receiver to tell whatmode it is in
 
 //Search mode
-const uint32_t SearchFrequency = 434400000;            //frequency of transmissions
+const uint32_t SearchFrequency = 434000000;            //frequency of transmissions
 const uint8_t SearchBandwidth = LORA_BW_062;;          //LoRa bandwidth
 const uint8_t SearchSpreadingFactor = LORA_SF12;       //LoRa spreading factor
 const uint8_t SearchCodeRate = LORA_CR_4_5;            //LoRa coding rate
@@ -80,16 +80,17 @@ const uint8_t DisplayRate = 7;                   //when working OK the GPS will 
 
 
 //**************************************************************************************************
-// 6) AFSK RTTY Settings - For PC upload - sent at 300baud, 7 bit, no parity, 2 stop bits.
-//    low tone 635hz, high tone 1000hz
+// 6) AFSK RTTY Settings - For PC upload into Dl-Fldigi in HAB mode. 
+//    Sent at 300baud, 7 bit, no parity, 2 stop bits.
+//    Shift 500hz, low tone 800hz, high tone 1300hz. 
 //**************************************************************************************************
 
-//#define UPLOADHABPACKET                          //comment in define to output AFSKRTTY when HAB packet received 
+//#define UPLOADHABPACKET                          //comment in define to output HAB packet as AFSKRTTY for PC upload
 
 const uint16_t AFSKRTTYperiod = 3333;            //period in uS for 1 bit at chosen baud rate, e.g. 10000 for 100baud, 3333 for 300baud
 const uint16_t leadinmS = 500;                   //number of ms for AFSK constant lead in tone
-const uint16_t tonehighHz = 1000;                //high tone in Hertz 
-const uint16_t tonelowHz = 635;                  //low tone in Hertz   
+const uint16_t tonehighHz = 1300;                //high tone in Hertz 
+const uint16_t tonelowHz = 800;                  //low tone in Hertz   
 
 
 

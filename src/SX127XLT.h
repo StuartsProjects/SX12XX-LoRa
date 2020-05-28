@@ -15,7 +15,6 @@
   ToDO
 
   Add ppmoffset to frequency error check program Check this in program 12 LT.writeRegister(RegPpmCorrection,ppmoffset);
-  Investigate adding internal SX1278 temperature sensor
   Check sensitivity\current for writeRegister(RegLna, 0x3B );.//at HF 150% LNA current.
   Add packet SF6 support and implicit mode support and examples
   returnBandwidth(byte BWregvalue) does not directly take account of SX1272
@@ -157,7 +156,8 @@ class SX127XLT
     void transmitFSKRTTY(uint8_t chartosend, uint8_t databits, uint8_t stopbits, uint8_t parity, uint16_t baudPerioduS, int8_t pin);
     void printRTTYregisters();
     void endFSKRTTY();
-
+    void doAFC();
+    int32_t getOffset();
 
     //*******************************************************************************
     //Read Write SX12xxx Buffer commands, this is the buffer internal to the SX12xxxx
@@ -237,7 +237,7 @@ class SX127XLT
     uint8_t _freqregH, _freqregM, _freqregL;  //the registers values for the set frequency
     uint8_t _ShiftfreqregH, _ShiftfreqregM, _ShiftfreqregL;  //register values for shifted frequency, used in FSK
     uint32_t savedFrequency;
-    uint32_t savedOffset;
+    int32_t savedOffset;
 };
 #endif
 

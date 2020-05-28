@@ -3341,6 +3341,10 @@ void SX127XLT::toneFM(uint16_t frequency, uint32_t length, uint32_t deviation, f
   freqregM = SPI.transfer(0);
   freqregL = SPI.transfer(0);
   digitalWrite(_NSS, HIGH);          //set NSS high
+  
+#ifdef USE_SPI_TRANSACTION
+  SPI.endTransaction();
+#endif
     
   freqreg = ( ( (uint32_t) freqregH << 16 ) | ( (uint32_t) freqregM << 8 ) | ( freqregL ) );
 
@@ -3397,10 +3401,14 @@ void SX127XLT::toneFM(uint16_t frequency, uint32_t length, uint32_t deviation, f
   Serial.println();
 #endif
 
-  writeRegister(REG_PLLHOP, 0xAD);          //set fast hop mode, needed for fast changes of frequency
+  writeRegister(REG_PLLHOP, 0xAD);            //set fast hop mode, needed for fast changes of frequency
+  
   setTxParams(txpower, RADIO_RAMP_DEFAULT);
   setTXDirect();
-
+ 
+  #ifdef USE_SPI_TRANSACTION         //to use SPI_TRANSACTION enable define at beginning of CPP file 
+  SPI.beginTransaction(SPISettings(LTspeedMaximum, LTdataOrder, LTdataMode));
+  #endif
   
   for (index = 1; index <= loopcount; index++)
   {
@@ -3410,7 +3418,7 @@ void SX127XLT::toneFM(uint16_t frequency, uint32_t length, uint32_t deviation, f
     SPI.transfer(ShiftM);
     SPI.transfer(ShiftL);
     digitalWrite(_NSS, HIGH);                 //set NSS high
-
+    
     delayMicroseconds(ToneDelayus);
 
     digitalWrite(_NSS, LOW);                  //set NSS low
@@ -3780,9 +3788,20 @@ void SX127XLT::endFSKRTTY()
 }
 
 
+void SX127XLT::doAFC()
+{
+//int32_t frequencyerror;
+
+//frequencyerror = getFrequencyErrorHz();
+savedOffset = savedOffset - getFrequencyErrorHz();
+setRfFrequency(savedFrequency, savedOffset);     //adjust the operating frequency for AFC
+}
 
 
-
+int32_t SX127XLT::getOffset()
+{
+return savedOffset;
+}
 
 
 

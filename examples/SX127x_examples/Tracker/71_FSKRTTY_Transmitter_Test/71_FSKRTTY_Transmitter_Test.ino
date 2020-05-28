@@ -43,9 +43,9 @@ SX127XLT LT;                                                   //create a librar
 
 //Choose whichever test pattern takes your fancy
 //uint8_t testBuffer[] = "0123456789* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *";               //This string is sent as AFSK RTTY, 7 bit, 2 Stop bit, no parity, 300 baud.
-uint8_t testBuffer[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZ 0123456789";               
+//uint8_t testBuffer[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZ 0123456789";               
 //uint8_t testBuffer[] = "UUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUU";
-//uint8_t testBuffer[] = "$$MyFlight1,2213,14:54:37,51.48230,-3.18136,15,6,3680,23,66,3,0*2935";
+uint8_t testBuffer[] = "$$MyFlight1,2213,14:54:37,51.48230,-3.18136,15,6,3680,23,66,3,0*2935";
 
 uint8_t freqShiftRegs[3];                                      //to hold returned registers that set frequency
 
@@ -67,11 +67,14 @@ void loop()
   
   Serial.print(F("Start RTTY micros() = "));
   Serial.println(micros(),HEX);
-  for (index = 0; index < sizeof(testBuffer); index++)
+  for (index = 0; index < (sizeof(testBuffer)-1); index++)
   {
     LT.transmitFSKRTTY(testBuffer[index], DataBits, StopBits, Parity, BaudPerioduS, LED1);
     Serial.write(testBuffer[index]);
   }
+  LT.transmitFSKRTTY(13, DataBits, StopBits, Parity, BaudPerioduS, LED1); //send carriage return
+  LT.transmitFSKRTTY(10, DataBits, StopBits, Parity, BaudPerioduS, LED1); //send line feed
+    
   Serial.println();
   Serial.print(F("END RTTY micros() = "));
   Serial.println(micros(),HEX);

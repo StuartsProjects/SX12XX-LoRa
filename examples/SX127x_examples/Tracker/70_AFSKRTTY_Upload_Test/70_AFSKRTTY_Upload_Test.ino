@@ -15,7 +15,7 @@ connected tracking system.
 The audio output is connected to a PC sound cards microphone input. Do use a small capacitor and resistor
 is series with the output pin to limit the input to the PC sound card. A 0.1uF capacitor and 47k resistor
 are suitable. The AFSK RTTY is sent as ASCII 7 bit, 2 Stop bit, no parity, 300 baud. Tones in the example
-are 635Hz for a 0 bit and 1000hz for 1 bit. A screenshot of the FLDIGI settings used in in the folder
+are 800hz for a 0 bit and 1300hz for 1 bit. A screenshot of the FLDIGI settings used in in the folder
 containing the program; 'FLDIGI Settings.jpg'
 
 The program uses 2 pins on the Arduino, AUDIOOUT and LED1. You need to define the pins these outputs 
@@ -27,12 +27,12 @@ Serial monitor baud rate is set at 9600
 *******************************************************************************************************/
 
 const int8_t AUDIOOUT = 4;                    //Pin used to output Audio tones  
-const int8_t CHECK = A3;                      //This pin is toggled inside the AFSKRTTY library, high for logic 1, low for logic 0, so it can be used to check the timing.
+const int8_t CHECK = 8;                       //This pin is toggled inside the AFSKRTTY library, high for logic 1, low for logic 0, so it can be used to check the timing.
 
 const uint16_t AFSKRTTYperiod = 3333;         //period in uS for 1 bit at chosen baud rate, e.g. 10000 for 100baud, 3333 for 300baud
 const uint16_t leadinmS = 500;                //number of ms for AFSK constant lead in tone
-const uint16_t tonehighHz = 1000;             //high tone in Hertz 
-const uint16_t tonelowHz = 635;               //low tone in Hertz   
+const uint16_t tonehighHz = 1300;             //high tone in Hertz 
+const uint16_t tonelowHz = 800;               //low tone in Hertz   
 
 #include <AFSKRTTY.h>
 

@@ -25,11 +25,11 @@ const char LocationBinaryPacket = 's';  //short location packet in binary format
 const char NoFix = 'F';                 //GPS no fix
 const char NoGPS = 'G';                 //No GPS found, or GPS error.
 const char ACK = 'A';                   //Acknowledge
+const char AFC = 'a';                   //Packet sent for AFC purposes
 
 //GPS Tracker Status byte settings
 const byte GPSFix = 0;                  //flag bit set when GPS has a current fix
 const byte GPSConfigError = 1;          //flag bit set to indicate cannot configure GPS or wrong configuration 
-const byte NoGPSFix = 2;                //flag bit set when GPS has no current fix
 const byte GPSError = 3;                //flag bit set to indicate GPS error, response timeout for instance
 const byte LORAError = 4;               //flag bit indication a lora device error
 const byte TrackerLost = 6;             //flag bit indication that tracker in lost mode

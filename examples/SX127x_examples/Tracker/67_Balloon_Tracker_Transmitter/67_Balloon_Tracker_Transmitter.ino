@@ -1,5 +1,5 @@
 /*******************************************************************************************************
-  Programs for Arduino - Copyright of the author Stuart Robinson - 12/05/20
+  Programs for Arduino - Copyright of the author Stuart Robinson - 28/05/20
 
   This program is supplied as is, it is up to the user of the program to decide if the program is
   suitable for the intended purpose and free from errors.
@@ -42,7 +42,7 @@
   Serial monitor baud rate is set at 9600
 *******************************************************************************************************/
 
-#define Program_Version "V1.0"
+#define Program_Version "V1.1"
 
 #include <Arduino.h>
 #include <SX127XLT.h>                           //include the appropriate library  
@@ -74,8 +74,6 @@ uint32_t TXGPSfixms;                             //fix time of GPS
 uint8_t TXPacketL;                               //length of LoRa packet sent
 uint8_t  TXBUFFER[TXBUFFER_SIZE];                //buffer for packet to send
 
-//#include <EEPROM_Memory.h>                     //memory library to use   
-
 #include Memory_Library
 
 #include <SPI.h>
@@ -84,10 +82,10 @@ uint8_t  TXBUFFER[TXBUFFER_SIZE];                //buffer for packet to send
 TinyGPSPlus gps;                                 //create the TinyGPS++ object
 
 #ifdef USESOFTSERIALGPS
-#include <NeoSWSerial.h>                         //https://github.com/SlashDevin/NeoSWSerial
-NeoSWSerial GPSserial(RXpin, TXpin);             //this library is more relaible at GPS init than software serial
-//#include <SoftwareSerial.h>
-//SoftwareSerial GPSserial(RXpin, TXpin);
+//#include <NeoSWSerial.h>                         //https://github.com/SlashDevin/NeoSWSerial
+//NeoSWSerial GPSserial(RXpin, TXpin);             //this library is more relaible at GPS init than software serial
+#include <SoftwareSerial.h>
+SoftwareSerial GPSserial(RXpin, TXpin);
 #endif
 
 #ifndef USESOFTSERIALGPS
@@ -136,48 +134,13 @@ void do_Transmissions()
   //this is where all the transmisions get sent
   uint32_t startTimemS;
   uint8_t index;
-
-  setTrackerMode();                              //then sets up LoRa device, does not take long, so just in case
-
+  
   incMemoryUint32(addr_SequenceNum);             //increment Sequence number
-  TXPacketL = buildHABPacket();
-  Serial.print(F("HAB Packet > "));
-  printBuffer(TXBUFFER, TXPacketL);              //print the buffer (the packet to send) as ASCII
-  digitalWrite(LED1, HIGH);
-  startTimemS = millis();
-  TXPacketL = LT.transmit(TXBUFFER, (TXPacketL + 1), 10000, TrackerTXpower, WAIT_TX); //will return packet length sent if OK, otherwise 0 if transmit error
-  printTXtime(startTimemS, millis());
-  digitalWrite(LED1, LOW);
-
-  reportCompletion();
-  Serial.println();
-
-  if (readConfigByte(FSKRTTYEnable))
-  {
-    Serial.print(F("FSK RTTY > "));
-
-    LT.setupDirect(TrackerFrequency, Offset);                               
-    LT.startFSKRTTY(FrequencyShift, NumberofPips, PipPeriodmS, PipDelaymS, LeadinmS);
-    
-    startTimemS = millis() - LeadinmS;
-    for (index = 0; index <= (TXPacketL - 1); index++)
-    {
-      LT.transmitFSKRTTY(TXBUFFER[index], DataBits, StopBits, Parity, BaudPerioduS, LED1);
-      Serial.write(TXBUFFER[index]);
-    }
-    LT.transmitFSKRTTY(13, DataBits, StopBits, Parity, BaudPerioduS, LED1); //send carriage return
-    TXPacketL++;
-    LT.transmitFSKRTTY(10, DataBits, StopBits, Parity, BaudPerioduS, LED1); //send line feed
-    TXPacketL++;
-    LT.endFSKRTTY(); //stop transmitting carrier
-    printTXtime(startTimemS, millis());
-    reportCompletion();
-    Serial.println();
-  }
 
   if (readConfigByte(SearchEnable))
   {
     setSearchMode();
+    TXPacketL = buildLocationOnly(TXLat, TXLon, TXAlt, TXStatus);  //put location data in SX12xx buffer
     Serial.print(F("Search packet > "));
     Serial.print(TXLat, 5);
     Serial.print(F(","));
@@ -186,7 +149,55 @@ void do_Transmissions()
     Serial.print(TXAlt);
     Serial.print(F(","));
     Serial.print(TXStatus);
-    TXPacketL = sendLocationOnly(TXLat, TXLon, TXAlt, TXStatus);
+    digitalWrite(LED1, HIGH);
+    startTimemS = millis();
+    TXPacketL = LT.transmitSXBuffer(0, TXPacketL, 10000, SearchTXpower, WAIT_TX);
+    printTXtime(startTimemS, millis());
+    reportCompletion();
+    Serial.println();
+  }
+
+  delay(1000);                                        //gap between transmissions 
+ 
+  setTrackerMode();                              
+  
+  TXPacketL = buildHABPacket();                       
+  Serial.print(F("HAB Packet > "));
+  printBuffer(TXBUFFER, (TXPacketL + 1));             //print the buffer (the packet to send) as ASCII
+  digitalWrite(LED1, HIGH);
+  startTimemS = millis();
+  TXPacketL = LT.transmit(TXBUFFER, (TXPacketL + 1), 10000, TrackerTXpower, WAIT_TX); //will return packet length sent if OK, otherwise 0 if transmit error
+  digitalWrite(LED1, LOW);
+  printTXtime(startTimemS, millis());
+  reportCompletion();
+  Serial.println();
+
+  delay(1000);                                        //gap between transmissions
+
+  if (readConfigByte(FSKRTTYEnable))
+  {
+    LT.setupDirect(TrackerFrequency, Offset);                               
+    LT.startFSKRTTY(FrequencyShift, NumberofPips, PipPeriodmS, PipDelaymS, LeadinmS);
+    
+    startTimemS = millis() - LeadinmS;
+    
+    Serial.print(F("FSK RTTY > $$"));
+    Serial.flush();
+    LT.transmitFSKRTTY('$', BaudPerioduS, LED1);            //send a '$' as sync
+    LT.transmitFSKRTTY('$', BaudPerioduS, LED1);            //send a '$' as sync
+        
+    for (index = 0; index <= (TXPacketL - 1); index++)      //its  TXPacketL-1 since we dont want to send the null at the end 
+    {
+      LT.transmitFSKRTTY(TXBUFFER[index], BaudPerioduS, LED1);
+      Serial.write(TXBUFFER[index]);
+    }
+    
+    LT.transmitFSKRTTY(13, BaudPerioduS, LED1);              //send carriage return
+    LT.transmitFSKRTTY(10, BaudPerioduS, LED1);              //send line feed
+    LT.endFSKRTTY(); //stop transmitting carrier
+    digitalWrite(LED1, LOW);                                 //LED off
+    printTXtime(startTimemS, millis());
+    TXPacketL += 4;                                          //add the two $ at beginning and CR/LF at end
     reportCompletion();
     Serial.println();
   }
@@ -203,6 +214,7 @@ Serial.print(F("mS"));
 
 void reportCompletion()
 {
+  Serial.print(F(" "));
   if (TXPacketL == 0)
   {
     Serial.println();
@@ -210,9 +222,8 @@ void reportCompletion()
   }
   else
   {
-    Serial.print(F("  "));
     Serial.print(TXPacketL);
-    Serial.print(F(" bytes"));
+    Serial.print(F("bytes"));
     setStatusByte(LORAError, 0);
   }
 }
@@ -285,8 +296,7 @@ uint8_t buildHABPacket()
   TXBUFFER[Count++] = Hex((CRC >> 12) & 15);      //add the checksum bytes to the end
   TXBUFFER[Count++] = Hex((CRC >> 8) & 15);
   TXBUFFER[Count++] = Hex((CRC >> 4) & 15);
-  TXBUFFER[Count++] = Hex(CRC & 15);
-  TXBUFFER[Count] = 0;                            //put null on end
+  TXBUFFER[Count] = Hex(CRC & 15);
   return Count;
 }
 
@@ -299,9 +309,8 @@ char Hex(uint8_t lchar)
 }
 
 
-uint8_t sendLocationOnly(float Lat, float Lon, uint16_t Alt, uint8_t stat)
+uint8_t buildLocationOnly(float Lat, float Lon, uint16_t Alt, uint8_t stat)
 {
-  uint32_t startTimemS;
   uint8_t len;
   LT.startWriteSXBuffer(0);                   //initialise buffer write at address 0
   LT.writeUint8(LocationBinaryPacket);        //identify type of packet
@@ -312,14 +321,7 @@ uint8_t sendLocationOnly(float Lat, float Lon, uint16_t Alt, uint8_t stat)
   LT.writeInt16(Alt);                         //add altitude
   LT.writeUint8(stat);                        //add tracker status
   len = LT.endWriteSXBuffer();                //close buffer write
-
-  digitalWrite(LED1, HIGH);
-  startTimemS = millis();
-  TXPacketL = LT.transmitSXBuffer(0, len, 10000, SearchTXpower, WAIT_TX);
-  printTXtime(startTimemS, millis());
-  digitalWrite(LED1, LOW);
-
-  return TXPacketL;
+  return len; 
 }
 
 
@@ -569,7 +571,7 @@ bool gpsWaitFix(uint16_t waitSecs)
       TXSeconds = gps.time.second(),
       TXSatellites = gps.satellites.value();
 
-      setStatusByte(NoGPSFix, 0);
+      setStatusByte(GPSFix, 1);
 
       TXGPSfixms = millis() - GPSstartms;
 
@@ -585,7 +587,7 @@ bool gpsWaitFix(uint16_t waitSecs)
 
   //if here then there has been no fix and a timeout
   GPS_OutputOff();
-  setStatusByte(NoGPSFix, 1);               //set status bit to flag no fix
+  setStatusByte(GPSFix, 0);                     //set status bit to flag no fix
   incMemoryUint16(addr_TXErrors);
   Serial.println(F("Error No GPS Fix"));
   return false;
@@ -600,11 +602,17 @@ void setup()
 {
   uint32_t i;
   uint16_t j;
-
-  pinMode(LED1, OUTPUT);                    //for PCB LED
-  led_Flash(2, 500);
-
+  
   Serial.begin(115200);                     //Setup Serial console ouput
+  j = readMemoryUint16(addr_ResetCount);
+  j++;
+  writeMemoryUint16(addr_ResetCount, j);
+  Serial.print(F("TXResets "));
+  Serial.println(j);
+
+  pinMode(LED1, OUTPUT);                    //for indicator LED
+  led_Flash(2, 500);
+  
   Serial.println();
   Serial.println();
   Serial.println(F("67_HAB_Balloon_Tracker_Transmitter Starting"));
@@ -653,12 +661,6 @@ void setup()
 
   Serial.print(F("Config "));
   Serial.println(Default_config1, BIN);
-
-  j = readMemoryUint16(addr_ResetCount);
-  j++;
-  writeMemoryUint16(addr_ResetCount, j);
-  Serial.print(F("TXResets "));
-  Serial.println(j);
 
   j = readMemoryUint16(addr_TXErrors);
   Serial.print(F("TXErrors "));

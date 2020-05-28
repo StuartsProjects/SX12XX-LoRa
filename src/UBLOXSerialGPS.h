@@ -29,7 +29,7 @@ void GPS_OutputOff();
 void GPS_PowerOn();
 bool GPS_CheckConfiguration();
 bool GPS_SendConfig(const uint8_t *Progmem_ptr, uint8_t arraysize, uint8_t replylength, uint8_t attempts);
-bool GPS_WaitAck(unsigned long waitms, byte length);
+bool GPS_WaitAck(uint32_t waitms, uint8_t length);
 bool GPS_PollNavigation();
 
 bool GPS_ClearConfig();
@@ -44,10 +44,10 @@ bool GPS_GPGSAOff();
 bool GPS_GPGSVOff();
 bool GPS_CheckAck();
 
-const unsigned long GPS_WaitAck_mS = 1000;       //number of mS to wait for an ACK response from GPS
+const uint32_t GPS_WaitAck_mS = 1000;            //number of mS to wait for an ACK response from GPS
 const byte GPS_attempts = 5;                     //number of times the sending of GPS config will be attempted.
 const byte GPS_Reply_Size = 16;                  //size of GPS reply buffer
-const unsigned int GPS_Clear_DelaymS = 2000;     //mS to wait after a GPS Clear command is sent
+const uint16_t GPS_Clear_DelaymS = 2000;         //mS to wait after a GPS Clear command is sent
 uint8_t GPS_Reply[GPS_Reply_Size];              //byte array for storing GPS reply to UBX commands
 
 

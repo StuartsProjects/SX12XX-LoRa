@@ -1,5 +1,5 @@
 /*******************************************************************************************************
-  lora Programs for Arduino - Copyright of the author Stuart Robinson - 12/05/20
+  lora Programs for Arduino - Copyright of the author Stuart Robinson - 28/05/20
 
   This program is supplied as is, it is up to the user of the program to decide if the program is
   suitable for the intended purpose and free from errors.
@@ -17,7 +17,7 @@
 #define DIO0 3                                  //DIO0 on LoRa device, used for RX and TX done 
 #define LED1 8                                  //On board LED, high for on
 #define BATVREADON 8                            //Pin that turns on the resistor divider to read battery volts
-#define ONE_WIRE_BUS 4
+#define ONE_WIRE_BUS 4                          //for DS18B20 temperature sensor 
 #define ADMultiplier 10.42                      //adjustment to convert AD value read into mV of battery voltage 
 #define SupplyAD A0                             //Resistor divider for battery connected here 
 
@@ -29,7 +29,6 @@
 #define GPSOFFSTATE LOW                         //logic level to turn GPS off via pin GPSPOWER 
 
 #define LORA_DEVICE DEVICE_SX1278               //this is the device we are using
-
 
 //**************************************************************************************************
 // 2) Program Options
@@ -78,8 +77,8 @@ const byte TXBUFFER_SIZE = 128;                   //defines the maximum size of 
 
 const uint16_t WaitGPSFixSeconds = 60;            //when in flight the time to wait for a new GPS fix 
 
-//#define GPS_Library <UBLOXSerialGPS.h>            //use library file for UBLOX GPS                    
-#define GPS_Library <QuectelSerialGPS.h>        //use library file for Quectel GPS
+#define GPS_Library <UBLOXSerialGPS.h>            //use library file for UBLOX GPS                    
+//#define GPS_Library <QuectelSerialGPS.h>        //use library file for Quectel GPS
 
 
 //**************************************************************************************************
@@ -87,14 +86,11 @@ const uint16_t WaitGPSFixSeconds = 60;            //when in flight the time to w
 //**************************************************************************************************
 
 uint32_t FrequencyShift = 500;                    //hertz frequency shift for audio  
-uint8_t NumberofPips = 5;                         //number of marker pips to send
+uint8_t NumberofPips = 4;                         //number of marker pips to send
 uint16_t PipDelaymS = 1000;                       //mS between pips when carrier is off 
 uint16_t PipPeriodmS = 100;                       //mS length of pip
 uint16_t BaudPerioduS = 10000;                    //uS period for baud, 10000uS for 100baud 
 uint16_t LeadinmS = 1000;                         //ms of leadin constant shifted carrier 
-uint8_t DataBits = 7;                             //number of databits, normally 7 or 8
-uint8_t StopBits = 2;                             //number of stopbits, normally 1 or 2 
-uint8_t Parity = ParityEven;                      //parity on data bits, ParityNone, ParityOdd, ParityEven, ParityZero, ParityOne 
 
 
 //****************************************************************************************************
@@ -135,10 +131,10 @@ int16_t Memory_Address = 0x50;                     //default I2C address of MB85
 // 8) HAB Flight Settings
 //**************************************************************************************************
 
-char FlightID[] = "MyFlight1";                     //flight ID
+char FlightID[] = "MyFlight1";                     //flight ID for HAB packet
 
 const unsigned int SleepTimesecs = 13;             //sleep time in seconds after each TX loop
 
-const char ThisNode = '1';
+const char ThisNode = '1';                         //tracker number for search packet
 
 

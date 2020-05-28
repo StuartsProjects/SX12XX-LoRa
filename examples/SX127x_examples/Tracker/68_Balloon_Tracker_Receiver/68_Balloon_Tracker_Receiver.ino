@@ -100,8 +100,7 @@ uint8_t RXBUFFER[RXBUFFER_SIZE];  //create the buffer that received packets are 
 char FlightID[16];                //buffer for flight ID
 uint8_t FlightIDlen;              //length of received flight ID
 
-uint8_t modeNumber;               //mode receiver is in, 1 = Tracker, 2 = Search
-//bool switch1Flag;                                 //flag to record switch press
+uint8_t modeNumber = 1;           //mode receiver is in default to 1. (1 = Tracker, 2 = Search)
 
 
 void loop()
@@ -109,7 +108,7 @@ void loop()
   RXPacketL = LT.receiveSXBuffer(0, 0, NO_WAIT);
 
   GPSserial.begin(GPSBaud);                       //startup GPS input
-   
+
   while (!digitalRead(DIO0))
   {
     readGPS();                                     //If the DIO pin is low, no packet has arrived, so read the GPS
@@ -130,6 +129,8 @@ void loop()
     RXPacketL = LT.readRXPacketL();
     PacketRSSI = LT.readPacketRSSI();
     PacketSNR = LT.readPacketSNR();
+
+    printElapsedTime();                                   //print elapsed time to Serial Monitor
 
     if (LT.readIrqStatus() != (IRQ_RX_DONE + IRQ_HEADER_VALID))
     {
@@ -159,7 +160,12 @@ void readGPS()
   {
     RXGPSfix = false;
     LastRXGPSfixCheck = millis();
-    dispscreen1();
+    if (TXLocation)                                     //only display location screen if we have had an update
+    {
+      displayscreen1();
+      displayscreen3();
+      displayscreen4();
+    }
   }
 
   if (gps.location.isUpdated() && gps.altitude.isUpdated())
@@ -169,11 +175,19 @@ void readGPS()
     RXLon = gps.location.lng();
     RXAlt = gps.altitude.meters();
     LastRXGPSfixCheck = millis();
+    displayscreen4();
 
-    if ( FixCount == 1)                           //update screen when FIXcoount counts down from DisplayRate to 1
+    if (FixCount == 1)                                    //update screen when FIXcoount counts down from DisplayRate to 1
     {
       FixCount = DisplayRate;
-      dispscreen1();
+      if (TXLocation)                                     //only display location screen if we have had an update
+      {
+        doDistanceDirectionCalc();
+        displayscreen1();
+        displayscreen3();
+        displayscreen4();
+        displayscreen5();
+      }
     }
     FixCount--;
   }
@@ -182,29 +196,36 @@ void readGPS()
 
 void checkModeSwitch()
 {
-    digitalWrite(LED1, LOW);
-    Serial.println();
-    Serial.print(F("Listening in "));
+  digitalWrite(LED1, LOW);
+  Serial.println();
+  Serial.print(F("Listening in "));
 
-    if (modeNumber == 1)
-    {
-      modeNumber = SearchMode;                     //used for receiver to tell whatmode it is in;
-      setSearchMode();
-      Serial.println(F("Search Mode"));
-    }
-    else
-    {
-      modeNumber = TrackerMode;
-      setTrackerMode();
-      Serial.println(F("Tracker Mode"));
-    }
+  modeNumber++;
 
-  dispscreen3();                                   //update receive mode to screen
-  
+  if (modeNumber == 3)
+  {
+    modeNumber = 1;
+  }
+
+  if (modeNumber == 1)
+  {
+    setTrackerMode();
+    Serial.println(F("Tracker Mode"));
+  }
+
+
+  if (modeNumber == 2)
+  {
+    setSearchMode();
+    Serial.println(F("Search Mode"));
+  }
+
+  displayscreen3();                              //update receive mode to screen
+
   LT.printModemSettings();
   Serial.println();
   Serial.println();
-  delay(1500);                                     //do a bit of switch de-bounce   
+  delay(1500);                                   //do a bit of switch de-bounce
 }
 
 
@@ -230,7 +251,6 @@ void packet_is_OK()
 
   RXpacketCount++;
 
-  printElapsedTime();                                   //print elapsed time to Serial Monitor
   readPacketAddressing();
 
   if (PacketType == PowerUp)
@@ -239,35 +259,36 @@ void packet_is_OK()
     Serial.print(F("TrackerPowerup,Battery,"));
     Serial.print(TXVolts);
     Serial.print(F("mV"));
-    dispscreen2();
+    displayscreen2();
+    displayscreen3();
+    displayscreen4();
     return;
   }
 
   if (PacketType == HABPacket)
   {
     includedCRC = calcIncludedCRC();
-    actualCRC = LT.CRCCCITTSX(2, RXPacketL - 7, 0xFFFF);
+    actualCRC = LT.CRCCCITTSX(2, RXPacketL - 6, 0xFFFF);
 
-    if (actualCRC == includedCRC)
+    if (actualCRC != includedCRC)
     {
-      extractHABdata(0);
-    }
-    else
-    {
-      Serial.println();
-      Serial.println();
       Serial.print(F("PayloadCRCError"));
       Serial.print(F(",includedCRC,"));
       Serial.print(includedCRC, HEX);
       Serial.print(F(",actualCRC,"));
       Serial.print(actualCRC, HEX);
       Serial.print(F(","));
-      packet_is_Error();     //print the LoRa error flags
+      LT.printSXBufferASCII(0, (RXPacketL - 1));
+      printpacketDetails();
+      displayscreen7();                                       //update packet count on screen
+      return;
     }
+
+    extractHABdata(0);
 
     TXLocation = true;
     LT.printSXBufferASCII(0, (RXPacketL - 1));
-    
+
     TXdistance = 0;
     TXdirection = 0;
 
@@ -279,10 +300,21 @@ void packet_is_OK()
     printDistanceDirection();
     printpacketDetails();
 
+
+    displayscreen1();                       //update location
+    displayscreen3();
+    displayscreen4();                       //update GPS fix status
+
+
+    if (RXGPSfix && TXLocation)             //only display distance and direction if have received tracker packet and have local GPS fix
+    {
+      displayscreen5();
+    }
+
     //Serial.println();
     //printHABdata();
     //Serial.println();
-  
+
 #ifdef UPLOADHABPACKET
     if (actualCRC == includedCRC)
     {
@@ -316,7 +348,7 @@ void packet_is_OK()
     Serial.print(F(","));
     Serial.print(TXLon, 5);
     Serial.print(F(","));
-    Serial.print(TXAlt, 0);
+    Serial.print(TXAlt);
     Serial.print(F("m,"));
     Serial.print(TXStatus);
 
@@ -331,7 +363,8 @@ void packet_is_OK()
     printDistanceDirection();
 
     printpacketDetails();
-    dispscreen1();
+    displayscreen1();
+    displayscreen5();
     return;
   }
 
@@ -343,6 +376,7 @@ void packet_is_OK()
     Serial.write(7);                             //send a BEL to serial terminal
     delay(250);
     Serial.write(7);
+    displayscreen6();                            //send a not to screen
     return;
   }
 
@@ -365,13 +399,13 @@ void uploadHABpacket()
   uint8_t index;
   uint8_t chartosend;
 
-  Serial.print(F("Sending AFSK RTTY "));
+  Serial.print(F("Dl-Fldigi Upload "));
   Serial.flush();
 
   startAFSKRTTY(AUDIOOUT, tonehighHz, leadinmS);
   sendAFSKRTTY(13, AUDIOOUT, CHECK, tonelowHz, tonehighHz, AFSKRTTYperiod);
 
-  for (index = 0; index <= (RXPacketL - 2); index++)
+  for (index = 0; index <= (RXPacketL - 1); index++)
   {
     chartosend = LT.getByteSXBuffer(index);
     sendAFSKRTTY(chartosend, AUDIOOUT, CHECK, tonelowHz, tonehighHz, AFSKRTTYperiod);
@@ -390,10 +424,10 @@ uint16_t calcIncludedCRC()
 {
   uint8_t high, midhigh, midlow, low;
   uint16_t crc;
-  high = LT.getByteSXBuffer(RXPacketL - 5);
-  midhigh = LT.getByteSXBuffer(RXPacketL - 4);
-  midlow = LT.getByteSXBuffer(RXPacketL - 3);
-  low = LT.getByteSXBuffer(RXPacketL - 2);
+  high = LT.getByteSXBuffer(RXPacketL - 4);
+  midhigh = LT.getByteSXBuffer(RXPacketL - 3);
+  midlow = LT.getByteSXBuffer(RXPacketL - 2);
+  low = LT.getByteSXBuffer(RXPacketL - 1);
 
   high = convertASCIIbyte(high);
   midhigh = convertASCIIbyte(midhigh);
@@ -482,7 +516,7 @@ void packet_is_Error()
 
   IRQStatus = LT.readIrqStatus();                    //get the IRQ status
   RXerrors++;
-  Serial.print(F("PacketError,RSSI"));
+  Serial.print(F(",PacketError,RSSI"));
 
   Serial.print(PacketRSSI);
   Serial.print(F("dBm,SNR,"));
@@ -510,143 +544,6 @@ void led_Flash(uint16_t flashes, uint16_t delaymS)
 }
 
 
-void dispscreen1()
-{
-  //show received packet data on display
-  uint8_t index;
-
-  disp.clearLine(0);
-  disp.setCursor(0, 0);
-
-  if (PacketType == HABPacket)
-  {
-    for (index = 0; index < FlightIDlen; index++)
-    {
-      disp.write(FlightID[index]);
-    }
-  }
-
-  if (PacketType == LocationBinaryPacket)
-  {
-    disp.print(Source);
-  }
-
-  disp.clearLine(1);
-  disp.setCursor(0, 1);
-  disp.print(F("Lat "));
-  disp.print(TXLat, 5);
-  disp.clearLine(2);
-  disp.setCursor(0, 2);
-  disp.print(F("Lon "));
-  disp.print(TXLon, 5);
-  disp.clearLine(3);
-  disp.setCursor(0, 3);
-  disp.print(F("Alt "));
-  disp.print(TXAlt);
-  disp.print(F("m"));
-
-  disp.clearLine(4);
-  disp.setCursor(0, 4);
-  disp.print(F("RSSI "));
-  disp.print(PacketRSSI);
-  disp.print(F("dBm"));
-  disp.clearLine(5);
-  disp.setCursor(0, 5);
-  disp.print(F("SNR  "));
-
-  if (PacketSNR > 0)
-  {
-    disp.print(F("+"));
-  }
-
-  if (PacketSNR == 0)
-  {
-    disp.print(F(" "));
-  }
-
-  if (PacketSNR < 0)
-  {
-    disp.print(F("-"));
-  }
-
-  disp.print(PacketSNR);
-  disp.print(F("dB"));
-
-  disp.clearLine(6);
-  disp.setCursor(0, 6);
-  disp.print(F("Packets "));
-  disp.print(RXpacketCount);
-
-  disp.clearLine(7);
-  disp.setCursor(14, 1);
-
-  if (RXGPSfix)
-  {
-    disp.print(F("RG"));
-  }
-  else
-  {
-    disp.setCursor(14, 1);
-    disp.print(F("R?"));
-    disp.setCursor(0, 7);
-    disp.print(F("No Local Fix"));
-  }
-
-  dispscreen3();
-
-  if (RXGPSfix && TXLocation)           //only display distance and direction if have received tracker packet and have local GPS fix
-  {
-    disp.clearLine(7);
-    disp.setCursor(0, 7);
-    disp.print(F("D&D "));
-    disp.print(TXdistance, 0);
-    disp.print(F("m "));
-    disp.print(TXdirection);
-    disp.print(F("d"));
-  }
-
-  disp.setCursor(14, 2);
-
-  if (readTXStatus(NoGPSFix))
-  {
-    disp.print(F("T?"));
-  }
-  else
-  {
-    disp.print(F("TG"));
-  }
-}
-
-
-void dispscreen2()
-{
-  //show tracker transmitter powerup data on display
-  float tempfloat;
-  disp.clear();
-  disp.setCursor(0, 0);
-  disp.print(F("TrackerPowerup"));
-  disp.setCursor(0, 1);
-  disp.print(F(",Battery,"));
-  tempfloat = ((float) TXVolts / 1000);
-  disp.print(tempfloat, 2);
-  disp.print(F("v"));
-}
-
-
-void dispscreen3()
-{
-  //show receive mode on display
-  disp.setCursor(14, 0);
-
-  if (modeNumber == TrackerMode)
-  {
-    disp.print(F("TR"));
-  }
-  else
-  {
-    disp.print(F("SE"));
-  }
-}
 
 
 void extractHABdata(uint8_t startaddr)
@@ -870,9 +767,179 @@ void GPSPowerOn(int8_t pin, uint8_t state)
 {
   if (pin >= 0)
   {
-  digitalWrite(pin, state); 
+    digitalWrite(pin, state);
   }
 }
+
+//************************************************************************
+// Display screen functions
+//************************************************************************
+
+void displayscreen1()
+{
+  //shows the received location data and packet reception on display
+  uint8_t index;
+
+  disp.clearLine(0);
+  disp.setCursor(0, 0);
+
+  if (PacketType == HABPacket)
+  {
+    for (index = 0; index < FlightIDlen; index++)
+    {
+      disp.write(FlightID[index]);
+    }
+  }
+
+  if (PacketType == LocationBinaryPacket)
+  {
+    disp.print(Source);
+  }
+
+  disp.clearLine(1);
+  disp.setCursor(0, 1);
+  disp.print(F("Lat "));
+  disp.print(TXLat, 5);
+  disp.clearLine(2);
+  disp.setCursor(0, 2);
+  disp.print(F("Lon "));
+  disp.print(TXLon, 5);
+  disp.clearLine(3);
+  disp.setCursor(0, 3);
+  disp.print(F("Alt "));
+  disp.print(TXAlt);
+  disp.print(F("m"));
+
+  disp.clearLine(4);
+  disp.setCursor(0, 4);
+  disp.print(F("RSSI "));
+  disp.print(PacketRSSI);
+  disp.print(F("dBm"));
+  disp.clearLine(5);
+  disp.setCursor(0, 5);
+  disp.print(F("SNR  "));
+
+  if (PacketSNR > 0)
+  {
+    disp.print(F("+"));
+  }
+
+  if (PacketSNR == 0)
+  {
+    disp.print(F(" "));
+  }
+
+  if (PacketSNR < 0)
+  {
+    disp.print(F("-"));
+  }
+
+  disp.print(PacketSNR);
+  disp.print(F("dB"));
+
+  disp.clearLine(6);
+  disp.setCursor(0, 6);
+  disp.print(F("Packets "));
+  disp.print(RXpacketCount);
+}
+
+
+void displayscreen2()
+{
+  //show tracker transmitter powerup data on display
+  float tempfloat;
+  disp.clear();
+  disp.setCursor(0, 0);
+  disp.print(F("TXPowerup"));
+  disp.setCursor(0, 1);
+  disp.print(F("Battery,"));
+  tempfloat = ((float) TXVolts / 1000);
+  disp.print(tempfloat, 2);
+  disp.print(F("v"));
+}
+
+
+void displayscreen3()
+{
+  //show receive mode on display
+  disp.setCursor(14, 0);
+
+  if (modeNumber == TrackerMode)
+  {
+    disp.print(F("TR"));
+    return;
+  }
+
+  if (modeNumber == SearchMode)
+  {
+    disp.print(F("SE"));
+    return;
+  }
+
+  disp.print(modeNumber);
+}
+
+
+void displayscreen4()
+{
+  //put RX and TX GPS fix status on display
+
+  disp.setCursor(14, 1);
+
+  if (RXGPSfix)
+  {
+    disp.print(F("RG"));
+  }
+  else
+  {
+    disp.setCursor(14, 1);
+    disp.print(F("R?"));
+  }
+
+  disp.setCursor(14, 2);
+
+  if (readTXStatus(GPSFix))
+  {
+    disp.print(F("TG"));
+  }
+  else
+  {
+    disp.print(F("T?"));
+  }
+}
+
+
+void displayscreen5()
+{
+  //put distance and direction on display
+
+  disp.clearLine(7);
+  disp.setCursor(0, 7);
+  disp.print(F("D&D "));
+  disp.print(TXdistance, 0);
+  disp.print(F("m "));
+  disp.print(TXdirection);
+  disp.print(F("d"));
+}
+
+
+void displayscreen6()
+{
+  //Tracker has no GPS fix
+  disp.clearLine(7);
+  disp.setCursor(0, 7);
+}
+
+
+void displayscreen7()
+{
+  disp.clearLine(6);
+  disp.setCursor(0, 6);
+  disp.print(F("Packets "));
+  disp.print(RXpacketCount);
+  disp.print(F(" Err"));
+}
+
 
 
 void setup()
@@ -908,13 +975,13 @@ void setup()
   disp.begin();
   disp.setFont(u8x8_font_chroma48medium8_r);
 
-  Serial.print(F("Checking LoRa device - "));         
+  Serial.print(F("Checking LoRa device - "));
   disp.setCursor(0, 0);
 
   if (LT.begin(NSS, NRESET, DIO0, LORA_DEVICE))              //Initialize LoRa device
   {
     Serial.println(F("Receiver ready"));
-    disp.print(F("Receiver ready"));
+    disp.print(F("Ready"));
     led_Flash(2, 125);
     delay(1000);
   }
@@ -930,12 +997,12 @@ void setup()
 
   Serial.println();
   Serial.println(F("Startup GPS check"));
-   
+
   endmS = millis() + 2000;
 
   //now startup GPS
   GPSPowerOn(GPSPOWER, GPSONSTATE);
-  
+
   GPSserial.begin(GPSBaud);
 
   while (millis() < endmS)
@@ -946,17 +1013,19 @@ void setup()
   Serial.println();
   Serial.println(F("Done"));
   Serial.println();
-  Serial.flush(); 
+  Serial.flush();
 
-  GPSserial.end();                                                      //software serial interferes with SPI for LoRa device 
+  GPSserial.end();                                                      //software serial interferes with SPI for LoRa device
+
   setTrackerMode();
+  displayscreen3();                    //show receive mode
+  displayscreen4();                    //show GPS status
 
-  modeNumber = TrackerMode;
   LT.printModemSettings();
   Serial.println();
   Serial.println(F("Listening in Tracker mode"));
   Serial.println();
   Serial.write(7);                                                      //send a BEL to serial terminal
-  TXStatus = 4;                                                         //set default flag of no TX GPS fix 
+  TXStatus = 4;                                                         //set default flag of no TX GPS fix
 }
 

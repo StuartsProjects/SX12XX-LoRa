@@ -13,7 +13,7 @@
 
 #define NSS 10                                  //select pin on LoRa device
 #define NRESET 9                                //reset pin on LoRa device
-#define LED1 8                                  //on board LED, high for on
+#define LED1 4                                  //on board LED, high for on
 #define DIO0 3                                  //DIO0 pin on LoRa device, used for RX and TX done 
 
 #define LORA_DEVICE DEVICE_SX1278               //we need to define the device we are using
@@ -31,7 +31,7 @@ const int8_t TXpower = 10;                      //LoRa transmit power in dBm
 
 //*******  Setup FSKRTTY Settings here ! ***************
 
-uint32_t FrequencyShift = 500;                  //hertz frequency shift   
+uint32_t FrequencyShift = 400;                  //hertz frequency shift, approx, in 61.03515625hz steps   
 uint8_t NumberofPips = 2;                       //number of marker pips to send
 uint16_t PipDelaymS = 500;                      //mS between pips, carrier off 
 uint16_t PipPeriodmS = 100;                     //mS length of pip
@@ -39,7 +39,7 @@ uint16_t BaudPerioduS = 10000;                  //uS period for baud, 10000uS fo
 uint16_t LeadinmS = 1000;                       //ms of leadin, shifted carrier 
 uint8_t DataBits = 7;                           //number of databits, normally 7 or 8
 uint8_t StopBits = 2;                           //number of stopbits, normally 1 or 2 
-uint8_t Parity = ParityEven;                    //parity on data bits, ParityNone, ParityOdd, ParityEven, ParityZero, ParityOne 
+uint8_t Parity = ParityNone;                    //parity on data bits, ParityNone, ParityOdd, ParityEven, ParityZero, ParityOne 
 
 
 
