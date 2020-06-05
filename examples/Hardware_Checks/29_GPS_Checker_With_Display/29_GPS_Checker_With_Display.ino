@@ -43,26 +43,6 @@
   Serial monitor baud rate is set at 115200.
 *******************************************************************************************************/
 
-
-
-/*******************************************************************************************************
-  Program Operation -  This program is a portable GPS checker and display. It uses an SSD1306 or SH1106
-  128x64 I2C OLED display. At startup the program starts checking the data coming from the GPS for a
-  valid fix. It reads the GPS for 5 seconds and if there is no fix, prints a message on the serial monitor
-  and updates the seconds without a fix on the display. During this time the data coming from the GPS is
-  copied to the serial monitor also.
-
-  When the program detects that the GPS has a fix, it prints the Latitude, Longitude, Altitude, Number
-  of satellites in use, the HDOP value, time and date to the serial monitor. If the I2C OLED display is
-  attached that is updated as well. Display is assumed to be on I2C address 0x3C.
-
-  The program has the option of using a pin to control the power to the GPS, if the GPS module being used
-  has this feature. To use the option change the define; '#define GPSPOWER -1' from -1 to the pin number
-  being used. Also set the GPSONSTATE and GPSOFFSTATE to the appropriate logic levels.
-
-  Serial monitor baud rate is set at 115200.
-*******************************************************************************************************/
-
 #define Program_Version "V1.1"
 #define authorname "Stuart Robinson"
 
