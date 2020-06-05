@@ -39,7 +39,7 @@
   Check if no fix, in hot fix, that fix time sent is 0
   Check if TXpacketL is correct, nulls at end of HAB payload ?
 
-  Serial monitor baud rate is set at 9600
+  Serial monitor baud rate is set at 115200
 *******************************************************************************************************/
 
 #define Program_Version "V1.1"

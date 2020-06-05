@@ -52,7 +52,7 @@ void loop()
   Serial.flush();                           //make sure all serial output has gone
 
   LT.setSleep(CONFIGURATION_RETENTION);     //sleep LoRa device, keeping register settings in sleep.
-  sleep_permanent();                        //sleep Atmel processor in units of approx 8 seconds
+  sleep_permanent();                        //sleep Atmel processor permanently for switch wakeup only
   LT.wake();                                //wake up the lora device - nicely 
   
   digitalWrite(LED1, HIGH);

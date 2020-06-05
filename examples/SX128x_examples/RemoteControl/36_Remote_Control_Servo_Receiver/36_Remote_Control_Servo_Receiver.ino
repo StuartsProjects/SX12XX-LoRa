@@ -37,7 +37,7 @@
   The pin definitions, LoRa frequency and LoRa modem settings are in the Settings.h file. These settings
   are not necessarily optimised for long range.
 
-  Serial monitor baud rate is set at 9600.
+  Serial monitor baud rate is set at 115200.
 *******************************************************************************************************/
 
 #define programversion "V1.0"

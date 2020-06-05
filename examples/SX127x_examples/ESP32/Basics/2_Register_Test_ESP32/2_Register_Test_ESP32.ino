@@ -73,7 +73,7 @@ const uint8_t DEVICE_SX1279 = 0x14;             //SX1279
 
 //These are the pin definitions for one of the LoRaTracker boards, the ESP32_Micro_Node, be sure to change
 //them to match your own setup. You will also need to connect up the pins for the SPI bus, which on the
-//ESP32_Micro_Node are SCK on pin 13, MISO on pin 19 and MOSI on pin 23.
+//ESP32_Micro_Node are SCK on pin 18, MISO on pin 19 and MOSI on pin 23.
 
 #define NSS 5                                   //SX127X device select
 #define NRESET 27                               //SX127X reset pin

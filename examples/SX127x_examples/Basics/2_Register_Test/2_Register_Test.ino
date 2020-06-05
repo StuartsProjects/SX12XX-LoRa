@@ -7,7 +7,7 @@
 
 /*******************************************************************************************************
   Program Operation - This program is stand alone, it is not necessary to install the SX12XX-LoRa library
-  to use it.
+  to use it. This test program is for the SX127X LoRa devices.
 
   The program checks that a lora device can be accessed by doing a test register write and read.
   If there is no device found a message is printed on the serial monitor. The contents of the registers
