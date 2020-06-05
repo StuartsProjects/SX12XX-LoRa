@@ -41,8 +41,8 @@ const uint8_t Optimisation = LDRO_AUTO;         //low data rate optimisation set
 //for SX1262, SX1268 power range is +22dBm to -9dBm
 //for SX1261, power range is +15dBm t0 -9dBm
 const int8_t TXpower = 10;                      //Transmit power used when sending packet starting test sequence
-const int8_t start_power = 0;                   //link test starts at this transmit power
-const int8_t end_power = 2;                     //and ends at this power
+const int8_t start_power = 10;                  //link test starts at this transmit power
+const int8_t end_power = -8;                    //and ends at this power
 const uint8_t ThisNode = 'T';                   //this identifies the node in transmissions
 
 

@@ -1,5 +1,5 @@
 /*******************************************************************************************************
-  lora Programs for Arduino - Copyright of the author Stuart Robinson - 01/03/20
+  lora Programs for Arduino - Copyright of the author Stuart Robinson - 31/05/20
 
   This program is supplied as is, it is up to the user of the program to decide if the program is
   suitable for the intended purpose and free from errors.
@@ -18,7 +18,7 @@
   Serial monitor baud rate is set at 9600.
 *******************************************************************************************************/
 
-#define Program_Version "V1.0"
+#define Program_Version "V1.1"
 
 #include <SPI.h>                                 //the lora device is SPI based so load the SPI library
 #include <SX126XLT.h>                            //include the appropriate library   
@@ -36,7 +36,7 @@ uint8_t RXPacketL;                               //stores length of packet recei
 int8_t  PacketRSSI;                              //stores RSSI of received packet
 int8_t  PacketSNR;                               //stores signal to noise ratio of received packet
 
-uint32_t Test1Count[21];                         //buffer where counts of received packets are stored, +2dbm to +20dBm
+uint32_t Test1Count[34];                         //buffer where counts of received packets are stored, -9dbm to +22dBm
 uint32_t Mode1_Cycles = 0;                       //count the number of cyles received
 bool updateCounts = false;                       //update counts set to tru when first TestMode1 received, at sequence start
 
@@ -115,16 +115,35 @@ void processPacket()
 
   if (packettype == TestPacket)
   {
+    if (RXBUFFER[0] == ' ')
+    {
+    lTXpower = 0;
+    }
+
+    if (RXBUFFER[0] == '+')
+    {
     lTXpower = ((RXBUFFER[1] - 48) * 10) +  (RXBUFFER[2] - 48);   //convert packet text to power
+    }
+    
+    if (RXBUFFER[0] == '-')
+    {
+    lTXpower = (((RXBUFFER[1] - 48) * 10) +  (RXBUFFER[2] - 48)) * -1;  //convert packet text to power
+    }
 
     Serial.print(F(" ("));
+
+    if (RXBUFFER[0] != '-')
+    {
+    Serial.write(RXBUFFER[0]);
+    }
+    
     Serial.print(lTXpower);
     Serial.print(F("dBm)"));
 
     if (updateCounts)
     {
-      temp = (Test1Count[lTXpower]);
-      Test1Count[lTXpower] = temp + 1;
+      temp = (Test1Count[lTXpower+9]);
+      Test1Count[lTXpower+9] = temp + 1;
     }
   }
 
@@ -159,9 +178,9 @@ void print_Test1Count()
   Serial.println(Mode1_Cycles);
 
   Serial.println();
-  for (index = 20; index >= 2; index--)
+  for (index = 31; index >= 0; index--)
   {
-    Serial.print(index);
+    Serial.print(index-9);
     Serial.print(F("dBm,"));
     j = Test1Count[index];
     Serial.print(j);
@@ -170,7 +189,7 @@ void print_Test1Count()
   Serial.println();
 
   Serial.print(F("CSV"));
-  for (index = 20; index >= 2; index--)
+  for (index = 31; index >= 0; index--)
   {
     Serial.print(F(","));
     j = Test1Count[index];
@@ -266,7 +285,7 @@ void setup()
   //SPI.beginTransaction(SPISettings(8000000, MSBFIRST, SPI_MODE0));
 
   //setup hardware pins used by device, then check if device is found
-  if (LT.begin(NSS, NRESET, RFBUSY, DIO1, SW, LORA_DEVICE))
+   if (LT.begin(NSS, NRESET, RFBUSY, DIO1, LORA_DEVICE))
   {
     Serial.println(F("LoRa Device found"));
     led_Flash(2, 125);

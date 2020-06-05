@@ -1,5 +1,5 @@
 /*******************************************************************************************************
-  lora Programs for Arduino - Copyright of the author Stuart Robinson - 23/02/20
+  lora Programs for Arduino - Copyright of the author Stuart Robinson - 05/06/20
 
   This program is supplied as is, it is up to the user of the program to decide if the program is
   suitable for the intended purpose and free from errors.
@@ -29,17 +29,16 @@
   assumes the lowest baud rate of 45baud, and if an overflow is likley, there will be a short in transmission
   pause to allow the overflow to occur.     
    
-
   Serial monitor baud rate is set at 9600
 *******************************************************************************************************/
 
 #define Program_Version "V1.0"
 
 #include <SPI.h>                                               //the lora device is SPI based                                         
-#include <SX127XLT.h>                                          //include the appropriate SX12XX library  
+#include <SX126XLT.h>                                          //include the appropriate SX12XX library  
 #include "Settings.h"                                          //include the setiings file, frequencies, LoRa settings etc   
 
-SX127XLT LT;                                                   //create a library class instance called LT
+SX126XLT LT;                                                   //create a library class instance called LT
 
 //Choose whichever test pattern takes your fancy
 //uint8_t testBuffer[] = "0123456789* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *";               //This string is sent as AFSK RTTY, 7 bit, 2 Stop bit, no parity, 300 baud.
@@ -47,7 +46,7 @@ SX127XLT LT;                                                   //create a librar
 //uint8_t testBuffer[] = "UUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUU";
 uint8_t testBuffer[] = "$$MyFlight1,2213,14:54:37,51.48230,-3.18136,15,6,3680,23,66,3,0*2935";
 
-uint8_t freqShiftRegs[3];                                      //to hold returned registers that set frequency
+uint8_t freqShiftRegs[4];                                      //to hold returned registers that set frequency
 
 
 void loop()
@@ -96,19 +95,20 @@ void loop()
 void printRegisterSetup(uint32_t shift)
 {
   
-  uint32_t nonShiftedFreq, ShiftedFreq;
+  uint32_t nonShiftedFreq,ShiftedFreq; 
   uint32_t freqShift;
   float exactfreqShift; 
 
   LT.setRfFrequency(Frequency, Offset);                       //ensure base frequecy is set
   LT.getRfFrequencyRegisters(freqShiftRegs);                  //fill buffer with frequency setting registers values
-  nonShiftedFreq = ( (uint32_t) freqShiftRegs[0]  << 16 ) +  ( (uint32_t) freqShiftRegs[1] << 8 ) + freqShiftRegs[2];
+  nonShiftedFreq = ( (uint32_t) freqShiftRegs[0]  << 24 ) +  ( (uint32_t) freqShiftRegs[1] << 16 ) + ( (uint32_t) freqShiftRegs[2] << 8 ) + freqShiftRegs[3];
   Serial.print(F("NoShift Registers 0x"));
   Serial.println(nonShiftedFreq, HEX);
 
   LT.setRfFrequency((Frequency + shift), Offset);             //set shifted frequecy
   LT.getRfFrequencyRegisters(freqShiftRegs);                  //fill buffer with frequency setting registers values
-  ShiftedFreq = ( (uint32_t) freqShiftRegs[0]  << 16 ) +  ( (uint32_t) freqShiftRegs[1] << 8 ) + freqShiftRegs[2];
+  
+  ShiftedFreq = ( (uint32_t) freqShiftRegs[0]  << 24 ) +  ( (uint32_t) freqShiftRegs[1] << 16 ) + ( (uint32_t) freqShiftRegs[2] << 8 ) + freqShiftRegs[3];
   Serial.print(F("Shifted Registers 0x"));
   Serial.println(ShiftedFreq, HEX);
 
@@ -169,7 +169,7 @@ void setup()
   //SPI.beginTransaction(SPISettings(8000000, MSBFIRST, SPI_MODE0));
 
   //setup hardware pins used by device, then check if device is found
-  if (LT.begin(NSS, NRESET, DIO0, LORA_DEVICE))
+  if (LT.begin(NSS, NRESET, RFBUSY, DIO1, LORA_DEVICE))
   {
     Serial.println(F("LoRa Device found"));
     led_Flash(2, 125);                                   //two further quick LED flashes to indicate device found
