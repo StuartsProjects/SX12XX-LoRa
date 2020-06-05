@@ -17,13 +17,18 @@
   Current in light_sleep mode was 1500uA
 ****************************************************************************************************************
 */
-#include "ESP32_LoRa_Micro_Node.h"
+
+
+#define VCCPOWER 14                         //when low supplies VCC power to external devices. Set to -1 if not used
+#define LED1 2                              //On board LED, high for on
+
 
 #define uS_TO_S_FACTOR 1000000              //Conversion factor for micro seconds to seconds
 #define TIME_TO_SLEEP  15                   //Time ESP32 will go to sleep (in seconds) 
 
 RTC_DATA_ATTR int16_t bootCount = 0;
 RTC_DATA_ATTR uint16_t sleepcount = 0;
+
 
 void loop()
 {
