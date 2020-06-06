@@ -3754,6 +3754,85 @@ void SX127XLT::transmitFSKRTTY(uint8_t chartosend, uint8_t databits, uint8_t sto
 }
 
 
+void SX127XLT::transmitFSKRTTY(uint8_t chartosend, uint16_t baudPerioduS, int8_t pin)
+{
+  //micros() will rollover at 4294967295 or 71mins 35secs
+  //assume slowest baud rate is 45 (baud period of 22222us) then with 11 bits max to send if routine starts 
+  //when micros() > (4294967295 - (22222 * 11) = 4294722855 = 0xFFFC4525 then it could overflow during send
+  //Rather than deal with rolloever in the middle of a character lets wait till it overflows and then
+  //start the character
+  //This overloaded version of transmitFSKRTTY() uses 1 start bit, 7 data bits, no parity and 2 stop bits. 
+  
+
+  #ifdef SX127XDEBUG1
+  Serial.print(F("transmitFSKRTTY()"));
+  #endif
+   
+  uint8_t numbits;
+  uint32_t enduS;
+  
+  if (micros() > 0xFFFB6000)                  //check if micros would overflow within circa 300mS, approx 1 char at 45baud
+  {
+  #ifdef DEBUGFSKRTTY
+  Serial.print(F("Overflow pending - micros() = "));
+  Serial.println(micros(),HEX);
+  #endif
+  while (micros() > 0xFFFB6000);              //wait a short while until micros overflows to 0
+  #ifdef DEBUGFSKRTTY
+  Serial.print(F("Paused - micros() = "));
+  Serial.println(micros(),HEX);
+  #endif
+  }
+  
+  enduS = micros() + baudPerioduS;
+  setRfFrequencyDirect(_freqregH, _freqregM, _freqregL); //set carrier frequency  (low)
+  
+  if (pin >= 0)
+  {
+   digitalWrite(pin, LOW); 
+  }
+  
+  while (micros() < enduS);                   //start bit
+  
+  for (numbits = 1;  numbits <= 7; numbits++) //send bits, LSB first
+  {
+    enduS = micros() + baudPerioduS;          //start the timer 
+    if ((chartosend & 0x01) != 0)             //test for bit set, a 1
+    {
+       if (pin >= 0)
+       {
+       digitalWrite(pin, HIGH); 
+       }
+    setRfFrequencyDirect(_ShiftfreqregH, _ShiftfreqregM, _ShiftfreqregL); //set carrier frequency for a 1 
+    }
+    else
+    {
+       if (pin >= 0)
+       {
+       digitalWrite(pin, LOW); 
+       }     
+      setRfFrequencyDirect(_freqregH, _freqregM, _freqregL);           //set carrier frequency for a 0
+    }
+    chartosend = (chartosend >> 1);           //get the next bit
+    while (micros() < enduS);
+  }
+   
+  //stop bits, normally 1 or 2
+  enduS = micros() + (baudPerioduS * 2);
+  
+  if (pin >= 0)
+  {
+  digitalWrite(pin, HIGH); 
+  }
+  
+  setRfFrequencyDirect(_ShiftfreqregH, _ShiftfreqregM, _ShiftfreqregL); //set carrier frequency
+  
+  while (micros() < enduS);
+  
+}
+
+
+
 void SX127XLT::printRTTYregisters()
 {
   
