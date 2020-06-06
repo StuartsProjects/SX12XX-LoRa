@@ -16,10 +16,11 @@ See LICENSE.TXT file included in the library
 #define LTUNUSED(v) (void) (v)       //add LTUNUSED(variable); to avoid compiler warnings 
 #define USE_SPI_TRANSACTION
 
-#define DEBUGBUSY                   //comment out if you do not want a busy timeout message
+//#define DEBUGBUSY                   //comment out if you do not want a busy timeout message
 //#define SX126XDEBUG               //enable debug messages
 //#define SX126XDEBUG3              //enable debug messages
 //#define SX126XDEBUGPINS           //enable pin allocation debug messages
+//#define DEBUGFSKRTTY                 //enable for FSKRTTY debugging 
 
 /*
 ****************************************************************************
@@ -1530,25 +1531,31 @@ void SX126XLT::setRfFrequency( uint32_t frequency, int32_t offset )
   //Note RF_Freq = freq_reg*32M/(2^25)-----> freq_reg = (RF_Freq * (2^25))/32
 
 #ifdef SX126XDEBUG
-  Serial.println(F("setRfFrequency()"));
+  Serial.print(F("setRfFrequency()  "));
+  Serial.println(frequency + offset);
 #endif
 
   uint8_t buffer[4];
-  uint32_t localfrequency;
+  uint32_t localfrequencyRegs;
 
   savedFrequency = frequency;
   savedOffset = offset;
 
-  localfrequency = frequency + offset;
+  localfrequencyRegs = frequency + offset;
 
-  localfrequency = ( uint32_t )( ( double )localfrequency / ( double )FREQ_STEP );
+  localfrequencyRegs = ( uint32_t )( ( double )localfrequencyRegs / ( double )FREQ_STEP );
   
-  savedFrequencyReg = localfrequency;
+  savedFrequencyReg = localfrequencyRegs;
   
-  buffer[0] = (localfrequency >> 24) & 0xFF; //MSB
-  buffer[1] = (localfrequency >> 16) & 0xFF;
-  buffer[2] = (localfrequency >> 8) & 0xFF;
-  buffer[3] = localfrequency & 0xFF;//LSB
+  buffer[0] = (localfrequencyRegs >> 24) & 0xFF; //MSB
+  buffer[1] = (localfrequencyRegs >> 16) & 0xFF;
+  buffer[2] = (localfrequencyRegs >> 8) & 0xFF;
+  buffer[3] = localfrequencyRegs & 0xFF;//LSB
+  
+  _freqregH = buffer[0];
+  _freqregMH = buffer[1];
+  _freqregML = buffer[2];
+  _freqregL = buffer[3];
 
   writeCommand(RADIO_SET_RFFREQUENCY, buffer, 4);
 }
@@ -2362,11 +2369,11 @@ void SX126XLT::toneFM(uint16_t frequency, uint32_t length, uint32_t deviation, f
   Serial.println(length);
   
   Serial.print(F("savedFrequencyReg "));
-  Serial.println(freqreg, HEX);
+  Serial.println(savedFrequencyReg, HEX);
   Serial.print(F("registershift "));
   Serial.println(registershift);
-  shiftedfreqregH = freqreg + (registershift/2);
-  shiftedfreqregL = freqreg - (registershift/2);
+  shiftedfreqregH = savedFrequencyReg + (registershift/2);
+  shiftedfreqregL = savedFrequencyReg - (registershift/2);
   Serial.print(F("shiftedfreqregH "));
   Serial.println(shiftedfreqregH, HEX);
   Serial.print(F("shiftedfreqregL "));
@@ -3000,6 +3007,390 @@ uint8_t SX126XLT::getCRCMode()
 }
 
 
+
+void SX126XLT::fillSXBuffer(uint8_t startaddress, uint8_t size, uint8_t character)
+{
+#ifdef SX126XDEBUG1
+  Serial.println(F("fillSXBuffer()"));
+#endif
+  uint8_t index;
+
+  setMode(MODE_STDBY_RC);
+  //writeRegister(REG_FIFOADDRPTR, startaddress);     //and save in FIFO access ptr
+
+#ifdef USE_SPI_TRANSACTION                          //to use SPI_TRANSACTION enable define at beginning of CPP file 
+  SPI.beginTransaction(SPISettings(LTspeedMaximum, LTdataOrder, LTdataMode));
+#endif
+
+  digitalWrite(_NSS, LOW);
+  SPI.transfer(RADIO_WRITE_BUFFER);
+  SPI.transfer(startaddress);
+  //SPI interface ready for byte to write to buffer
+  
+  for (index = 0; index < size; index++)
+  {
+    SPI.transfer(character);
+  }
+
+  digitalWrite(_NSS, HIGH);
+
+#ifdef USE_SPI_TRANSACTION
+  SPI.endTransaction();
+#endif
+
+}
+
+
+uint8_t SX126XLT::readPacket(uint8_t *rxbuffer, uint8_t size)
+{
+#ifdef SX126XDEBUG
+  Serial.println(F("readPacket()"));
+#endif
+
+  uint8_t index, regdata, RXstart, RXend;
+  uint8_t buffer[2];
+  
+  readCommand(RADIO_GET_RXBUFFERSTATUS, buffer, 2);
+  _RXPacketL = buffer[0];
+  
+  if (_RXPacketL > size)               //check passed buffer is big enough for packet
+  {
+  _RXPacketL = size;                   //truncate packet if not enough space
+  }
+  
+  RXstart = buffer[1];
+  
+  RXend = RXstart + _RXPacketL;
+
+  #ifdef USE_SPI_TRANSACTION     //to use SPI_TRANSACTION enable define at beginning of CPP file 
+  SPI.beginTransaction(SPISettings(LTspeedMaximum, LTdataOrder, LTdataMode));
+#endif
+  
+  digitalWrite(_NSS, LOW);               //start the burst read
+  SPI.transfer(RADIO_READ_BUFFER);
+  SPI.transfer(RXstart);
+  SPI.transfer(0xFF);
+
+  for (index = RXstart; index < RXend; index++)
+  {
+    regdata = SPI.transfer(0);
+    rxbuffer[index] = regdata;
+  }
+
+  digitalWrite(_NSS, HIGH);
+  
+  #ifdef USE_SPI_TRANSACTION
+  SPI.endTransaction();
+#endif
+
+  return _RXPacketL;                     //so we can check for packet having enough buffer space
+}
+
+
+void SX126XLT::writeByteSXBuffer(uint8_t addr, uint8_t regdata)
+{
+#ifdef SX126XDEBUG1
+  Serial.println(F("writeByteSXBuffer"));
+#endif
+
+  setMode(MODE_STDBY_RC);                 //this is needed to ensure we can write to buffer OK.
+
+#ifdef USE_SPI_TRANSACTION                //to use SPI_TRANSACTION enable define at beginning of CPP file 
+  SPI.beginTransaction(SPISettings(LTspeedMaximum, LTdataOrder, LTdataMode));
+#endif
+
+  digitalWrite(_NSS, LOW);
+  SPI.transfer(RADIO_WRITE_BUFFER);
+  SPI.transfer(addr);
+  SPI.transfer(regdata);
+  digitalWrite(_NSS, HIGH);
+
+  #ifdef USE_SPI_TRANSACTION
+  SPI.endTransaction();
+  #endif
+
+}
+
+
+void SX126XLT::printSXBufferASCII(uint8_t start, uint8_t end)
+{
+#ifdef SX126XDEBUG1
+  Serial.println(F("printSXBufferASCII)"));
+#endif
+
+  uint8_t index, regdata;
+  setMode(MODE_STDBY_RC);
+
+  for (index = start; index <= end; index++)
+  {
+    regdata = getByteSXBuffer(index);
+    Serial.write(regdata);
+  }
+
+}
+
+
+void SX126XLT::startFSKRTTY(uint32_t freqshift, uint8_t pips, uint16_t pipPeriodmS, uint16_t pipDelaymS, uint16_t leadinmS)
+{
+  
+  #ifdef SX126XDEBUG1
+  Serial.print(F("startFSKRTTY()"));
+  #endif
+  
+  uint32_t shiftedFrequencyRegisters;
+  uint8_t index;
+  uint32_t endmS;
+  uint32_t calculatedRegShift;
+    
+  calculatedRegShift = (uint32_t) (freqshift/FREQ_STEP);
+   
+  shiftedFrequencyRegisters =  savedFrequencyReg + calculatedRegShift; 
+ 
+  _ShiftfreqregH = (shiftedFrequencyRegisters >> 24) & 0xFF;  //MSB
+  _ShiftfreqregMH = (shiftedFrequencyRegisters >> 16) & 0xFF;
+  _ShiftfreqregML = (shiftedFrequencyRegisters >> 8) & 0xFF;
+  _ShiftfreqregL = shiftedFrequencyRegisters & 0xFF;          //LSB
+ 
+  #ifdef DEBUGFSKRTTY
+  Serial.print(F("NotShiftedFrequencyRegisters "));
+  Serial.println(savedFrequencyReg, HEX);
+  Serial.print(F("calculatedRegShift "));
+  Serial.println(calculatedRegShift, HEX);
+  Serial.print(F("ShiftedFrequencyRegisters "));
+  Serial.print((uint32_t) shiftedFrequencyRegisters, HEX);
+  Serial.print(F(" ("));
+  Serial.print(_ShiftfreqregH,HEX);
+  Serial.print(F(" "));
+  Serial.print(_ShiftfreqregMH,HEX);
+  Serial.print(F(" ")); 
+  Serial.print(_ShiftfreqregML,HEX);
+  Serial.print(F(" ")); 
+  Serial.print(_ShiftfreqregL,HEX);
+  Serial.print(F(" )"));
+  Serial.println();
+  #endif
+ 
+  setTxParams(10, RADIO_RAMP_200_US);
+  
+  for (index = 1; index <= pips; index++)
+  {
+  setRfFrequencyDirect(_ShiftfreqregH, _ShiftfreqregMH, _ShiftfreqregML, _ShiftfreqregL); //set carrier frequency
+  setTXDirect();                                                           //turn on carrier 
+  delay(pipPeriodmS);
+  setMode(MODE_STDBY_RC);                                                  //turns off carrier
+  delay(pipDelaymS);
+  }
+  
+  setRfFrequencyDirect(_ShiftfreqregH, _ShiftfreqregMH, _ShiftfreqregML,_ShiftfreqregL); //set carrier frequency 
+  endmS = millis() + leadinmS; 
+  setTXDirect();                                                           //turn on carrier 
+  while (millis() < endmS);                                                //leave leadin on
+  
+}
+
+ 
+ void SX126XLT::transmitFSKRTTY(uint8_t chartosend, uint8_t databits, uint8_t stopbits, uint8_t parity, uint16_t baudPerioduS, int8_t pin)
+{
+  //micros() will rollover at 4294967295 or 71mins 35secs
+  //assume slowest baud rate is 45 (baud period of 22222us) then with 11 bits max to send if routine starts 
+  //when micros() > (4294967295 - (22222 * 11) = 4294722855 = 0xFFFC4525 then it could overflow during send
+  //Rather than deal with rolloever in the middle of a character lets wait till it overflows and then
+  //start the character  
+  
+
+  #ifdef SX126XDEBUG1
+  Serial.print(F("transmitFSKRTTY()"));
+  #endif
+   
+  uint8_t numbits;
+  uint32_t enduS;
+  uint8_t bitcount = 0;                       //set when a bit is 1
+  
+  if (micros() > 0xFFFB6000)                  //check if micros would overflow within circa 300mS, approx 1 char at 45baud
+  {
+  
+  #ifdef DEBUGFSKRTTY
+  Serial.print(F("Overflow pending - micros() = "));
+  Serial.println(micros(),HEX);
+  #endif
+  
+  while (micros() > 0xFFFB6000);              //wait a short while until micros overflows to 0
+  
+  #ifdef DEBUGFSKRTTY
+  Serial.print(F("Paused - micros() = "));
+  Serial.println(micros(),HEX);
+  #endif
+  
+  }
+  
+  enduS = micros() + baudPerioduS;
+  setRfFrequencyDirect(_freqregH, _freqregMH, _freqregML, _freqregL); //set carrier frequency  (low)
+  
+  if (pin >= 0)
+  {
+   digitalWrite(pin, LOW); 
+  }
+  
+  while (micros() < enduS);                   //start bit
+  
+  for (numbits = 1;  numbits <= databits; numbits++) //send bits, LSB first
+  {
+    enduS = micros() + baudPerioduS;          //start the timer 
+    if ((chartosend & 0x01) != 0)             //test for bit set, a 1
+    {
+       bitcount++;
+       if (pin >= 0)
+       {
+       digitalWrite(pin, HIGH); 
+       }
+    setRfFrequencyDirect(_ShiftfreqregH, _ShiftfreqregMH, _ShiftfreqregML, _ShiftfreqregL);       //set carrier frequency for a 1 
+    }
+    else
+    {
+       if (pin >= 0)
+       {
+       digitalWrite(pin, LOW); 
+       }     
+      setRfFrequencyDirect(_freqregH, _freqregMH, _freqregML, _freqregL);                         //set carrier frequency for a 0
+    }
+    chartosend = (chartosend >> 1);           //get the next bit
+    while (micros() < enduS);
+  }
+   
+   enduS = micros() + baudPerioduS;          //start the timer for possible parity bit
+   
+   switch (parity) 
+   {
+    case ParityNone:
+         break;
+    
+    case ParityZero:
+         setRfFrequencyDirect(_freqregH, _freqregMH, _freqregML, _freqregL);                      //set carrier frequency for a 0
+         while (micros() < enduS);
+		 break;
+    
+    case ParityOne:
+         
+         setRfFrequencyDirect(_ShiftfreqregH, _ShiftfreqregMH, _ShiftfreqregML, _ShiftfreqregL);   //set carrier frequency for a 1
+         while (micros() < enduS);
+		 break;
+
+	case ParityOdd:
+         if (bitRead(bitcount, 0))
+         {
+         setRfFrequencyDirect(_ShiftfreqregH, _ShiftfreqregMH, _ShiftfreqregML, _ShiftfreqregL);   //set carrier frequency for a 1 
+         }
+		 else
+         {
+         setRfFrequencyDirect(_freqregH, _freqregMH, _freqregML, _freqregL);                       //set carrier frequency for a 0 
+         }
+         while (micros() < enduS);
+		 break;
+
+    case ParityEven:
+         if (bitRead(bitcount, 0))
+         {
+         setRfFrequencyDirect(_freqregH, _freqregMH, _freqregML, _freqregL);                       //set carrier frequency for a 0 
+         }
+		 else
+         {
+         setRfFrequencyDirect(_ShiftfreqregH, _ShiftfreqregMH, _ShiftfreqregML, _ShiftfreqregL);   //set carrier frequency for a 1 
+         }
+		 while (micros() < enduS);
+         break; 
+     
+    default:
+	     break;
+    } 
+
+  //stop bits, normally 1 or 2
+  enduS = micros() + (baudPerioduS * stopbits);
+  
+  if (pin >= 0)
+  {
+  digitalWrite(pin, HIGH); 
+  }
+  
+  setRfFrequencyDirect(_ShiftfreqregH, _ShiftfreqregMH, _ShiftfreqregML, _ShiftfreqregL);          //set carrier frequency  for a 1
+  
+  while (micros() < enduS);
+  
+}
+
+
+void SX126XLT::printRTTYregisters()
+{
+  
+  #ifdef SX126XDEBUG1
+  Serial.print(F("printRTTYregisters()"));
+  #endif
+   
+Serial.print(F("NoShift Registers "));
+Serial.print(_freqregH, HEX);
+Serial.print(F(" "));
+Serial.print(_freqregMH, HEX);
+Serial.print(F(" "));
+Serial.print(_freqregML, HEX);
+Serial.print(F(" "));
+Serial.println(_freqregL, HEX);
+
+Serial.print(F("Shifted Registers "));
+Serial.print(_ShiftfreqregH, HEX);
+Serial.print(F(" "));
+Serial.print(_ShiftfreqregMH, HEX);
+Serial.print(F(" "));
+Serial.print(_ShiftfreqregML, HEX);
+Serial.print(F(" "));
+Serial.println(_ShiftfreqregL, HEX);
+
+}
+
+
+void SX126XLT::endFSKRTTY()
+{
+  #ifdef SX126XDEBUG1
+  Serial.print(F("endFSKRTTY()"));
+  #endif
+  
+  setMode(MODE_STDBY_RC);
+
+}
+
+
+void SX126XLT::getRfFrequencyRegisters(uint8_t *buff)
+{
+  //returns the register values for the current set frequency
+  
+  #ifdef SX126XDEBUG1
+  Serial.print(F("getRfFrequencyRegisters()"));
+  #endif
+
+  buff[0] = _freqregH;
+  buff[1] = _freqregMH;
+  buff[2] = _freqregML;
+  buff[3] = _freqregL;
+
+}
+
+
+void SX126XLT::setRfFrequencyDirect(uint8_t high, uint8_t midhigh, uint8_t midlow, uint8_t low)
+{   
+  
+  #ifdef SX126XDEBUG1
+  Serial.print(F("setRfFrequencyDirect()"));
+  #endif
+  
+  uint8_t buffer[4];
+  
+  buffer[0] = high; //MSB
+  buffer[1] = midhigh;
+  buffer[2] = midlow;
+  buffer[3] = low;//LSB
+
+  writeCommand(RADIO_SET_RFFREQUENCY, buffer, 4);
+  
+}
+ 
  
 /*
   MIT license

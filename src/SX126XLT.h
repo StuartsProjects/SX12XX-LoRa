@@ -24,6 +24,7 @@
  
   Add a library function for SetRxDutyCycle ?
   Add a library function to allow changing of ramptime from RADIO_RAMP_200_US ?
+  Check use of RADIO_RAMP_DEFAULT
   
   
 **************************************************************************/
@@ -165,7 +166,17 @@ class SX126XLT  {
     uint8_t readsavedPacketParam5();  //IQ
     uint8_t getOpmode();
     uint8_t getCRCMode();
-    
+    void fillSXBuffer(uint8_t startaddress, uint8_t size, uint8_t character);
+    uint8_t readPacket(uint8_t *rxbuffer, uint8_t size);
+	void writeByteSXBuffer(uint8_t addr, uint8_t regdata);
+	void printSXBufferASCII(uint8_t start, uint8_t end);
+	void startFSKRTTY(uint32_t freqshift, uint8_t pips, uint16_t pipPeriodmS, uint16_t pipDelaymS, uint16_t leadinmS);
+	void transmitFSKRTTY(uint8_t chartosend, uint8_t databits, uint8_t stopbits, uint8_t parity, uint16_t baudPerioduS, int8_t pin);
+	void printRTTYregisters();
+	void endFSKRTTY();
+	void getRfFrequencyRegisters(uint8_t *buff);
+	void setRfFrequencyDirect(uint8_t high, uint8_t midhigh, uint8_t midlow, uint8_t low);
+	
 /***************************************************************************
 //End direct access SX buffer routines
 ***************************************************************************/	
@@ -194,9 +205,8 @@ class SX126XLT  {
     uint8_t _TXDonePin;             //the pin that will indicate TX done
     uint8_t _RXDonePin;             //the pin that will indicate RX done
 
-    uint32_t savedFrequencyReg;
     uint32_t savedFrequency;
-    uint32_t savedOffset;
+    int32_t savedOffset;
     uint8_t  savedPacketType;
     uint8_t  savedRegulatorMode;
 
@@ -205,6 +215,10 @@ class SX126XLT  {
     uint8_t  savedPacketParam2, savedPacketParam3, savedPacketParam4, savedPacketParam5;
     uint16_t savedIrqMask, savedDio1Mask, savedDio2Mask, savedDio3Mask;
     int8_t   savedTXPower;
+
+    uint32_t savedFrequencyReg;
+    uint8_t _freqregH, _freqregMH, _freqregML,_freqregL;  //the registers values for the set frequency
+    uint8_t _ShiftfreqregH, _ShiftfreqregMH, _ShiftfreqregML, _ShiftfreqregL;  //register values for shifted frequency, used in FSK
 
 };
 #endif

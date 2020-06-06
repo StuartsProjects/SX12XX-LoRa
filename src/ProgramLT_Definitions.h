@@ -32,6 +32,7 @@ const byte GPSFix = 0;                  //flag bit set when GPS has a current fi
 const byte GPSConfigError = 1;          //flag bit set to indicate cannot configure GPS or wrong configuration 
 const byte GPSError = 3;                //flag bit set to indicate GPS error, response timeout for instance
 const byte LORAError = 4;               //flag bit indication a lora device error
+const byte SDError = 5;                 //flag bit indication a SD card device error
 const byte TrackerLost = 6;             //flag bit indication that tracker in lost mode
 const byte NoGPSTestMode = 7;           //flag bit number to indicate tracker in no GPS test mode
 

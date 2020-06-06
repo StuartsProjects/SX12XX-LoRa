@@ -275,7 +275,14 @@
 #define LTdataOrder     MSBFIRST
 #define LTdataMode      SPI_MODE0
 
+//FSKRTTY Settings
+#define ParityNone 0
+#define ParityOdd 1
+#define ParityEven 2
+#define ParityZero 0xF0
+#define ParityOne  0xF1 
 
+#define ToneMinuS 52                     //timed constant for ATmega328P at 8Mhz with FM Tone delayus at 0, period for half loop
 
 
 /*
