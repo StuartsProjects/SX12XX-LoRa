@@ -181,13 +181,14 @@ class SX128XLT  {
 
     uint8_t  savedRegulatorMode;
     uint8_t  savedPacketType;
-    uint32_t savedFrequency, savedOffset;
+    uint32_t savedFrequency;
+    int32_t  savedOffset;
     uint8_t  savedModParam1, savedModParam2, savedModParam3; //sequence is spreading factor, bandwidth, coding rate
     uint8_t  savedPacketParam1, savedPacketParam2, savedPacketParam3, savedPacketParam4, savedPacketParam5, savedPacketParam6, savedPacketParam7;
     uint16_t savedIrqMask, savedDio1Mask, savedDio2Mask, savedDio3Mask;
     int8_t   savedTXPower;
-	uint16_t savedCalibration;
-	uint32_t savedFrequencyReg;
-	
+    uint16_t savedCalibration;
+    uint32_t savedFrequencyReg;
+
 };
 #endif
