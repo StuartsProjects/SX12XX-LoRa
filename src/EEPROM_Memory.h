@@ -15,7 +15,7 @@
 void memoryStart(uint16_t addr)      //yes I know the EEPROM does not have an address, but the other memory types do 
 {
  //left empty for future use
- LTUNUSED(addr);           //avoids compliler warning
+ LTUNUSED(addr);                     //avoids compliler warning
 }
 
 
