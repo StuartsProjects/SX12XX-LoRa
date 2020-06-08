@@ -1,5 +1,5 @@
 /*******************************************************************************************************
-  lora Programs for Arduino - Copyright of the author Stuart Robinson - 15/05/20
+  lora Programs for Arduino - Copyright of the author Stuart Robinson - 26/03/20
 
   This program is supplied as is, it is up to the user of the program to decide if the program is
   suitable for the intended purpose and free from errors.
@@ -20,19 +20,15 @@
 
   There is the option of turning on an a requirement for an acknowledgement from a remote receiver, before
   the transmitter sends the next packet, set this; 'const bool waitforACK = true;' definition in the
-  settings file. The matching receiver program '43_LoRa_Data_Throughput_Acknowledge_Receiver' does then need
-  to be configured with same lora settings as this transmitter. When this option is set, the program will 
-  keep running until the number of transmissions and acknowledgements has completed without any timeouts
-  in order to produce a valid average.   
+  settings file.
 
   The results of the test are printed out thus;
 
-  SX1262,434000000hz,SF7,BW500000,CR4:5,LDRO_Off,SyncWord_0x12,IQNormal,Preamble_8
-  Total transmit time 100 packets = 1382mS
-  Average 16 byte packet transmit time = 13.82mS
-  Packets per second 72.36
-  Bits per packet sent = 128
-  Data rate = 9262bps
+  SX1278,434000000hz,SF7,BW500000,CR4:5,LDRO_Off,SyncWord_0x12,IQNormal,Preamble_8
+  Total Transmit time 50 packets = 567mS
+  Average 10 byte packet transmit time = 11.34mS
+  Bits per packet sent = 80
+  Data rate = 7055bps
 
 
   Serial monitor baud rate is set at 9600
@@ -41,11 +37,11 @@
 #define Program_Version "V1.0"
 
 #include <SPI.h>                      //the lora device is SPI based so load the SPI library                                         
-#include <SX126XLT.h>                 //include the appropriate library  
+#include <SX127XLT.h>                 //include the appropriate library  
 #include <ProgramLT_Definitions.h>
 #include "Settings.h"                 //include the setiings file, frequencies, LoRa settings etc   
 
-SX126XLT LT;                          //create a library class instance called LT
+SX127XLT LT;                          //create a library class instance called LT
 
 uint32_t startmS, endmS, sendtimemS, bitspersecond, bitsPerpacket;
 uint32_t TXPacketCount;
@@ -89,7 +85,7 @@ void loop()
 
     digitalWrite(LED1, HIGH);
 
-    if (LT.transmit(TXBUFFER, TXPacketL, 10000, TXpower, WAIT_TX))   //will return 0 if transmit error
+    if (LT.transmit(TXBUFFER, TXPacketL, 2000, TXpower, WAIT_TX))   //will return 0 if transmit error
     {
       digitalWrite(LED1, LOW);
 
@@ -128,7 +124,7 @@ void loop()
     Serial.print(sendtimemS);
     Serial.println(F("mS"));
 
-    averagePacketTime = (float) ((endmS - startmS) / numberPackets);
+    averagePacketTime = (float) (endmS - startmS) / numberPackets;
 
     if (waitforACK)
     {
@@ -145,8 +141,7 @@ void loop()
 
     Serial.print(averagePacketTime, 2);
     Serial.println(F("mS"));
-    Serial.print(F("Packets per second ")); 
-    Serial.println((float) (1000/averagePacketTime));
+
     bitsPerpacket = (uint32_t) (TXPacketL * 8);
     Serial.print(F("Bits per packet sent = "));
     Serial.println(bitsPerpacket);
@@ -247,12 +242,12 @@ void setup()
   Serial.println(F(__DATE__));
   Serial.println(F(Program_Version));
   Serial.println();
-  Serial.println(F("42_LoRa_Data_Throughput_Test_Transmitter Starting"));
+  Serial.println(F("42_LoRa_Data_Throughput_Transmitter_Test_ESP32 Starting"));
 
   SPI.begin();
 
   //setup hardware pins used by device, then check if device is found
-  if (LT.begin(NSS, NRESET, RFBUSY, DIO1, LORA_DEVICE))
+  if (LT.begin(NSS, NRESET, DIO1, LORA_DEVICE))
   {
     Serial.println(F("LoRa Device found"));
     led_Flash(2, 125);                                   //two further quick LED flashes to indicate device found

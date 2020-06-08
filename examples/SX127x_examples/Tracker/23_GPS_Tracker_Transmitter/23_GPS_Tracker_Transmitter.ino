@@ -66,7 +66,7 @@ void loop()
 
   if (gpsWaitFix(WaitGPSFixSeconds))
   {
-    sendLocationBinary(TXLat, TXLon, TXAlt, TXHdop, TXGPSFixTime);
+    sendLocation(TXLat, TXLon, TXAlt, TXHdop, TXGPSFixTime);
     Serial.println();
     Serial.print(F("Waiting "));
     Serial.print(Sleepsecs);
@@ -155,7 +155,7 @@ bool gpsWaitFix(uint32_t waitSecs)
 }
 
 
-void sendLocationBinary(float Lat, float Lon, float Alt, uint32_t Hdop, uint32_t fixtime)
+void sendLocation(float Lat, float Lon, float Alt, uint32_t Hdop, uint32_t fixtime)
 {
   uint8_t len;
   uint16_t IRQStatus;
@@ -397,5 +397,5 @@ void setup()
   Serial.println(F("Wait for first GPS fix"));
   gpsWaitFix(WaitFirstGPSFixSeconds);
 
-  sendLocationBinary(TXLat, TXLon, TXAlt, TXHdop, TXGPSFixTime);
+  sendLocation(TXLat, TXLon, TXAlt, TXHdop, TXGPSFixTime);
 }

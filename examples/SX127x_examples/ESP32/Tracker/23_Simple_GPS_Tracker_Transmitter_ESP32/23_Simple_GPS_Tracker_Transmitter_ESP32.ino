@@ -68,7 +68,7 @@ void loop()
 
   if (gpsWaitFix(WaitGPSFixSeconds))
   {
-    sendLocationBinary(TXLat, TXLon, TXAlt, TXHdop, TXGPSFixTime);
+    sendLocation(TXLat, TXLon, TXAlt, TXHdop, TXGPSFixTime);
     Serial.println();
     Serial.print(F("Waiting "));
     Serial.print(Sleepsecs);
@@ -157,7 +157,7 @@ bool gpsWaitFix(uint16_t waitSecs)
 }
 
 
-void sendLocationBinary(float Lat, float Lon, float Alt, uint32_t Hdop, uint32_t fixtime)
+void sendLocation(float Lat, float Lon, float Alt, uint32_t Hdop, uint32_t fixtime)
 {
   uint8_t len;
   uint16_t IRQStatus;
@@ -167,7 +167,7 @@ void sendLocationBinary(float Lat, float Lon, float Alt, uint32_t Hdop, uint32_t
   TXVolts = readSupplyVoltage();              //get the latest supply\battery volts
 
   LT.startWriteSXBuffer(0);                   //initialise buffer write at address 0
-  LT.writeUint8(LocationBinaryPacket);        //indentify type of packet
+  LT.writeUint8(LocationPacket);              //indentify type of packet
   LT.writeUint8(Broadcast);                   //who is the packet sent too
   LT.writeUint8(ThisNode);                    //tells receiver where is packet from
   LT.writeFloat(Lat);                         //add latitude
@@ -404,5 +404,5 @@ void setup()
   Serial.println(F("Wait for first GPS fix"));
   gpsWaitFix(WaitFirstGPSFixSeconds);
 
-  sendLocationBinary(TXLat, TXLon, TXAlt, TXHdop, TXGPSFixTime);
+  sendLocation(TXLat, TXLon, TXAlt, TXHdop, TXGPSFixTime);
 }

@@ -1,5 +1,5 @@
 /*******************************************************************************************************
-  Programs for Arduino - Copyright of the author Stuart Robinson - 28/05/20
+  Programs for Arduino - Copyright of the author Stuart Robinson - 07/06/20
 
   This program is supplied as is, it is up to the user of the program to decide if the program is
   suitable for the intended purpose and free from errors.
@@ -81,16 +81,16 @@ uint8_t  TXBUFFER[TXBUFFER_SIZE];                //buffer for packet to send
 #include <TinyGPS++.h>                           //http://arduiniana.org/libraries/tinygpsplus/
 TinyGPSPlus gps;                                 //create the TinyGPS++ object
 
-#ifdef USESOFTSERIALGPS
+//#ifdef USESOFTSERIALGPS
 //#include <NeoSWSerial.h>                         //https://github.com/SlashDevin/NeoSWSerial
 //NeoSWSerial GPSserial(RXpin, TXpin);             //this library is more relaible at GPS init than software serial
-#include <SoftwareSerial.h>
-SoftwareSerial GPSserial(RXpin, TXpin);
-#endif
+//#include <SoftwareSerial.h>
+//SoftwareSerial GPSserial(RXpin, TXpin);
+//#endif
 
-#ifndef USESOFTSERIALGPS
+//#ifndef USESOFTSERIALGPS
 #define GPSserial HARDWARESERIALPORT
-#endif
+//#endif
 
 #include GPS_Library                             //include previously defined GPS Library 
 
@@ -260,7 +260,7 @@ uint8_t buildHABPacket()
   memset(TXBUFFER, 0, len);                                      //clear array to 0s
   Count = snprintf((char*) TXBUFFER,
                    TXBUFFER_SIZE,
-                   "$$%s,%lu,%02d:%02d:%02d,%s,%s,%d,%d,%d,%d,%d,%d,%d,%lu",
+                   "$$%s,%d,%02d:%02d:%02d,%s,%s,%d,%d,%d,%d,%d,%d,%d,%d",
                    FlightID,
                    TXSequence,
                    TXHours,
@@ -468,8 +468,6 @@ void printSupplyVoltage()
 
 uint16_t readSupplyVoltage()
 {
-  //relies on 1V1 internal reference and 91K & 11K resistor divider
-  //returns supply in mV @ 10mV per AD bit read
   uint16_t temp;
   uint16_t volts = 0;
   uint8_t index;
@@ -479,7 +477,6 @@ uint16_t readSupplyVoltage()
     digitalWrite(BATVREADON, HIGH);           //turn MOSFET connection resitor divider in circuit
   }
 
-  analogReference(INTERNAL1V1);
   temp = analogRead(SupplyAD);
 
   for (index = 0; index <= 4; index++)        //sample AD 5 times
@@ -606,14 +603,13 @@ void setup()
   Serial.begin(115200);                     //Setup Serial console ouput
   Serial.println();
   Serial.println();
-  Serial.println(F("67_HAB_Balloon_Tracker_Transmitter Starting"));
-  
+  Serial.println(F("67_HAB_Balloon_Tracker_Transmitter_ESP32 Starting"));
+
   memoryStart(Memory_Address);              //setup the memory
   j = readMemoryUint16(addr_ResetCount);
   j++;
   writeMemoryUint16(addr_ResetCount, j);
   j = readMemoryUint16(addr_ResetCount);
-  
   Serial.print(F("TXResets "));
   Serial.println(j);
   
@@ -671,21 +667,21 @@ void setup()
   Serial.print(F("ThisNode "));
   Serial.println(ThisNode);
 
-  LT.printModemSettings();                    //reads and prints the configured LoRa settings, useful check
+  LT.printModemSettings();                     //reads and prints the configured LoRa settings, useful check
 
   Serial.println();
   printSupplyVoltage();
   printTempDS18B20();
   Serial.println();
 
-  j = readSupplyVoltage();                    //get supply mV
-  TXStatus = 0;                               //clear all TX status bits
+  j = readSupplyVoltage();                     //get supply mV
+  TXStatus = 0;                                //clear all TX status bits
 
-  sendCommand(PowerUp);                       //send power up command, includes supply mV and config, on tracker settings
+  sendCommand(PowerUp);                        //send power up command, includes supply mV and config, on tracker settings
 
   GPS_OutputOn();
   GPSTest();
-  GPS_Setup();                                //GPS should have had plenty of time to initialise by now
+  GPS_Setup();                                 //GPS should have had plenty of time to initialise by now
 
   delay(2000);
 

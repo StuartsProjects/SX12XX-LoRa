@@ -7,18 +7,21 @@
 
 //*******  Setup hardware pin definitions here ! ***************
 
-//These are the pin definitions for one of my own boards, the Easy Mikrobus Pro Mini,
-//be sure to change the definitions to match your own setup. Some pins such as DIO1,
-//DIO2, BUZZER are not used by this sketch so they do not need to be connected and
-//should be set to -1.
+//These are the pin definitions for one of my own boards, the an ESP32 shield base.
 
-#define NSS 10                                  //select pin on LoRa device
-#define NRESET 9                                //reset pin on LoRa device
-#define RFBUSY 7                                //RFBUSY pin on LoRa device   
-#define LED1 8                                  //on board LED, high for on
-#define DIO1 3                                  //DIO1 pin on LoRa device, used for RX and TX done 
+#define SCK 18                                  //SCK on SPI3
+#define MISO 19                                 //MISO on SPI3 
+#define MOSI 23                                 //MOSI on SPI3 
 
-#define LORA_DEVICE DEVICE_SX1262               //we need to define the device we are using
+#define NSS 5                                   //select pin on LoRa device
+#define NRESET 27                               //reset pin on LoRa device
+#define RFBUSY 25                               //busy line
+#define DIO1 35                                 //DIO1 pin on LoRa device, used for RX and TX done 
+
+#define LED1 2                                  //on board LED, high for on
+
+
+#define LORA_DEVICE DEVICE_SX1278               //we need to define the device we are using
 
 
 //*******  Setup LoRa Parameters Here ! ***************
@@ -28,16 +31,16 @@ const uint32_t Frequency = 434000000;           //frequency of transmissions in 
 const uint32_t Offset = 0;                      //offset frequency for calibration purposes
 
 const uint8_t Bandwidth = LORA_BW_500;          //LoRa bandwidth
-const uint8_t SpreadingFactor = LORA_SF5;       //LoRa spreading factor
+const uint8_t SpreadingFactor = LORA_SF7;       //LoRa spreading factor
 const uint8_t CodeRate = LORA_CR_4_5;           //LoRa coding rate
 const uint8_t Optimisation = LDRO_AUTO;         //low data rate optimisation setting, normally set to auto
 
-const int8_t TXpower = 10;                      //LoRa transmit power in dBm
+const int8_t TXpower = 14;                      //LoRa transmit power in dBm
 
 
 //*******  Setup packet parameters Here ! ***************
-const uint8_t numberPackets = 50;               //number of packets to send in transmit loop
-const uint8_t TXPacketL = 16;                   //length of packet to send  
+const uint8_t numberPackets = 100;              //number of packets to send in transmit loop
+const uint8_t TXPacketL = 255;                  //length of packet to send  
 const bool waitforACK = false;                  //set to true to have transmit wait for ack before continuing
 
 

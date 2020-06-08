@@ -67,7 +67,7 @@ void loop()
   
   RXPacketL = LT.receiveSXBuffer(0, 0, WAIT_RX);   //returns 0 if packet error of some sort
 
-  while (!digitalRead(DIO1));                      //wait for DIO0 to go high
+  while (!digitalRead(DIO1));                      //wait for DIO1 to go high
 
   IRQStatus = LT.readIrqStatus();
 

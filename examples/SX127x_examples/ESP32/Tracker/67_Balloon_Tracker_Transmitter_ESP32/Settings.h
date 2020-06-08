@@ -12,21 +12,28 @@
 //These are the pin definitions for one of my own boards, the Easy Mikrobus Pro Mini,
 //be sure to change the definitions to match your own setup. 
 
-#define NSS 10                                  //select on LoRa device
-#define NRESET 9                                //reset on LoRa device
-#define DIO0 3                                  //DIO0 on LoRa device, used for RX and TX done 
-#define LED1 8                                  //On board LED, high for on
-#define BATVREADON 8                            //Pin that turns on the resistor divider to read battery volts
-#define ONE_WIRE_BUS 4                          //for DS18B20 temperature sensor 
-#define ADMultiplier 10.42                      //adjustment to convert AD value read into mV of battery voltage 
-#define SupplyAD A0                             //Resistor divider for battery connected here 
+#define NSS 5                                   //select on LoRa device
+#define SCK 18                                  //SCK on SPI3
+#define MISO 19                                 //MISO on SPI3 
+#define MOSI 23                                 //MOSI on SPI3 
 
-#define RXpin A3                                //pin number for GPS RX input into Arduino - TX from GPS
-#define TXpin A2                                //pin number for GPS TX output from Arduino- RX into GPS
+#define NRESET 27                               //reset on LoRa device
+#define DIO0 35                                 //DIO0 on LoRa device, used for RX and TX done 
+#define DIO1 -1                                 //DIO1 on LoRa device, normally not used so set to -1
+#define DIO2 -1                                 //DIO2 on LoRa device, normally not used so set to -1
+#define LED1 2                                  //On board LED, high for on
+#define BUZZER -1                               //Buzzer if fitted, high for on. Set to -1 if not used      
+#define ONE_WIRE_BUS 32                         //for DS18B20 temperature sensor
+#define SupplyAD 36                             //pin for reading supply\battery voltage
+#define BATVREADON 2                            //turns on battery resistor divider, high for on
+#define ADMultiplier 11.65                      //Multiplier for conversion of AD reading to mV
 
-#define GPSPOWER -1                             //Pin that powers GPS on\off, set to -1 if not used
-#define GPSONSTATE HIGH                         //logic level to turn GPS on via pin GPSPOWER 
-#define GPSOFFSTATE LOW                         //logic level to turn GPS off via pin GPSPOWER 
+#define RXpin 17                                //pin number for GPS RX input into Arduino - TX from GPS
+#define TXpin 16                                //pin number for GPS TX output from Arduino- RX into GPS
+
+#define GPSPOWER 26                             //Pin that controls power to GPS, set to -1 if not used
+#define GPSONSTATE LOW                          //logic level to turn GPS on via pin GPSPOWER 
+#define GPSOFFSTATE HIGH                        //logic level to turn GPS off via pin GPSPOWER 
 
 #define LORA_DEVICE DEVICE_SX1278               //this is the device we are using
 
@@ -71,9 +78,7 @@ const byte TXBUFFER_SIZE = 128;                   //defines the maximum size of 
 
 #define GPSBaud 9600                              //GPS Baud rate
 
-#define USESOFTSERIALGPS                          //need to include this if using softserial for GPS, otherwise hardware serial assumed      
-
-//#define HARDWARESERIALPORT Serial1              //if your using hardware serial for the GPS, define it here  
+#define HARDWARESERIALPORT Serial2                //if your using hardware serial for the GPS, define it here  
 
 const uint16_t WaitGPSFixSeconds = 60;            //when in flight the time to wait for a new GPS fix 
 
@@ -102,8 +107,8 @@ uint16_t LeadinmS = 1000;                         //ms of leadin constant shifte
 uint8_t OptionOff = 0;
 uint8_t OptionOn = 1;
 
-const char option_SearchEnable = OptionOff;       //set to OptionOn to enable transmit of Search mode packet       
-const char option_FSKRTTYEnable = OptionOff;      //set to OptionOn to enable transmit of FSKRTTY
+const char option_SearchEnable = OptionOn;       //set to OptionOn to enable transmit of Search mode packet       
+const char option_FSKRTTYEnable = OptionOn;      //set to OptionOn to enable transmit of FSKRTTY
 
 #define option_SearchEnable_SUM (option_SearchEnable*1)
 #define option_FSKRTTYEnable_SUM (option_FSKRTTYEnable*4)
@@ -115,15 +120,11 @@ const unsigned int Default_config1 = (option_SearchEnable_SUM + option_FSKRTTYEn
                                                    
 //**************************************************************************************************
 // 7) Memory settings - define the type of memory to use for non-Volatile storage.
-//    Default is internal ATmega device EEPROM but EEPROM has a limited write endurance of 'only' 
-//    100,000 writes. Since the non-Volatile memory selected is written to at each transmission loop
-//    and error, its highly recommended to use one of the FRAM options, these have an endurance of
-//    100,000,000,000,000 writes.   
+//    The ESP32 version of the HAB tracker transmitter only supports the use of FRAM here. 
 //**************************************************************************************************
 
-#define Memory_Library <EEPROM_Memory.h>
 //#define Memory_Library <FRAM_MB85RC16PNF.h>
-//#define Memory_Library <FRAM_FM24CL64.h>
+#define Memory_Library <FRAM_FM24CL64.h>
 
 int16_t Memory_Address = 0x50;                     //default I2C address of MB85RC16PNF and FM24CL64 FRAM
 
@@ -131,7 +132,7 @@ int16_t Memory_Address = 0x50;                     //default I2C address of MB85
 // 8) HAB Flight Settings
 //**************************************************************************************************
 
-char FlightID[] = "Flight1";                       //flight ID for HAB packet
+char FlightID[] = "ESP32-1";                       //flight ID for HAB packet
 
 const unsigned int SleepTimesecs = 13;             //sleep time in seconds after each TX loop
 

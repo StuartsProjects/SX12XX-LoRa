@@ -1,5 +1,5 @@
 /*******************************************************************************************************
-  Programs for Arduino - Copyright of the author Stuart Robinson - 12/05/20
+  Programs for Arduino - Copyright of the author Stuart Robinson - 28/05/20
   This program is supplied as is, it is up to the user of the program to decide if the program is
   suitable for the intended purpose and free from errors.
 *******************************************************************************************************/
@@ -22,6 +22,9 @@
 
   There is a matching Tracker transmitter program.
 
+  This version of the receiver program has the option of using either an SSD1306 OLED, SH1106 OLED or ILI9341 
+  TFT display. The ILI9341 option was tested on an Arduino DUE.
+
   Serial monitor baud rate is set at 9600.
 
   ToDo:
@@ -38,24 +41,20 @@ SX127XLT LT;
 #include "Settings.h"
 #include <ProgramLT_Definitions.h>
 
-#include <U8x8lib.h>                                        //https://github.com/olikraus/u8g2 
-U8X8_SSD1306_128X64_NONAME_HW_I2C disp(U8X8_PIN_NONE);      //standard 0.96" SSD1306
-//U8X8_SH1106_128X64_NONAME_HW_I2C disp(U8X8_PIN_NONE);     //1.3" OLED often sold as 1.3" SSD1306
-
 #include <TinyGPS++.h>                                      //http://arduiniana.org/libraries/tinygpsplus/
 TinyGPSPlus gps;                                            //create the TinyGPS++ object
 
 
 #ifdef USESOFTSERIALGPS
-//#include <NeoSWSerial.h>                                    //https://github.com/SlashDevin/NeoSWSerial
-//NeoSWSerial GPSserial(RXpin, TXpin);                        //this library is more relaible with a GPS over SoftwareSerial
+//#include <NeoSWSerial.h>                                  //https://github.com/SlashDevin/NeoSWSerial
+//NeoSWSerial GPSserial(RXpin, TXpin);                      //this library is more relaible with a GPS over SoftwareSerial
 #include <SoftwareSerial.h>
 SoftwareSerial GPSserial(RXpin, TXpin);
 #else
 #define GPSserial HARDWARESERIALPORT                        //hardware serial port (eg Serial1) is configured in the Settings.h file
 #endif
 
-#include <AFSKRTTY.h>
+#include <AFSKRTTY_DUE.h>
 
 //**************************************************************************************************
 // HAB tracker data - these are the variables transmitted in payload
@@ -101,6 +100,35 @@ char FlightID[16];                //buffer for flight ID
 uint8_t FlightIDlen;              //length of received flight ID
 
 uint8_t modeNumber = 1;           //mode receiver is in default to 1. (1 = Tracker, 2 = Search)
+
+bool readTXStatus(uint8_t bitnum); //used by screens so define here
+
+//#include Display_Driver           //select the display driver to use, see Settings.h file
+
+
+#ifdef USEILI9341
+  #include "dispILI9341.h"
+  dispILI9341 disp;                           //create a library class instance for dispILI9341.h
+  int8_t DISPCS = DISP_CS;                    //we need to pas the pin definitions across from the Settings.h file
+  int8_t DISPRESET = DISP_RESET;
+  int8_t DISPDC = DISP_DC;
+  #define ILI9341PinsDefined
+#endif
+
+
+#ifdef USESSD1306
+  #include <U8x8lib.h>                                        //https://github.com/olikraus/u8g2 
+  U8X8_SSD1306_128X64_NONAME_HW_I2C disp(U8X8_PIN_NONE);      //standard 0.96" SSD1306
+#endif
+
+
+#ifdef USESH1106
+  #include <U8x8lib.h>                                        //https://github.com/olikraus/u8g2 
+  U8X8_SH1106_128X64_NONAME_HW_I2C disp(U8X8_PIN_NONE);       //1.3" OLED often sold as 1.3" SSD1306
+#endif
+
+
+#include Screens_Library          //select the screen layouts to use, see Settings.h file  
 
 
 void loop()
@@ -162,9 +190,9 @@ void readGPS()
     LastRXGPSfixCheck = millis();
     if (TXLocation)                                     //only display location screen if we have had an update
     {
-      displayscreen1();
-      displayscreen3();
-      displayscreen4();
+      screenHABREC_1();
+      screenHABREC_3();
+      screenHABREC_4();
     }
   }
 
@@ -175,7 +203,7 @@ void readGPS()
     RXLon = gps.location.lng();
     RXAlt = gps.altitude.meters();
     LastRXGPSfixCheck = millis();
-    displayscreen4();
+    screenHABREC_4();
 
     if (FixCount == 1)                                    //update screen when FIXcoount counts down from DisplayRate to 1
     {
@@ -183,10 +211,10 @@ void readGPS()
       if (TXLocation)                                     //only display location screen if we have had an update
       {
         doDistanceDirectionCalc();
-        displayscreen1();
-        displayscreen3();
-        displayscreen4();
-        displayscreen5();
+        screenHABREC_1();
+        screenHABREC_3();
+        screenHABREC_4();
+        screenHABREC_5();
       }
     }
     FixCount--;
@@ -220,7 +248,7 @@ void checkModeSwitch()
     Serial.println(F("Search Mode"));
   }
 
-  displayscreen3();                              //update receive mode to screen
+  screenHABREC_3();                              //update receive mode to screen
 
   LT.printModemSettings();
   Serial.println();
@@ -259,9 +287,9 @@ void packet_is_OK()
     Serial.print(F("TrackerPowerup,Battery,"));
     Serial.print(TXVolts);
     Serial.print(F("mV"));
-    displayscreen2();
-    displayscreen3();
-    displayscreen4();
+    screenHABREC_2();
+    screenHABREC_3();
+    screenHABREC_4();
     return;
   }
 
@@ -280,7 +308,7 @@ void packet_is_OK()
       Serial.print(F(","));
       LT.printSXBufferASCII(0, (RXPacketL - 1));
       printpacketDetails();
-      displayscreen7();                                       //update packet count on screen
+      screenHABREC_7();                                       //update packet count on screen
       return;
     }
 
@@ -301,14 +329,14 @@ void packet_is_OK()
     printpacketDetails();
 
 
-    displayscreen1();                       //update location
-    displayscreen3();
-    displayscreen4();                       //update GPS fix status
+    screenHABREC_1();                       //update location
+    screenHABREC_3();
+    screenHABREC_4();                       //update GPS fix status
 
 
     if (RXGPSfix && TXLocation)             //only display distance and direction if have received tracker packet and have local GPS fix
     {
-      displayscreen5();
+      screenHABREC_5();
     }
 
     //Serial.println();
@@ -363,8 +391,8 @@ void packet_is_OK()
     printDistanceDirection();
 
     printpacketDetails();
-    displayscreen1();
-    displayscreen5();
+    screenHABREC_1();
+    screenHABREC_5();
     return;
   }
 
@@ -376,7 +404,8 @@ void packet_is_OK()
     Serial.write(7);                             //send a BELL to serial terminal
     delay(250);
     Serial.write(7);
-    displayscreen6();                            //send a note to screen
+    screenHABREC_6();                            //send a note to screen
+    screenHABREC_7();
     return;
   }
 
@@ -775,171 +804,6 @@ void GPSPowerOn(int8_t pin, uint8_t state)
 // Display screen functions
 //************************************************************************
 
-void displayscreen1()
-{
-  //shows the received location data and packet reception on display
-  uint8_t index;
-
-  disp.clearLine(0);
-  disp.setCursor(0, 0);
-
-  if (PacketType == HABPacket)
-  {
-    for (index = 0; index < FlightIDlen; index++)
-    {
-      disp.write(FlightID[index]);
-    }
-  }
-
-  if (PacketType == LocationBinaryPacket)
-  {
-    disp.print(Source);
-  }
-
-  disp.clearLine(1);
-  disp.setCursor(0, 1);
-  disp.print(F("Lat "));
-  disp.print(TXLat, 5);
-  disp.clearLine(2);
-  disp.setCursor(0, 2);
-  disp.print(F("Lon "));
-  disp.print(TXLon, 5);
-  disp.clearLine(3);
-  disp.setCursor(0, 3);
-  disp.print(F("Alt "));
-  disp.print(TXAlt);
-  disp.print(F("m"));
-
-  disp.clearLine(4);
-  disp.setCursor(0, 4);
-  disp.print(F("RSSI "));
-  disp.print(PacketRSSI);
-  disp.print(F("dBm"));
-  disp.clearLine(5);
-  disp.setCursor(0, 5);
-  disp.print(F("SNR  "));
-
-  if (PacketSNR > 0)
-  {
-    disp.print(F("+"));
-  }
-
-  if (PacketSNR == 0)
-  {
-    disp.print(F(" "));
-  }
-
-  if (PacketSNR < 0)
-  {
-    disp.print(F("-"));
-  }
-
-  disp.print(PacketSNR);
-  disp.print(F("dB"));
-
-  disp.clearLine(6);
-  disp.setCursor(0, 6);
-  disp.print(F("Packets "));
-  disp.print(RXpacketCount);
-}
-
-
-void displayscreen2()
-{
-  //show tracker transmitter powerup data on display
-  float tempfloat;
-  disp.clear();
-  disp.setCursor(0, 0);
-  disp.print(F("TXPowerup"));
-  disp.setCursor(0, 1);
-  disp.print(F("Battery,"));
-  tempfloat = ((float) TXVolts / 1000);
-  disp.print(tempfloat, 2);
-  disp.print(F("v"));
-}
-
-
-void displayscreen3()
-{
-  //show receive mode on display
-  disp.setCursor(14, 0);
-
-  if (modeNumber == TrackerMode)
-  {
-    disp.print(F("TR"));
-    return;
-  }
-
-  if (modeNumber == SearchMode)
-  {
-    disp.print(F("SE"));
-    return;
-  }
-
-  disp.print(modeNumber);
-}
-
-
-void displayscreen4()
-{
-  //put RX and TX GPS fix status on display
-
-  disp.setCursor(14, 1);
-
-  if (RXGPSfix)
-  {
-    disp.print(F("RG"));
-  }
-  else
-  {
-    disp.setCursor(14, 1);
-    disp.print(F("R?"));
-  }
-
-  disp.setCursor(14, 2);
-
-  if (readTXStatus(GPSFix))
-  {
-    disp.print(F("TG"));
-  }
-  else
-  {
-    disp.print(F("T?"));
-  }
-}
-
-
-void displayscreen5()
-{
-  //put distance and direction on display
-
-  disp.clearLine(7);
-  disp.setCursor(0, 7);
-  disp.print(F("D&D "));
-  disp.print(TXdistance, 0);
-  disp.print(F("m "));
-  disp.print(TXdirection);
-  disp.print(F("d"));
-}
-
-
-void displayscreen6()
-{
-  //Tracker has no GPS fix
-  disp.clearLine(7);
-  disp.setCursor(0, 7);
-  disp.print(F("No TX GPS Fix"));
-}
-
-
-void displayscreen7()
-{
-  disp.clearLine(6);
-  disp.setCursor(0, 6);
-  disp.print(F("Packets "));
-  disp.print(RXpacketCount);
-  disp.print(F(" Err "));
-}
 
 
 
@@ -969,12 +833,11 @@ void setup()
   Serial.println(F(Program_Version));
   Serial.println();
 
-  Serial.println(F("68_Balloon_Tracker_Receiver Starting"));
+  Serial.println(F("78_Balloon_Tracker_Receiver_DisplayOptions Starting"));
 
   SPI.begin();
 
-  disp.begin();
-  disp.setFont(u8x8_font_chroma48medium8_r);
+  screenHABREC_SETUP();
 
   Serial.print(F("Checking LoRa device - "));
   disp.setCursor(0, 0);
@@ -1019,8 +882,8 @@ void setup()
   GPSserial.end();                                                      //software serial interferes with SPI for LoRa device
 
   setTrackerMode();
-  displayscreen3();                    //show receive mode
-  displayscreen4();                    //show GPS status
+  screenHABREC_3();                    //show receive mode
+  screenHABREC_4();                    //show GPS status
 
   LT.printModemSettings();
   Serial.println();
