@@ -1,10 +1,10 @@
-# SX126X Library
+# SX128X Library
 <cr>
 
 
 This part of the SX12XX library supports the SX1280 and SX1281 2.4Ghz modules.
 
-The objective of the library is to allow the same program sketches to be used across the range of UHF lora modules SX126x and SX127x (UHF) as well as the 2.4Ghz SX128x modules. 
+The objective of the SX12XX library is to allow the same program sketches to be used across the range of UHF lora modules SX126x and SX127x (UHF) as well as the 2.4Ghz SX128x modules. 
 
 ###Considerations for pin usage
 
