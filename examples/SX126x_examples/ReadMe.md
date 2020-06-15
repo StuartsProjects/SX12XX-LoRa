@@ -4,7 +4,12 @@
 
 This part of the SX12XX library supports the SX1261, SX1262 and SX1268 (all UHF) LoRa devices.. 
 
-The objective of the library is to allow the same program sketches to be used across the range of UHF lora modules SX126x and SX127x (UHF) as well as the 2.4Ghz SX128x modules. 
+The objective of the library is to allow the same program sketches to be used across the range of UHF lora modules SX126x and SX127x (UHF) as well as the 2.4Ghz SX128x modules.
+
+The library was tested on both NiceRF and Dorji modules. 
+
+The Library has not been tested on the Semtech SX1261MB2BAS or similar development board, so consider them unsupported. 
+
 
 ###Considerations for pin usage
 
