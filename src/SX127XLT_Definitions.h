@@ -225,6 +225,7 @@ const uint8_t REG_FEIMID = 0x29;
 const uint8_t REG_FEILSB = 0x2A;
 const uint8_t REG_DETECTOPTIMIZE = 0x31;
 const uint8_t REG_INVERTIQ = 0x33;
+const uint8_t REG_DETECTIONTHRESHOLD = 0x37;
 const uint8_t REG_SYNCWORD = 0x39;
 const uint8_t REG_IMAGECAL = 0x3B;
 const uint8_t REG_TEMP = 0x3C;

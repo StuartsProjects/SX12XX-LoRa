@@ -797,7 +797,7 @@ void SX127XLT::setModulationParams(uint8_t modParam1, uint8_t modParam2, uint8_t
   //Spreading factor - same for SX1272 and SX127X - reg 0x1D
   regdata = (readRegister(REG_MODEMCONFIG2) & (~READ_SF_AND_X));
   writeRegister(REG_MODEMCONFIG2, (regdata + (modParam1 << 4)));
-
+  
   if (_Device != DEVICE_SX1272)
   {
     //for all devices apart from SX1272
@@ -860,6 +860,18 @@ void SX127XLT::setModulationParams(uint8_t modParam1, uint8_t modParam2, uint8_t
     writeRegister(REG_MODEMCONFIG1, (regdata + modParam4));
 
   }
+  
+  if ( modParam1 == LORA_SF6)
+  {
+  writeRegister(REG_DETECTOPTIMIZE, 0x05);
+  writeRegister(REG_DETECTIONTHRESHOLD, 0x0C);
+  }
+  else
+  {
+  writeRegister(REG_DETECTOPTIMIZE, 0x03);
+  writeRegister(REG_DETECTIONTHRESHOLD, 0x0A);
+  }
+ 
 }
 
 
