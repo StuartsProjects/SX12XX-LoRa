@@ -3269,7 +3269,8 @@ uint8_t SX127XLT::readBuffer(uint8_t *rxbuffer)
     rxbuffer[index] = regdata;           //fill the buffer.
     index++;
   } while (regdata != 0);                //keep reading until we have reached the null (0) at the buffer end
-  //or exceeded size of buffer allowed
+                                         //or exceeded size of buffer allowed
+  _RXPacketL = _RXPacketL + index;       //increment count of bytes read
   return index;                          //return the actual size of the buffer, till the null (0) detected
 
 }
