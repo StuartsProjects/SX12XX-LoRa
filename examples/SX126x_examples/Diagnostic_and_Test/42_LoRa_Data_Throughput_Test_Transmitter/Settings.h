@@ -1,5 +1,5 @@
 /*******************************************************************************************************
-  lora Programs for Arduino - Copyright of the author Stuart Robinson - 26/03/20
+  Programs for Arduino - Copyright of the author Stuart Robinson - 26/03/20
 
   This program is supplied as is, it is up to the user of the program to decide if the program is
   suitable for the intended purpose and free from errors.
@@ -37,7 +37,7 @@ const int8_t TXpower = 10;                      //LoRa transmit power in dBm
 
 //*******  Setup packet parameters Here ! ***************
 const uint8_t numberPackets = 50;               //number of packets to send in transmit loop
-const uint8_t TXPacketL = 16;                   //length of packet to send  
+const uint8_t TXPacketL = 4;                   //length of packet to send  
 const bool waitforACK = false;                  //set to true to have transmit wait for ack before continuing
 
 

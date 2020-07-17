@@ -8,7 +8,7 @@
 
 /*******************************************************************************************************
   Program Operation - This is a GPS SD card logger intended for use in a high altitude balloon. The
-  program  sets the chosen GPS, Ublox or Quectel into balloon mode, otherwise the GPSs would stop working
+  program  sets the chosen GPS, Ublox or Quectel, into balloon mode otherwise the GPSs would stop working
   at circa 12,000m. If the SD card fails the LED will flash rapidly for a couple of seconds. 
 
   The data logged to SD card looks like this;
@@ -18,18 +18,14 @@
   Serial monitor baud rate is set at 115200
 *******************************************************************************************************/
 
-
-//Memory no SD 30440 bytes Flash, 1155 bytes RAM
-//Memory with SD log 42188 bytes Flash ytes, 1910 bytes RAM
-
-#define Program_Version "V1.1"
+#define Program_Version "V1.0"
 
 #include <Arduino.h>
 
 #include "Settings.h"
 
 //**************************************************************************************************
-// HAB tracker data - these are the variables transmitted in payload
+// HAB tracker data - these are the variables recorded to the SD card
 //**************************************************************************************************
 uint8_t TXHours;                                 //Hours
 uint8_t TXMinutes;                               //Minutes
@@ -44,6 +40,7 @@ uint32_t TXGPSHdop;                              //HDOP value of GPS
 uint8_t hours, mins, secs, day, month;
 uint16_t year;
 //**************************************************************************************************
+
 
 #include <SD.h>
 #include <SPI.h>
@@ -288,8 +285,6 @@ void logGPSfix(char *buf )
 
   
 }
-
-
 
 
 uint8_t setupSDLOG(char *buf)

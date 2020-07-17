@@ -113,7 +113,7 @@ It is an artefact of a LoRa receiver that data and packets can appear as if from
 
 More recently 2.4Ghz LoRa modules have been available, based on the SX128x. Whilst they don't have the extreme range of the UHF modules, they do allow for higher data rates, up to 200kbps and no duty cycle restrictions,.  
 
-The 2.4Ghz LoRa modules include a ranging function which allows a suitably configured pair of modules to measure the distance between them. The ranging works best in clear open areas and can be used to measure distances from circa 50m to beyond 40km. Recent endeavours by the author have shown that 2.4GHz LoRa can work at up to 89km LOS, and the ranging at 85km LOS. See the report **[here](https://github.com/LoRaTracker/SX1280_Testing)**.
+The 2.4Ghz LoRa modules include a ranging function which allows a suitably configured pair of modules to measure the distance between them. The ranging works best in clear open areas and can be used to measure distances from circa 50m to beyond 40km. Recent endeavours by the author have shown that 2.4GHz LoRa can work at up to 89km LOS, and the ranging at 85km LOS. 
 
 #### How far does LoRa go?
 

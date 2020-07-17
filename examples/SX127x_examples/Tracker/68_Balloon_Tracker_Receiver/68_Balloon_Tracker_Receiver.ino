@@ -926,9 +926,9 @@ void displayscreen5()
 void displayscreen6()
 {
   //Tracker has no GPS fix
-  disp.clearLine(7);
-  disp.setCursor(0, 7);
-  disp.print(F("No TX GPS Fix"));
+  //disp.clearLine(7);
+  //disp.setCursor(0, 7);
+  //disp.print(F("No TX GPS Fix"));
 }
 
 

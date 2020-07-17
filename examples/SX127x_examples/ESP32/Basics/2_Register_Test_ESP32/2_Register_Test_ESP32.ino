@@ -1,11 +1,6 @@
 /*******************************************************************************************************
 
-  One of a series of test programs for LoRa devices on Arduino, the full set of programs and accompanying
-  library can be found here;
-
-  https://github.com/LoRaTracker/SX12XX-LoRa
-
-  lora Programs for Arduino - Copyright of the author Stuart Robinson - 20/01/20
+  Programs for Arduino - Copyright of the author Stuart Robinson - 20/01/20
 
   This program is supplied as is, it is up to the user of the program to decide if the program is
   suitable for the intended purpose and free from errors.
@@ -71,7 +66,7 @@ const uint8_t DEVICE_SX1279 = 0x14;             //SX1279
 
 //*********  Setup hardware definitions here ! *****************
 
-//These are the pin definitions for one of the LoRaTracker boards, the ESP32_Micro_Node, be sure to change
+//These are the pin definitions for one of the Tracker boards, the ESP32_Micro_Node, be sure to change
 //them to match your own setup. You will also need to connect up the pins for the SPI bus, which on the
 //ESP32_Micro_Node are SCK on pin 18, MISO on pin 19 and MOSI on pin 23.
 

@@ -1,5 +1,5 @@
 /*******************************************************************************************************
-  lora Programs for Arduino - Copyright of the author Stuart Robinson - 09/02/20
+  Programs for Arduino - Copyright of the author Stuart Robinson - 09/02/20
 
   This program is supplied as is, it is up to the user of the program to decide if the program is
   suitable for the intended purpose and free from errors.
@@ -17,7 +17,7 @@
   can be used to check the packets are being sent correctly, the frequency and FLRC settings (in Settings.h)
   must be the same for the Transmit and Receive program. Sample Serial Monitor output;
 
-  10dBm Packet> {packet contents*}  BytesSent,19  CRC,3882  TransmitTime,54mS  PacketsSent,1
+  10dBm Packet> {packet contents*}  BytesSent,23  CRC,DAAB  TransmitTime,54mS  PacketsSent,1
 
   Serial monitor baud rate is set at 9600
 *******************************************************************************************************/

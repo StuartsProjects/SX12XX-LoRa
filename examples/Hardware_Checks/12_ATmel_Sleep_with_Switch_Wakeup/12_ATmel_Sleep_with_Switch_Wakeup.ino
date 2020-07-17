@@ -1,5 +1,5 @@
 /*******************************************************************************************************
-  lora Programs for Arduino - Copyright of the author Stuart Robinson - 26/12/19
+  Programs for Arduino - Copyright of the author Stuart Robinson - 26/12/19
 
   This program is supplied as is, it is up to the user of the program to decide if the program is
   suitable for the intended purpose and free from errors.
@@ -25,27 +25,33 @@
 #define SWITCH1 2                               //switch used to wake processor up, switch pin connected to 
                                                 //ground to activate. Define as -1 if switch not used.
 
+uint32_t sleeps;
+                                                
+
 void loop()
 {
   digitalWrite(LED1, HIGH);
   delay(2000);
-  Serial.println(F("Sleeping zzzzz...."));
+  sleeps++;
+  Serial.print(sleeps);
+  Serial.println(F(" Sleeping zzzzz...."));
   Serial.println();
-  Serial.flush();                               //make sure serial out buffer is empty
+  Serial.flush();                              //make sure serial out buffer is empty
   digitalWrite(LED1, LOW);
 
-  sleep_permanent();                            //goto sleep till woken up by switch press
+  attachInterrupt(digitalPinToInterrupt(SWITCH1), wakeUp, FALLING);   //This is a hardware interrupt
 
+  sleep_permanent();                           //goto sleep till woken up by switch press
+  
+  detachInterrupt(digitalPinToInterrupt(SWITCH1));
+  
   Serial.println(F("Awake !"));
-  Serial.flush();
   digitalWrite(LED1, HIGH);
 }
 
 
 void sleep_permanent()
 {
-  attachInterrupt(digitalPinToInterrupt(SWITCH1), wakeUp, FALLING);   //This is a hardware interrupt
-
   ADCSRA = 0;                         //disable ADC
   set_sleep_mode (SLEEP_MODE_PWR_DOWN);
   noInterrupts ();                   //timed sequence follows
@@ -61,8 +67,6 @@ void sleep_permanent()
   /* wake up here */
 
   sleep_disable();
-
-  detachInterrupt(digitalPinToInterrupt(SWITCH1));
 }
 
 

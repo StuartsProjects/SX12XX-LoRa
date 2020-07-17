@@ -1,5 +1,5 @@
 /*******************************************************************************************************
-  lora Programs for Arduino - Copyright of the author Stuart Robinson - 02/03/20
+  Programs for Arduino - Copyright of the author Stuart Robinson - 02/03/20
 
   This program is supplied as is, it is up to the user of the program to decide if the program is
   suitable for the intended purpose and free from errors.
@@ -16,7 +16,7 @@
   to check the packets are being sent correctly, the frequency and LoRa settings (in the LT.setupLoRa()
   commands) must be the same for the transmitter and receiver programs. Sample Serial Monitor output;
 
-  10dBm Packet> Hello World 1234567890  BytesSent,23  PacketsSent,6
+  10dBm Packet> Hello World 1234567890*  BytesSent,23  PacketsSent,6
 
   For an example of a more detailed configuration for a transmitter, see program 103_LoRa_Transmitter.
 
@@ -76,6 +76,7 @@ void loop()
   Serial.flush();
 
   TXPacketL = sizeof(buff);                                    //set TXPacketL to length of array
+  buff[TXPacketL - 1] = '*';                                   //replace null character at buffer end so its visible on receiver
  
   LT.printASCIIPacket(buff, TXPacketL);                        //print the buffer (the sent packet) as ASCII
 

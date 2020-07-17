@@ -1,5 +1,5 @@
 /*******************************************************************************************************
-  lora Programs for Arduino - Copyright of the author Stuart Robinson - 17/12/19
+  Programs for Arduino - Copyright of the author Stuart Robinson - 17/12/19
 
   This program is supplied as is, it is up to the user of the program to decide if the program is
   suitable for the intended purpose and free from errors.
@@ -20,7 +20,7 @@
 
   The contents of the packet received, and printed to serial monitor, should be;
 
-  "loratracker1" (buffer)      - trackerID
+  "tracker1"     (buffer)      - trackerID
   1+             (uint32_t)    - packet count
   51.23456       (float)       - latitude
   -3.12345       (float)       - longitude

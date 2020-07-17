@@ -1,5 +1,5 @@
 /*******************************************************************************************************
-  lora Programs for Arduino - Copyright of the author Stuart Robinson - 11/02/20
+  Programs for Arduino - Copyright of the author Stuart Robinson - 11/02/20
 
   This program is supplied as is, it is up to the user of the program to decide if the program is
   suitable for the intended purpose and free from errors. 
@@ -66,7 +66,7 @@ const uint8_t PACKET_TYPE_LORA = 0x01;
 
 //*********  Setup hardware definitions here ! *****************
 
-//These are the pin definitions for one of the LoRaTracker boards, be sure to change them to match your
+//These are the pin definitions for one of the Tracker boards, be sure to change them to match your
 //own setup. You will also need to connect up the pins for the SPI bus, which on an Arduino Pro Mini are
 //SCK pin 13, MISO pin 12, and MOSI pin 11.
 

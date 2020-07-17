@@ -103,16 +103,13 @@ uint8_t modeNumber = 1;           //mode receiver is in default to 1. (1 = Track
 
 bool readTXStatus(uint8_t bitnum); //used by screens so define here
 
-//#include Display_Driver           //select the display driver to use, see Settings.h file
-
 
 #ifdef USEILI9341
-  #include "dispILI9341.h"
-  dispILI9341 disp;                           //create a library class instance for dispILI9341.h
-  int8_t DISPCS = DISP_CS;                    //we need to pas the pin definitions across from the Settings.h file
+  #include "displayILI9341.h"
+  displayILI9341 disp;                                          //create a local library class instance for dispILI9341.h
+  int8_t DISPCS = DISP_CS;                                   //we need to pas the pin definitions across from the Settings.h file
   int8_t DISPRESET = DISP_RESET;
   int8_t DISPDC = DISP_DC;
-  #define ILI9341PinsDefined
 #endif
 
 

@@ -1,5 +1,5 @@
 /*******************************************************************************************************
-  lora Programs for Arduino - Copyright of the author Stuart Robinson - 16/12/19
+  Programs for Arduino - Copyright of the author Stuart Robinson - 16/12/19
 
   This program is supplied as is, it is up to the user of the program to decide if the program is
   suitable for the intended purpose and free from errors.
@@ -21,7 +21,7 @@
 
   The contents of the packet transmitted should be;
 
-  "loratracker1" (buffer)      - trackerID
+  "tracker1"     (buffer)      - trackerID
   1+             (uint32_t)    - packet count
   51.23456       (float)       - latitude
   -3.12345       (float)       - longitude
@@ -64,7 +64,7 @@ void loop()
 {
 
   //fill the defined structure with values
-  uint8_t buff[] = "loratracker1";                     //create the contents to be of location1.trackerID
+  uint8_t buff[] = "tracker1";                         //create the contents to be of location1.trackerID
   memcpy (&location1.trackerID, &buff, sizeof(buff));  //copy the contents of buff[] into the structure
   location1.txcount = TXpacketCount;
   location1.latitude = 51.23456;

@@ -1,5 +1,5 @@
 /*******************************************************************************************************
-  lora Programs for Arduino - Copyright of the author Stuart Robinson - 16/12/19
+  Programs for Arduino - Copyright of the author Stuart Robinson - 16/12/19
 
   This program is supplied as is, it is up to the user of the program to decide if the program is
   suitable for the intended purpose and free from errors. 
@@ -12,7 +12,7 @@
   of 500khz, leads to the shortest possible and lowest air time packets. The program listens for incoming
   packets using the LoRa settings in the 'Settings.h'.
 
-  This example receives a buffer that is 19 characters long and that length must be defined in Settings.h
+  This example receives a buffer that is 23 characters long and that length must be defined in Settings.h
   as the constant 'PacketLength'.
 
   The pins to access the lora device need to be defined in the 'Settings.h' file also.
@@ -52,6 +52,7 @@ int8_t  PacketSNR;                               //stores signal to noise ratio 
 
 void loop()
 {
+  setupLoRa();
   RXPacketL = LT.receive(RXBUFFER, PacketLength, 0, NO_WAIT); //wait for a packet to arrive with 60seconds (60000mS) timeout
 
   while (!digitalRead(DIO0));                    //wait for DIO0 to go high

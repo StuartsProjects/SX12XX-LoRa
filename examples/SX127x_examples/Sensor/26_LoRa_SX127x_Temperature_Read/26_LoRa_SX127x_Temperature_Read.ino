@@ -1,7 +1,5 @@
 /*******************************************************************************************************
-  LoRaTracker Programs for Arduino - Copyright of the author Stuart Robinson - 21/03/20
-
-  http://www.LoRaTracker.uk
+  Programs for Arduino - Copyright of the author Stuart Robinson - 21/03/20
 
   This program is supplied as is, it is up to the user of the program to decide if the program is
   suitable for the intended purpose and free from errors.
@@ -17,7 +15,7 @@
 
 #define Program_Version "V1.0"
 
-//These are the pin definitions for one of the LoRaTracker boards, be sure to change them to match
+//These are the pin definitions for one of the Tracker boards, be sure to change them to match
 //your own setup.
 
 #define NSS 10                              //SX127X device select

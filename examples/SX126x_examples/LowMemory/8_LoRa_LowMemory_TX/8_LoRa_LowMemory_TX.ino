@@ -1,5 +1,5 @@
 /*******************************************************************************************************
-  lora Programs for Arduino - Copyright of the author Stuart Robinson - 08/02/20
+  Programs for Arduino - Copyright of the author Stuart Robinson - 08/02/20
 
   This program is supplied as is, it is up to the user of the program to decide if the program is
   suitable for the intended purpose and free from errors.
@@ -10,7 +10,7 @@
   internal buffer is filled direct with variables. The program is a simulation of the type of packet
   that might be sent from a GPS tracker. Note that in this example a buffer of text is part of the
   transmitted packet, this does need a processor buffer which is used to fill the LoRa device internal
-  buffer, if you don't need to transmit text then the uint8_t trackerID[] = "LoRaTracker1"; definition
+  buffer, if you don't need to transmit text then the uint8_t trackerID[] = "Tracker1"; definition
   can be ommited.
 
   The matching receiving program '9_LoRa_LowMemory_RX' can be used to receive and display the packet,
@@ -19,7 +19,7 @@
 
   The contents of the packet received, and printed to serial monitor, should be;
   
-  "loratracker1" (buffer)      - trackerID 
+  "tracker1" (buffer)      - trackerID 
   1+             (uint32_t)    - packet count    
   51.23456       (float)       - latitude   
   -3.12345       (float)       - longitude
@@ -79,7 +79,7 @@ uint8_t Send_Test_Packet()
   uint8_t len;
 
   //test data
-  uint8_t trackerID[] = "loratracker1";
+  uint8_t trackerID[] = "tracker1";
   latitude = 51.23456;
   longitude = -3.12345;
   altitude = 199;

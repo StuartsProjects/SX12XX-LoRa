@@ -26,8 +26,8 @@ void screenHABREC_7();
 
 void screenHABREC_SETUP()
 {
-//do any display setup
-disp.begin();
+  //do any display setup
+  disp.begin();
 }
 
 void screenHABREC_1()
@@ -44,6 +44,8 @@ void screenHABREC_1()
     {
       disp.write(FlightID[index]);
     }
+    disp.write(',');
+    disp.print(TXSequence);
   }
 
   if (PacketType == LocationBinaryPacket)
@@ -161,7 +163,7 @@ void screenHABREC_4()
   {
     disp.print(F("T?"));
   }
-  
+
 }
 
 
@@ -182,9 +184,9 @@ void screenHABREC_5()
 void screenHABREC_6()
 {
   //Indicate Tracker has no GPS fix
-  disp.clearLine(7);
-  disp.setCursor(0, 7);
-  disp.print(F("No TX GPS Fix"));
+  //disp.clearLine(7);
+  //disp.setCursor(0, 7);
+  //disp.print(F("No TX GPS Fix"));
 }
 
 

@@ -1,5 +1,5 @@
 /*******************************************************************************************************
-  lora Programs for Arduino - Copyright of the author Stuart Robinson - 20/02/20
+  Programs for Arduino - Copyright of the author Stuart Robinson - 20/02/20
 
   This program is supplied as is, it is up to the user of the program to decide if the program is
   suitable for the intended purpose and free from errors.
@@ -24,8 +24,8 @@
 #define uS_TO_S_FACTOR 1000000              //Conversion factor for micro seconds to seconds
 #define TIME_TO_SLEEP  15                   //Time ESP32 will go to sleep (in seconds) 
 
-RTC_DATA_ATTR int16_t bootCount = 0;
-RTC_DATA_ATTR uint16_t sleepcount = 0;
+RTC_DATA_ATTR int32_t bootCount = 0;
+RTC_DATA_ATTR uint32_t sleepcount = 0;
 
 
 void loop()

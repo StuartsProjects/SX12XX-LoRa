@@ -109,13 +109,13 @@ Tested on a bare bones ATmega328P board, the current in sleep mode was 2.4uA.
 
 #### 8\_LoRa\_LowMemory\_TX &emsp; &emsp; &emsp;  &emsp; &emsp; &emsp; (LowMemory folder)
 
-The program transmits a packet without using a processor buffer, the LoRa device internal buffer is filled direct with variables. The program is a simulation of the type of packet that might be sent from a GPS tracker. Note that in this example a buffer of text is part of the transmitted packet, this does need a processor buffer which is used to fill the LoRa device internal buffer, if you don't need to transmit text then the uint8_t trackerID[] = "loratracker1"; definition can be omitted.
+The program transmits a packet without using a processor buffer, the LoRa device internal buffer is filled direct with variables. The program is a simulation of the type of packet that might be sent from a GPS tracker. Note that in this example a buffer of text is part of the transmitted packet, this does need a processor buffer which is used to fill the LoRa device internal buffer, if you don't need to transmit text then the uint8_t trackerID[] = "tracker1"; definition can be omitted.
 
 The matching receiving program '9\_LoRa\_LowMemory\_RX' can be used to receive and display the packet, though the program  '15\_LoRa\_RX\_Structure' should receive it as well, since the packet contents are the same.
 
 The contents of the packet received, and printed to serial monitor, should be;
   
-"loratracker1" (buffer)      - trackerID  
+"tracker1"     (buffer)      - trackerID  
 1+             (uint32\_t)   - packet count     
 51.23456       (float)       - latitude   
 -3.12345       (float)       - longitude  
@@ -130,7 +130,7 @@ The program receives a packet without using a processor buffer, the LoRa device 
 
 The contents of the packet received, and printed to serial monitor, should be;
   
-"loratracker1" (buffer)      - trackerID  
+"tracker1" (buffer)      - trackerID  
 1+             (uint32\_t)   - packet count     
 51.23456       (float)       - latitude   
 -3.12345       (float)       - longitude  
@@ -194,7 +194,7 @@ Note that the structure definition and variable order (including the buffer size
 
 The contents of the packet transmitted should be;
   
-"loratracker1" (buffer)      - trackerID  
+"tracker1" (buffer)      - trackerID  
 1+             (uint32\_t)   - packet count     
 51.23456       (float)       - latitude   
 -3.12345       (float)       - longitude  
@@ -216,7 +216,7 @@ Not that the structure definition and variable order (including the buffer size)
 
 The contents of the packet received, and printed to serial monitor, should be;
   
-"loratracker1" (buffer)      - trackerID  
+"tracker1" (buffer)      - trackerID  
 1+             (uint32\_t)   - packet count     
 51.23456       (float)       - latitude   
 -3.12345       (float)       - longitude  
@@ -354,10 +354,6 @@ Note that not all pins on all Arduinos will work with software serial, see here;
 
 https://www.arduino.cc/en/Reference/softwareSerial
 
-For a more detailed tutorial on GPS problems see here;
-
-https://github.com/LoRaTracker/GPSTutorial
-
 Serial monitor baud rate is set at 115200.
 
 
@@ -472,7 +468,7 @@ How to Search 500 Square Kilometres in 10 minutes.pdf in the libraries 'Test_Rep
 This is an example of the use of implicit or fixed length LoRa packets. 
 Implicit packets have no header so both transmitter and receiver need to be programmed with the packet length in use. The use of spreading factor 6 requires implicit packets and together with a bandwidth of 500khz, leads to the shortest possible and lowest air time packets. 
 
-This example sends a buffer that is 19 characters long and that length must be defined in Settings.h as the constant 'PacketLength'. 
+This example sends a buffer that is 23 characters long and that length must be defined in Settings.h as the constant 'PacketLength'. 
   
 A packet containing ASCII text is sent according to the frequency and LoRa settings specified in the 'Settings.h' file. The pins to access the lora device need to be defined in the 'Settings.h' file also.
 
@@ -480,7 +476,7 @@ The details of the packet sent and any errors are shown on the Serial Monitor, t
   
 Sample Serial Monitor output;
 
-10dBm Packet> {packet contents*}  BytesSent,19  CRC,3882  TransmitTime,8mS  PacketsSent,1
+10dBm Packet> {packet contents*}  BytesSent,23  CRC,DAAB  TransmitTime,8mS  PacketsSent,1
 
 
 #### 41\_LoRa\_Receiver\_ImplicitPacket &emsp; &emsp; &emsp; &emsp; &emsp; &emsp; (Implicit folder) 
@@ -575,7 +571,7 @@ in the 'Settings.h' file also.
 
 The details of the packet sent and any errors are shown on the Serial Monitor, together with the transmit power used, the packet length and the CRC of the packet. The matching receive program, '53_FLRC_Receiver' can be used to check the packets are being sent correctly, the frequency and FLRC settings (in Settings.h) must be the same for the Transmit and Receive program. Sample Serial Monitor output;
 
-10dBm Packet> {packet contents*}  BytesSent,19  CRC,3882  TransmitTime,54mS  PacketsSent,1
+10dBm Packet> {packet contents*}  BytesSent,23  CRC,DAAB  TransmitTime,54mS  PacketsSent,1
 
 
 #### 53\_FLRC\_Receiver &emsp; &emsp; &emsp; &emsp; &emsp; &emsp; (SX128X_Examples\Basics folder) 

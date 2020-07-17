@@ -1,11 +1,6 @@
 /*******************************************************************************************************
 
-  One of a series of test programs for LoRa devices on Arduino, the full set of programs and accompanying
-  library can be found here;
-
-  https://github.com/LoRaTracker/SX12XX-LoRa
-
-  lora Programs for Arduino - Copyright of the author Stuart Robinson - 30/12/19
+  Programs for Arduino - Copyright of the author Stuart Robinson - 30/12/19
 
   This program is supplied as is, it is up to the user of the program to decide if the program is
   suitable for the intended purpose and free from errors.
@@ -71,7 +66,7 @@ const uint8_t DEVICE_SX1279 = 0x14;             //SX1279
 
 //*********  Setup hardware definitions here ! *****************
 
-//These are the pin definitions for one of the LoRaTracker boards, be sure to change them to match your
+//These are the pin definitions for one of the Tracker boards, be sure to change them to match your
 //own setup. You will also need to connect up the pins for the SPI bus, which on an Arduino Pro Mini are
 //SCK pin 13, MISO pin 12, and MOSI pin 11.
 

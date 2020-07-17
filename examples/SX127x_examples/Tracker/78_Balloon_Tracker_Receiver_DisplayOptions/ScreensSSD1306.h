@@ -24,9 +24,9 @@ void screenHABREC_7();
 
 void screenHABREC_SETUP()
 {
-//do any display setup, default colours fonts etc in here
-disp.begin();
-disp.setFont(u8x8_font_chroma48medium8_r);  
+  //do any display setup, default colours fonts etc in here
+  disp.begin();
+  disp.setFont(u8x8_font_chroma48medium8_r);
 }
 
 
@@ -44,6 +44,8 @@ void screenHABREC_1()
     {
       disp.write(FlightID[index]);
     }
+    disp.write(',');
+    disp.print(TXSequence);
   }
 
   if (PacketType == LocationBinaryPacket)
@@ -161,7 +163,7 @@ void screenHABREC_4()
   {
     disp.print(F("T?"));
   }
-  
+
 }
 
 
@@ -182,8 +184,8 @@ void screenHABREC_5()
 void screenHABREC_6()
 {
   //Indicate Tracker has no GPS fix
-  disp.clearLine(7);
-  disp.setCursor(0, 7);
+  //disp.clearLine(7);
+  //disp.setCursor(0, 7);
 }
 
 

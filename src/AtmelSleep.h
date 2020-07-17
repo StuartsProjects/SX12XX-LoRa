@@ -29,6 +29,7 @@
 
 void SleepSeconds(uint32_t secs);
 void SleepmS(uint32_t sleeps, uint8_t numbermS);
+void atmelSleepPermanent();
 
 
 void SleepSeconds(uint32_t secs)
@@ -68,6 +69,27 @@ void SleepmS(uint32_t sleeps, uint8_t numbermS)
     sleep_disable();                                 //cancel sleep as a precaution
   }
 }
+
+
+void atmelSleepPermanent()
+{
+  ADCSRA = 0;                //disable ADC
+  set_sleep_mode (SLEEP_MODE_PWR_DOWN);
+  noInterrupts ();           //timed sequence follows
+  sleep_enable();
+
+  // turn off brown-out enable in software
+  MCUCR = bit (BODS) | bit (BODSE);  //turn on brown-out enable select
+  MCUCR = bit (BODS);        //this must be done within 4 clock cycles of above
+  interrupts ();             //guarantees next instruction executed
+
+  sleep_cpu ();              //sleep within 3 clock cycles of above
+
+  /* wake up here */
+
+  sleep_disable();
+}
+
 
 
 ISR (WDT_vect)

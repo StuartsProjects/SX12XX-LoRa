@@ -26,6 +26,9 @@
   There is a matching Balloon Tracker Receiver program which writes received data to the Serial monitor as well
   as a small OLED display.
 
+  In the Settings.h file you can set the configuration for either a Ublox GPS or a Quectel L70\L80. The GPSs 
+  are configured for high altitude balloon mode.
+
   It is strongly recommended that a FRAM option is fitted for this transmitter. The sequence, resets and error
   nembers are stred in non-volatile memory. This defaults to EEPROM which has a limited endurance of only
   100,000 writes, so in theory the limt is reached after the transmission of 100,000 hab packets. The use of 
@@ -36,8 +39,6 @@
   300420 - Improve error detection for UBLOX GPS library
 
   ToDo:
-  Check if no fix, in hot fix, that fix time sent is 0
-  Check if TXpacketL is correct, nulls at end of HAB payload ?
 
   Serial monitor baud rate is set at 115200
 *******************************************************************************************************/
@@ -260,7 +261,7 @@ uint8_t buildHABPacket()
   memset(TXBUFFER, 0, len);                                      //clear array to 0s
   Count = snprintf((char*) TXBUFFER,
                    TXBUFFER_SIZE,
-                   "$$%s,%d,%02d:%02d:%02d,%s,%s,%d,%d,%d,%d,%d,%d,%d,%d",
+                   "$$%s,%u,%02d:%02d:%02d,%s,%s,%d,%d,%d,%d,%u,%u,%u,%u",
                    FlightID,
                    TXSequence,
                    TXHours,

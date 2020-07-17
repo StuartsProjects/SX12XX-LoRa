@@ -1,5 +1,5 @@
 /*******************************************************************************************************
-  lora Programs for Arduino - Copyright of the author Stuart Robinson - 19/03/20
+  Programs for Arduino - Copyright of the author Stuart Robinson - 19/03/20
 
   This program is supplied as is, it is up to the user of the program to decide if the program is
   suitable for the intended purpose and free from errors.
@@ -43,8 +43,8 @@ void loop()
   Serial.flush();
 
   TXPacketL = sizeof(buff);                                    //set TXPacketL to length of array
-  buff[TXPacketL - 1] = '*';                                   //replace null character at buffer end so its visible on reciver
-
+  buff[TXPacketL - 1] = '*';                                   //replace null character at buffer end so its visible on receiver
+  
   LT.printASCIIPacket(buff, TXPacketL);                        //print the buffer (the sent packet) as ASCII
 
   digitalWrite(LED1, HIGH);

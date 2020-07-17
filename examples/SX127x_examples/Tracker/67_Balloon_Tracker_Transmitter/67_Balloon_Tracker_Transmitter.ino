@@ -679,7 +679,7 @@ void setup()
   printTempDS18B20();
   Serial.println();
 
-  j = readSupplyVoltage();                    //get supply mV
+  //j = readSupplyVoltage();                    //get supply mV
   TXStatus = 0;                               //clear all TX status bits
 
   sendCommand(PowerUp);                       //send power up command, includes supply mV and config, on tracker settings

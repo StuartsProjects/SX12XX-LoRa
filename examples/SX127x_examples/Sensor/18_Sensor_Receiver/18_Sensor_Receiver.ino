@@ -1,5 +1,5 @@
 /*******************************************************************************************************
-  lora Programs for Arduino - Copyright of the author Stuart Robinson - 29/02/20
+  Programs for Arduino - Copyright of the author Stuart Robinson - 29/02/20
 
   This program is supplied as is, it is up to the user of the program to decide if the program is
   suitable for the intended purpose and free from errors. 
@@ -13,12 +13,9 @@
   and temperature are being and received. There is also a 16bit value of battery mV and and a 8 bit status
   value at the end of the packet.
 
-  When the program starts, the LoRa device is setup to set the DIO0 pin high when a packet is received, the
-  Atmel processor is then put to sleep and will wake up when a packet is received. When a packet is received,
-  its printed and assuming the packet is validated, the sensor results are printed to the serial monitor
-  and screen. Between readings the sensor transmitter is put to sleep in units of 8 seconds using the Atmel
-  processor internal watchdog.
-
+  When a packet is received,its printed and assuming the packet is validated, the sensor results are printed to the serial monitor
+  and screen.
+  
   For the sensor data to be accepted as valid the folowing need to match;
 
   The 16bit CRC on the received sensor data must match the CRC value transmitted with the packet.

@@ -1,5 +1,5 @@
 /*******************************************************************************************************
-  lora Programs for Arduino - Copyright of the author Stuart Robinson - 04/01/20
+  Programs for Arduino - Copyright of the author Stuart Robinson - 04/01/20
 
   This program is supplied as is, it is up to the user of the program to decide if the program is
   suitable for the intended purpose and free from errors. 
@@ -12,7 +12,7 @@
   length in use. The use of spreading factor 6 requires implicit packets and together with a bandwidth
   of 500khz, leads to the shortest possible and lowest air time packets.
 
-  This example sends a buffer that is 19 characters long and that length must be defined in Settings.h
+  This example sends a buffer that is 23 characters long and that length must be defined in Settings.h
   as the constant 'PacketLength'.
 
   A packet containing ASCII text is sent according to the frequency and LoRa settings specified in the
@@ -25,7 +25,7 @@
 
   Sample Serial Monitor output;
 
-  10dBm Packet> Hello World 123456*  BytesSent,19  CRC,3882  TransmitTime,8mS  PacketsSent,1
+  10dBm Packet> Hello World 123456*  BytesSent,23  CRC,DAAB  TransmitTime,8mS  PacketsSent,1
 
   Serial monitor baud rate is set at 9600
 *******************************************************************************************************/
@@ -41,7 +41,7 @@ SX127XLT LT;                                                   //create a librar
 uint8_t TXPacketL;
 uint32_t TXPacketCount, startmS, endmS;
 
-uint8_t buff[] = "Hello World 123456";                         //buffer length must be 19, and defined in constant PacketLength
+uint8_t buff[] = "Hello World 1234567890";                     //buffer length must be 23, and defined in constant PacketLength
 
 
 void loop()

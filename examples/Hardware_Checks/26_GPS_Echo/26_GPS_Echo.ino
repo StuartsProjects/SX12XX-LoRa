@@ -1,5 +1,5 @@
 /*******************************************************************************************************
-  lora Programs for Arduino - Copyright of the author Stuart Robinson - 14/12/19
+  Programs for Arduino - Copyright of the author Stuart Robinson - 14/12/19
 
   This program is supplied as is, it is up to the user of the program to decide if the program is
   suitable for the intended purpose and free from errors.
@@ -19,10 +19,6 @@
   Note that not all pins on all Arduinos will work with software serial, see here;
 
   https://www.arduino.cc/en/Reference/softwareSerial
-
-  For a more detailed tutorial on GPS problems see here;
-
-  https://github.com/LoRaTracker/GPSTutorial
 
   Serial monitor baud rate is set at 115200.
 
