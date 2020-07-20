@@ -12,6 +12,8 @@ There is a range of SX128X modules available and they have slightly different pi
 
 The library only supports the SPI based LoRa modules and these all require that the SPI bus pins, SCK, MOSI and MISO are connected. All modules also need a NSS (chip select pin) and NRESET (reset) pin. All devices need the RFBUSY pin to be used also. 
 
+The basic SX1280 modules from NiceRF and Ebyte were used to test the examples in this library. There may be newer devices out there that have additional features, such as TCXOs, that may require different set-ups or pin usage. 
+
 Of the LoRa devices DIO pins the SX128X library in standard form only uses DIO1. Some SX128x modules have RX and TX enable pins that need to be appropriately activated when receiving or transmitting.
 
 Thus a begin function that initialised all possible permutations of pins would look like this;
