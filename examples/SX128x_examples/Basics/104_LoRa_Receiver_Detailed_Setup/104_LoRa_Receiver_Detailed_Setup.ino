@@ -7,7 +7,7 @@
 
 /*******************************************************************************************************
   Program Operation - This is a program that demonstrates the detailed setup of a LoRa test receiver.
-  The program listens for incoming packets using the LoRa settings in the 'Settings.h' file. The pins 
+  The program listens for incoming packets using the lora settings in the 'Settings.h' file. The pins 
   to access the lora device need to be defined in the 'Settings.h' file also.
 
   There is a printout on the Arduino IDE Serial Monitor of the valid packets received, the packet is 
