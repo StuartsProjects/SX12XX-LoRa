@@ -5,7 +5,7 @@
   suitable for the intended purpose and free from errors.
 *******************************************************************************************************/
 
-//These are the pin definitions for one of my own boards, the Easy Mikrobus Pro Mini,
+//These are the pin definitions for one of my own boards, the Easy Pro Mini,
 //be sure to change the definitions to match your own setup. Some pins such as DIO2,
 //DIO3, BUZZER may not be in used by this sketch so they do not need to be
 //connected and should be set to -1.

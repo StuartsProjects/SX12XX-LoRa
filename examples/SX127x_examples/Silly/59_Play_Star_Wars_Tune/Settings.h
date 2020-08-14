@@ -7,7 +7,7 @@
 
 //*******  Setup hardware pin definitions here ! ***************
 
-//These are the pin definitions for one of my own boards, the Easy Mikrobus Pro Mini,
+//These are the pin definitions for one of my own boards, the Easy Pro Mini,
 //be sure to change the definitions to match your own setup. Some pins such as DIO1,
 //DIO2 are not used by this particular sketch so they are set to -1 and not connected.
 

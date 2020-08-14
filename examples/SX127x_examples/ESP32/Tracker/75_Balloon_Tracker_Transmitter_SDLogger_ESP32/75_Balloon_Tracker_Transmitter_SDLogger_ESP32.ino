@@ -35,7 +35,7 @@
   a FRAM will extend the life of the tracker to circa 100,000,000,000,000 transmissions.
 
   Changes:
-  240420 - Change to work with Easy Mikrobus modules
+  240420 - Change to work with Easy Pro Mini style modules
   300420 - Improve error detection for UBLOX GPS library
 
   ToDo:

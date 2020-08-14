@@ -7,7 +7,7 @@
 
 //*******  Setup hardware pin definitions here ! ***************
 
-//These are the pin definitions for one of my own boards, a ESP32 shield base with a Mikrobus shield on
+//These are the pin definitions for one of my own boards, a ESP32 shield base with my BBF board shield on
 //top. Be sure to change the definitions to match your own setup. Some pins such as DIO2, DIO3, BUZZER
 //may not be in used by this sketch so they do not need to be connected and should be included and be 
 //set to -1.

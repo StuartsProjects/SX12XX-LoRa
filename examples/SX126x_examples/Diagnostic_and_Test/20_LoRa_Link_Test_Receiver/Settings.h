@@ -7,7 +7,7 @@
 
 //*******  Setup hardware pin definitions here ! ***************
 
-//These are the pin definitions for one of my own boards, the Easy Mikrobus Pro Mini,
+//These are the pin definitions for one of my own boards, the Easy Pro Mini,
 //be sure to change the definitiosn to match your own setup. 
 
 

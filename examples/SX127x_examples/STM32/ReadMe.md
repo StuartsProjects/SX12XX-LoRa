@@ -2,7 +2,7 @@
 
 I decided to check if my SX127X library and examples would work with a STM32 board. When I require a micro controller that needs more pins or memory than a ATmega328P, my goto processor has been the ATMeg1284P. This has 128k of flash memory and 16K of RAM, so 4 times the flash and 8 times the RAM of an ATmega328P based Pro Mini. The 1284P still only runs at 8Mhz (3.3V) which can be considered slow in a modern context and more non-pinchange interrupts would be a definite advantage, so I decided to give a STM32 a go. With the STM32 there is the potential to use devices with much greater speed, flash, RAM and IO pins.
 
-I chose an XNucleo F103RB since that will easily take one of my Arduino Mikrobus shields directly, so it would simple and quick to test out the SX127X lora library examples. The board is pictured below;
+I chose an XNucleo F103RB since that will easily take one of my Arduino shields that uses breadboard friendly modules, so it would simple and quick to test out the SX127X lora library examples. The board is pictured below;
 
 
 ![Picture 1](/pictures/STM32_and_Shield.jpg)
