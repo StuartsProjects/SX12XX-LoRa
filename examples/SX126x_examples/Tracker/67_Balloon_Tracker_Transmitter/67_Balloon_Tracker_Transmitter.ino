@@ -1,5 +1,5 @@
 /*******************************************************************************************************
-  Programs for Arduino - Copyright of the author Stuart Robinson - 07/06/20
+  Programs for Arduino - Copyright of the author Stuart Robinson - 02/09/20
 
   This program is supplied as is, it is up to the user of the program to decide if the program is
   suitable for the intended purpose and free from errors.
@@ -21,7 +21,10 @@
   and locating. The frequency and LoRa settings of the Search mode packet can be different to the Tracker
   mode used by the HAB payload. There is also the option of sending the HAB payload in FSK RTTY format,
   see the Settings.h file for all the options. FSK RTTY gets sent at the same frequency as the Tracker mode
-  HAB packet.
+  HAB packet. The LT.transmitFSKRTTY() function sends at 1 start bit, 7 data bits, no parity and 2 stop bits.
+  For full control of the FSK RTTY setting you can use the following alternative function;
+  
+  LT.transmitFSKRTTY(chartosend, databits, stopbits, parity, baudPerioduS, pin)
 
   There is a matching Balloon Tracker Receiver program which writes received data to the Serial monitor as well
   as a small OLED display.
@@ -39,16 +42,16 @@
   300420 - Improve error detection for UBLOX GPS library
 
   ToDo:
-
+ 
   Serial monitor baud rate is set at 115200
 *******************************************************************************************************/
 
 #define Program_Version "V1.1"
 
 #include <Arduino.h>
-#include <SX127XLT.h>                           //include the appropriate library  
+#include <SX126XLT.h>                           //include the appropriate library  
 
-SX127XLT LT;                                    //create a library class instance called LT
+SX126XLT LT;                                    //create a library class instance called LT
 
 #include "Settings.h"
 #include "ProgramLT_Definitions.h"
@@ -82,16 +85,16 @@ uint8_t  TXBUFFER[TXBUFFER_SIZE];                //buffer for packet to send
 #include <TinyGPS++.h>                           //http://arduiniana.org/libraries/tinygpsplus/
 TinyGPSPlus gps;                                 //create the TinyGPS++ object
 
-//#ifdef USESOFTSERIALGPS
+#ifdef USESOFTSERIALGPS
 //#include <NeoSWSerial.h>                         //https://github.com/SlashDevin/NeoSWSerial
 //NeoSWSerial GPSserial(RXpin, TXpin);             //this library is more relaible at GPS init than software serial
-//#include <SoftwareSerial.h>
-//SoftwareSerial GPSserial(RXpin, TXpin);
-//#endif
+#include <SoftwareSerial.h>
+SoftwareSerial GPSserial(RXpin, TXpin);
+#endif
 
-//#ifndef USESOFTSERIALGPS
+#ifndef USESOFTSERIALGPS
 #define GPSserial HARDWARESERIALPORT
-//#endif
+#endif
 
 #include GPS_Library                             //include previously defined GPS Library 
 
@@ -182,8 +185,9 @@ void do_Transmissions()
     
     startTimemS = millis() - LeadinmS;
     
-    Serial.print(F("FSK RTTY > $$"));
+    Serial.print(F("FSK RTTY > $$$"));
     Serial.flush();
+    LT.transmitFSKRTTY('$', BaudPerioduS, LED1);            //send a '$' as sync
     LT.transmitFSKRTTY('$', BaudPerioduS, LED1);            //send a '$' as sync
     LT.transmitFSKRTTY('$', BaudPerioduS, LED1);            //send a '$' as sync
         
@@ -261,7 +265,7 @@ uint8_t buildHABPacket()
   memset(TXBUFFER, 0, len);                                      //clear array to 0s
   Count = snprintf((char*) TXBUFFER,
                    TXBUFFER_SIZE,
-                   "$$%s,%u,%02d:%02d:%02d,%s,%s,%d,%d,%d,%d,%u,%u,%u,%u",
+                   "$%s,%lu,%02d:%02d:%02d,%s,%s,%d,%d,%d,%d,%d,%d,%d,%lu",
                    FlightID,
                    TXSequence,
                    TXHours,
@@ -281,7 +285,7 @@ uint8_t buildHABPacket()
 
   CRC = 0xffff;                                   //start value for CRC16
 
-  for (index = 2; index < Count; index++)         //element 2 is first character after $$ at start (for LoRa)
+  for (index = 1; index < Count; index++)         //element 1 is first character after $ at start (for LoRa)
   {
     CRC ^= (((uint16_t)TXBUFFER[index]) << 8);
     for (j = 0; j < 8; j++)
@@ -469,6 +473,8 @@ void printSupplyVoltage()
 
 uint16_t readSupplyVoltage()
 {
+  //relies on internal 1v1 reference and 91K & 11K resistor divider
+  //returns supply in mV @ 10mV per AD bit read
   uint16_t temp;
   uint16_t volts = 0;
   uint8_t index;
@@ -478,6 +484,7 @@ uint16_t readSupplyVoltage()
     digitalWrite(BATVREADON, HIGH);           //turn MOSFET connection resitor divider in circuit
   }
 
+  analogReference(INTERNAL);
   temp = analogRead(SupplyAD);
 
   for (index = 0; index <= 4; index++)        //sample AD 5 times
@@ -604,13 +611,14 @@ void setup()
   Serial.begin(115200);                     //Setup Serial console ouput
   Serial.println();
   Serial.println();
-  Serial.println(F("67_HAB_Balloon_Tracker_Transmitter_ESP32 Starting"));
-
+  Serial.println(F("67_HAB_Balloon_Tracker_Transmitter Starting"));
+  
   memoryStart(Memory_Address);              //setup the memory
   j = readMemoryUint16(addr_ResetCount);
   j++;
   writeMemoryUint16(addr_ResetCount, j);
   j = readMemoryUint16(addr_ResetCount);
+  
   Serial.print(F("TXResets "));
   Serial.println(j);
   
@@ -639,7 +647,7 @@ void setup()
 
   SPI.begin();                              //initialize SPI
 
-  if (LT.begin(NSS, NRESET, DIO0, LORA_DEVICE))
+  if (LT.begin(NSS, NRESET, RFBUSY, DIO1, LORA_DEVICE))
   {
     led_Flash(2, 125);
   }
@@ -668,21 +676,21 @@ void setup()
   Serial.print(F("ThisNode "));
   Serial.println(ThisNode);
 
-  LT.printModemSettings();                     //reads and prints the configured LoRa settings, useful check
+  LT.printModemSettings();                    //reads and prints the configured LoRa settings, useful check
 
   Serial.println();
   printSupplyVoltage();
   printTempDS18B20();
   Serial.println();
 
-  j = readSupplyVoltage();                     //get supply mV
-  TXStatus = 0;                                //clear all TX status bits
+  //j = readSupplyVoltage();                    //get supply mV
+  TXStatus = 0;                               //clear all TX status bits
 
-  sendCommand(PowerUp);                        //send power up command, includes supply mV and config, on tracker settings
+  sendCommand(PowerUp);                       //send power up command, includes supply mV and config, on tracker settings
 
   GPS_OutputOn();
   GPSTest();
-  GPS_Setup();                                 //GPS should have had plenty of time to initialise by now
+  GPS_Setup();                                //GPS should have had plenty of time to initialise by now
 
   delay(2000);
 

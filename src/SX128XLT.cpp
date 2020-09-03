@@ -2615,6 +2615,7 @@ uint8_t SX128XLT::receiveAddressed(uint8_t *rxbuffer, uint8_t size, uint16_t tim
   return _RXPacketL;                     //so we can check for packet having enough buffer space
 }
 
+
 uint8_t SX128XLT::readRXPacketType()
 {
 #ifdef SX128XDEBUG
@@ -2622,6 +2623,117 @@ uint8_t SX128XLT::readRXPacketType()
 #endif
 return _RXPacketType;
 }
+
+
+uint8_t SX128XLT::readPacket(uint8_t *rxbuffer, uint8_t size)
+{
+#ifdef SX128XDEBUG
+  Serial.println(F("readPacket()"));
+#endif
+
+  uint8_t index, regdata, RXstart, RXend;
+  uint8_t buffer[2];
+  
+  readCommand(RADIO_GET_RXBUFFERSTATUS, buffer, 2);
+  _RXPacketL = buffer[0];
+  
+  if (_RXPacketL > size)               //check passed buffer is big enough for packet
+  {
+  _RXPacketL = size;                   //truncate packet if not enough space
+  }
+  
+  RXstart = buffer[1];
+  
+  RXend = RXstart + _RXPacketL;
+
+  #ifdef USE_SPI_TRANSACTION     //to use SPI_TRANSACTION enable define at beginning of CPP file 
+  SPI.beginTransaction(SPISettings(LTspeedMaximum, LTdataOrder, LTdataMode));
+#endif
+  
+  digitalWrite(_NSS, LOW);               //start the burst read
+  SPI.transfer(RADIO_READ_BUFFER);
+  SPI.transfer(RXstart);
+  SPI.transfer(0xFF);
+
+  for (index = RXstart; index < RXend; index++)
+  {
+    regdata = SPI.transfer(0);
+    rxbuffer[index] = regdata;
+  }
+
+  digitalWrite(_NSS, HIGH);
+  
+  #ifdef USE_SPI_TRANSACTION
+  SPI.endTransaction();
+#endif
+
+  return _RXPacketL;                     //so we can check for packet having enough buffer space
+}
+
+
+uint16_t SX128XLT::addCRC(uint8_t data, uint16_t libraryCRC)
+{
+  uint8_t j;
+
+  libraryCRC ^= ((uint16_t)data << 8);
+  for (j = 0; j < 8; j++)
+  {
+    if (libraryCRC & 0x8000)
+      libraryCRC = (libraryCRC << 1) ^ 0x1021;
+    else
+      libraryCRC <<= 1;
+  }
+  return libraryCRC;
+}
+
+
+void SX128XLT::writeBufferChar(char *txbuffer, uint8_t size)
+{
+#ifdef SX128XDEBUG1
+  Serial.println(F("writeBuffer()"));
+#endif
+
+  uint8_t index, regdata;
+
+  _TXPacketL = _TXPacketL + size;      //these are the number of bytes that will be added
+
+  size--;                              //loose one byte from size, the last byte written MUST be a 0
+
+  for (index = 0; index < size; index++)
+  {
+    regdata = txbuffer[index];
+    SPI.transfer(regdata);
+  }
+
+  SPI.transfer(0);                     //this ensures last byte of buffer writen really is a null (0)
+
+}
+
+
+uint8_t SX128XLT::readBufferChar(char *rxbuffer)
+{
+#ifdef SX128XDEBUG1
+  Serial.println(F("readBuffer()"));
+#endif
+
+  uint8_t index = 0, regdata;
+
+  do                                     //need to find the size of the buffer first
+  {
+    regdata = SPI.transfer(0);
+    rxbuffer[index] = regdata;           //fill the buffer.
+    index++;
+  } while (regdata != 0);                //keep reading until we have reached the null (0) at the buffer end
+  //or exceeded size of buffer allowed
+  
+  _RXPacketL = _RXPacketL + index;       //increment count of bytes read
+  
+  return index;                          //return the actual size of the buffer, till the null (0) detected
+
+}
+
+
+
 
 /*
   MIT license

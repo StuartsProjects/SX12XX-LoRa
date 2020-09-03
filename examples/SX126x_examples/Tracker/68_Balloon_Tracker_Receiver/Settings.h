@@ -15,7 +15,8 @@
 
 #define NSS 10                                  //select on LoRa device
 #define NRESET 9                                //reset on LoRa device
-#define DIO0 3                                  //DIO0 on LoRa device, used for RX and TX done 
+#define DIO1 3                                  //DIO1 on LoRa device, used for RX and TX done 
+#define RFBUSY 7                                //busy pin on LoRa device
 #define LED1 8                                  //On board LED, high for on
 #define SWITCH1 2                               //if pin shorted to ground, switch is active
 
@@ -29,7 +30,7 @@
 #define AUDIOOUT 4                              //pin used to output Audio tones for HAB packet upload 
 #define CHECK -1                                //this pin is toggled inside the AFSKRTTY library, high for logic 1, low for logic 0, so it can be used to check the timing.
 
-#define LORA_DEVICE DEVICE_SX1278               //this is the LoRa device we are using
+#define LORA_DEVICE DEVICE_SX1262               //this is the LoRa device we are using
 
 //**************************************************************************************************
 // 2) Program Options

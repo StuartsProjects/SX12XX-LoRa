@@ -18,7 +18,7 @@
 #define LED1 8                                  //On board LED, high for on
 #define BATVREADON 8                            //Pin that turns on the resistor divider to read battery volts
 #define ONE_WIRE_BUS 4                          //for DS18B20 temperature sensor 
-#define ADMultiplier 10.42                      //adjustment to convert AD value read into mV of battery voltage 
+#define ADMultiplier 11.75                      //adjustment to convert into mV of battery voltage. for 100K\10K divider 
 #define SupplyAD A0                             //Resistor divider for battery connected here 
 
 #define RXpin A3                                //pin number for GPS RX input into Arduino - TX from GPS
@@ -85,7 +85,7 @@ const uint16_t WaitGPSFixSeconds = 60;            //when in flight the time to w
 // 5) FSK RTTY Settings
 //**************************************************************************************************
 
-uint32_t FrequencyShift = 500;                    //hertz frequency shift for audio  
+uint32_t FrequencyShift = 500;                    //hertz frequency shift, approx, sent at nearest 61.03515625hz step  
 uint8_t NumberofPips = 4;                         //number of marker pips to send
 uint16_t PipDelaymS = 1000;                       //mS between pips when carrier is off 
 uint16_t PipPeriodmS = 100;                       //mS length of pip
@@ -102,8 +102,8 @@ uint16_t LeadinmS = 1000;                         //ms of leadin constant shifte
 uint8_t OptionOff = 0;
 uint8_t OptionOn = 1;
 
-const char option_SearchEnable = OptionOff;       //set to OptionOn to enable transmit of Search mode packet       
-const char option_FSKRTTYEnable = OptionOff;      //set to OptionOn to enable transmit of FSKRTTY
+const char option_SearchEnable = OptionOn;       //set to OptionOn to enable transmit of Search mode packet       
+const char option_FSKRTTYEnable = OptionOn;      //set to OptionOn to enable transmit of FSKRTTY
 
 #define option_SearchEnable_SUM (option_SearchEnable*1)
 #define option_FSKRTTYEnable_SUM (option_FSKRTTYEnable*4)

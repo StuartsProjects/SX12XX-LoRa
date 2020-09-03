@@ -1,7 +1,7 @@
 /*
   Copyright 2020 - Stuart Robinson
   Licensed under a MIT license displayed at the bottom of this document.
-  Original published 27/06/20
+  Original published 07/08/20
 */
 
 const PROGMEM  uint8_t ClearConfig[]  = {0xB5, 0x62, 0x06, 0x09, 0x0D, 0x00, 0xFF, 0xFF, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xFF, 0xFF, 0x00, 0x00, 0x01, 0x19, 0x98}; //21
@@ -45,10 +45,10 @@ bool GPS_GPGSVOff();
 bool GPS_CheckAck();
 
 const uint32_t GPS_WaitAck_mS = 1000;            //number of mS to wait for an ACK response from GPS
-const uint8_t GPS_attempts = 5;                     //number of times the sending of GPS config will be attempted.
-const uint8_t GPS_Reply_Size = 16;                  //size of GPS reply buffer
+const uint8_t GPS_attempts = 5;                  //number of times the sending of GPS config will be attempted.
+const uint8_t GPS_Reply_Size = 16;               //size of GPS reply buffer
 const uint16_t GPS_Clear_DelaymS = 2000;         //mS to wait after a GPS Clear command is sent
-uint8_t GPS_Reply[GPS_Reply_Size];              //byte array for storing GPS reply to UBX commands
+uint8_t GPS_Reply[GPS_Reply_Size];               //byte array for storing GPS reply to UBX commands
 
 
 #define UBLOXINUSE                              //so complier can know which GPS library is used
@@ -194,9 +194,7 @@ bool GPS_SendConfig(const uint8_t *Progmem_ptr, uint8_t arraysize, uint8_t reply
       return false;
     }
 
-    GPS_OutputOff();
-	
-	Serial.print(F("GPSSend  "));
+    Serial.print(F("GPSSend  "));
 
     for (index = 0; index < arraysize; index++)
     {
@@ -206,8 +204,6 @@ bool GPS_SendConfig(const uint8_t *Progmem_ptr, uint8_t arraysize, uint8_t reply
     }
 
     Serial.flush();          //make sure serial out buffer is empty
-
-    GPS_OutputOn();
 
     Progmem_ptr = Progmem_ptr - arraysize;                  //set Progmem_ptr back to start
 
@@ -294,8 +290,6 @@ bool GPS_WaitAck(uint32_t waitms, uint8_t length)
     Serial.print(F("NoReply Error"));
     return false;
   }
-
-  GPS_OutputOff();
 
   for (ptr = 0; ptr < length; ptr++)
   {

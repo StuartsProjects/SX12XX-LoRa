@@ -38,8 +38,8 @@
 #define Program_Version "V1.2"
 
 #include <SPI.h>
-#include <SX127XLT.h>
-SX127XLT LT;
+#include <SX126XLT.h>
+SX126XLT LT;
 
 #include "Settings.h"
 #include <ProgramLT_Definitions.h>
@@ -115,7 +115,7 @@ void loop()
 
   GPSserial.begin(GPSBaud);                       //startup GPS input
 
-  while (!digitalRead(DIO0))
+  while (!digitalRead(DIO1))
   {
     readGPS();                                    //If the DIO pin is low, no packet has arrived, so read the GPS
 
@@ -126,7 +126,7 @@ void loop()
     }
   }
 
-  if (digitalRead(DIO0))
+  if (digitalRead(DIO1))
   {
     //something has happened in receiver
     GPSserial.end();                              //stop GPS input to use SPI reliably
@@ -139,7 +139,7 @@ void loop()
     Serial.println();
     printElapsedTime();                           //print elapsed time to Serial Monitor
 
-    if (LT.readIrqStatus() == (IRQ_RX_DONE + IRQ_HEADER_VALID))
+    if (LT.readIrqStatus() == (IRQ_RX_DONE + IRQ_HEADER_VALID + IRQ_PREAMBLE_DETECTED))
     {
       packet_is_OK();
     }
@@ -985,7 +985,7 @@ void setup()
   Serial.print(F("Checking LoRa device - "));
   disp.setCursor(0, 0);
 
-  if (LT.begin(NSS, NRESET, DIO0, LORA_DEVICE))              //Initialize LoRa device
+  if (LT.begin(NSS, NRESET, RFBUSY, DIO1, LORA_DEVICE))              //Initialize LoRa device
   {
     Serial.println(F("Receiver ready"));
     disp.print(F("Ready"));

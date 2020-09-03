@@ -1569,8 +1569,8 @@ void SX127XLT::clearIrqStatus(uint16_t irqMask)
   _IRQmsb = _IRQmsb & 0xFF00;                                 //make sure _IRQmsb does not have LSB bits set.
   masklsb = (irqMask & 0xFF);
   maskmsb = (irqMask & 0xFF00);
-  writeRegister(REG_IRQFLAGS, masklsb);                        //clear standard IRQs
-  _IRQmsb = (_IRQmsb & (~maskmsb));                               //only want top bits set.
+  writeRegister(REG_IRQFLAGS, masklsb);                       //clear standard IRQs
+  _IRQmsb = (_IRQmsb & (~maskmsb));                           //only want top bits set.
 }
 
 
@@ -1582,7 +1582,8 @@ uint16_t SX127XLT::readIrqStatus()
 
   bool packetHasCRC;
 
-  packetHasCRC = (readRegister(REG_HOPCHANNEL) & 0x40);                      //read the packet has CRC bit in RegHopChannel
+  packetHasCRC = (readRegister(REG_HOPCHANNEL) & 0x40);        //read the packet has CRC bit in RegHopChannel
+
 
 #ifdef DEBUGPHANTOM
   Serial.print(F("PacketHasCRC = "));
@@ -1590,10 +1591,10 @@ uint16_t SX127XLT::readIrqStatus()
   Serial.print(F("_UseCRC = "));
   Serial.println(_UseCRC);
 #endif
-
-  if ( !packetHasCRC && _UseCRC )                                          //check if packet header indicates no CRC on packet, byt use CRC set
+  
+  if ( !packetHasCRC && _UseCRC )                                //check if packet header indicates no CRC on packet, byt use CRC set
   {
-    _IRQmsb = _IRQmsb + IRQ_NO_PACKET_CRC;                                  //flag the phantom packet
+   bitSet(_IRQmsb, 10);                                          //flag the phantom packet, set bit 10
   }
 
   return (readRegister(REG_IRQFLAGS) + _IRQmsb);
@@ -2714,7 +2715,7 @@ uint8_t SX127XLT::transmitSXBuffer(uint8_t startaddr, uint8_t length, uint32_t t
     return 0;
   }
 
-  return _TXPacketL;                                    //no timeout, so TXdone must have been set
+  return length;                                         //no timeout, so TXdone must have been set
 }
 
 
@@ -2771,7 +2772,7 @@ void SX127XLT::printSXBufferASCII(uint8_t start, uint8_t end)
   digitalWrite(_NSS, LOW);                    //start the burst read
   SPI.transfer(REG_FIFO);
 
-  for (index = 0; index <= end; index++)
+  for (index = start; index <= end; index++)
   {
     regdata = SPI.transfer(0);
     Serial.write(regdata);
@@ -2970,6 +2971,25 @@ uint8_t SX127XLT::readUint8()
 
   _RXPacketL++;                      //increment count of bytes read
   return (x);
+}
+
+
+uint8_t SX127XLT::readBytes(uint8_t *rxbuffer,   uint8_t size)
+{
+#ifdef SX127XDEBUG1
+  Serial.println(F("readBytes()"));
+#endif
+
+  uint8_t x, index;
+  
+  for (index = 0; index < size; index++)
+  {
+  x = SPI.transfer(0);
+  rxbuffer[index] = x;
+  }
+  
+  _RXPacketL = _RXPacketL + size;                      //increment count of bytes read
+  return size;
 }
 
 
@@ -3255,6 +3275,30 @@ void SX127XLT::writeBuffer(uint8_t *txbuffer, uint8_t size)
 }
 
 
+
+void SX127XLT::writeBufferChar(char *txbuffer, uint8_t size)
+{
+#ifdef SX127XDEBUG1
+  Serial.println(F("writeBuffer()"));
+#endif
+
+  uint8_t index, regdata;
+
+  _TXPacketL = _TXPacketL + size;      //these are the number of bytes that will be added
+
+  size--;                              //loose one byte from size, the last byte written MUST be a 0
+
+  for (index = 0; index < size; index++)
+  {
+    regdata = txbuffer[index];
+    SPI.transfer(regdata);
+  }
+
+  SPI.transfer(0);                     //this ensures last byte of buffer writen really is a null (0)
+
+}
+
+
 uint8_t SX127XLT::readBuffer(uint8_t *rxbuffer)
 {
 #ifdef SX127XDEBUG1
@@ -3269,8 +3313,33 @@ uint8_t SX127XLT::readBuffer(uint8_t *rxbuffer)
     rxbuffer[index] = regdata;           //fill the buffer.
     index++;
   } while (regdata != 0);                //keep reading until we have reached the null (0) at the buffer end
-                                         //or exceeded size of buffer allowed
+  //or exceeded size of buffer allowed
+  
   _RXPacketL = _RXPacketL + index;       //increment count of bytes read
+  
+  return index;                          //return the actual size of the buffer, till the null (0) detected
+
+}
+
+
+uint8_t SX127XLT::readBufferChar(char *rxbuffer)
+{
+#ifdef SX127XDEBUG1
+  Serial.println(F("readBuffer()"));
+#endif
+
+  uint8_t index = 0, regdata;
+
+  do                                     //need to find the size of the buffer first
+  {
+    regdata = SPI.transfer(0);
+    rxbuffer[index] = regdata;           //fill the buffer.
+    index++;
+  } while (regdata != 0);                //keep reading until we have reached the null (0) at the buffer end
+  //or exceeded size of buffer allowed
+  
+  _RXPacketL = _RXPacketL + index;       //increment count of bytes read
+  
   return index;                          //return the actual size of the buffer, till the null (0) detected
 
 }
@@ -3894,6 +3963,358 @@ int32_t SX127XLT::getOffset()
 {
 return savedOffset;
 }
+
+
+uint32_t SX127XLT::transmitReliable(uint8_t *txbuffer, uint8_t size, char txpackettype, char txdestination, char txsource, uint32_t txtimeout, int8_t txpower, uint8_t wait )
+{
+#ifdef SX127XDEBUG1
+  Serial.println(F("transmitAddressed()"));
+#endif
+
+  uint16_t libraryCRC = 0xFFFF;                    //start value for CRC calc
+  uint8_t index, ptr;
+  uint8_t bufferdata;
+  uint32_t endtimeoutmS;
+
+  if (size == 0)
+  {
+    return false;
+  }
+
+  setMode(MODE_STDBY_RC);
+  ptr = readRegister(REG_FIFOTXBASEADDR);         //retrieve the TXbase address pointer
+  writeRegister(REG_FIFOADDRPTR, ptr);            //and save in FIFO access ptr
+
+#ifdef USE_SPI_TRANSACTION                       //to use SPI_TRANSACTION enable define at beginning of CPP file 
+  SPI.beginTransaction(SPISettings(LTspeedMaximum, LTdataOrder, LTdataMode));
+#endif
+
+  digitalWrite(_NSS, LOW);
+  SPI.transfer(WREG_FIFO);
+  SPI.transfer(txpackettype);                     //Write the packet type
+  SPI.transfer(txdestination);                    //Destination node
+  SPI.transfer(txsource);                         //Source node
+
+  libraryCRC = addCRC(txpackettype, libraryCRC);
+  libraryCRC = addCRC(txdestination, libraryCRC);
+  libraryCRC = addCRC(txsource, libraryCRC);
+  
+  _TXPacketL = 3 + size;                          //we have added 3 header bytes to size
+
+  for (index = 0; index <= 127; index++)
+  {
+    bufferdata = txbuffer[index];
+    libraryCRC = addCRC(bufferdata, libraryCRC);
+    SPI.transfer(bufferdata);
+  }
+  digitalWrite(_NSS, HIGH);
+
+#ifdef USE_SPI_TRANSACTION
+  SPI.endTransaction();
+#endif
+
+  writeRegister(REG_PAYLOADLENGTH, _TXPacketL);
+
+  setTxParams(txpower, RADIO_RAMP_DEFAULT);                       //TX power and ramp time
+
+  setDioIrqParams(IRQ_RADIO_ALL, IRQ_TX_DONE, 0, 0);              //set for IRQ on TX done
+  setTx(0);                                                       //TX timeout is not handled in setTX()
+
+  if (!wait)
+  {
+    return _TXPacketL;
+  }
+
+  endtimeoutmS = (millis() + txtimeout);
+
+  if (txtimeout == 0)
+  {
+    while (!digitalRead(_TXDonePin));                              //Wait for DIO0 to go high, TX finished
+  }
+  else
+  {
+    while (!digitalRead(_TXDonePin) && (millis() < endtimeoutmS));
+  }
+
+  setMode(MODE_STDBY_RC);                                          //ensure we leave function with TX off
+
+  if (millis() >= endtimeoutmS)                                    //flag if TX timeout
+  {
+    _IRQmsb = IRQ_TX_TIMEOUT;
+    return 0;
+  }
+
+#ifdef SX127XDEBUG1
+  Serial.println();
+  Serial.print("TXcrc,"); 
+  Serial.println(libraryCRC,HEX);
+#endif
+
+  return ( ( (uint32_t) libraryCRC << 16) + (uint8_t) _TXPacketL ); 
+}
+
+
+uint16_t SX127XLT::addCRC(uint8_t data, uint16_t libraryCRC)
+{
+  uint8_t j;
+
+  libraryCRC ^= ((uint16_t)data << 8);
+  for (j = 0; j < 8; j++)
+  {
+    if (libraryCRC & 0x8000)
+      libraryCRC = (libraryCRC << 1) ^ 0x1021;
+    else
+      libraryCRC <<= 1;
+  }
+  return libraryCRC;
+}
+
+
+uint32_t SX127XLT::receiveReliable(uint8_t *rxbuffer, uint8_t size, char packettype, char destination, char source, uint32_t rxtimeout, uint8_t wait )
+{
+//set packettype, destnode, source to ) for no matching check
+
+#ifdef SX127XDEBUG1
+  Serial.println(F("receiveReliable()"));
+#endif
+
+  uint16_t libraryCRC = 0xFFFF;                    //start value for CRC calc
+  uint16_t index;
+  uint32_t endtimeoutmS;
+  uint8_t regdata;
+
+  setMode(MODE_STDBY_RC);
+  regdata = readRegister(REG_FIFORXBASEADDR);                               //retrieve the RXbase address pointer
+  writeRegister(REG_FIFOADDRPTR, regdata);                                  //and save in FIFO access ptr
+
+  setDioIrqParams(IRQ_RADIO_ALL, (IRQ_RX_DONE + IRQ_HEADER_VALID), 0, 0);  //set for IRQ on RX done
+  setRx(0);                                                                //no actual RX timeout in this function
+
+  if (!wait)
+  {
+    return 0;                                                              //not wait requested so no packet length to pass
+  }
+
+  if (rxtimeout == 0)
+  {
+    while (!digitalRead(_RXDonePin));                                      //Wait for DIO0 to go high, no timeout, RX DONE
+  }
+  else
+  {
+    endtimeoutmS = millis() + rxtimeout;
+    while (!digitalRead(_RXDonePin) && (millis() < endtimeoutmS));
+  }
+
+  setMode(MODE_STDBY_RC);                                                   //ensure to stop further packet reception
+
+  if (!digitalRead(_RXDonePin))                                             //check if DIO still low, is so must be RX timeout
+  {
+    _IRQmsb = IRQ_RX_TIMEOUT;
+    return 0;
+  }
+
+  if ( readIrqStatus() != (IRQ_RX_DONE + IRQ_HEADER_VALID) )
+  {
+    return 0;                                                                //no RX done and header valid only, could be CRC error
+  }
+
+  _RXPacketL = readRegister(REG_RXNBBYTES);
+  
+
+  //if (_RXPacketL > size)                      //check passed buffer is big enough for packet
+  //{
+    //_RXPacketL = size;                        //truncate packet if not enough space in passed buffer
+  //}
+
+#ifdef USE_SPI_TRANSACTION   //to use SPI_TRANSACTION enable define at beginning of CPP file 
+  SPI.beginTransaction(SPISettings(LTspeedMaximum, LTdataOrder, LTdataMode));
+#endif
+
+  digitalWrite(_NSS, LOW);                    //start the burst read
+  SPI.transfer(REG_FIFO);
+  
+  _RXPacketType = SPI.transfer(0);
+  _RXDestination = SPI.transfer(0); 
+  _RXSource = SPI.transfer(0);
+  
+  libraryCRC = addCRC(_RXPacketType, libraryCRC);
+  libraryCRC = addCRC(_RXDestination, libraryCRC);
+  libraryCRC = addCRC(_RXSource, libraryCRC);
+  
+  //extractsize = _RXPacketL - 3;
+  
+  for (index = 0; index < size; index++)
+  {
+    regdata = SPI.transfer(0);
+    libraryCRC = addCRC(regdata, libraryCRC);
+    rxbuffer[index] = regdata;
+  }
+  digitalWrite(_NSS, HIGH);
+
+#ifdef USE_SPI_TRANSACTION
+  SPI.endTransaction();
+#endif
+
+
+if (packettype > 0)
+     {
+     if (_RXPacketType != packettype)
+        {
+         return 0x1000;                       //set bit 16 to indicate not matching packet type
+        }
+     }
+  
+  if (destination > 0)
+     {
+     if (_RXDestination != destination)
+        {
+         return 0x20000;                      //set bit 17 to indicate not matching destintion node
+        }
+     }
+ 
+  if (source > 0)
+     {
+     if (_RXSource != source)
+        {
+         return 0x40000;                      //set bit 18 to indicate not matching source node  
+        }
+     }  
+
+
+#ifdef SX127XDEBUG1
+  Serial.println();
+  Serial.print("RXcrc,"); 
+  Serial.println(libraryCRC,HEX);
+#endif
+
+  return ( ( (uint32_t) libraryCRC << 16) + (uint8_t) _RXPacketL ); 
+}
+
+
+
+uint32_t SX127XLT::receiveFT(uint8_t *rxbuffer, uint8_t size, char packettype, char destination, char source, uint32_t rxtimeout, uint8_t wait )
+{
+//set packettype, destnode, source to ) for no matching check
+
+#ifdef SX127XDEBUG1
+  Serial.println(F("receiveReliable()"));
+#endif
+
+  uint16_t libraryCRC = 0xFFFF;                    //start value for CRC calc
+  uint16_t index;
+  uint32_t endtimeoutmS;
+  uint8_t regdata;
+
+  setMode(MODE_STDBY_RC);
+  regdata = readRegister(REG_FIFORXBASEADDR);                               //retrieve the RXbase address pointer
+  writeRegister(REG_FIFOADDRPTR, regdata);                                  //and save in FIFO access ptr
+
+  setDioIrqParams(IRQ_RADIO_ALL, (IRQ_RX_DONE + IRQ_HEADER_VALID), 0, 0);  //set for IRQ on RX done
+  setRx(0);                                                                //no actual RX timeout in this function
+
+  if (!wait)
+  {
+    return 0;                                                              //not wait requested so no packet length to pass
+  }
+
+  if (rxtimeout == 0)
+  {
+    while (!digitalRead(_RXDonePin));                                      //Wait for DIO0 to go high, no timeout, RX DONE
+  }
+  else
+  {
+    endtimeoutmS = millis() + rxtimeout;
+    while (!digitalRead(_RXDonePin) && (millis() < endtimeoutmS));
+  }
+
+  setMode(MODE_STDBY_RC);                                                   //ensure to stop further packet reception
+
+  if (!digitalRead(_RXDonePin))                                             //check if DIO still low, is so must be RX timeout
+  {
+    _IRQmsb = IRQ_RX_TIMEOUT;
+    return 0;
+  }
+
+  if ( readIrqStatus() != (IRQ_RX_DONE + IRQ_HEADER_VALID) )
+  {
+    return 0;                                                                //no RX done and header valid only, could be CRC error
+  }
+
+  _RXPacketL = readRegister(REG_RXNBBYTES);
+  
+
+  //if (_RXPacketL > size)                      //check passed buffer is big enough for packet
+  //{
+    //_RXPacketL = size;                        //truncate packet if not enough space in passed buffer
+  //}
+
+#ifdef USE_SPI_TRANSACTION   //to use SPI_TRANSACTION enable define at beginning of CPP file 
+  SPI.beginTransaction(SPISettings(LTspeedMaximum, LTdataOrder, LTdataMode));
+#endif
+
+  digitalWrite(_NSS, LOW);                    //start the burst read
+  SPI.transfer(REG_FIFO);
+  
+  _RXPacketType = SPI.transfer(0);
+  _RXDestination = SPI.transfer(0); 
+  _RXSource = SPI.transfer(0);
+  
+  libraryCRC = addCRC(_RXPacketType, libraryCRC);
+  libraryCRC = addCRC(_RXDestination, libraryCRC);
+  libraryCRC = addCRC(_RXSource, libraryCRC);
+  
+  //extractsize = _RXPacketL - 3;
+  
+  for (index = 0; index < size; index++)
+  {
+    regdata = SPI.transfer(0);
+    libraryCRC = addCRC(regdata, libraryCRC);
+    rxbuffer[index] = regdata;
+  }
+  digitalWrite(_NSS, HIGH);
+
+#ifdef USE_SPI_TRANSACTION
+  SPI.endTransaction();
+#endif
+
+
+if (packettype > 0)
+     {
+     if (_RXPacketType != packettype)
+        {
+         return 0x1000;                       //set bit 16 to indicate not matching packet type
+        }
+     }
+  
+  if (destination > 0)
+     {
+     if (_RXDestination != destination)
+        {
+         return 0x20000;                      //set bit 17 to indicate not matching destintion node
+        }
+     }
+ 
+  if (source > 0)
+     {
+     if (_RXSource != source)
+        {
+         return 0x40000;                      //set bit 18 to indicate not matching source node  
+        }
+     }  
+
+
+#ifdef SX127XDEBUG1
+  Serial.println();
+  Serial.print("RXcrc,"); 
+  Serial.println(libraryCRC,HEX);
+#endif
+
+  return ( ( (uint32_t) libraryCRC << 16) + (uint8_t) _RXPacketL ); 
+}
+
+
+
+
 
 
 

@@ -1,14 +1,12 @@
 # SX12XX Library
 
-This library supports the SX126x, SX127x and SX128x Semtech LoRa devices. There is a wide range of example programs for these devices. These Semtech devices are used to manufacture a range of LoRa modules sold by companies such as Hope, Dorji, NiceRF and others. The library does not support LoRa modules with a UART based interface such as those from Ebyte and Microchip.
+    Update: 10/04/20 - Added notes about ESP32 examples
+	
+	Update: 22/03/20 - Extend range of example programs for SX126x and SX128x devices. 
 
-There have been a number of issues with newer SX126X and SX128X devices not operating correctly, this has been due to differences in the set-up of these devices. Unfortunately if I do not have a particular device then I cannot test it against the libraries and device manufacturers do not send me new devices free of charge to test for compatibility. If you would like to contribute to a fund for the purchase of new devices so they can be tested then please make donations to stuart@stuartsprojects.com here;
+	Update: 19/03/20 - Added SX126X and SX128X remote control on\off and joystick servo examples.
 
-[![Donate](https://img.shields.io/badge/Donate-PayPal-green.svg)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=J767QY7MWZHAJ)
 
-<CR>
-
-----------
 
 ### Library installation
 
@@ -19,7 +17,7 @@ To install the library select the 'Clone or download' button on the main Github 
 **The Semtech devices that this library supports are all 3.3V logic level devices so do not use directly with 5V logic level Arduinos, some form of logic level conversion is needed.** There are no specific logic level converters I could recommend. 
 
 
- 
+This library supports the SX126x, SX127x and SX128x Semtech LoRa devices. There is a wide range of example programs for these devices. These Semtech devices are used to manufacture a range of LoRa modules sold by companies such as Hope, Dorji, NiceRF and others. The library does not support LoRa modules with a UART based interface such as those from Ebyte and Microchip. 
 
 The objective of the library was to allow the same program sketches to be used across the range of UHF lora modules SX126x and SX127x (UHF) as well as the 2.4Ghz SX128x modules. A sketch written for the SX1278 (for example) should then run with very minor changes on the SX1262 or SX1280. However, whilst the SX126x and SX128x modules use the same style of device programming, the SX127x programming is completely different. The function style used for the SX126x and SX128x devices has been copied to create a matching style for the SX127x.
 
@@ -73,7 +71,7 @@ Some SX126x modules may have RX or TX enable pins, these are currently not suppo
 Some of the SX128x modules do have RX or TX enable pins, such as the Ebyte modules, these are supported by the library, and you need to define the pins RX_EN and TX_EN pins used, otherwise leave unused by defining them as -1.  
 
 ### Testing
-For testing the library and the example programs I used a board of my own design, it uses a 3.3V/8Mhz Arduino Pro Mini which is soldered with a minimum amount of other components onto a board to which you can plug in a LoRa device with one of my breadboard friendly modules. The board is small enough to be used for a GPS tracker application using the connections for a GPS and display as shown in the picture. The Pro Mini used includes a supply reverse protection diode and a fuse, so the board does not need these components. The the file 'Evaluation_Board.pdf' for details. 
+For testing the library and the example programs I used a board of my own design, it uses a 3.3V/8Mhz Arduino Pro Mini which is soldered with a minimum amount of other components onto a board to which you can plug in a LoRa device as a Mikrobus style module. The board is small enough to be used for a GPS tracker application using the connections for a GPS and display as shown in the picture. The Pro Mini used includes a supply reverse protection diode and a fuse, so the board does not need these components. See the [**Easy Pro Mini**](https://github.com/StuartsProjects/Devices/tree/master/Easy%20Pro%20Mini) folder for details. 
 <br>
   
 All example programs were checked against version 1.8.10 of the Arduino IDE, and the latest copies of any external libraries, as of 16/12/19. The operating system was Windows 10. 
@@ -419,14 +417,9 @@ If you find a bug, or other error in the SX12xx library or examples, please let 
 
 Add ppmoffset to frequency error check program Check this in program 12 LT.writeRegister(RegPpmCorrection,ppmoffset)
 
-Investigate adding internal SX1278 temperature sensor
-
 Check sensitivity\current for writeRegister(RegLna, 0x3B );.//at HF 150% LNA current.
 
 <br>
-
-
-
 
 
 

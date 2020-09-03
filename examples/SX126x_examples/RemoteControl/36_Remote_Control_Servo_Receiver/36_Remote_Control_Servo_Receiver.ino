@@ -71,8 +71,7 @@ void loop()
 
   IRQStatus = LT.readIrqStatus();
 
-  if  (IRQStatus & (IRQ_RX_DONE + IRQ_HEADER_VALID) )
-  //if (LT.readIrqStatus() == (IRQ_RX_DONE + IRQ_HEADER_VALID))
+  if (LT.readIrqStatus() == (IRQ_RX_DONE + IRQ_HEADER_VALID + IRQ_PREAMBLE_DETECTED))
   {
     packet_is_OK();
   }

@@ -172,6 +172,7 @@ class SX126XLT  {
 	void printSXBufferASCII(uint8_t start, uint8_t end);
 	void startFSKRTTY(uint32_t freqshift, uint8_t pips, uint16_t pipPeriodmS, uint16_t pipDelaymS, uint16_t leadinmS);
 	void transmitFSKRTTY(uint8_t chartosend, uint8_t databits, uint8_t stopbits, uint8_t parity, uint16_t baudPerioduS, int8_t pin);
+	void transmitFSKRTTY(uint8_t chartosend, uint16_t baudPerioduS, int8_t pin);
 	void printRTTYregisters();
 	void endFSKRTTY();
 	void getRfFrequencyRegisters(uint8_t *buff);

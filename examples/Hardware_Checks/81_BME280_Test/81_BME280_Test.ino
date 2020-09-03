@@ -7,14 +7,15 @@
 
 /*******************************************************************************************************
   Program Operation - This is a simple test for a Bosch BME280 sensor. Readings are sent to the serial
-  monitor.
-
+  monitor. The Seeed library assumes the BME280 is at address 0x76. It can be changed to 0x77 by an edit
+  in the Seeed_BME280.h librsry file. 
+  
   Serial monitor baud rate is set at 9600.
 *******************************************************************************************************/
 
 #include <Seeed_BME280.h>                   //get library here; https://github.com/Seeed-Studio/Grove_BME280
 BME280 bme280;                              //create an instance of the BME280 senosor
-#define BME280_ADDRESS  0x76                //I2C bus address of BME280 
+
 #define BME280_REGISTER_CONTROL 0xF4        //BME280 register number for power control
 
 #include <Wire.h>

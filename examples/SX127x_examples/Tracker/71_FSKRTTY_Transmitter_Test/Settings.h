@@ -31,7 +31,7 @@ const int8_t TXpower = 10;                      //LoRa transmit power in dBm
 
 //*******  Setup FSKRTTY Settings here ! ***************
 
-uint32_t FrequencyShift = 400;                  //hertz frequency shift, approx, in 61.03515625hz steps   
+uint32_t FrequencyShift = 500;                  //hertz frequency shift, approx, sent at nearest 61.03515625hz step   
 uint8_t NumberofPips = 2;                       //number of marker pips to send
 uint16_t PipDelaymS = 500;                      //mS between pips, carrier off 
 uint16_t PipPeriodmS = 100;                     //mS length of pip

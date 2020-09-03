@@ -21,7 +21,10 @@
   and locating. The frequency and LoRa settings of the Search mode packet can be different to the Tracker
   mode used by the HAB payload. There is also the option of sending the HAB payload in FSK RTTY format,
   see the Settings.h file for all the options. FSK RTTY gets sent at the same frequency as the Tracker mode
-  HAB packet.
+  HAB packet. The LT.transmitFSKRTTY() function sends at 1 start bit, 7 data bits, no parity and 2 stop bits.
+  For full control of the FSK RTTY setting you can use the following alternative function;
+  
+  LT.transmitFSKRTTY(chartosend, databits, stopbits, parity, baudPerioduS, pin)
 
   There is a matching Balloon Tracker Receiver program which writes received data to the Serial monitor as well
   as a small OLED display.
@@ -182,8 +185,9 @@ void do_Transmissions()
     
     startTimemS = millis() - LeadinmS;
     
-    Serial.print(F("FSK RTTY > $$"));
+    Serial.print(F("FSK RTTY > $$$"));
     Serial.flush();
+    LT.transmitFSKRTTY('$', BaudPerioduS, LED1);            //send a '$' as sync
     LT.transmitFSKRTTY('$', BaudPerioduS, LED1);            //send a '$' as sync
     LT.transmitFSKRTTY('$', BaudPerioduS, LED1);            //send a '$' as sync
         
@@ -261,7 +265,7 @@ uint8_t buildHABPacket()
   memset(TXBUFFER, 0, len);                                      //clear array to 0s
   Count = snprintf((char*) TXBUFFER,
                    TXBUFFER_SIZE,
-                   "$$%s,%lu,%02d:%02d:%02d,%s,%s,%d,%d,%d,%d,%d,%d,%d,%lu",
+                   "$%s,%lu,%02d:%02d:%02d,%s,%s,%d,%d,%d,%d,%d,%d,%d,%lu",
                    FlightID,
                    TXSequence,
                    TXHours,
@@ -281,7 +285,7 @@ uint8_t buildHABPacket()
 
   CRC = 0xffff;                                   //start value for CRC16
 
-  for (index = 2; index < Count; index++)         //element 2 is first character after $$ at start (for LoRa)
+  for (index = 1; index < Count; index++)         //element 1 is first character after $ at start (for LoRa)
   {
     CRC ^= (((uint16_t)TXBUFFER[index]) << 8);
     for (j = 0; j < 8; j++)
@@ -469,7 +473,7 @@ void printSupplyVoltage()
 
 uint16_t readSupplyVoltage()
 {
-  //relies on 1V1 internal reference and 91K & 11K resistor divider
+  //relies on internal 1v1 reference and 91K & 11K resistor divider
   //returns supply in mV @ 10mV per AD bit read
   uint16_t temp;
   uint16_t volts = 0;
@@ -480,7 +484,7 @@ uint16_t readSupplyVoltage()
     digitalWrite(BATVREADON, HIGH);           //turn MOSFET connection resitor divider in circuit
   }
 
-  analogReference(INTERNAL1V1);
+  analogReference(INTERNAL);
   temp = analogRead(SupplyAD);
 
   for (index = 0; index <= 4; index++)        //sample AD 5 times

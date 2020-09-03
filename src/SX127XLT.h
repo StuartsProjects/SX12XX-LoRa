@@ -155,12 +155,15 @@ class SX127XLT
     void startFSKRTTY(uint32_t freqshift, uint8_t pips, uint16_t pipDelaymS, uint16_t pipPeriodmS, uint16_t leadinmS);
     void transmitFSKRTTY(uint8_t chartosend, uint8_t databits, uint8_t stopbits, uint8_t parity, uint16_t baudPerioduS, int8_t pin);
     void transmitFSKRTTY(uint8_t chartosend, uint16_t baudPerioduS, int8_t pin);
-	void printRTTYregisters();
+    void printRTTYregisters();
     void endFSKRTTY();
     void doAFC();
     int32_t getOffset();
-
-    //*******************************************************************************
+    uint32_t transmitReliable(uint8_t *txbuffer, uint8_t size, char txpackettype, char txdestination, char txsource, uint32_t txtimeout, int8_t txpower, uint8_t wait );
+    uint16_t addCRC(uint8_t data, uint16_t libraryCRC);
+    uint32_t receiveReliable(uint8_t *rxbuffer, uint8_t size, char packettype, char destination, char source, uint32_t rxtimeout, uint8_t wait );
+    uint32_t receiveFT(uint8_t *rxbuffer, uint8_t size, char packettype, char destination, char source, uint32_t rxtimeout, uint8_t wait );
+	//*******************************************************************************
     //Read Write SX12xxx Buffer commands, this is the buffer internal to the SX12xxxx
     //*******************************************************************************
 
@@ -180,6 +183,8 @@ class SX127XLT
 
     void writeUint8(uint8_t x);
     uint8_t readUint8();
+ 
+    uint8_t readBytes(uint8_t *rxbuffer,   uint8_t size);
 
     void writeInt8(int8_t x);
     int8_t readInt8();
@@ -203,8 +208,10 @@ class SX127XLT
     float readFloat();
 
     void writeBuffer(uint8_t *txbuffer, uint8_t size);
+    void writeBufferChar(char *txbuffer, uint8_t size);
     uint8_t readBuffer(uint8_t *rxbuffer);
-
+    uint8_t readBufferChar(char *rxbuffer);
+	
     //*******************************************************************************
     //RXTX Switch routines - Not yet tested as of 02/12/19
     //*******************************************************************************

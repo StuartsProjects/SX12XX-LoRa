@@ -94,8 +94,9 @@ class SX128XLT  {
     uint8_t transmitAddressed(uint8_t *txbuffer, uint8_t size, char txpackettype, char txdestination, char txsource, uint32_t timeout, int8_t txpower, uint8_t wait);
     uint8_t receiveAddressed(uint8_t *rxbuffer, uint8_t size, uint16_t timeout, uint8_t wait);
     uint8_t readRXPacketType();
-
-/***************************************************************************
+    uint8_t readPacket(uint8_t *rxbuffer, uint8_t size);
+/**********************************************************
+*****************
 //Start direct access SX buffer routines
 ***************************************************************************/
 
@@ -130,7 +131,9 @@ class SX128XLT  {
     uint8_t receiveSXBuffer(uint8_t startaddr, uint16_t timeout, uint8_t wait);
     uint8_t readBuffer(uint8_t *rxbuffer);
     void printSXBufferHEX(uint8_t start, uint8_t end);
-
+	uint16_t addCRC(uint8_t data, uint16_t libraryCRC);
+	void writeBufferChar(char *txbuffer, uint8_t size);
+	uint8_t readBufferChar(char *rxbuffer);
 /***************************************************************************
 //End direct access SX buffer routines
 ***************************************************************************/

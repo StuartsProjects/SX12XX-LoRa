@@ -180,6 +180,7 @@
 #define    IRQ_RX_TIMEOUT                       0x0200     //so that readIrqstatus can return additional detections  
 #define    IRQ_NO_PACKET_CRC                    0x0400     //so that readIrqstatus can return additional detections  
 
+
 #define CONFIGURATION_RETENTION 0x04                       //these have no effect in SX127x, kept for compatibility
 #define RTC_TIMEOUT_ENABLE 0x01
 

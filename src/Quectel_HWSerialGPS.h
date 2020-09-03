@@ -16,8 +16,6 @@
   If this defien is missing then 9600 baud is assumed
 *******************************************************************************************************/
 
-
-
 const PROGMEM  uint8_t SetBalloonMode[]  = {"$PMTK886,3*2B"}; //response should be $PMTK001,886,3*36
 const PROGMEM  uint8_t ClearConfig[]  = {"$PMTK104*37"};      //no response  
 const PROGMEM  uint8_t PMTK_ACK[]  = {"$PMTK001,xxx,?"};      //? = 0 = invalid, 1 = unsupported, 2 = valid failed, 3 = valids succeeded 
@@ -43,21 +41,20 @@ bool GPS_HotStart();
 bool GPS_WaitChar(uint8_t waitforchar, uint32_t waitmS);
 
 
-const uint32_t GPS_WaitAck_mS = 2000;       //number of mS to wait for an ACK response from GPS
-const uint8_t GPS_attempts = 5;                     //number of times the sending of GPS config will be attempted.
-const uint8_t GPS_Reply_Size = 20;                  //size of GPS reply buffer
-const uint16_t GPS_Clear_DelaymS = 2000;     //mS to wait after a GPS Clear command is sent
+const uint32_t GPS_WaitAck_mS = 2000;             //number of mS to wait for an ACK response from GPS
+const uint8_t GPS_attempts = 5;                   //number of times the sending of GPS config will be attempted.
+const uint8_t GPS_Reply_Size = 20;                //size of GPS reply buffer
+const uint16_t GPS_Clear_DelaymS = 2000;          //mS to wait after a GPS Clear command is sent
 
-uint8_t GPS_Reply[GPS_Reply_Size];               //byte array for storing GPS reply to UBX commands
+uint8_t GPS_Reply[GPS_Reply_Size];                //byte array for storing GPS reply to UBX commands
  
-#define QUECTELINUSE                             //so complier can know which GPS library is used                             //so complier can know which GPS library is used
+#define QUECTELINUSE                              //so complier can know which GPS library is used                             //so complier can know which GPS library is used
 //#define GPSDebug
 
 
 #ifndef GPSBaud
 #define GPSBaud 9600
 #endif
-
 
 void GPS_OutputOn()
 {
@@ -142,8 +139,6 @@ bool GPS_SendConfig(const uint8_t *Progmem_ptr, uint8_t arraysize, uint8_t reply
       return false;
     }
 
-    GPS_OutputOff();
-
     Serial.print(F("GPSSend   "));
 
     for (index = 0; index < arraysize; index++)
@@ -153,8 +148,6 @@ bool GPS_SendConfig(const uint8_t *Progmem_ptr, uint8_t arraysize, uint8_t reply
     }
 
     Serial.flush();          //make sure serial out buffer is empty
-
-    GPS_OutputOn();
 
     Progmem_ptr = Progmem_ptr - arraysize;                  //set Progmem_ptr back to start
 
@@ -288,8 +281,6 @@ bool GPS_WaitAck(uint32_t waitmS, uint8_t length)
     while ((millis() < endmS) && (ptr < length));   //use the timeout to ensure a lack of GPS does not cause the program to hang
   }
 
-  GPS_OutputOff();
-
 
   for (ptr = 2; ptr < length; ptr++)
   {
@@ -415,7 +406,6 @@ bool GPS_SetCyclicMode()
   #endif
 
   size_t SIZE = sizeof(SoftwareBackup);
-  Serial.println(F("SoftwareBackup"));
   
   if (GPS_SendConfig(SoftwareBackup, SIZE, 0, GPS_attempts))
   {

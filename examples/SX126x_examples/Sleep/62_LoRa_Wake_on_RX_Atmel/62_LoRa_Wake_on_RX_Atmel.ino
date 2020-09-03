@@ -9,9 +9,9 @@
   Program Operation - The program listens for incoming packets using the LoRa settings in the 'Settings.h'
   file. The pins to access the lora device need to be defined in the 'Settings.h' file also.
 
-  When the program starts the LoRa device is setup to recieve packets with pin DIO0 set to go high when a
+  When the program starts the LoRa device is setup to recieve packets with pin DIO1 set to go high when a
   packet arrives. The receiver remains powered (it cannot receive otherwise) and the processor
-  (Atmel ATMega328P or 1284P) is put to sleep. When pin DIO0 does go high, indicating a packet is received,
+  (Atmel ATMega328P or 1284P) is put to sleep. When pin DIO1 does go high, indicating a packet is received,
   the processor wakes up and prints the packet. It then goes back to sleep.
 
   There is a printout of the valid packets received, these are assumed to be in ASCII printable text.

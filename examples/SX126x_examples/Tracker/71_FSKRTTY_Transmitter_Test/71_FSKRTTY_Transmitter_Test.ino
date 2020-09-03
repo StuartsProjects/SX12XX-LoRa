@@ -1,5 +1,5 @@
 /*******************************************************************************************************
-  Programs for Arduino - Copyright of the author Stuart Robinson - 05/06/20
+  Programs for Arduino - Copyright of the author Stuart Robinson - 02/09/20
 
   This program is supplied as is, it is up to the user of the program to decide if the program is
   suitable for the intended purpose and free from errors.
@@ -29,6 +29,7 @@
   assumes the lowest baud rate of 45baud, and if an overflow is likley, there will be a short in transmission
   pause to allow the overflow to occur.     
    
+
   Serial monitor baud rate is set at 9600
 *******************************************************************************************************/
 
@@ -42,9 +43,10 @@ SX126XLT LT;                                                   //create a librar
 
 //Choose whichever test pattern takes your fancy
 //uint8_t testBuffer[] = "0123456789* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *";               //This string is sent as AFSK RTTY, 7 bit, 2 Stop bit, no parity, 300 baud.
+
 //uint8_t testBuffer[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZ 0123456789";               
 //uint8_t testBuffer[] = "UUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUU";
-uint8_t testBuffer[] = "$$MyFlight1,2213,14:54:37,51.48230,-3.18136,15,6,3680,23,66,3,0*2935";
+uint8_t testBuffer[] = "$$$$MyFlight1,2213,14:54:37,51.48230,-3.18136,15,6,3680,23,66,3,0*2935";
 
 uint8_t freqShiftRegs[4];                                      //to hold returned registers that set frequency
 
@@ -73,6 +75,7 @@ void loop()
     LT.transmitFSKRTTY(testBuffer[index], DataBits, StopBits, Parity, BaudPerioduS, LED1);
     Serial.write(testBuffer[index]);
   }
+  
   LT.transmitFSKRTTY(13, DataBits, StopBits, Parity, BaudPerioduS, LED1); //send carriage return
   LT.transmitFSKRTTY(10, DataBits, StopBits, Parity, BaudPerioduS, LED1); //send line feed
     
@@ -82,7 +85,6 @@ void loop()
   digitalWrite(LED1, LOW);
   Serial.println();
   Serial.println();
-
   
   Serial.println(micros(),HEX);
   
@@ -95,20 +97,19 @@ void loop()
 void printRegisterSetup(uint32_t shift)
 {
   
-  uint32_t nonShiftedFreq,ShiftedFreq; 
+  uint32_t nonShiftedFreq, ShiftedFreq;
   uint32_t freqShift;
   float exactfreqShift; 
 
   LT.setRfFrequency(Frequency, Offset);                       //ensure base frequecy is set
   LT.getRfFrequencyRegisters(freqShiftRegs);                  //fill buffer with frequency setting registers values
-  nonShiftedFreq = ( (uint32_t) freqShiftRegs[0]  << 24 ) +  ( (uint32_t) freqShiftRegs[1] << 16 ) + ( (uint32_t) freqShiftRegs[2] << 8 ) + freqShiftRegs[3];
+  nonShiftedFreq = ( (uint32_t) freqShiftRegs[0]  << 24 ) + ( (uint32_t) freqShiftRegs[1]  << 16 ) +  ( (uint32_t) freqShiftRegs[2] << 8 ) + freqShiftRegs[3];
   Serial.print(F("NoShift Registers 0x"));
   Serial.println(nonShiftedFreq, HEX);
 
   LT.setRfFrequency((Frequency + shift), Offset);             //set shifted frequecy
   LT.getRfFrequencyRegisters(freqShiftRegs);                  //fill buffer with frequency setting registers values
-  
-  ShiftedFreq = ( (uint32_t) freqShiftRegs[0]  << 24 ) +  ( (uint32_t) freqShiftRegs[1] << 16 ) + ( (uint32_t) freqShiftRegs[2] << 8 ) + freqShiftRegs[3];
+  ShiftedFreq = ( (uint32_t) freqShiftRegs[0]  << 24 ) + ( (uint32_t) freqShiftRegs[1]  << 16 ) +  ( (uint32_t) freqShiftRegs[2] << 8 ) + freqShiftRegs[3];
   Serial.print(F("Shifted Registers 0x"));
   Serial.println(ShiftedFreq, HEX);
 
@@ -130,6 +131,8 @@ Serial.print(freqShiftRegs[0],HEX);
 Serial.print(F(" "));
 Serial.print(freqShiftRegs[1],HEX);
 Serial.print(F(" "));
+Serial.print(freqShiftRegs[2],HEX);
+Serial.println();
 Serial.print(freqShiftRegs[2],HEX);
 Serial.println();  
 }
