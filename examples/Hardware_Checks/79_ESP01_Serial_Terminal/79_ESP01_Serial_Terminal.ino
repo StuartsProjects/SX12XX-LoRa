@@ -6,8 +6,8 @@
 *******************************************************************************************************/
 
 /*******************************************************************************************************
-  Program Operation - This is a simple terminal to allow you to use a Serial terminal program, such as Teraterm
-  or CoolTerm to talk to a serial device such as an ESP8266 ESP01 connected to your Arduino. 
+  Program Operation - This is a simple terminal to allow you to use a PC Serial terminal program, such as
+  Teraterm or CoolTerm to talk to a serial device such as an ESP8266 ESP01 connected to your Arduino. 
 
   Note that not all pins on all Arduinos will work with software serial, see here;
 
