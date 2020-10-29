@@ -30,7 +30,7 @@
   Serial monitor baud rate is set at 9600
 *******************************************************************************************************/
 
-#define Program_Version "V1.0"
+#define Program_Version "V1.1"
 
 #include <SPI.h>                                               //the lora device is SPI based so load the SPI library                                         
 #include <SX127XLT.h>                                          //include the appropriate library  
@@ -84,7 +84,7 @@ void packet_is_OK()
   Serial.print(TXPacketL);                             //print transmitted packet length
   localCRC = LT.CRCCCITT(buff, TXPacketL, 0xFFFF);
   Serial.print(F("  CRC,"));
-  Serial.print(localCRC, HEX);                              //print CRC of sent packet
+  Serial.print(localCRC, HEX);                         //print CRC of sent packet
   Serial.print(F("  TransmitTime,"));
   Serial.print(endmS - startmS);                       //print transmit time of packet
   Serial.print(F("mS"));
@@ -122,9 +122,7 @@ void led_Flash(uint16_t flashes, uint16_t delaymS)
 
 void setupLoRa()
 {
-  //this is the contents of the library function called by;
-  //LT.setupLoRa(Frequency, Offset, SpreadingFactor, Bandwidth, CodeRate, Optimisation);
-  //its included here for reference, so the default settings can be reviewed.
+  //this setup is used so as the implicit packet type,LORA_PACKET_FIXED_LENGTH, is used
   LT.setMode(MODE_STDBY_RC);                              //got to standby mode to configure device
   LT.setPacketType(PACKET_TYPE_LORA);                     //set for LoRa transmissions
   LT.setRfFrequency(Frequency, Offset);                   //set the operating frequency
@@ -176,8 +174,6 @@ void setup()
   }
 
   //this function call sets up the device for LoRa using the settings from the Settings.h file
-  //LT.setupLoRa(Frequency, Offset, SpreadingFactor, Bandwidth, CodeRate, Optimisation);
-
   setupLoRa();
 
   Serial.println();

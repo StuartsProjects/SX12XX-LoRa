@@ -32,7 +32,7 @@
   Serial monitor baud rate is set at 9600.
 *******************************************************************************************************/
 
-#define Program_Version "V1.0"
+#define Program_Version "V1.1"
 
 #include <SPI.h>                                 //the lora device is SPI based so load the SPI library
 #include <SX127XLT.h>                            //include the appropriate library   
@@ -98,7 +98,7 @@ void packet_is_OK()
   Serial.print(F("  "));
 
   LT.readPacket(RXBUFFER, PacketLength);
-  LT.printASCIIPacket(RXBUFFER, PacketLength);        //print the packet as ASCII characters
+  LT.printASCIIPacket(RXBUFFER, PacketLength);     //print the packet as ASCII characters
 
   localCRC = LT.CRCCCITT(RXBUFFER, PacketLength, 0xFFFF);  //calculate the CRC, this is the external CRC calculation of the RXBUFFER
   Serial.print(F(",CRC,"));                        //contents, not the LoRa device internal CRC
@@ -178,10 +178,7 @@ void led_Flash(uint16_t flashes, uint16_t delaymS)
 
 void setupLoRa()
 {
-  //this is the contents of the library function called by;
-  //LT.setupLoRa(Frequency, Offset, SpreadingFactor, Bandwidth, CodeRate, Optimisation);
-  //Its included here for reference, so the default settings can be reviewed.
-
+  //this setup is used so as the implicit packet type,LORA_PACKET_FIXED_LENGTH, is used  
   LT.setMode(MODE_STDBY_RC);                              //got to standby mode to configure device
   LT.setPacketType(PACKET_TYPE_LORA);                     //set for LoRa transmissions
   LT.setRfFrequency(Frequency, Offset);                   //set the operating frequency
@@ -208,7 +205,7 @@ void setup()
   Serial.println(F(__DATE__));
   Serial.println(F(Program_Version));
   Serial.println();
-  Serial.println(F("42_LoRa_Receiver_ImplicitPacket Starting"));
+  Serial.println(F("41_LoRa_Receiver_ImplicitPacket Starting"));
   Serial.println();
 
   if (BUZZER > 0)
@@ -241,9 +238,7 @@ void setup()
     }
   }
 
-  //this function call sets up the device for LoRa using the settings from settings.h
-  //LT.setupLoRa(Frequency, Offset, SpreadingFactor, Bandwidth, CodeRate, Optimisation);
-
+  //this function call sets up the device for LoRa using the settings from the Settings.h file
   setupLoRa();
 
   Serial.println();

@@ -20,7 +20,7 @@ To install the library select the 'Clone or download' button on the main Github 
 
 New LoRa devices keep appearing all the time, but they cost money, so if you have found the library useful you can support of the purchase of new modules, so they can be tested, by making a donation here;
 
-[**Make a Donation**](https://www.paypal.com/donate?hosted_button_id=4EMBJU5C2UGNS)
+[![Donate](https://img.shields.io/badge/Donate-PayPal-green.svg)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=4EMBJU5C2UGNS)
 
 This library supports the SX126x, SX127x and SX128x Semtech LoRa devices. There is a wide range of example programs for these devices. These Semtech devices are used to manufacture a range of LoRa modules sold by companies such as Hope, Dorji, NiceRF and others. The library does not support LoRa modules with a UART based interface such as those from Ebyte and Microchip. 
 

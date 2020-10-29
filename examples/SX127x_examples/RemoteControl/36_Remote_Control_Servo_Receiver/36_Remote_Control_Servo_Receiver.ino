@@ -1,5 +1,5 @@
 /*******************************************************************************************************
-  Programs for Arduino - Copyright of the author Stuart Robinson - 30/12/19
+  Programs for Arduino - Copyright of the author Stuart Robinson - 29/10/20
 
   This program is supplied as is, it is up to the user of the program to decide if the program is
   suitable for the intended purpose and free from errors.
@@ -64,9 +64,7 @@ uint8_t RXPacketType;                      //type of received packet
 void loop()
 {
 
-  RXPacketL = LT.receiveSXBuffer(0, 0, WAIT_RX);   //returns 0 if packet error of some sort
-
-  while (!digitalRead(DIO0));                      //wait for DIO0 to go high
+  RXPacketL = LT.receiveSXBuffer(0, 2000, WAIT_RX);   //returns 0 if packet error of some sort, timeout 2000mS
 
   if ( LT.readIrqStatus() == (IRQ_RX_DONE + IRQ_HEADER_VALID))
   {
@@ -154,7 +152,7 @@ void packet_is_Error()
   else
   {
     PacketRSSI = LT.readPacketRSSI();                        //read the signal strength of the received packet
-    Serial.print(F("Err,"));
+    Serial.print(F("Error,"));
     Serial.print(PacketRSSI);
     Serial.print(F("dBm"));
   }
@@ -210,6 +208,22 @@ void sweepTest(uint8_t num)
 }
 
 
+void setupLoRa()
+{
+  //this setup is used so as the implicit packet type,LORA_PACKET_FIXED_LENGTH, is used  
+  LT.setMode(MODE_STDBY_RC);                              //got to standby mode to configure device
+  LT.setPacketType(PACKET_TYPE_LORA);                     //set for LoRa transmissions
+  LT.setRfFrequency(Frequency, Offset);                   //set the operating frequency
+  LT.calibrateImage(0);                                   //run calibration after setting frequency
+  LT.setModulationParams(SpreadingFactor, Bandwidth, CodeRate, LDRO_AUTO);  //set LoRa modem parameters
+  LT.setBufferBaseAddress(0x00, 0x00);                    //where in the SX buffer packets start, TX and RX
+  LT.setPacketParams(8, LORA_PACKET_FIXED_LENGTH, PacketLength, LORA_CRC_ON, LORA_IQ_NORMAL);  //set packet parameters
+  LT.setSyncWord(LORA_MAC_PRIVATE_SYNCWORD);              //syncword, LORA_MAC_PRIVATE_SYNCWORD = 0x12, or LORA_MAC_PUBLIC_SYNCWORD = 0x34
+  LT.setHighSensitivity();                                //set for highest sensitivity at expense of slightly higher LNA current
+  //This is the typical IRQ parameters set, actually excecuted in the transmit function
+  LT.setDioIrqParams(IRQ_RADIO_ALL, IRQ_TX_DONE, 0, 0);   //set for IRQ on TX done
+}
+
 
 void setup()
 {
@@ -243,8 +257,14 @@ void setup()
     }
   }
 
-  LT.setupLoRa(Frequency, Offset, SpreadingFactor, Bandwidth, CodeRate, Optimisation);
+  //this function call sets up the device for LoRa using the settings from the Settings.h file
+  setupLoRa();
 
+  Serial.println();
+  LT.printModemSettings();                                //reads and prints the configured LoRa settings, useful check
+  Serial.println();
+  LT.printOperatingSettings();                           //reads and prints the configured operating settings, useful check
+  Serial.println();
   Serial.println(F("36_Remote_Control_Servo_Receiver ready"));
   Serial.println();
 }
