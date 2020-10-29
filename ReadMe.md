@@ -1,13 +1,5 @@
 # SX12XX Library
 
-    Update: 10/04/20 - Added notes about ESP32 examples
-	
-	Update: 22/03/20 - Extend range of example programs for SX126x and SX128x devices. 
-
-	Update: 19/03/20 - Added SX126X and SX128X remote control on\off and joystick servo examples.
-
-
-
 ### Library installation
 
 To install the library select the 'Clone or download' button on the main Github page, then select 'Download Zip'. In the Arduino IDE select 'Sketch' then 'Include Library'. Next select 'Add .ZIP library' and browse to and select the ZIP file you downloaded, it's called 'SX12xx-master.zip'.
@@ -413,7 +405,7 @@ It was not the intention to specifically support non-Atmel platforms with the li
 
 
 ### Support
-The examples do work, so if for you they do not, assume there is a problem with how you have wired the modules or that your modules are faulty or that your Arduino set-up is faulty or unsupported. You are best placed to diagnose these basic issues. 
+The examples do work, so if for you they do not, assume there is a problem with how you have wired the modules or that your modules are faulty or that your Arduino set-up or LoRa module is faulty or unsupported. You are best placed to diagnose these issues. 
 
 If you find a bug, or other error in the SX12xx library or examples, please let me know.
 
@@ -424,11 +416,17 @@ Add ppmoffset to frequency error check program Check this in program 12 LT.write
 
 Check sensitivity\current for writeRegister(RegLna, 0x3B );.//at HF 150% LNA current.
 
+Correct issue with IQ settings.
+
+Add reliable packet send\receive code.
+
+Add file transfer to and from SD card code.
+
 <br>
 
 
 
 ### Stuart Robinson
 
-### February 2020
+### October 2020
 
