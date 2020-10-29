@@ -36,7 +36,8 @@
   number or the received packets will be ignored.
 
   The pin definitions, LoRa frequency and LoRa modem settings are in the Settings.h file. These settings
-  are not necessarily optimised for long range.
+  are not necessarily optimised for long range. Note that this example uses implict LoRa packet mode
+  which means the packet size is fixed. 
 
   Serial monitor baud rate is set at 115200.
 *******************************************************************************************************/

@@ -41,7 +41,7 @@ const uint8_t Bandwidth = LORA_BW_500;          //LoRa bandwidth
 const uint8_t SpreadingFactor = LORA_SF6;       //LoRa spreading factor
 const uint8_t CodeRate = LORA_CR_4_5;           //LoRa coding rate
 const uint8_t Optimisation = LDRO_AUTO;         //low data rate optimisation setting
-const uint8_t PacketLength = 5;                 //packet length is fixed 
+const uint8_t PacketLength = 5;                 //packet is in implicit mode so length is fixed, must be the same as RX 
 
 const int8_t TXpower = 10;                      //LoRa transmit power in dBm
 
