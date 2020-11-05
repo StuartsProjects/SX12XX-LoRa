@@ -1,65 +1,81 @@
 /*******************************************************************************************************
-  Programs for Arduino - Copyright of the author Stuart Robinson - 16/12/19
+  Programs for Arduino - Copyright of the author Stuart Robinson - 05/11/20
 
   This program is supplied as is, it is up to the user of the program to decide if the program is
   suitable for the intended purpose and free from errors.
 *******************************************************************************************************/
 
 /*******************************************************************************************************
-  Program Operation - The program transmits a packet without using a processor buffer, the LoRa device
+  Program Operation - The program transmits a packet without using a memory buffer, the LoRa device
   internal buffer is filled direct with variables. The program is a simulation of the type of packet
   that might be sent from a GPS tracker. Note that in this example a buffer of text is part of the
-  transmitted packet, this does need a processor buffer which is used to fill the LoRa device internal
-  buffer, if you don't need to transmit text then the uint8_t trackerID[] = "Tracker1"; definition
-  can be ommited.
+  transmitted packet.
 
-  The matching receiving program '9_LoRa_LowMemory_RX' can be used to receive and display the packet,
-  though the program  '15_LoRa_RX_Structure' should receive it as well, since the packet contents are
-  the same.
+  The matching receiving program '9_LoRa_LowMemory_RX' can be used to receive and display the packet.
 
   The contents of the packet received, and printed to serial monitor, should be;
-  
-  "tracker1"     (buffer)      - trackerID 
-  1+             (uint32_t)    - packet count    
-  51.23456       (float)       - latitude   
+
+  TR1            (buffer)      - trackerID
+  51.23456       (float)       - latitude
   -3.12345       (float)       - longitude
-  199            (uint16_t)    - altitude  
-  8              (uint8_t)     - number of satellites 
-  3999           (uint16_t)    - battery voltage 
+  199            (uint16_t)    - altitude
+  8              (uint8_t)     - number of satellites
+  3999           (uint16_t)    - battery voltage
   -9             (int8_t)      - temperature
 
-  Serial monitor baud rate is set at 9600.
+  LoRa modem and frequency settings are in the 'Settings.h' file. 
   
+  Memory use on an Arduino Pro Mini;
+  Sketch uses 4958 bytes (15%) of program storage space.
+  Global variables use 224 bytes (10%) of dynamic memory, leaving 1824 bytes for local variables.
+
+
+  Serial monitor baud rate is set at 9600.
 *******************************************************************************************************/
+
 #include <Arduino.h>
 #include <SPI.h>
 #include <SX127XLT.h>
 #include "Settings.h"
 
-SX127XLT LT;
+SX127XLT LoRa;
 
-uint32_t TXpacketCount = 0;
-uint8_t TXPacketL;
-uint32_t startmS, endmS;
 
 void loop()
 {
-  TXpacketCount++;
-  
-  if (Send_Test_Packet())
+  //The SX12XX buffer is filled with variables of a known type and order. Make sure the receiver
+  //uses the same variable type and order to read variables out of the receive buffer.
+
+  char trackerID[] = "TR1";
+  float latitude = 51.23456;
+  float longitude = -3.12345;
+  uint16_t altitude = 199;
+  uint8_t satellites = 8;
+  uint16_t voltage = 3999;
+  int16_t temperature = 9;
+  uint8_t TXPacketL = 0;
+  uint8_t BytesSent = 0;
+
+  LoRa.startWriteSXBuffer(0);                         //start the write at SX12XX internal buffer location 0
+  LoRa.writeBufferChar(trackerID, sizeof(trackerID));     //+4 bytes (3 characters plus null (0) at end)
+  LoRa.writeFloat(latitude);                          //+4 = 8 bytes
+  LoRa.writeFloat(longitude);                         //+4 = 12 bytes
+  LoRa.writeUint16(altitude);                         //+2 = 14 bytes
+  LoRa.writeUint8(satellites);                        //+1 = 15 bytes
+  LoRa.writeUint16(voltage);                          //+2 = 17 bytes
+  LoRa.writeInt8(temperature);                        //+1 = 18 bytes total to send
+  TXPacketL = LoRa.endWriteSXBuffer();                //closes packet write and returns the length of the packet to send
+
+  BytesSent = LoRa.transmitSXBuffer(0, TXPacketL, 5000, TXpower, WAIT_TX);   //set a TX timeout of 5000mS
+
+  if (BytesSent == 0)                                 //if bytessent is 0, there has been a error
   {
-    Serial.print(TXpacketCount);
-    Serial.print(F(" "));
-    Serial.print(TXPacketL);
-    Serial.print(F(" Bytes Sent"));
-    Serial.print(F(" "));
-    Serial.print(endmS - startmS);
-    Serial.print(F("mS"));
+    Serial.print(F("Send Error"));
   }
   else
   {
-    Serial.print(F("Send Error - IRQreg,"));
-    Serial.print(LT.readIrqStatus(), HEX);
+    Serial.print(BytesSent);
+    Serial.print(F(" Bytes Sent"));
   }
 
   Serial.println();
@@ -67,88 +83,19 @@ void loop()
 }
 
 
-uint8_t Send_Test_Packet()
-{
-  //The SX12XX buffer is filled with variables of a known type and order. Make sure the receiver
-  //uses the same variable type and order to read variables out of the receive buffer.
-
-  float latitude, longitude;
-  uint16_t altitude, voltage;
-  uint8_t satellites;
-  int16_t temperature;
-  uint8_t len;
-
-  //test data
-  uint8_t trackerID[] = "tracker1";
-  latitude = 51.23456;
-  longitude = -3.12345;
-  altitude = 199;
-  satellites = 9;
-  voltage = 3999;
-  temperature = -9;
-
-  LT.startWriteSXBuffer(0);                         //start the write at location 0
-  LT.writeBuffer(trackerID, sizeof(trackerID));     //= 13 bytes (12 characters plus null (0) at end)
-  LT.writeUint32(TXpacketCount);                    //+4 = 17 bytes
-  LT.writeFloat(latitude);                          //+4 = 21 bytes
-  LT.writeFloat(longitude);                         //+4 = 25 bytes
-  LT.writeUint16(altitude);                         //+2 = 27 bytes
-  LT.writeUint8(satellites);                        //+1 = 28 bytes
-  LT.writeUint16(voltage);                          //+2 = 30 bytes
-  LT.writeInt8(temperature);                        //+1 = 31 bytes total to send
-  len = LT.endWriteSXBuffer();
-
-  digitalWrite(LED1, HIGH);
-  startmS = millis();
-
-  TXPacketL = LT.transmitSXBuffer(0, len, 5000, TXpower, WAIT_TX);   //set a TX timeout of 5000mS
-
-  endmS = millis();
-
-  digitalWrite(LED1, LOW);
-
-  return TXPacketL;
-}
-
-
-void led_Flash(uint16_t flashes, uint16_t delaymS)
-{
-  uint16_t index;
-  for (index = 1; index <= flashes; index++)
-  {
-    digitalWrite(LED1, HIGH);
-    delay(delaymS);
-    digitalWrite(LED1, LOW);
-    delay(delaymS);
-  }
-}
-
-
 void setup()
 {
-  pinMode(LED1, OUTPUT);
-  led_Flash(2, 125);
-
   Serial.begin(9600);
 
   SPI.begin();
 
-  if (LT.begin(NSS, NRESET, DIO0, DIO1, DIO2, LORA_DEVICE))
-  {
-    led_Flash(2, 125);
-  }
-  else
+  if (!LoRa.begin(NSS, NRESET, DIO0, LORA_DEVICE))
   {
     Serial.println(F("Device error"));
-    while (1)
-    {
-      led_Flash(50, 50);                                            //long fast speed flash indicates device error
-    }
+    while (1);
   }
 
-  LT.setupLoRa(Frequency, Offset, SpreadingFactor, Bandwidth, CodeRate, Optimisation);
-
-  Serial.println(F("Transmitter ready"));
-  Serial.println();
+  LoRa.setupLoRa(Frequency, Offset, SpreadingFactor, Bandwidth, CodeRate, Optimisation);
+  Serial.flush();
 }
 
