@@ -47,6 +47,7 @@ SX127XLT LT;
 #include <U8x8lib.h>                                        //https://github.com/olikraus/u8g2 
 U8X8_SSD1306_128X64_NONAME_HW_I2C disp(U8X8_PIN_NONE);      //standard 0.96" SSD1306
 //U8X8_SH1106_128X64_NONAME_HW_I2C disp(U8X8_PIN_NONE);     //1.3" OLED often sold as 1.3" SSD1306
+#define DEFAULTFONT u8x8_font_chroma48medium8_r             //font for U8X8 Library
 
 #include <TinyGPS++.h>                                      //http://arduiniana.org/libraries/tinygpsplus/
 TinyGPSPlus gps;                                            //create the TinyGPS++ object
@@ -61,7 +62,9 @@ SoftwareSerial GPSserial(RXpin, TXpin);
 #define GPSserial HARDWARESERIALPORT                        //hardware serial port (eg Serial1) is configured in the Settings.h file
 #endif
 
+#ifdef UPLOADHABPACKET                                      //function only supported on Arduinos with tone functions    
 #include <AFSKRTTY.h>
+#endif
 
 //**************************************************************************************************
 // HAB tracker data - these are the variables transmitted in payload
@@ -315,10 +318,6 @@ void packet_is_OK()
     displayscreen5();                       //put distance and direction on display 
     printDistanceDirection();
   
-    //Serial.println();
-    //printHABdata();
-    //Serial.println();
-
 #ifdef UPLOADHABPACKET
     if (actualCRC == includedCRC)
     {
@@ -397,7 +396,7 @@ void packet_is_OK()
   printmorepacketDetails();
 }
 
-
+#ifdef UPLOADHABPACKET 
 void uploadHABpacket()
 {
   uint8_t index;
@@ -423,6 +422,7 @@ void uploadHABpacket()
   Serial.println();
   endAFSKRTTY(AUDIOOUT);
 }
+#endif
 
 
 uint16_t calcIncludedCRC()
@@ -980,7 +980,7 @@ void setup()
   SPI.begin();
 
   disp.begin();
-  disp.setFont(u8x8_font_chroma48medium8_r);
+  disp.setFont(DEFAULTFONT);
 
   Serial.print(F("Checking LoRa device - "));
   disp.setCursor(0, 0);

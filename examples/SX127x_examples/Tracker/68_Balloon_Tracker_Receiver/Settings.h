@@ -83,6 +83,7 @@ const uint8_t DisplayRate = 7;                   //when working OK the GPS will 
 // 6) AFSK RTTY Settings - For PC upload into Dl-Fldigi in HAB mode. 
 //    Sent at 300baud, 7 bit, no parity, 2 stop bits.
 //    Shift 500hz, low tone 800hz, high tone 1300hz. 
+//    Only supported on Arduinos that have the Tone functions.
 //**************************************************************************************************
 
 //#define UPLOADHABPACKET                          //comment in define to output HAB packet as AFSKRTTY for PC upload
