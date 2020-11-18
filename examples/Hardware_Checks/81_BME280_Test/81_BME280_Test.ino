@@ -36,7 +36,7 @@ void loop()
   Serial.println();
 
   sleepBME280();
-  delay(5000);
+  delay(500);
   normalBME280();                           //BME280 sensor to normal mode
 }
 

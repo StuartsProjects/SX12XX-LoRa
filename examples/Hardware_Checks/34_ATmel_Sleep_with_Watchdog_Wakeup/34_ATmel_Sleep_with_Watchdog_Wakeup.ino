@@ -1,5 +1,5 @@
 /*******************************************************************************************************
-  Programs for Arduino - Copyright of the author Stuart Robinson - 29/12/19
+  Programs for Arduino - Copyright of the author Stuart Robinson - 03/09/20
 
   This program is supplied as is, it is up to the user of the program to decide if the program is
   suitable for the intended purpose and free from errors.
@@ -9,7 +9,7 @@
   Program Operation - This program tests the sleep mode of an Atmel ATMega328P processor.
 
   At power up the flashes an LED 4 times, then turns on the LED for 5 seconds. Then the processor is put
-  to sleep for 8 seconds. On wakeup the LED flashes twice, then is on for 5 seconds and the board goes to 
+  to sleep for 16 seconds. On wakeup the LED flashes twice, then is on for 2 seconds and the board goes to 
   sleep again. And the sequence repeats. 
 
   Sleep current for a 'bare bones' ATmega328 with a MCP1700 regulator @ 3.3V and using an external event
@@ -30,19 +30,20 @@
 
 void loop ()
 {
-  led_Flash(2, 125);
-  delay(1000);
-  Serial.println("Awake ");
-  Serial.print("LEDon ");
-  digitalWrite(LED1, HIGH);
-  digitalWrite(13, HIGH);
-  delay(5000);
-  
+  Serial.println("LED Off");
   digitalWrite(LED1, LOW);
   digitalWrite(13, LOW);
-  Serial.print(F("Now Sleeping... "));
+  Serial.println(F("Now Sleeping... "));
   Serial.flush();
-  sleep8seconds(1);
+  
+  sleep8seconds(2);                                  //sleep for about 16 seconds
+  
+  Serial.println("Awake ");
+  led_Flash(2, 125);
+  Serial.println("LED On ");
+  digitalWrite(LED1, HIGH);
+  digitalWrite(13, HIGH);
+  delay(2000);
 }
 
 
@@ -91,7 +92,11 @@ void setup ()
   pinMode(LED1, OUTPUT);
   pinMode(13, OUTPUT);
   Serial.begin(9600);
-  led_Flash(2, 125);
+  led_Flash(4, 125);
+  Serial.println("LED On ");
+  digitalWrite(LED1, HIGH);
+  digitalWrite(13, HIGH);
+  delay(5000);
 }
 
 

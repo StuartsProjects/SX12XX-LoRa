@@ -755,7 +755,7 @@ void SX127XLT::setPacketParams(uint16_t packetParam1, uint8_t  packetParam2, uin
 
 
   //CRC mode
-  _UseCRC = packetParam4;                                       //save CRC status
+  _UseCRC = packetParam4;                                        //save CRC status
 
   if (_Device != DEVICE_SX1272)
   {

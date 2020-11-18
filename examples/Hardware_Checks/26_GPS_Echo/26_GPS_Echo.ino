@@ -24,10 +24,6 @@
 
 *******************************************************************************************************/
 
-
-#define GPSBAUD 9600          //this is the serial baud rate that will be used for the GPS, a common default
-#define MONITORBAUD 115200    //this is the serial baud rate that will be used for the serial monitor 
-
 #define RXpin A3              //this is the pin that the Arduino will use to receive data from the GPS
 #define TXpin A2              //this is the pin that the Arduino can use to send data (commands) to the GPS - not used
 
@@ -46,7 +42,7 @@ void loop()
 
 void setup()
 {
-  GPS.begin(GPSBAUD);
-  Serial.begin(MONITORBAUD);
+  GPS.begin(9600);
+  Serial.begin(115200);
   Serial.println("26_GPS_Echo Starting");
 }

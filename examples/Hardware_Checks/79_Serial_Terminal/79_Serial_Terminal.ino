@@ -6,8 +6,8 @@
 *******************************************************************************************************/
 
 /*******************************************************************************************************
-  Program Operation - This is a simple terminal to allow you to use a PC Serial terminal program, such as
-  Teraterm or CoolTerm to talk to a serial device such as an ESP8266 ESP01 connected to your Arduino. 
+  Program Operation - This is a simple terminal to allow you to use a Serial terminal program, such as Teraterm
+  or CoolTerm to talk to a serial device such as a Bluetooth module connected to your Arduino. 
 
   Note that not all pins on all Arduinos will work with software serial, see here;
 
@@ -24,8 +24,6 @@
 #define RXpin A3            //this is the pin that the Arduino will use to receive data from the serial device
 #define TXpin A2            //this is the pin that the Arduino can use to send data (commands) to the serial device
 
-#define RST 9               //RST pin of ESP01
-#define CH_PD 10            //CH_PD pin on ESP01
 
 #include <SoftwareSerial.h>
 
@@ -50,17 +48,8 @@ void setup()
 {
   device.begin(DEVICEBAUD);
   Serial.begin(MONITORBAUD);
-  Serial.println("79_ESP01_Serial_Terminal Starting");
-
-  pinMode(CH_PD, OUTPUT);
-  digitalWrite(CH_PD, HIGH);   //enable the ESP01
+  Serial.println("79_Serial_Terminal Starting");
 
   delay(1000);
-
-  pinMode(RST, OUTPUT);        //reset the ESP01
-  digitalWrite(RST, LOW);
-  delay(100);
-  digitalWrite(RST, HIGH);
-
-  
+ 
 }
