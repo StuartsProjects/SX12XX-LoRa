@@ -13,7 +13,7 @@
   
   #define GPSBaud 9600
   
-  If this defien is missing then 9600 baud is assumed
+  If this define is missing then 9600 baud is assumed
 *******************************************************************************************************/
 
 const PROGMEM  uint8_t SetBalloonMode[]  = {"$PMTK886,3*2B"}; //response should be $PMTK001,886,3*36
@@ -22,6 +22,7 @@ const PROGMEM  uint8_t PMTK_ACK[]  = {"$PMTK001,xxx,?"};      //? = 0 = invalid,
 const PROGMEM  uint8_t SoftwareBackup[]  = {"$PMTK161,0*28"}; //response should be $PMTK001,161,3*36
 const PROGMEM  uint8_t HotStart[]  = {"$PMTK101*32"};
 
+uint8_t GPS_GetByte();
 void GPS_OutputOn();
 void GPS_OutputOff();
 void GPS_PowerOn(int8_t pin, uint8_t state);
@@ -38,7 +39,6 @@ bool GPS_ClearConfig();
 bool GPS_SetCyclicMode();
 bool GPS_SoftwareBackup();
 bool GPS_HotStart();
-bool GPS_WaitChar(uint8_t waitforchar, uint32_t waitmS);
 
 
 const uint32_t GPS_WaitAck_mS = 2000;             //number of mS to wait for an ACK response from GPS
@@ -51,6 +51,13 @@ uint8_t GPS_Reply[GPS_Reply_Size];                //byte array for storing GPS r
 #define QUECTELINUSE                              //so complier can know which GPS library is used                             //so complier can know which GPS library is used
 //#define GPSDebug
 
+#ifndef GPSConfigSerial                           // if GPSDebugSerial is not defined set to Serial as default
+ #define GPSConfigSerial Serial
+#endif
+
+#ifndef GPSDebugSerial                           // if GPSDebugSerial is not defined set to Serial as default
+ #define GPSDebugSerial Serial
+#endif
 
 #ifndef GPSBaud
 #define GPSBaud 9600
@@ -432,6 +439,19 @@ bool GPS_HotStart()
   
   return false;
 } 
+
+
+uint8_t GPS_GetByte()                                            //get a byte for GPS
+{
+  if (GPSserial.available() ==  0)
+  {
+    return 0xFF;                                                 //for compatibility with I2C reading of GPS 
+  }
+  else
+  {
+    return GPSserial.read();
+  }
+}
 
 
 /*

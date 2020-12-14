@@ -29,9 +29,11 @@ SX127XLT::SX127XLT()
 }
 
 /* Formats for :begin
-1 original   > begin(int8_t pinNSS, int8_t pinNRESET, int8_t pinDIO0, int8_t pinDIO1, int8_t pinDIO2, uint8_t device);
-2 Simplified > begin(int8_t pinNSS, int8_t pinNRESET, int8_t pinDIO0, uint8_t device);
+  1 original   > begin(int8_t pinNSS, int8_t pinNRESET, int8_t pinDIO0, int8_t pinDIO1, int8_t pinDIO2, uint8_t device);
+  2 Simplified > begin(int8_t pinNSS, int8_t pinNRESET, int8_t pinDIO0, uint8_t device);
+  3 No NRESET or DIO0 
 */
+
 
 
 bool SX127XLT::begin(int8_t pinNSS, int8_t pinNRESET, int8_t pinDIO0, int8_t pinDIO1, int8_t pinDIO2, uint8_t device)
@@ -124,18 +126,7 @@ bool SX127XLT::begin(int8_t pinNSS, int8_t pinNRESET, int8_t pinDIO0, uint8_t de
     pinMode( _DIO0, INPUT);
   }
 
-  if (_DIO1 >= 0)
-  {
-    pinMode( _DIO1,  INPUT);
-  }
-
-  if (_DIO2 >= 0)
-  {
-    pinMode( _DIO2,  INPUT);
-  }
-
   resetDevice();
-  
   
   #ifdef SX128XDEBUGPINS
   Serial.println(F("format 2 begin()"));
@@ -145,10 +136,6 @@ bool SX127XLT::begin(int8_t pinNSS, int8_t pinNRESET, int8_t pinDIO0, uint8_t de
   Serial.print(F("NRESET "));
   Serial.print(F("DIO0 "));
   Serial.println(_DIO0;
-  Serial.print(F("DIO1 "));
-  Serial.println(_DIO1);
-  Serial.print(F("DIO2 "));
-  Serial.println(_DIO2);
   #endif
 
   if (checkDevice())
@@ -158,6 +145,43 @@ bool SX127XLT::begin(int8_t pinNSS, int8_t pinNRESET, int8_t pinDIO0, uint8_t de
 
   return false;
 }
+
+
+bool SX127XLT::begin(int8_t pinNSS, uint8_t device)
+{
+  //format 3 pins, assign the all available pins
+#ifdef SX127XDEBUG1
+  Serial.println(F("3 begin()"));
+#endif
+
+  //assign the passed pins to the class private variabled
+  _NSS = pinNSS;
+  _Device = device;            //device type needs to be assigned before reset
+  
+  _NRESET = -1;                //pin not used
+  _DIO0 = -1;                  //pin not used
+  _DIO1 = -1;                  //pin not used
+  _DIO2 = -1;                  //pin not used 
+  
+  pinMode(_NSS, OUTPUT);
+  digitalWrite(_NSS, HIGH);
+  
+
+#ifdef SX127XDEBUGPINS
+  Serial.println(F("2 begin()"));
+  Serial.println(F("SX127XLT constructor instantiated successfully"));
+  Serial.print(F("NSS "));
+  Serial.println(_NSS);
+#endif
+
+  if (checkDevice())
+{
+  return true;
+}
+
+  return false;
+}
+
 
 
 void SX127XLT::resetDevice()

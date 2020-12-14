@@ -32,6 +32,7 @@ class SX127XLT
 
     bool begin(int8_t pinNSS, int8_t pinNRESET, int8_t pinDIO0, int8_t pinDIO1, int8_t pinDIO2, uint8_t device);
     bool begin(int8_t pinNSS, int8_t pinNRESET, int8_t pinDIO0, uint8_t device);
+    bool begin(int8_t pinNSS, uint8_t device);
     void resetDevice();
     void setMode(uint8_t modeconfig);         //same function as setStandby()
     void setSleep(uint8_t sleepconfig);

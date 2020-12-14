@@ -27,15 +27,16 @@ const char NoGPS = 'G';                 //No GPS found, or GPS error.
 const char ACK = 'A';                   //Acknowledge
 const char NACK = 'N';                  //Not Acknowledge, error
 const char AFC = 'a';                   //Packet sent for AFC purposes
-const char Reliable = 'R';              //this is a realiable type packet, assumed an ACK is required
 
-const uint8_t FT = 0xF0;                //this packet type indicates File Transfer packet, with subtype
-const uint8_t FTstart = 0x01;           //FTsubtype file transfer start information, filename etc
-const uint8_t FTsegment = 0x02;         //FTsubtype packet contains a numbered segment
-const uint8_t FTACK = 0x03;             //FTsubtype ACK response for file transfers
-const uint8_t FTNACK = 0x04;            //FTsubtype NACK response for file transfers
-const uint8_t FTclose  = 0x05;          //FTsubtype request from TX to close file, transfer finished
-const uint8_t FTrestart  = 0x06;        //FTsubtype request from RX to restart current file transfer
+const uint8_t Reliable = 0x80;          //this packet type indicates reliable data packet
+const uint8_t ReliableACK = 0x81;       //this packet type indicates reliable data packet acknowledge
+const uint8_t FTtype = 0xF0;            //FTsubtype file transfer type
+const uint8_t FTstart = 0xF1;           //FTsubtype file transfer start information, filename etc
+const uint8_t FTsegment = 0xF2;         //FTsubtype packet contains a numbered segment
+const uint8_t FTACK = 0xF3;             //FTsubtype ACK response for file transfers
+const uint8_t FTNACK = 0xF4;            //FTsubtype NACK response for file transfers
+const uint8_t FTclose  = 0xF5;          //FTsubtype request from TX to close file, transfer finished
+const uint8_t FTrestart  = 0xF6;        //FTsubtype request from RX to restart current file transfer
 
 //GPS Tracker Status byte settings
 const uint8_t GPSFix = 0;               //flag bit set when GPS has a current fix
@@ -54,9 +55,43 @@ const uint16_t addr_StartMemory = 0x00;          //the start of memory
 const uint16_t addr_StartProgramData = 0x100;    //the start of program data in memory
 const uint16_t addr_ResetCount = 0x100;          //unsigned long int 4 bytes
 const uint16_t addr_SequenceNum = 0x104;         //unsigned long int 4 bytes
-const uint16_t addr_TXErrors = 0x108;            //unsigned int 2 bytes
-
+const uint16_t addr_TXErrors = 0x108;            //uint16_t 2 bytes
 const uint16_t addr_EndMemory = 0x3FF;
+
+
+/*********************************************************************
+  START GPS CoordinateData
+**********************************************************************/
+//for storing last received GPS co-ordinates from local and remote tracker GPS
+const uint16_t addr_StartCoordinateData = 0x300;
+const uint16_t addr_RemoteLat = 0x300;           //float 4 bytes
+const uint16_t addr_RemoteLon = 0x304;           //float 4 bytes
+const uint16_t addr_RemoteAlt = 0x308;           //uint16_t 2 bytes
+const uint16_t addr_RemoteHour = 0x30C;          //byte 1 byte;  Note times for last tracker co-ordinates come from local GPS time
+const uint16_t addr_RemoteMin = 0x310;           //byte 1 byte
+const uint16_t addr_RemoteSec = 0x311;           //byte 1 byte
+const uint16_t addr_RemoteDay = 0x312;           //byte 1 byte
+const uint16_t addr_RemoteMonth = 0x313;         //byte 1 byte
+const uint16_t addr_RemoteYear = 0x314;          //byte 1 byte
+const uint16_t addr_LocalLat = 0x318;            //float 4 bytes
+const uint16_t addr_LocalLon = 0x31C;            //float 4 bytes
+const uint16_t addr_LocalAlt = 0x320;            //uint16_t 2 bytes
+const uint16_t addr_LocalHour = 0x322;           //byte 1 byte
+const uint16_t addr_LocalMin = 0x323;            //byte 1 byte
+const uint16_t addr_LocalSec = 0x324;            //byte 1 byte
+const uint16_t addr_LocalDay = 0x325;            //byte 1 byte
+const uint16_t addr_LocalMonth = 0x326;          //byte 1 byte
+const uint16_t addr_LocalYear = 0x327;           //byte 1 byte
+const uint16_t addr_EndCoordinateData = 0x327;
+
+const uint16_t addr_RemotelocationCRC = 0x340;   //the 16 bit CRC of the last tracker location data is saved here
+const uint16_t addr_LocallocationCRC = 0x342;    //the 16 bit CRC of the last local location data is saved here
+
+const uint16_t addr_TestLocation_page3 = 0x3FF;  //used as a location for read\write tests
+
+/*********************************************************************
+  END GPS CoordinateData
+**********************************************************************/
 
 
 /*
@@ -78,10 +113,11 @@ const uint8_t GPSHotFix = 7;              //bit when set enables GPS Hot Fix mod
   Values for reliable transmit\receive errors
 ******************************************************************************************************
 */
-const uint16_t packettypeErr = 0x0001;
-const uint16_t destErr = 0x0002;
-const uint16_t sourceErr = 0x0004;
-const uint16_t timeoutErr = 0x0008;
-const uint16_t IDErr = 0x0010;
-const uint16_t crcErr = 0x020;
-const uint16_t seqErr = 0x040;
+const uint16_t packettypeErr = 0x01;
+const uint16_t destErr = 0x02;
+const uint16_t sourceErr = 0x04;
+const uint16_t timeoutErr = 0x08;
+const uint16_t IDErr = 0x10;
+const uint16_t crcErr = 0x20;
+const uint16_t seqErr = 0x40;
+const uint16_t packetErr = 0x80;

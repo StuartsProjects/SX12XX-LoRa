@@ -24,6 +24,7 @@ const PROGMEM  uint8_t GPGSVOff[]  = {0xB5, 0x62, 0x06, 0x01, 0x08, 0x00, 0xF0, 
 //accepted response to configuaration command should be UBX-ACK-ACK B5 62 05 01
 //fail response to configuaration command should be UBX-ACK-NAK B5 62 05 00
 
+uint8_t GPS_GetByte();
 void GPS_OutputOn();
 void GPS_OutputOff();
 void GPS_PowerOn();
@@ -43,6 +44,7 @@ bool GPS_GPGLSOff();
 bool GPS_GPGSAOff();
 bool GPS_GPGSVOff();
 bool GPS_CheckAck();
+
 
 const uint32_t GPS_WaitAck_mS = 1000;            //number of mS to wait for an ACK response from GPS
 const uint8_t GPS_attempts = 5;                  //number of times the sending of GPS config will be attempted.
@@ -520,6 +522,19 @@ bool GPS_GPGSVOff()
 
   size_t SIZE = sizeof(GPGSVOff);
   return GPS_SendConfig(GPGSVOff, SIZE, 10, GPS_attempts);
+}
+
+
+uint8_t GPS_GetByte()                                            //get a byte for GPS
+{
+  if (GPSserial.available() ==  0)
+  {
+    return 0xFF;                                                 //for compatibility with I2C reading of GPS 
+  }
+  else
+  {
+    return GPSserial.read();
+  }
 }
 
 
