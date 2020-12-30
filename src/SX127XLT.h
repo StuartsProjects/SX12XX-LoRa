@@ -218,15 +218,6 @@ class SX127XLT
     void txEnable();                                //not used on current SX127x modules
 
     //*******************************************************************************
-    //Reliable (send and ACK) routines
-    //*******************************************************************************
-    /*
-      uint32_t transmitReliable(uint8_t *header, uint8_t headersize, uint8_t *txbuffer, uint8_t txbuffersize, uint32_t txtimeout, int8_t txpower, uint8_t wait);
-      uint32_t receiveReliable(uint8_t *header, uint8_t headersize, uint8_t *txbuffer, uint8_t txbuffersize, uint32_t rxtimeout, uint8_t wait);
-      uint32_t transmitReliableACK(uint8_t *header, uint8_t headersize, uint8_t crc, uint32_t txtimeout, int8_t txpower, uint8_t wait);
-      uint32_t receiveReliableACK(uint8_t *header, uint8_t headersize, uint8_t crc, uint32_t rxtimeout, uint8_t wait);
-    */
-    //*******************************************************************************
     //Library variables
     //*******************************************************************************
 
