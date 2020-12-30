@@ -52,12 +52,14 @@ const int8_t TXpower = 10;                       //LoRa TX power
 // GPS Settings
 //**************************************************************************************************
 
+#define USESOFTSERIALGPS                         //if your using software serial for the GPS, enable this define     
+//#define USEHARDWARESERIALGPS                   //if your using hardware serial for the GPS, enable this define
+//#define HARDWARESERIALPORT Serial2             //if your using hardware serial for the GPS, define the port here  
+
+
 #define GPSBaud 9600                             //GPS Baud rate   
 
 #define WaitGPSFixSeconds 30                     //time in seconds to wait for a new GPS fix 
-#define WaitFirstGPSFixSeconds 1800              //time to seconds to wait for the first GPS fix at startup
-#define Sleepsecs 5                              //seconds between transmissions, this delay is used to set overall transmission cycle time
-
-#define echomS 2000                              //number of mS to run GPS echo at startup    
-
+#define WaitFirstGPSFixSeconds 120               //time to seconds to wait for the first GPS fix at startup
+#define Sleepsecs 15                             //seconds between transmissions, this delay is used to set overall transmission cycle time
 

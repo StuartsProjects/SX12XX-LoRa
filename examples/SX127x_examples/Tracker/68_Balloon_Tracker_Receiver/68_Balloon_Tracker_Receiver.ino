@@ -1,5 +1,5 @@
 /*******************************************************************************************************
-  Programs for Arduino - Copyright of the author Stuart Robinson - 02/09/20
+  Programs for Arduino - Copyright of the author Stuart Robinson - 29/12/20
   This program is supplied as is, it is up to the user of the program to decide if the program is
   suitable for the intended purpose and free from errors.
 *******************************************************************************************************/
@@ -45,25 +45,27 @@ SX127XLT LT;
 #include <ProgramLT_Definitions.h>
 
 #include <U8x8lib.h>                                        //https://github.com/olikraus/u8g2 
-U8X8_SSD1306_128X64_NONAME_HW_I2C disp(U8X8_PIN_NONE);      //standard 0.96" SSD1306
-//U8X8_SH1106_128X64_NONAME_HW_I2C disp(U8X8_PIN_NONE);     //1.3" OLED often sold as 1.3" SSD1306
+//U8X8_SSD1306_128X64_NONAME_HW_I2C disp(U8X8_PIN_NONE);      //standard 0.96" SSD1306
+U8X8_SH1106_128X64_NONAME_HW_I2C disp(U8X8_PIN_NONE);     //1.3" OLED often sold as 1.3" SSD1306
 #define DEFAULTFONT u8x8_font_chroma48medium8_r             //font for U8X8 Library
 
 #include <TinyGPS++.h>                                      //http://arduiniana.org/libraries/tinygpsplus/
 TinyGPSPlus gps;                                            //create the TinyGPS++ object
 
-
 #ifdef USESOFTSERIALGPS
-//#include <NeoSWSerial.h>                                  //https://github.com/SlashDevin/NeoSWSerial
-//NeoSWSerial GPSserial(RXpin, TXpin);                      //this library is more relaible with a GPS over SoftwareSerial
+//#include <NeoSWSerial.h>                       //https://github.com/SlashDevin/NeoSWSerial
+//NeoSWSerial GPSserial(RXpin, TXpin);           //The NeoSWSerial library is an option to use and is more relaible 
+                                                 //at GPS init than software serial 
 #include <SoftwareSerial.h>
 SoftwareSerial GPSserial(RXpin, TXpin);
-#else
-#define GPSserial HARDWARESERIALPORT                        //hardware serial port (eg Serial1) is configured in the Settings.h file
 #endif
 
-#ifdef UPLOADHABPACKET                                      //function only supported on Arduinos with tone functions    
-#include <AFSKRTTY.h>
+#ifdef USEHARDWARESERIALGPS
+#define GPSserial HARDWARESERIALPORT
+#endif
+
+#ifdef UPLOADHABPACKET                             
+#include <AFSKRTTY2.h>                            //this library supports Arduinos without tone functions                            
 #endif
 
 //**************************************************************************************************
@@ -90,7 +92,7 @@ float RXAlt;                      //altitude of RX
 
 uint32_t RXpacketCount;           //count of received packets
 uint8_t RXPacketL;                //length of received packet
-int8_t  PacketRSSI;               //signal strength (RSSI) dBm of received packet
+int16_t PacketRSSI;               //signal strength (RSSI) dBm of received packet
 int8_t  PacketSNR;                //signal to noise ratio (SNR) dB of received packet
 uint16_t RXerrors;                //count of packets received with errors         
 uint8_t PacketType;               //for packet addressing, identifies packet type
@@ -166,7 +168,7 @@ void readGPS()
     gps.encode(GPSserial.read());
   }
 
-  if ( millis() > (LastRXGPSfixCheck + NoRXGPSfixms))
+  if ( (uint32_t) (millis() - LastRXGPSfixCheck) > NoRXGPSfixms)
   {
     RXGPSfix = false;
     LastRXGPSfixCheck = millis();
@@ -178,7 +180,7 @@ void readGPS()
     }
   }
 
-  if (gps.location.isUpdated() && gps.altitude.isUpdated())
+  if (gps.location.isUpdated() && gps.altitude.isUpdated() && gps.date.isUpdated())
   {
     RXGPSfix = true;
     RXLat = gps.location.lat();
@@ -405,22 +407,23 @@ void uploadHABpacket()
   Serial.print(F("Dl-Fldigi Upload $"));
   Serial.flush();
 
-  startAFSKRTTY(AUDIOOUT, tonehighHz, leadinmS);
-  sendAFSKRTTY(13, AUDIOOUT, CHECK, tonelowHz, tonehighHz, AFSKRTTYperiod);
-  sendAFSKRTTY('$', AUDIOOUT, CHECK, tonelowHz, tonehighHz, AFSKRTTYperiod);
+  startAFSKRTTY(AUDIOOUT, CHECK, LOWCYCLES, LOWPERIODUS, HIGHCYCLES, HIGHPERIODUS, ADJUSTUS, leadinmS);
+  sendAFSKRTTY(13);
+  sendAFSKRTTY(10);
+  sendAFSKRTTY('$');
   
   for (index = 0; index <= (RXPacketL - 1); index++)
   {
     chartosend = LT.getByteSXBuffer(index);
-    sendAFSKRTTY(chartosend, AUDIOOUT, CHECK, tonelowHz, tonehighHz, AFSKRTTYperiod);
+    sendAFSKRTTY(chartosend);
     Serial.write(chartosend);
     Serial.flush();
   }
 
-  sendAFSKRTTY(13, AUDIOOUT, CHECK, tonelowHz, tonehighHz, AFSKRTTYperiod);
-  sendAFSKRTTY(10, AUDIOOUT, CHECK, tonelowHz, tonehighHz, AFSKRTTYperiod);
+  sendAFSKRTTY(13);
+  sendAFSKRTTY(10);
   Serial.println();
-  endAFSKRTTY(AUDIOOUT);
+  endAFSKRTTY(AUDIOOUT, CHECK, leadoutmS);
 }
 #endif
 
@@ -949,10 +952,26 @@ void displayscreen7()
 }
 
 
+void GPSTest()
+{
+  uint32_t startmS;
+  startmS = millis();
+
+  while ( (uint32_t) (millis() - startmS) < 2000)       //allows for millis() overflow
+  {
+    if (GPSserial.available() > 0)
+    {
+     Serial.write(GPSserial.read());
+    }
+  }
+  Serial.println();
+  Serial.println();
+  Serial.flush();
+}
+
+
 void setup()
 {
-  uint32_t endmS;
-
   pinMode(LED1, OUTPUT);                        //setup pin as output for indicator LED
   led_Flash(2, 125);                            //two quick LED flashes to indicate program start
   pinMode(SWITCH1, INPUT_PULLUP);               //setup pin as switch input
@@ -1002,22 +1021,13 @@ void setup()
     }
   }
 
-  Serial.println();
-  Serial.println(F("Startup GPS check"));
-
-  endmS = millis() + 2000;
-
-  //now startup GPS
   GPSPowerOn(GPSPOWER, GPSONSTATE);
-
   GPSserial.begin(GPSBaud);
-
-  while (millis() < endmS)
-  {
-    while (GPSserial.available() > 0)
-      Serial.write(GPSserial.read());
-  }
+    
   Serial.println();
+
+  Serial.println(F("Startup GPS check"));
+  GPSTest();
   Serial.println(F("Done"));
   Serial.println();
   Serial.flush();

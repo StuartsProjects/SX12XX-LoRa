@@ -1,5 +1,5 @@
 /*******************************************************************************************************
-  Programs for Arduino - Copyright of the author Stuart Robinson - 12/10/20
+  Programs for Arduino - Copyright of the author Stuart Robinson - 30/12/20
 
   This program is supplied as is, it is up to the user of the program to decide if the program is
   suitable for the intended purpose and free from errors.
@@ -62,16 +62,17 @@ bool gpsWaitFix(uint16_t waitSecs)
 {
   //waits a specified number of seconds for a fix, returns true for good fix
 
-  uint32_t endwaitmS;
+  uint32_t startmS, waitmS;
   uint8_t GPSchar;
 
   Serial.print(F("Wait GPS Fix "));
   Serial.print(waitSecs);
   Serial.println(F(" seconds"));
 
-  endwaitmS = millis() + (waitSecs * 1000);
+  waitmS = waitSecs * 1000;                              //convert seconds wait into mS
+  startmS = millis();
 
-  while (millis() < endwaitmS)
+  while ((uint32_t) (millis() - startmS) < waitmS)
   {
     if (GPSserial.available() > 0)
     {

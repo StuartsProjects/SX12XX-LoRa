@@ -131,18 +131,38 @@ The library examples for the SX128x do use the long form of the begin command (b
 **begin(NSS, NRESET, RFBUSY, DIO1, DIO2, DIO3, LORA\_DEVICE)**     (SX128X library)
 
 
-LoRA\_DEVICE tells the library which actual LoRa RF IC is being used, the choices are;
+**LoRA\_DEVICE** tells the library which actual LoRa RF IC is being used and in the case of the SX127x devices how the antenna is connected. The choices are for the SX127x part of the library are;
 
-	DEVICE_SX1272      //SX127X library
-	DEVICE_SX1276      //SX127X library  
-	DEVICE_SX1277      //SX127X library
-	DEVICE_SX1278      //SX127X library
-    DEVICE_SX1279      //SX127X library
-	DEVICE_SX1261      //SX126X library
-    DEVICE_SX1262      //SX126X library
-    DEVICE_SX1268      //SX126X library
-    DEVICE_SX1280      //SX128X library
-    DEVICE_SX1281      //SX128X library
+	DEVICE_SX1272
+	DEVICE_SX1276
+	DEVICE_SX1277
+	DEVICE_SX1278
+	DEVICE_SX1279
+
+	DEVICE_SX1272_PABOOST
+	DEVICE_SX1277_PABOOST
+	DEVICE_SX1278_PABOOST
+    DEVICE_SX1279_PABOOST
+
+	DEVICE_SX1276_RFO
+	DEVICE_SX1277_RFO
+	DEVICE_SX1278_RFO
+	DEVICE_SX1279_RFO
+
+
+Note that in the above list for the SXX127x part of the library only and there are new device types that allow the library to differentiate between devices that have the transmit output connected to the **PA\_BOOST** pin (which is the vast majority of SX127x devices) and those that use the **RFO LF\_ANT** or **RFO HF\_ANT** pins for RF output. These RFO connected devices are in the minority and are limited to 14dBm output. There is no library support for a SX1272 using the RFO outputs as I dont have one to test.
+
+The old device types; DEVICE\_SX1272, DEVICE\_SX1276, DEVICE\_SX1277, DEVICE\_SX1278 and DEVICE\_SX1272 are retained for compatibility with old sketches and are the same device as those with the \_PABOOST identity.
+
+Devices using the PABOOST output can be set to power levels from 2dBm to 20dBm, and operation at 20dBm is limited to a 1% duty cycle. Divices using the RFO outputs can be set to power levels from 0dBm to 14dBm.  
+
+The device types for the SX126X and SX128X part of the library are;
+
+	DEVICE_SX1261              //SX126X library
+    DEVICE_SX1262              //SX126X library
+    DEVICE_SX1268              //SX126X library
+    DEVICE_SX1280              //SX128X library
+    DEVICE_SX1281              //SX128X library
 
 **setMode(MODE\_STDBY\_RC)**
 
@@ -412,12 +432,6 @@ If you find a bug, or other error in the SX12xx library or examples, please let 
 
 ### Future Changes and Enhancements to Library
 
-Add ppmoffset to frequency error check program Check this in program 12 LT.writeRegister(RegPpmCorrection,ppmoffset)
-
-Check sensitivity\current for writeRegister(RegLna, 0x3B );.//at HF 150% LNA current.
-
-Correct issue with IQ settings.
-
 Add reliable packet send\receive code.
 
 Add file transfer to and from SD card code.
@@ -428,5 +442,5 @@ Add file transfer to and from SD card code.
 
 ### Stuart Robinson
 
-### October 2020
+### December 2020
 

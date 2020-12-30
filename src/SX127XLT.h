@@ -1,8 +1,10 @@
 /*
-  Copyright 2019 - Stuart Robinson
+  Copyright 2020 - Stuart Robinson
   Licensed under a MIT license displayed at the bottom of this document.
   Original published 17/12/19
+  New version 23/12/20
 */
+
 
 #ifndef SX127XLT_h
 #define SX127XLT_h
@@ -10,18 +12,6 @@
 #include <Arduino.h>
 #include <SX127XLT_Definitions.h>
 
-/**************************************************************************
-
-  ToDO
-
-  Add ppmoffset to frequency error check program Check this in program 12 LT.writeRegister(RegPpmCorrection,ppmoffset);
-  Check sensitivity\current for writeRegister(RegLna, 0x3B );.//at HF 150% LNA current.
-  Add packet SF6 support and implicit mode support and examples
-  returnBandwidth(byte BWregvalue) does not directly take account of SX1272
-  Check void SX127XLT::fillSXBuffer and use of ptr
-  Add receive callback
-
-**************************************************************************/
 
 class SX127XLT
 {
@@ -34,23 +24,24 @@ class SX127XLT
     bool begin(int8_t pinNSS, int8_t pinNRESET, int8_t pinDIO0, uint8_t device);
     bool begin(int8_t pinNSS, uint8_t device);
     void resetDevice();
-    void setMode(uint8_t modeconfig);         //same function as setStandby()
+    void setMode(uint8_t modeconfig);
     void setSleep(uint8_t sleepconfig);
     bool checkDevice();
     void wake();
     void calibrateImage(uint8_t null);
-    uint16_t CRCCCITT(uint8_t *buffer, uint8_t size, uint16_t startvalue);
+    uint16_t CRCCCITT(uint8_t *buffer, uint16_t size, uint16_t startvalue);
     uint16_t CRCCCITTSX(uint8_t startadd, uint8_t endadd, uint16_t startvalue);
 
     void setDevice(uint8_t type);
     void printDevice();
     uint8_t getOperatingMode();
-    bool isReceiveDone();                      //reads first DIO pin defined
-    bool isTransmitDone();                     //reads first DIO pin defined
+    bool isReceiveDone();
+    bool isTransmitDone();
 
     void writeRegister( uint8_t address, uint8_t value );
     uint8_t readRegister( uint8_t address );
     void printRegisters(uint16_t start, uint16_t end);
+    void printRegister(uint8_t reg);
     void printOperatingMode();
     void printOperatingSettings();
 
@@ -79,12 +70,13 @@ class SX127XLT
     uint8_t getLNAboostHF();
     uint8_t getLNAboostLF();
     uint8_t getOpmode();
-    uint8_t getPacketMode();           //LoRa or FSK
+    uint8_t getPacketMode();
 
     uint8_t readRXPacketL();
     uint8_t readTXPacketL();
-    uint8_t readPacketRSSI();
-    uint8_t readPacketSNR();
+    int16_t readPacketRSSI();
+    int16_t readCurrentRSSI();
+    int8_t readPacketSNR();
     bool readPacketCRCError();
     bool readPacketHeaderValid();
     uint8_t packetOK();
@@ -120,8 +112,8 @@ class SX127XLT
 
     uint8_t receive(uint8_t *rxbuffer, uint8_t size, uint32_t rxtimeout, uint8_t wait);
     uint8_t receiveAddressed(uint8_t *rxbuffer, uint8_t size, uint32_t rxtimeout, uint8_t wait);
-    uint8_t readPacket(uint8_t *rxbuffer, uint8_t size);                    //needed for when receive used with NO_WAIT
-    uint8_t readPacketAddressed(uint8_t *rxbuffer, uint8_t size);           //needed for when receive used with NO_WAIT
+    uint8_t readPacket(uint8_t *rxbuffer, uint8_t size);
+    uint8_t readPacketAddressed(uint8_t *rxbuffer, uint8_t size);
 
     uint8_t transmit(uint8_t *txbuffer, uint8_t size, uint32_t txtimeout, int8_t txPower, uint8_t wait);
     uint8_t transmitAddressed(uint8_t *txbuffer, uint8_t size, char txpackettype, char txdestination, char txsource, uint32_t txtimeout, int8_t txpower, uint8_t wait);
@@ -140,8 +132,8 @@ class SX127XLT
     uint8_t getVersion();
     uint16_t getPreamble();
 
-    uint32_t returnBandwidth(uint8_t BWregvalue);                            //returns in hz the current set bandwidth
-    uint8_t returnOptimisation(uint8_t SpreadingFactor, uint8_t Bandwidth);  //this returns the required optimisation setting
+    uint32_t returnBandwidth(uint8_t BWregvalue);
+    uint8_t returnOptimisation(uint8_t SpreadingFactor, uint8_t Bandwidth);
     float calcSymbolTime(float Bandwidth, uint8_t SpreadingFactor);
     void printModemSettings();
     void setSyncWord(uint8_t syncword);
@@ -159,12 +151,16 @@ class SX127XLT
     void printRTTYregisters();
     void endFSKRTTY();
     void doAFC();
+    void doAFCPPM();
+    uint8_t getPPM();
     int32_t getOffset();
-    uint32_t transmitReliable(uint8_t *txbuffer, uint8_t size, char txpackettype, char txdestination, char txsource, uint32_t txtimeout, int8_t txpower, uint8_t wait );
-    uint16_t addCRC(uint8_t data, uint16_t libraryCRC);
-    uint32_t receiveReliable(uint8_t *rxbuffer, uint8_t size, char packettype, char destination, char source, uint32_t rxtimeout, uint8_t wait );
-    uint32_t receiveFT(uint8_t *rxbuffer, uint8_t size, char packettype, char destination, char source, uint32_t rxtimeout, uint8_t wait );
-	//*******************************************************************************
+    void printOCPTRIM();
+    uint8_t readBufferbytes(uint8_t *rxbuffer, uint8_t size);
+    uint8_t writeBufferbytes(uint8_t *txbuffer, uint8_t size);
+    void setDevicePABOOST();
+    void setDeviceRFO();
+
+    //*******************************************************************************
     //Read Write SX12xxx Buffer commands, this is the buffer internal to the SX12xxxx
     //*******************************************************************************
 
@@ -184,8 +180,6 @@ class SX127XLT
 
     void writeUint8(uint8_t x);
     uint8_t readUint8();
- 
-    uint8_t readBytes(uint8_t *rxbuffer,   uint8_t size);
 
     void writeInt8(int8_t x);
     int8_t readInt8();
@@ -210,18 +204,28 @@ class SX127XLT
 
     void writeBuffer(uint8_t *txbuffer, uint8_t size);
     void writeBufferChar(char *txbuffer, uint8_t size);
+    void writeBufferChar(char *txbuffer);
     uint8_t readBuffer(uint8_t *rxbuffer);
+    uint8_t readBuffer(uint8_t *rxbuffer, uint8_t size);
     uint8_t readBufferChar(char *rxbuffer);
-	
+
     //*******************************************************************************
-    //RXTX Switch routines - Not yet tested as of 02/12/19
+    //RX\TX Enable routines - Not yet tested as of 02/12/19
     //*******************************************************************************
 
     void rxtxInit(int8_t pinRXEN, int8_t pinTXEN);  //not used on current SX127x modules
     void rxEnable();                                //not used on current SX127x modules
     void txEnable();                                //not used on current SX127x modules
 
-
+    //*******************************************************************************
+    //Reliable (send and ACK) routines
+    //*******************************************************************************
+    /*
+      uint32_t transmitReliable(uint8_t *header, uint8_t headersize, uint8_t *txbuffer, uint8_t txbuffersize, uint32_t txtimeout, int8_t txpower, uint8_t wait);
+      uint32_t receiveReliable(uint8_t *header, uint8_t headersize, uint8_t *txbuffer, uint8_t txbuffersize, uint32_t rxtimeout, uint8_t wait);
+      uint32_t transmitReliableACK(uint8_t *header, uint8_t headersize, uint8_t crc, uint32_t txtimeout, int8_t txpower, uint8_t wait);
+      uint32_t receiveReliableACK(uint8_t *header, uint8_t headersize, uint8_t crc, uint32_t rxtimeout, uint8_t wait);
+    */
     //*******************************************************************************
     //Library variables
     //*******************************************************************************
@@ -233,20 +237,18 @@ class SX127XLT
     uint8_t _RXPacketType;          //type number of received packet
     uint8_t _RXDestination;         //destination address of received packet
     uint8_t _RXSource;              //source address of received packet
-    int8_t  _PacketRSSI;            //RSSI of received packet
-    int8_t  _PacketSNR;             //signal to noise ratio of received packet
-    int8_t  _TXPacketL;             //length of transmitted packet
+    uint8_t  _TXPacketL;            //length of transmitted packet
     uint16_t _IRQmsb;               //for setting additional flags
     uint8_t _Device;                //saved device type
-    uint8_t _TXDonePin;             //the pin that will indicate TX done
-    uint8_t _RXDonePin;             //the pin that will indicate RX done
-    uint8_t _UseCRC;                //when packet parameters set this flag enabled if CRC on packets in use
-    int8_t _RXEN, _TXEN;            //not currently used
+    int8_t _TXDonePin;              //the pin that will indicate TX done
+    int8_t _RXDonePin;              //the pin that will indicate RX done
+    uint8_t _UseCRC;                //when packet parameters are set this flag is set if CRC on packets in use
+    int8_t _RXEN, _TXEN;            //for modules that have RX TX pin switching
     uint8_t _PACKET_TYPE;           //used to save the set packet type
-    uint8_t _freqregH, _freqregM, _freqregL;  //the registers values for the set frequency
-    uint8_t _ShiftfreqregH, _ShiftfreqregM, _ShiftfreqregL;  //register values for shifted frequency, used in FSK
-    uint32_t savedFrequency;
-    int32_t savedOffset;
+    uint8_t _freqregH, _freqregM, _freqregL;                 //the registers values for the set frequency
+    uint8_t _ShiftfreqregH, _ShiftfreqregM, _ShiftfreqregL;  //register values for shifted frequency, used in FSK RTTY etc
+    uint32_t _savedFrequency;       //when setRfFrequency() is used the set frequency is saved
+    int32_t _savedOffset;           //when setRfFrequency() is used the set offset is saved
 };
 #endif
 

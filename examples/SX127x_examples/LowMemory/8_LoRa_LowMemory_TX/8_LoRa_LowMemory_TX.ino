@@ -6,12 +6,12 @@
 *******************************************************************************************************/
 
 /*******************************************************************************************************
-  Program Operation - The program transmits a packet without using a memory buffer, the LoRa device
+  Program Operation - The program transmits a packet without using a processor buffer, the LoRa device
   internal buffer is filled direct with variables. The program is a simulation of the type of packet
   that might be sent from a GPS tracker. Note that in this example a buffer of text is part of the
   transmitted packet.
 
-  The matching receiving program '9_LoRa_LowMemory_RX' can be used to receive and display the packet.
+  The matching receiving program '9_LoRa_LowMemory_RX' can be used to receive and display the packet
 
   The contents of the packet received, and printed to serial monitor, should be;
 
@@ -23,8 +23,6 @@
   3999           (uint16_t)    - battery voltage
   -9             (int8_t)      - temperature
 
-  LoRa modem and frequency settings are in the 'Settings.h' file. 
-  
   Memory use on an Arduino Pro Mini;
   Sketch uses 4958 bytes (15%) of program storage space.
   Global variables use 224 bytes (10%) of dynamic memory, leaving 1824 bytes for local variables.
@@ -68,7 +66,7 @@ void loop()
 
   BytesSent = LoRa.transmitSXBuffer(0, TXPacketL, 5000, TXpower, WAIT_TX);   //set a TX timeout of 5000mS
 
-  if (BytesSent == 0)                                 //if bytessent is 0, there has been a error
+  if (BytesSent == 0)                               //if bytessent is 0, there has been a error
   {
     Serial.print(F("Send Error"));
   }

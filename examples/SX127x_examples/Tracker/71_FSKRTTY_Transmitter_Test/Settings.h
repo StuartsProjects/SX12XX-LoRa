@@ -1,5 +1,5 @@
 /*******************************************************************************************************
-  Programs for Arduino - Copyright of the author Stuart Robinson - 23/02/20
+  Programs for Arduino - Copyright of the author Stuart Robinson - 23/12/20
 
   This program is supplied as is, it is up to the user of the program to decide if the program is
   suitable for the intended purpose and free from errors.
@@ -36,7 +36,7 @@ uint8_t NumberofPips = 2;                       //number of marker pips to send
 uint16_t PipDelaymS = 500;                      //mS between pips, carrier off 
 uint16_t PipPeriodmS = 100;                     //mS length of pip
 uint16_t BaudPerioduS = 10000;                  //uS period for baud, 10000uS for 100baud 
-uint16_t LeadinmS = 1000;                       //ms of leadin, shifted carrier 
+uint16_t LeadinmS = 2000;                       //ms of leadin, shifted carrier 
 uint8_t DataBits = 7;                           //number of databits, normally 7 or 8
 uint8_t StopBits = 2;                           //number of stopbits, normally 1 or 2 
 uint8_t Parity = ParityNone;                    //parity on data bits, ParityNone, ParityOdd, ParityEven, ParityZero, ParityOne 

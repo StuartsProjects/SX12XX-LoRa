@@ -60,6 +60,20 @@ void writeMemoryUint16(uint16_t addr, uint16_t x)
 }
 
 
+float readMemoryFloat(uint16_t addr)
+{
+  float x;
+  EEPROM.get(addr, x);
+  return x;
+}
+
+
+void writeMemoryFloat(uint16_t addr, float x)
+{
+  EEPROM.put(addr, x);
+}
+
+
 void fillMemory(uint16_t startaddr, uint16_t endaddr, uint8_t lval)
 {
   uint32_t i;

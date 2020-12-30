@@ -40,7 +40,7 @@ SX127XLT LT;                                    //create a library class instanc
 #define NRESET 9                                //reset pin on LoRa device
 #define DIO0 3                                  //DIO0 pin on LoRa device, used for RX and TX done 
 #define LORA_DEVICE DEVICE_SX1278               //we need to define the device we are using
-#define RXBUFFER_SIZE 32                        //RX buffer size
+#define RXBUFFER_SIZE 255                       //RX buffer size
 
 uint32_t RXpacketCount;
 uint32_t errors;
@@ -48,7 +48,7 @@ uint32_t errors;
 uint8_t RXBUFFER[RXBUFFER_SIZE];                //create the buffer that received packets are copied into
 
 uint8_t RXPacketL;                              //stores length of packet received
-int8_t  PacketRSSI;                             //stores RSSI of received packet
+int16_t PacketRSSI;                             //stores RSSI of received packet
 int8_t  PacketSNR;                              //stores signal to noise ratio (SNR) of received packet
 
 

@@ -182,7 +182,9 @@ transmitFSKRTTY	KEYWORD2
 printRTTYregisters	KEYWORD2
 endFSKRTTY	KEYWORD2
 printSXBufferHEX	KEYWORD2
- 
-
+readBufferChar	KEYWORD2
+writeBufferChar	KEYWORD2
+setLowPowerReceive	KEYWORD2
+doAFCPPM	KEYWORD2
 
 

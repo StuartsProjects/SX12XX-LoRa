@@ -41,7 +41,7 @@ SX127XLT LT;
 
 uint8_t RXPacketL;               //stores length of packet received
 uint32_t RXpacketCount;          //count of received packets
-int8_t PacketRSSI;               //RSSI of received packet
+int16_t PacketRSSI;              //RSSI of received packet
 int8_t PacketSNR;                //signal to noise ratio of received packet
 uint32_t errors;                 //count of packet errors
 

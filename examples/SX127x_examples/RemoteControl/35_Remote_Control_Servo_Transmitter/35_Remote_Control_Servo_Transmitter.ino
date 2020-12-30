@@ -1,5 +1,5 @@
 /*******************************************************************************************************
-  Programs for Arduino - Copyright of the author Stuart Robinson - 29/10/20
+  Programs for Arduino - Copyright of the author Stuart Robinson - 30/12/19
 
   This program is supplied as is, it is up to the user of the program to decide if the program is
   suitable for the intended purpose and free from errors.
@@ -36,8 +36,7 @@
   number or the received packets will be ignored.
 
   The pin definitions, LoRa frequency and LoRa modem settings are in the Settings.h file. These settings
-  are not necessarily optimised for long range. Note that this example uses implict LoRa packet mode
-  which means the packet size is fixed. 
+  are not necessarily optimised for long range.
 
   Serial monitor baud rate is set at 115200.
 *******************************************************************************************************/

@@ -31,7 +31,7 @@ SdFat SD;
 File logFile;
 char filename[] = "Log000.txt";
 
-boolean SD_Found = false;                       //set if SD card found at program startup
+bool SD_Found = false;                          //set if SD card found at program startup
 uint8_t lognumber;
 
 
@@ -44,7 +44,7 @@ SX127XLT LT;
 uint32_t RXpacketCount;                          //count of good packets
 uint32_t errors;                                 //count of packet errors
 uint8_t RXPacketL;                               //stores length of packet received
-int8_t  PacketRSSI;                              //stores RSSI of received packet
+int16_t PacketRSSI;                              //stores RSSI of received packet
 int8_t  PacketSNR;                               //stores signal to noise ratio of received packet
 uint16_t IRQStatus;                              //used to read the IRQ status
 int32_t FreqErrror;                              //frequency error of received packet, in hz

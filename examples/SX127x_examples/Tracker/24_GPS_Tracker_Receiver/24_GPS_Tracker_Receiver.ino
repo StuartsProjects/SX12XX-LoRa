@@ -1,5 +1,5 @@
 /*******************************************************************************************************
-  Programs for Arduino - Copyright of the author Stuart Robinson - 22/03/20
+  Programs for Arduino - Copyright of the author Stuart Robinson - 28/12/20
 
   This program is supplied as is, it is up to the user of the program to decide if the program is
   suitable for the intended purpose and free from errors.
@@ -13,10 +13,10 @@
 
   The program receives direct from the LoRa devices internal buffer.
 
-  Serial monitor baud rate is set at 9600.
+  Serial monitor baud rate is set at 115200.
 *******************************************************************************************************/
 
-#define Program_Version "V1.1"
+#define Program_Version "V1.2"
 
 #include <SPI.h>
 #include <SX127XLT.h>
@@ -30,7 +30,7 @@ SX127XLT LT;
 uint32_t RXpacketCount;        //count of received packets
 
 uint8_t RXPacketL;             //length of received packet
-int8_t PacketRSSI;             //RSSI of received packet
+int16_t PacketRSSI;            //RSSI of received packet
 int8_t PacketSNR;              //signal to noise ratio of received packet
 uint8_t PacketType;            //for packet addressing, identifies packet type
 uint8_t Destination;           //for packet addressing, identifies the destination (receiving) node
@@ -44,6 +44,7 @@ uint32_t TXGPSFixTime;         //time in mS for fix
 uint16_t TXVolts;              //supply\battery voltage
 uint8_t TXSats;                //number of sattelites in use
 uint32_t TXupTimemS;           //up time of TX in mS 
+
 
 void loop()
 {
@@ -272,7 +273,7 @@ void setup()
   pinMode(LED1, OUTPUT);                        //setup pin as output for indicator LED
   led_Flash(2, 125);                            //two quick LED flashes to indicate program start
 
-  Serial.begin(9600);
+  Serial.begin(115200);
   Serial.println();
   Serial.print(F(__TIME__));
   Serial.print(F(" "));

@@ -1,5 +1,5 @@
 /*******************************************************************************************************
-  Programs for Arduino - Copyright of the author Stuart Robinson - 12/05/20
+  Programs for Arduino - Copyright of the author Stuart Robinson - 29/12/20
 
   This program is supplied as is, it is up to the user of the program to decide if the program is
   suitable for the intended purpose and free from errors.
@@ -11,7 +11,7 @@
 //**************************************************************************************************
 
 //These are the pin definitions for one of my own boards, the Easy Pro Mini,
-//be sure to change the definitiosn to match your own setup. 
+//be sure to change the definitiosn to match your own setup.
 
 #define NSS 10                                  //select on LoRa device
 #define NRESET 9                                //reset on LoRa device
@@ -26,8 +26,8 @@
 #define GPSONSTATE HIGH                         //logic level to turn GPS on via pin GPSPOWER 
 #define GPSOFFSTATE LOW                         //logic level to turn GPS off via pin GPSPOWER
 
-#define AUDIOOUT 4                              //pin used to output Audio tones for HAB packet upload 
-#define CHECK -1                                //this pin is toggled inside the AFSKRTTY library, high for logic 1, low for logic 0, so it can be used to check the timing.
+#define AUDIOOUT 6                              //pin used to output Audio tones for HAB packet upload 
+#define CHECK 8                                 //this pin is toggled inside the AFSKRTTY library, high for logic 1, low for logic 0, so it can be used to check the timing.
 
 #define LORA_DEVICE DEVICE_SX1278               //this is the LoRa device we are using
 
@@ -38,7 +38,7 @@
 
 
 //**************************************************************************************************
-// 3) LoRa modem settings 
+// 3) LoRa modem settings
 //**************************************************************************************************
 
 const uint32_t Offset = 0;                             //offset frequency for calibration purposes
@@ -69,29 +69,35 @@ const uint8_t RXBUFFER_SIZE = 128;                     //RX buffer size
 
 const uint16_t GPSBaud = 9600;                   //GPS Baud rate
 
-#define USESOFTSERIALGPS                         //need to include this if we are using softserial for GPS     
-//#define HARDWARESERIALPORT Serial1             //if using hardware serial enable this define for hardware serial port 
+#define USESOFTSERIALGPS                          //if your using software serial for the GPS, enable this define     
+//#define USEHARDWARESERIALGPS                    //if your using hardware serial for the GPS, enable this define
+#define HARDWARESERIALPORT Serial1                //if using hardware serial enable this define for hardware serial port 
 
-const uint16_t WaitGPSFixSeconds = 30;           //time to wait for a new GPS fix 
+const uint16_t WaitGPSFixSeconds = 30;           //time to wait for a new GPS fix
 
-const uint16_t NoRXGPSfixms = 15000;             //max number of mS to allow before no local fix flagged 
+const uint16_t NoRXGPSfixms = 15000;             //max number of mS to allow before no local fix flagged
 const uint8_t DisplayRate = 7;                   //when working OK the GPS will get a new fix every second or so
-                                                 //this rate defines how often the display should be updated
+//this rate defines how often the display should be updated
 
 
 //**************************************************************************************************
-// 6) AFSK RTTY Settings - For PC upload into Dl-Fldigi in HAB mode. 
-//    Sent at 300baud, 7 bit, no parity, 2 stop bits.
-//    Shift 500hz, low tone 800hz, high tone 1300hz. 
-//    Only supported on Arduinos that have the Tone functions.
+// 6) AFSK RTTY Settings - For PC upload into Dl-Fldigi in HAB mode.
+//    Sent at 200baud, 7 bit, no parity, 2 stop bits.
+//    Shift circa 360hz, low tone 1000hz, high tone 1400hz (measured on an Arduino Due)
+//    See screenshot 'AFSKRTTY2_DL-Fldigi_Settings.jpg' in this folder for the settings used
+//
 //**************************************************************************************************
 
-//#define UPLOADHABPACKET                          //comment in define to output HAB packet as AFSKRTTY for PC upload
+#define UPLOADHABPACKET              //comment in define to output HAB packet as AFSKRTTY for PC upload
 
-const uint16_t AFSKRTTYperiod = 3333;            //period in uS for 1 bit at chosen baud rate, e.g. 10000 for 100baud, 3333 for 300baud
-const uint16_t leadinmS = 500;                   //number of ms for AFSK constant lead in tone
-const uint16_t tonehighHz = 1300;                //high tone in Hertz 
-const uint16_t tonelowHz = 800;                  //low tone in Hertz   
+const uint16_t leadinmS = 2000;      //number of ms for AFSK constant lead in tone
+const uint16_t leadoutmS = 0;        //number of ms for AFSK constant lead out tone
 
+
+const uint16_t LOWPERIODUS = 1000;   //actual period in uS of to give a 200baud
+const uint8_t LOWCYCLES = 5;         //cycles of low frequency tone for 200baud
+const uint16_t HIGHPERIODUS = 714;   //actual high period in uS to give a 200baud
+const uint8_t HIGHCYCLES = 7;        //cycles of high frequency tone for 200baud
+const int8_t ADJUSTUS = 0;           //uS to subtract from tone generation loop to match frequency
 
 

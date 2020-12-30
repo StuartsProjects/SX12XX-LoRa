@@ -1,5 +1,5 @@
 /*******************************************************************************************************
-  Programs for Arduino - Copyright of the author Stuart Robinson - 21/03/20
+  Programs for Arduino - Copyright of the author Stuart Robinson - 28/12/20
 
   This program is supplied as is, it is up to the user of the program to decide if the program is
   suitable for the intended purpose and free from errors.
@@ -29,10 +29,10 @@
   and off. This reduces current used in sleep mode. To use the feature set the define for pin BATVREADON
   in 'Settings.h' to the pin used. If not using the feature set the pin number to -1.
 
-  Serial monitor baud rate is set at 9600.
+  Serial monitor baud rate is set at 115200.
 *******************************************************************************************************/
 
-#define Program_Version "V1.1"
+#define Program_Version "V1.2"
 #define authorname "Stuart Robinson"
 
 #include <SPI.h>
@@ -46,8 +46,15 @@ SX127XLT LT;
 #include <TinyGPS++.h>                             //get library here > http://arduiniana.org/libraries/tinygpsplus/
 TinyGPSPlus gps;                                   //create the TinyGPS++ object
 
+#ifdef USESOFTSERIALGPS
 #include <SoftwareSerial.h>
 SoftwareSerial GPSserial(RXpin, TXpin);
+#endif
+
+#ifdef USEHARDWARESERIALGPS
+#define GPSserial HARDWARESERIALPORT
+#endif
+
 
 uint8_t TXStatus = 0;                              //used to store current status flag bits of Tracker transmitter (TX)
 uint8_t TXPacketL;                                 //length of LoRa packet (TX)
@@ -83,31 +90,34 @@ void loop()
 bool gpsWaitFix(uint32_t waitSecs)
 {
   //waits a specified number of seconds for a fix, returns true for good fix
-  uint32_t endwaitmS, GPSonTime;
+  uint32_t startmS, waitmS, GPSonTime;
   bool GPSfix = false;
   float tempfloat;
   uint8_t GPSchar;
 
   GPSonTime = millis();
-  GPSserial.begin(9600);                         //start GPSserial
+  GPSserial.begin(9600);                                 //start GPSserial
 
   Serial.print(F("Wait GPS Fix "));
   Serial.print(waitSecs);
   Serial.println(F("s"));
 
-  endwaitmS = millis() + (waitSecs * 1000);
-
-  while (millis() < endwaitmS)
+  waitmS = waitSecs * 1000;                              //convert seconds wait into mS
+  startmS = millis();
+ 
+  while ((uint32_t) (millis() - startmS) < waitmS)
   {
     if (GPSserial.available() > 0)
     {
       GPSchar = GPSserial.read();
       gps.encode(GPSchar);
+      Serial.write(GPSchar);
     }
 
-    if (gps.location.isUpdated() && gps.altitude.isUpdated())
+    if (gps.location.isUpdated() && gps.altitude.isUpdated() && gps.date.isUpdated())
     {
       GPSfix = true;
+      Serial.println();
       Serial.print(F("Have GPS Fix "));
       TXGPSFixTime = millis() - GPSonTime;
       Serial.print(TXGPSFixTime);
@@ -319,10 +329,26 @@ void GPSOFF()
 }
 
 
+void GPSTest()
+{
+  uint32_t startmS;
+  startmS = millis();
+
+  while ( (uint32_t) (millis() - startmS) < 2000)       //allows for millis() overflow
+  {
+    if (GPSserial.available() > 0)
+    {
+     Serial.write(GPSserial.read());
+    }
+  }
+  Serial.println();
+  Serial.println();
+  Serial.flush();
+}
+
+
 void setup()
 {
-  uint32_t endmS;
-
   if (GPSPOWER >= 0)
   {
     pinMode(GPSPOWER, OUTPUT);
@@ -337,7 +363,7 @@ void setup()
   pinMode(LED1, OUTPUT);                                      //setup pin as output for indicator LED
   led_Flash(2, 125);                                          //two quick LED flashes to indicate program start
 
-  Serial.begin(9600);
+  Serial.begin(115200);
   Serial.println();
   Serial.print(F(__TIME__));
   Serial.print(F(" "));
@@ -381,16 +407,8 @@ void setup()
   send_Command(PowerUp);                           //send power up command, includes supply mV
 
   Serial.println(F("Startup GPS check"));
-
   GPSserial.begin(9600);
-
-  endmS = millis() + echomS;
-
-  while (millis() < endmS)
-  {
-    while (GPSserial.available() > 0)
-      Serial.write(GPSserial.read());
-  }
+  GPSTest();
   Serial.println();
   Serial.println();
 

@@ -396,7 +396,8 @@ void printMemory(uint16_t start_addr, uint16_t end_addr)
     value = readMemoryUint8(a);
     if ((a % 16) == 0)
     {
-      Serial.print(F("\n 0x"));
+      Serial.println();
+      Serial.print(F("0x"));
       if (a < 0x10)
       {
         Serial.print('0');

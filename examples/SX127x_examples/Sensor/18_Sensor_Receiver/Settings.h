@@ -42,6 +42,4 @@ const int8_t TXpower = 2;                       //LoRa TX power
 
 #define This_Node 'B'                           //this identifies this node, needs to match TXDestination on senders   
 
-//****************  Setup Display Parameters Here  ****************
 
-//const uint8_t dispfont = u8x8_font_chroma48medium8_r;  //display font from u8g2 library

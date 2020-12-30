@@ -1,72 +1,84 @@
 /*******************************************************************************************************
-  Programs for Arduino - Copyright of the author Stuart Robinson - 12/05/20
+  Programs for Arduino - Copyright of the author Stuart Robinson - 29/12/20
 
   This program is supplied as is, it is up to the user of the program to decide if the program is
-  suitable for the intended purpose and free from errors. 
+  suitable for the intended purpose and free from errors.
 *******************************************************************************************************/
 
 
 /*******************************************************************************************************
-Program Operation - This test program has been written to check that hardware for sending AFSK RTTY on 
-a LoRa receiver board has been connected correctly. AFSKRTTY can be used to upload packets received from 
-a high altitude balloon tracker as LoRa into DL-FLDIGI running on a PC and from there uploaded to Internet
-connected tracking system.
-    
-The audio output is connected to a PC sound cards microphone input. Do use a small capacitor and resistor
-is series with the output pin to limit the input to the PC sound card. A 0.1uF capacitor and 47k resistor
-are suitable. The AFSK RTTY is sent as ASCII 7 bit, 2 Stop bit, no parity, 300 baud. Tones in the example
-are 800hz for a 0 bit and 1300hz for 1 bit. A screenshot of the FLDIGI settings used in in the folder
-containing the program; 'FLDIGI Settings.jpg'
+  Program Operation - This test program has been written to check that the hardware for sending AFSK RTTY on
+  been connected correctly. AFSKRTTY can be used to upload packets received from a high altitude balloon
+  tracker as LoRa into DL-FLDIGI running on a PC and from there uploaded to an Internet connected tracking
+  system.
 
-The program uses 2 pins on the Arduino, AUDIOOUT and LED1. You need to define the pins these outputs 
-are on. Uses the tone() library which is not avaialable for all processors supported by the Arduino IDE.
+  The AFSK RTTY library has been tested and will work on an Arduion Pro Mini 8Mhz, Arduino DUE and ESP32
+  when used with this startup command;
 
-Only works on Arduinos that support the tone() function.
-  
-Serial monitor baud rate is set at 9600
+  startAFSKRTTY(AUDIOOUTpin, CHECKpin, 5, 1000, 7, 714, 0, 1000);
+
+  This outputs AFSKRTTY at 200baud, 7 databits, 1 startbit, 2 stopbits, no parity, low tone 1000hz, hightone 1400hz.
+
+  The audio comes out of the pin passed via AUDIOOUTpin and the bit timing can be checked by looking at
+  the CHECKpin on a scope or analyser.
+
+  A low pass filter consiting of a deries 47K resistor and parallel 470nF capacitor was used to reduce the output
+  for feeding into a PC soundcard.
+
+  A screenshot of the FLDIGI settings used is in the folder containing this program; 'AFSKRTTY2_DL-Fldigi_Settings.jpg'
+
+  Serial monitor baud rate is set at 9600
 *******************************************************************************************************/
 
-const int8_t AUDIOOUT = 4;                    //Pin used to output Audio tones  
-const int8_t CHECK = 8;                       //This pin is toggled inside the AFSKRTTY library, high for logic 1, low for logic 0, so it can be used to check the timing.
+#include <AFSKRTTY2.h>             //AFSK RTTY library for microcontrollers without the tone() function
 
-const uint16_t AFSKRTTYperiod = 3333;         //period in uS for 1 bit at chosen baud rate, e.g. 10000 for 100baud, 3333 for 300baud
-const uint16_t leadinmS = 500;                //number of ms for AFSK constant lead in tone
-const uint16_t tonehighHz = 1300;             //high tone in Hertz 
-const uint16_t tonelowHz = 800;               //low tone in Hertz   
-
-#include <AFSKRTTY.h>
-
-//Choose whichever test pattern taks your fancy
-//uint8_t testBuffer[] = "0123456789* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *";               //This string is sent as AFSK RTTY, 7 bit, 2 Stop bit, no parity, 300 baud.
-uint8_t testBuffer[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZ 0123456789";               
+//Choose whichever test pattern takes your fancy
+//uint8_t testBuffer[] = "0123456789* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *";
 //uint8_t testBuffer[] = "UUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUU";
-//uint8_t testBuffer[] = "$$MyFlight1,2213,14:54:37,51.48230,-3.18136,15,6,3680,23,66,3,0*2935";
+uint8_t testBuffer[] = "$$$$MyFlight1,2213,14:54:37,51.48230,-3.18136,15,6,3680,23,66,3,0*2935";
+
+
+
+const uint16_t leadinmS = 1000;      //number of ms for AFSK constant lead in tone
+const uint16_t leadoutmS = 0;        //number of ms for AFSK constant lead out tone
+
+
+const uint16_t LOWPERIODUS = 1000;   //actual period in uS of to give a 200baud
+const uint8_t LOWCYCLES = 5;         //cycles of low frequency tone for 200baud
+const uint16_t HIGHPERIODUS = 714;   //actual high period in uS to give a 200baud
+const uint8_t HIGHCYCLES = 7;        //cycles of high frequency tone for 200baud
+const int8_t ADJUSTUS = 0;           //uS to subtract from tone generation loop to match frequency
+
+const int8_t AUDIOOUT = 6;           //pin used to output Audio tones
+const int8_t CHECK = 8;              //this pin is toggled inside the AFSKRTTY library, high for logic 1, low for logic 0, so it can be used to check the timing.
 
 
 void loop()
 {
   uint8_t index;
   uint8_t chartosend;
-  uint8_t len = sizeof(testBuffer);
-  
+  uint8_t len = sizeof(testBuffer) - 1;       //must NOT send null at end of buffer
+
   Serial.print(F("Sending AFSK RTTY "));
   Serial.flush();
- 
-  startAFSKRTTY(AUDIOOUT,tonehighHz,leadinmS);
-  
+
+  startAFSKRTTY(AUDIOOUT, CHECK, LOWCYCLES, LOWPERIODUS, HIGHCYCLES, HIGHPERIODUS, ADJUSTUS, leadinmS);
+
+  sendAFSKRTTY(13);
+  sendAFSKRTTY(10);
+
   for (index = 0; index < len; index++)
   {
     chartosend = testBuffer[index];
-    sendAFSKRTTY(chartosend,AUDIOOUT,CHECK,tonelowHz,tonehighHz,AFSKRTTYperiod);
+    sendAFSKRTTY(chartosend);
     Serial.write(chartosend);
-    Serial.flush();
   }
 
-  sendAFSKRTTY(13,AUDIOOUT,CHECK,tonelowHz,tonehighHz,AFSKRTTYperiod);
-  sendAFSKRTTY(10,AUDIOOUT,CHECK,tonelowHz,tonehighHz,AFSKRTTYperiod);
-  
-  //end_AFSK_RTTY(AUDIOOUT);                                //optional, if enabled prevents noise appearing on FLDIGI decode
-  
+  sendAFSKRTTY(13);
+  sendAFSKRTTY(10);
+
+  endAFSKRTTY(AUDIOOUT, CHECK, leadoutmS);
+
   digitalWrite(CHECK, LOW);
   Serial.println();
   delay(1000);

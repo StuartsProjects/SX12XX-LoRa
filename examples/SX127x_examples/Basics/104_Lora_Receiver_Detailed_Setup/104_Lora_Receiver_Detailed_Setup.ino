@@ -2,17 +2,17 @@
   Programs for Arduino - Copyright of the author Stuart Robinson - 02/03/20
 
   This program is supplied as is, it is up to the user of the program to decide if the program is
-  suitable for the intended purpose and free from errors. 
+  suitable for the intended purpose and free from errors.
 *******************************************************************************************************/
 
 /*******************************************************************************************************
   Program Operation - This is a program that demonstrates the detailed setup of a LoRa test receiver.
-  The program listens for incoming packets using the LoRa settings in the 'Settings.h' file. The pins 
+  The program listens for incoming packets using the LoRa settings in the 'Settings.h' file. The pins
   to access the lora device need to be defined in the 'Settings.h' file also.
 
-  There is a printout on the Arduino IDE Serial Monitor of the valid packets received, the packet is 
-  assumed to be in ASCII printable text, if it's not ASCII text characters from 0x20 to 0x7F, expect 
-  weird things to happen on the Serial Monitor. The LED will flash for each packet received and the 
+  There is a printout on the Arduino IDE Serial Monitor of the valid packets received, the packet is
+  assumed to be in ASCII printable text, if it's not ASCII text characters from 0x20 to 0x7F, expect
+  weird things to happen on the Serial Monitor. The LED will flash for each packet received and the
   buzzer will sound, if fitted.
 
   Sample serial monitor output;
@@ -22,7 +22,7 @@
   If there is a packet error it might look like this, which is showing a CRC error,
 
   968s PacketError,RSSI,-87dBm,SNR,-11dB,Length,23,Packets,613,Errors,2,IRQreg,70,IRQ_HEADER_VALID,IRQ_CRC_ERROR,IRQ_RX_DONE
-  
+
   Serial monitor baud rate is set at 9600.
 *******************************************************************************************************/
 
@@ -40,8 +40,8 @@ uint32_t errors;
 uint8_t RXBUFFER[RXBUFFER_SIZE];                 //create the buffer that received packets are copied into
 
 uint8_t RXPacketL;                               //stores length of packet received
-int8_t  PacketRSSI;                              //stores RSSI of received packet
-int8_t  PacketSNR;                               //stores signal to noise ratio (SNR) of received packet
+int16_t PacketRSSI;                               //stores RSSI of received packet
+int8_t PacketSNR;                                //stores signal to noise ratio (SNR) of received packet
 
 
 void loop()
@@ -72,6 +72,7 @@ void loop()
     digitalWrite(BUZZER, LOW);                   //buzzer off
   }
 
+  delay(10);                                     //so we can see LED flash more easily on fast processors
   digitalWrite(LED1, LOW);                       //LED off
 
   Serial.println();
@@ -138,8 +139,8 @@ void packet_is_Error()
     LT.printIrqStatus();                            //print the names of the IRQ registers set
   }
 
-  delay(250);                                       //gives a longer buzzer and LED flash for error 
-  
+  delay(250);                                       //gives a longer buzzer and LED flash for error
+
 }
 
 

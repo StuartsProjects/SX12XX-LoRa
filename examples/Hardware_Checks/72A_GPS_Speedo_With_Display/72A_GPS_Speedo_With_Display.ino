@@ -11,6 +11,9 @@
   rate approx once per second. GPS characters are output to serial monitor when checking for update from
   GPS. Prints speed in large text on an SSD1306 or SH1106 OLED.
 
+  Display and serial monitor updatesto speed only occur when the a new update has been decoded from the
+  GPS.
+
   Serial monitor baud rate is set at 115200.
 *******************************************************************************************************/
 
@@ -37,7 +40,7 @@ uint32_t endFixmS;
 
 void loop()
 {
-  if (gpsWaitFix(5))
+  if (gpsWaitFix(3))
   {
     Serial.println();
     Serial.println();
@@ -56,6 +59,7 @@ void loop()
   }
   else
   {
+    displayscreen2();
     Serial.println();
     Serial.println();
     Serial.print(F("Timeout - No GPS Fix "));
@@ -69,16 +73,17 @@ bool gpsWaitFix(uint16_t waitSecs)
 {
   //waits a specified number of seconds for a fix, returns true for good fix
 
-  uint32_t endwaitmS;
+  uint32_t startmS, waitmS;
   uint8_t GPSchar;
 
   Serial.print(F("Wait GPS Fix "));
   Serial.print(waitSecs);
   Serial.println(F(" seconds"));
 
-  endwaitmS = millis() + (waitSecs * 1000);
+  waitmS = waitSecs * 1000;                              //convert seconds wait into mS
+  startmS = millis();
 
-  while (millis() < endwaitmS)
+  while ((uint32_t) (millis() - startmS) < waitmS)
   {
     if (GPSserial.available() > 0)
     {
@@ -100,22 +105,21 @@ bool gpsWaitFix(uint16_t waitSecs)
 
 void displayscreen1()
 {
+  disp.setFont(u8g2_font_logisoso62_tn);
   disp.firstPage();
   do {
-    disp.setCursor(25, 15);
-    disp.print(F("Speedo"));
-    disp.setCursor(10, 45);
-    disp.print(GPSSpeed, 1);
-    disp.print(F(" mph"));
+    disp.setCursor(0, 63);
+    disp.print(GPSSpeed, 0);
   } while ( disp.nextPage() );
 }
 
 
 void displayscreen2()
 {
+  disp.setFont(u8g2_font_lubB14_tr);
   disp.firstPage();
   do {
-    disp.setCursor(25, 15);
+    disp.setCursor(35, 15);
     disp.print(F("Speedo"));
     disp.setCursor(15, 45);
     disp.print(F("No GPS fix"));
@@ -130,7 +134,6 @@ void setup()
   GPSserial.begin(9600);
 
   disp.begin();
-  disp.setFont(u8g2_font_lubB14_tr);                         //use a large character font
   disp.clear();
   displayscreen2();
   disp.print(F("Display Ready"));

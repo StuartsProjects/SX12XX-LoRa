@@ -68,9 +68,9 @@
   Serial monitor baud rate is set at 9600.
 *******************************************************************************************************/
 
-const uint8_t REG_FRMSB = 0x06;                 //register number for setting setting and reading frequency, high byte
-const uint8_t REG_FRMID = 0x07;                 //register number for setting setting and reading frequency, mid byte
-const uint8_t REG_FRLSB = 0x08;                 //register number for setting setting and reading frequency, low byte
+const uint8_t REG_FRMSB = 0x06;                 //register number for setting and reading frequency, high byte
+const uint8_t REG_FRMID = 0x07;                 //register number for setting and reading frequency, mid byte
+const uint8_t REG_FRLSB = 0x08;                 //register number for setting and reading frequency, low byte
 const uint8_t REG_VERSION = 0x42;               //register containg version number of device
 
 

@@ -46,14 +46,13 @@ const int8_t TXpower = 10;                      //LoRa transmit power in dBm
 // GPS Settings
 //**************************************************************************************************
 
-#define USE_SOFTSERIAL_GPS                       //need to include this if we are using softserial for GPS     
-//#define HardwareSerialPort Serial1             //if using hardware serial enable this define for hardware serial port 
+#define USESOFTSERIALGPS                         //if your using software serial for the GPS, enable this define     
+//#define USEHARDWARESERIALGPS                   //if your using hardware serial for the GPS, enable this define
+//#define HARDWARESERIALPORT Serial2             //if your using hardware serial for the GPS, define the port here  
 
 #define GPSBaud 9600                             //GPS Baud rate   
-#define WaitGPSFixSeconds 30                     //time to wait for a new GPS fix 
-#define echomS 2000                              //number of mS to run GPS echo for at startup    
 
-#define NoRXGPSfixms 15000                       //max number of mS to allow before no local fix flagged 
+#define NoRXGPSfixms 15000                       //max number of mS to allow before no local GPS fix flagged 
 #define DisplayRate 7                            //when working OK the GPS will get a new fix every second or so
                                                  //this rate defines how often the display should be updated
 

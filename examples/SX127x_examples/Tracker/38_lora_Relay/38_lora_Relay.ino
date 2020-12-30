@@ -16,7 +16,7 @@
   
   For an example of the use of such a program see this report;
 
-  How to Search 500 Square Kilometres in 10 minutes.pdf in the libraries 'Test_Reports' folder. 
+  https://stuartsprojects.github.io/2016/08/15/how-to-search-500-square-kilometres-in-10-minutes.html 
 
   Serial monitor baud rate is set at 9600.
 
@@ -160,14 +160,14 @@ void setup()
   }
 
   LT.setupLoRa(Frequency, Offset, SpreadingFactor, Bandwidth, CodeRate, Optimisation);
-  Serial.print("ListenSettings,");
+  Serial.print(F("ListenSettings,"));
   LT.printModemSettings();
   Serial.println();
   LT.setupLoRa(RelayFrequency, RelayOffset, RelaySpreadingFactor, RelayBandwidth, RelayCodeRate, RelayOptimisation);
-  Serial.print("RelaySettings,");
+  Serial.print(F("RelaySettings,"));
   LT.printModemSettings();
   Serial.println();
-  Serial.println("Relay Ready");
+  Serial.println(F("Relay Ready"));
 }
 
 

@@ -1,5 +1,5 @@
                              /*******************************************************************************************************
-  Programs for Arduino - Copyright of the author Stuart Robinson - 28/05/20
+  Programs for Arduino - Copyright of the author Stuart Robinson - 29/12/20
 
   This program is supplied as is, it is up to the user of the program to decide if the program is
   suitable for the intended purpose and free from errors.
@@ -18,7 +18,7 @@
 #define LED1 8                                  //On board LED, high for on
 #define BATVREADON 8                            //Pin that turns on the resistor divider to read battery volts
 #define ONE_WIRE_BUS 4                          //for DS18B20 temperature sensor 
-#define ADMultiplier 11.75                      //adjustment to convert into mV of battery voltage. for 100K\10K divider 
+#define ADMultiplier 5.25                       //adjustment to convert into mV of battery voltage. for 100K\10K divider 
 #define SupplyAD A0                             //Resistor divider for battery connected here 
 
 #define RXpin A3                                //pin number for GPS RX input into Arduino - TX from GPS
@@ -62,7 +62,7 @@ const int8_t SearchTXpower = 10;                 //LoRa TX power in dBm
 const uint16_t deviation = 10000;                //deviation in hz for FM tones
 const float adjustfreq = 0.9;                    //adjustment to tone frequency 
 
-const byte TXBUFFER_SIZE = 128;                   //defines the maximum size of the trasnmit buffer;
+const uint8_t TXBUFFER_SIZE = 128;               //defines the maximum size of the trasnmit buffer;
 
 
 //**************************************************************************************************
@@ -71,15 +71,18 @@ const byte TXBUFFER_SIZE = 128;                   //defines the maximum size of 
 
 #define GPSBaud 9600                              //GPS Baud rate
 
-#define USESOFTSERIALGPS                          //need to include this if using softserial for GPS, otherwise hardware serial assumed      
+//#define USEI2CGPS                                 //enable this define if your using a Ublox over the I2C interface 
+//#define GPS_Library <UBLOXI2CGPS.h>               //and define this library file for the UBLOX GPS over I2C
 
-//#define HARDWARESERIALPORT Serial1              //if your using hardware serial for the GPS, define it here  
+#define USESOFTSERIALGPS                          //if your using software serial for the GPS, enable this define      
 
-const uint16_t WaitGPSFixSeconds = 60;            //when in flight the time to wait for a new GPS fix 
+//#define USEHARDWARESERIALGPS                    //if your using hardware serial for the GPS, enable this define
+#define HARDWARESERIALPORT Serial1                //if your using hardware serial for the GPS, define the port here  
 
-#define GPS_Library <UBLOXSerialGPS.h>            //use library file for UBLOX GPS                    
-//#define GPS_Library <QuectelSerialGPS.h>        //use library file for Quectel GPS
+//#define GPS_Library <UBLOXSerialGPS.h>          //use library file for UBLOX GPS                    
+#define GPS_Library <QuectelSerialGPS.h>          //use library file for Quectel GPS
 
+const uint16_t WaitGPSFixSeconds = 60;            //when in flight the time to wait for a new GPS fix
 
 //**************************************************************************************************
 // 5) FSK RTTY Settings
@@ -108,8 +111,8 @@ const char option_FSKRTTYEnable = OptionOn;      //set to OptionOn to enable tra
 #define option_SearchEnable_SUM (option_SearchEnable*1)
 #define option_FSKRTTYEnable_SUM (option_FSKRTTYEnable*4)
 
-const unsigned int Default_config1 = (option_SearchEnable_SUM + option_FSKRTTYEnable_SUM);
-//const unsigned int Default_config1 = 0x05;      //Phew, the default config can always be set manually........
+const uint16_t Default_config1 = (option_SearchEnable_SUM + option_FSKRTTYEnable_SUM);
+//const uint16_t Default_config1 = 0x05;      //Phew, the default config can always be set manually........
                                                   //0x05 would turn on transmit of search mode and FSKRTTY 
 
                                                    
@@ -133,7 +136,7 @@ int16_t Memory_Address = 0x50;                     //default I2C address of MB85
 
 char FlightID[] = "Flight1";                       //flight ID for HAB packet
 
-const unsigned int SleepTimesecs = 13;             //sleep time in seconds after each TX loop
+const uint16_t SleepTimesecs = 13;             //sleep time in seconds after each TX loop
 
 const char ThisNode = '1';                         //tracker number for search packet
 

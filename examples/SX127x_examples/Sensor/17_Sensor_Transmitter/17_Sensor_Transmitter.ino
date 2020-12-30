@@ -31,7 +31,7 @@
   Each sending sensor needs its own address and needs to know the address of the receiver its sending to.
   This information is in the Settings.h file, see this section;
 
-  //*******  Setup node addressing here ! ***************
+  *******  Setup node addressing here ! ***************
   const uint8_t TXPacketType = Sensor1;           //the packet type sent
   const uint8_t TXDestination = 'B'               //the destination address of the receiver. 
   const uint8_t TXSource = 1;                     //the source address, the address of this node.
@@ -54,7 +54,9 @@
   module and the average sleep current only rises to 7.9uA.
 
   One of these transmitter programs is running on a long term test with a 150mAh battery, to see how long
-  the battery actually lasts.
+  the battery actually lasts, details at the link below;
+
+  https://stuartsprojects.github.io/2020/02/20/just-how-long-can-a-sensor-battery-last.html
 
   Serial monitor baud rate is set at 9600.
 *******************************************************************************************************/
@@ -254,7 +256,7 @@ uint16_t readBatteryVoltage()
     digitalWrite(BATVREADON, HIGH);               //turn on MOSFET connecting resitor divider in circuit
   }
 
-  analogReference(INTERNAL1V1);
+  analogReference(INTERNAL);
   temp = analogRead(BATTERYAD);
 
   for (index = 0; index <= 4; index++)          //sample AD 5 times

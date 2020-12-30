@@ -2,12 +2,12 @@
   Programs for Arduino - Copyright of the author Stuart Robinson - 02/03/20
 
   This program is supplied as is, it is up to the user of the program to decide if the program is
-  suitable for the intended purpose and free from errors. 
+  suitable for the intended purpose and free from errors.
 *******************************************************************************************************/
 
 
 /*******************************************************************************************************
-  Program Operation - This is a program that demonstrates the detailed setup of a LoRa test transmitter. 
+  Program Operation - This is a program that demonstrates the detailed setup of a LoRa test transmitter.
   A packet containing ASCII text is sent according to the frequency and LoRa settings specified in the
   'Settings.h' file. The pins to access the lora device need to be defined in the 'Settings.h' file also.
 
@@ -24,9 +24,9 @@
 
 #define Program_Version "V1.1"
 
-#include <SPI.h>                                               //the lora device is SPI based so load the SPI library                                         
+#include <SPI.h>                                               //the lora device is SPI based so load the SPI library
 #include <SX127XLT.h>                                          //include the appropriate library  
-#include "Settings.h"                                          //include the setiings file, frequencies, LoRa settings etc   
+#include "Settings.h"                                          //include the setiings file, frequencies, LoRa settings etc
 
 SX127XLT LT;                                                   //create a library class instance called LT
 
@@ -147,7 +147,7 @@ void setup()
     }
   }
 
- //The function call list below shows the complete setup for the LoRa device using the information defined in the
+  //The function call list below shows the complete setup for the LoRa device using the information defined in the
   //Settings.h file.
   //The 'Setup LoRa device' list below can be replaced with a single function call;
   //LT.setupLoRa(Frequency, Offset, SpreadingFactor, Bandwidth, CodeRate, Optimisation);

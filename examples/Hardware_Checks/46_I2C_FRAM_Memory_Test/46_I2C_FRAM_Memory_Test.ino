@@ -130,7 +130,7 @@ void readMemory()
 
   var8 = readMemoryFloat(15);
   Serial.print(F("Read float     "));
-  Serial.println(var8, 6);
+  Serial.println(var8, 7);
 }
 
 

@@ -1,7 +1,8 @@
-/*
+﻿/*
   Copyright 2019 - Stuart Robinson
   Licensed under a MIT license displayed at the bottom of this document.
   Original published 17/12/19
+  New version 23/12/20
 */
 
 /*
@@ -20,7 +21,10 @@
 //#define SX127XDEBUG3               //enable level 3 debug messages
 //#define DEBUGPHANTOM               //used to set bebuging for Phantom packets
 //#define SX127XDEBUGPINS            //enable pin allocation debug messages
-//#define DEBUGFSKRTTY                 //enable for FSKRTTY debugging 
+//#define DEBUGFSKRTTY               //enable for FSKRTTY debugging
+//#define SX127XDEBUGRELIABLE
+//#define PACONFIGDEBUG
+//#define APPLYERRATANOTE_2_3        //if enabled the changes suggested in SX1276_77_8_ErrataNote_1_1 are applied
 
 
 SX127XLT::SX127XLT()
@@ -31,16 +35,15 @@ SX127XLT::SX127XLT()
 /* Formats for :begin
   1 original   > begin(int8_t pinNSS, int8_t pinNRESET, int8_t pinDIO0, int8_t pinDIO1, int8_t pinDIO2, uint8_t device);
   2 Simplified > begin(int8_t pinNSS, int8_t pinNRESET, int8_t pinDIO0, uint8_t device);
-  3 No NRESET or DIO0 
+  3 Bare minimum, no NRESET or DIO0 pins > begin(int8_t pinNSS, uint8_t device); 
 */
-
 
 
 bool SX127XLT::begin(int8_t pinNSS, int8_t pinNRESET, int8_t pinDIO0, int8_t pinDIO1, int8_t pinDIO2, uint8_t device)
 {
-//format 1 pins, assign the all available pins 
+  //format 1 pins, assign the all available pins
 #ifdef SX127XDEBUG1
-  Serial.println(F("1 begin()"));
+  Serial.println(F("1 begin() "));
 #endif
 
   //assign the passed pins to the class private variabled
@@ -52,12 +55,12 @@ bool SX127XLT::begin(int8_t pinNSS, int8_t pinNRESET, int8_t pinDIO0, int8_t pin
   _Device = device;            //device type needs to be assigned before reset
   _TXDonePin = pinDIO0;        //this is defalt pin for sensing TX done
   _RXDonePin = pinDIO0;        //this is defalt pin for sensing RX done
-
+    
   pinMode(_NSS, OUTPUT);
   digitalWrite(_NSS, HIGH);
   pinMode(_NRESET, OUTPUT);
   digitalWrite(_NRESET, LOW);
-  
+
   if (_DIO0 >= 0)
   {
     pinMode( _DIO0, INPUT);
@@ -74,15 +77,16 @@ bool SX127XLT::begin(int8_t pinNSS, int8_t pinNRESET, int8_t pinDIO0, int8_t pin
   }
 
   resetDevice();
-     
-  #ifdef SX128XDEBUGPINS
-  Serial.println(F("format 1 begin()"));
-  Serial.println(F("SX128XLT constructor instantiated successfully"));
+
+#ifdef SX127XDEBUGPINS
+  Serial.println(F("1 begin()"));
+  Serial.println(F("SX127XLT constructor instantiated successfully"));
   Serial.print(F("NSS "));
   Serial.println(_NSS);
   Serial.print(F("NRESET "));
+  Serial.println(_NRESET);
   Serial.print(F("DIO0 "));
-  Serial.println(_DIO0;
+  Serial.println(_DIO0);
   Serial.print(F("DIO1 "));
   Serial.println(_DIO1);
   Serial.print(F("DIO2 "));
@@ -90,20 +94,20 @@ bool SX127XLT::begin(int8_t pinNSS, int8_t pinNRESET, int8_t pinDIO0, int8_t pin
 #endif
 
   if (checkDevice())
-  {
-    return true;
-  }
+{
+  return true;
+}
 
-  return false;
+return false;
 }
 
 
 
 bool SX127XLT::begin(int8_t pinNSS, int8_t pinNRESET, int8_t pinDIO0, uint8_t device)
 {
-//format 2 pins, simplified 
+  //format 2 pins, simplified
 #ifdef SX127XDEBUG1
-  Serial.println(F("2 begin()"));
+  Serial.println(F("2 begin() "));
 #endif
 
   //assign the passed pins to the class private variabled
@@ -111,7 +115,7 @@ bool SX127XLT::begin(int8_t pinNSS, int8_t pinNRESET, int8_t pinDIO0, uint8_t de
   _NRESET = pinNRESET;
   _DIO0 = pinDIO0;
   _DIO1 = -1;                  //pin not used
-  _DIO2 = -1;                  //pin not used 
+  _DIO2 = -1;                  //pin not used
   _Device = device;            //device type needs to be assigned before reset
   _TXDonePin = pinDIO0;        //this is defalt pin for sensing TX done
   _RXDonePin = pinDIO0;        //this is defalt pin for sensing RX done
@@ -119,31 +123,33 @@ bool SX127XLT::begin(int8_t pinNSS, int8_t pinNRESET, int8_t pinDIO0, uint8_t de
   pinMode(_NSS, OUTPUT);
   digitalWrite(_NSS, HIGH);
   pinMode(_NRESET, OUTPUT);
-  digitalWrite(_NRESET, LOW);
- 
+  digitalWrite(_NRESET, HIGH);
+
   if (_DIO0 >= 0)
   {
     pinMode( _DIO0, INPUT);
   }
 
   resetDevice();
-  
-  #ifdef SX128XDEBUGPINS
-  Serial.println(F("format 2 begin()"));
-  Serial.println(F("SX128XLT constructor instantiated successfully"));
+
+
+#ifdef SX127XDEBUGPINS
+  Serial.println(F("format 2 begin() "));
+  Serial.println(F("SX127XLT constructor instantiated successfully"));
   Serial.print(F("NSS "));
   Serial.println(_NSS);
   Serial.print(F("NRESET "));
+  Serial.println(_NRESET);
   Serial.print(F("DIO0 "));
-  Serial.println(_DIO0;
-  #endif
+  Serial.println(_DIO0);
+#endif
 
   if (checkDevice())
-  {
-    return true;
-  }
+{
+  return true;
+}
 
-  return false;
+return false;
 }
 
 
@@ -151,17 +157,12 @@ bool SX127XLT::begin(int8_t pinNSS, uint8_t device)
 {
   //format 3 pins, assign the all available pins
 #ifdef SX127XDEBUG1
-  Serial.println(F("3 begin()"));
+  Serial.println(F("3 begin() "));
 #endif
 
   //assign the passed pins to the class private variabled
   _NSS = pinNSS;
   _Device = device;            //device type needs to be assigned before reset
-  
-  _NRESET = -1;                //pin not used
-  _DIO0 = -1;                  //pin not used
-  _DIO1 = -1;                  //pin not used
-  _DIO2 = -1;                  //pin not used 
   
   pinMode(_NSS, OUTPUT);
   digitalWrite(_NSS, HIGH);
@@ -179,15 +180,14 @@ bool SX127XLT::begin(int8_t pinNSS, uint8_t device)
   return true;
 }
 
-  return false;
+return false;
 }
-
 
 
 void SX127XLT::resetDevice()
 {
 #ifdef SX127XDEBUG1
-  Serial.println(F("resetDevice()"));
+  Serial.println(F("resetDevice() "));
 #endif
 
   if (_Device == DEVICE_SX1272)
@@ -210,7 +210,7 @@ void SX127XLT::resetDevice()
 void SX127XLT::setMode(uint8_t modeconfig)
 {
 #ifdef SX127XDEBUG1
-  Serial.println(F("setMode()"));
+  Serial.println(F("setMode() "));
 #endif
 
   uint8_t regdata;
@@ -222,10 +222,10 @@ void SX127XLT::setMode(uint8_t modeconfig)
 
 void SX127XLT::setSleep(uint8_t sleepconfig)
 {
-  //settings passed via sleepconfig are ignored, feature retained for compatibility with SX1280,SX126x
+  //settings passed via sleepconfig are ignored, feature retained for compatibility with SX128x,SX126x
 
 #ifdef SX127XDEBUG1
-  Serial.println(F("setSleep()"));
+  Serial.println(F("setSleep() "));
 #endif
 
   LTUNUSED(sleepconfig);
@@ -234,7 +234,7 @@ void SX127XLT::setSleep(uint8_t sleepconfig)
 
   regdata = readRegister(REG_OPMODE);
   writeRegister(REG_OPMODE, (regdata & 0xF8));       //clear bits 0,1,2 to set sleepmode
-  delay(1);                                         //allow time for shutdown
+  delay(1);                                          //allow time for shutdown
 }
 
 
@@ -243,7 +243,7 @@ bool SX127XLT::checkDevice()
   //check there is a device out there, writes a register and reads back
 
 #ifdef SX127XDEBUG1
-  Serial.println(F("checkDevice()"));
+  Serial.println(F("checkDevice() "));
 #endif
 
   uint8_t Regdata1, Regdata2;
@@ -266,7 +266,7 @@ bool SX127XLT::checkDevice()
 void SX127XLT::wake()
 {
 #ifdef SX127XDEBUG1
-  Serial.println(F("wake()"));
+  Serial.println(F("wake() "));
 #endif
   uint8_t regdata;
 
@@ -278,28 +278,53 @@ void SX127XLT::wake()
 void SX127XLT::calibrateImage(uint8_t null)
 {
 #ifdef SX127XDEBUG1
-  Serial.println(F("calibrateImage()"));
+  Serial.println(F("calibrateImage() "));
 #endif
 
   LTUNUSED(null);
 
   uint8_t regdata, savedmode;
   savedmode = readRegister(REG_OPMODE);
-  writeRegister(REG_OPMODE, MODE_SLEEP);
-  writeRegister(REG_OPMODE, MODE_STDBY);
+  writeRegister(REG_OPMODE, 0x00);              //sleep
+  writeRegister(REG_OPMODE, 0x00);              //sleep
+  writeRegister(REG_OPMODE, 0x01);              //standby FSK mode 
   regdata = (readRegister(REG_IMAGECAL) | 0x40);
-  writeRegister(REG_IMAGECAL, regdata);
-  writeRegister(REG_OPMODE, MODE_SLEEP);
+  writeRegister(REG_IMAGECAL, regdata);         //start calibration  
+  delay(15);                                    //calibration time 10mS
+  writeRegister(REG_OPMODE, 0x00);              //sleep
+  writeRegister(REG_OPMODE, savedmode & 0xFE); 
   writeRegister(REG_OPMODE, savedmode);
-  delay(10);                              //calibration time 10mS
 }
 
 
+void SX127XLT::printRegister(uint8_t reg)
+{
+uint8_t regdata;
 
-uint16_t SX127XLT::CRCCCITT(uint8_t *buffer, uint8_t size, uint16_t startvalue)
+  Serial.print(F("Register 0x"));
+
+  if (reg < 0x10)
+  {
+  Serial.print(F("0"));
+  }
+  
+  Serial.print(reg,HEX);
+  regdata = readRegister(reg);
+  Serial.print(F(" 0x"));
+
+  if (regdata < 0x10)
+  {
+  Serial.print(F("0"));
+  }
+
+  Serial.print(regdata,HEX);
+}
+
+
+uint16_t SX127XLT::CRCCCITT(uint8_t *buffer, uint16_t size, uint16_t startvalue)
 {
 #ifdef SX127XDEBUG1
-  Serial.println(F("CRCCCITT()"));
+  Serial.println(F("CRCCCITT() "));
 #endif
 
   uint16_t index, libraryCRC;
@@ -328,7 +353,7 @@ uint16_t SX127XLT::CRCCCITTSX(uint8_t startadd, uint8_t endadd, uint16_t startva
   //genrates a CRC of an area of the internal SX buffer
 
 #ifdef SX127XDEBUG1
-  Serial.println(F("CRCCCITTSX()"));
+  Serial.println(F("CRCCCITTSX() "));
 #endif
 
 
@@ -337,7 +362,7 @@ uint16_t SX127XLT::CRCCCITTSX(uint8_t startadd, uint8_t endadd, uint16_t startva
 
   libraryCRC = startvalue;                                  //start value for CRC16
 
-  startReadSXBuffer(startadd);                       //begin the buffer read
+  startReadSXBuffer(startadd);                              //begin the buffer read
 
   for (index = startadd; index <= endadd; index++)
   {
@@ -351,7 +376,7 @@ uint16_t SX127XLT::CRCCCITTSX(uint8_t startadd, uint8_t endadd, uint16_t startva
     }
   }
 
-  endReadSXBuffer();                                 //end the buffer read
+  endReadSXBuffer();                                         //end the buffer read
 
   return libraryCRC;
 }
@@ -360,7 +385,7 @@ uint16_t SX127XLT::CRCCCITTSX(uint8_t startadd, uint8_t endadd, uint16_t startva
 void SX127XLT::setDevice(uint8_t type)
 {
 #ifdef SX127XDEBUG1
-  Serial.println(F("setDevice()"));
+  Serial.println(F("setDevice() "));
 #endif
 
   _Device = type;
@@ -370,34 +395,49 @@ void SX127XLT::setDevice(uint8_t type)
 void SX127XLT::printDevice()
 {
 #ifdef SX127XDEBUG1
-  Serial.println(F("printDevice()"));
+  Serial.println(F("printDevice() "));
 #endif
 
   switch (_Device)
   {
-    case DEVICE_SX1272:
-      Serial.print(F("SX1272"));
+    case DEVICE_SX1272_PABOOST:
+      Serial.print(F("SX1272_PABOOST"));
       break;
 
-    case DEVICE_SX1276:
-      Serial.print(F("SX1276"));
+    case DEVICE_SX1276_PABOOST:
+      Serial.print(F("SX1276_PABOOST"));
       break;
 
-    case DEVICE_SX1277:
-      Serial.print(F("SX1277"));
+    case DEVICE_SX1277_PABOOST:
+      Serial.print(F("SX1277_PABOOST"));
       break;
 
-    case DEVICE_SX1278:
-      Serial.print(F("SX1278"));
+    case DEVICE_SX1278_PABOOST:
+      Serial.print(F("SX1278_PABOOST"));
       break;
 
-    case DEVICE_SX1279:
-      Serial.print(F("SX1279"));
+    case DEVICE_SX1279_PABOOST:
+      Serial.print(F("SX1279_PABOOST"));
+      break;
+
+    case DEVICE_SX1276_RFO:
+      Serial.print(F("SX1276_RFO"));
+      break;
+
+    case DEVICE_SX1277_RFO:
+      Serial.print(F("SX1277_RFO"));
+      break;
+
+    case DEVICE_SX1278_RFO:
+      Serial.print(F("SX1278_RFO"));
+      break;
+
+    case DEVICE_SX1279_RFO:
+      Serial.print(F("SX1279_RFO"));
       break;
 
     default:
       Serial.print(F("Unknown Device"));
-
   }
 }
 
@@ -405,7 +445,7 @@ void SX127XLT::printDevice()
 uint8_t SX127XLT::getOperatingMode()
 {
 #ifdef SX127XDEBUG1
-  Serial.println(F("getOperatingMode()"));
+  Serial.println(F("getOperatingMode() "));
 #endif
 
   return readRegister(REG_OPMODE);
@@ -425,7 +465,7 @@ bool SX127XLT::isReceiveDone()
 bool SX127XLT::isTransmitDone()
 {
 #ifdef SX127XDEBUG1
-  Serial.println(F("isTransmitDone()"));
+  Serial.println(F("isTransmitDone() "));
 #endif
 
   return digitalRead(_TXDonePin);
@@ -435,7 +475,7 @@ bool SX127XLT::isTransmitDone()
 void SX127XLT::writeRegister(uint8_t address, uint8_t value)
 {
 #ifdef SX127XDEBUG1
-  Serial.println(F("writeRegister()"));
+  Serial.println(F("writeRegister() "));
 #endif
 
 #ifdef USE_SPI_TRANSACTION                  //to use SPI_TRANSACTION enable define at beginning of CPP file 
@@ -465,7 +505,7 @@ void SX127XLT::writeRegister(uint8_t address, uint8_t value)
 uint8_t SX127XLT::readRegister(uint8_t address)
 {
 #ifdef SX127XDEBUG1
-  Serial.println(F("readRegister()"));
+  Serial.println(F("readRegister() "));
 #endif
 
   uint8_t regdata;
@@ -501,7 +541,7 @@ void SX127XLT::printRegisters(uint16_t Start, uint16_t End)
   //prints the contents of SX127x registers to serial monitor
 
 #ifdef SX127XDEBUG
-  Serial.println(F("printRegisters()"));
+  Serial.println(F("printRegisters() "));
 #endif
 
   uint16_t Loopv1, Loopv2, RegData;
@@ -537,7 +577,7 @@ void SX127XLT::printRegisters(uint16_t Start, uint16_t End)
 void SX127XLT::printOperatingMode()
 {
 #ifdef SX127XDEBUG1
-  Serial.println(F("printOperatingMode()"));
+  Serial.println(F("printOperatingMode() "));
 #endif
 
   uint8_t regdata;
@@ -588,7 +628,7 @@ void SX127XLT::printOperatingMode()
 void SX127XLT::printOperatingSettings()
 {
 #ifdef SX127XDEBUG1
-  Serial.println(F("printOperatingSettings()"));
+  Serial.println(F("printOperatingSettings() "));
 #endif
 
   printDevice();
@@ -643,6 +683,8 @@ void SX127XLT::printOperatingSettings()
   Serial.print(F(",LNAgain_"));
   Serial.print(getLNAgain());
 
+  if (!bitRead(_Device,4))                //if bit 4 of _Device is 0 then either RFO LF_ANT or HF_ANT pin used for RF output
+  {
   Serial.print(F(",LNAboostHF_"));
   if (getLNAboostHF())
   {
@@ -656,106 +698,200 @@ void SX127XLT::printOperatingSettings()
   Serial.print(F(",LNAboostLF_"));
   if (getLNAboostLF())
   {
-    Serial.print(F("On"));
+    Serial.print(F("Reserved"));
   }
   else
   {
-    Serial.print(F("Off"));
+    Serial.print(F("Default"));
   }
-
+  }
 }
 
 
 void SX127XLT::setTxParams(int8_t txPower, uint8_t rampTime)
 {
 #ifdef SX127XDEBUG1
-  Serial.println(F("setTxParams()"));
+  Serial.println(F("setTxParams() "));
 #endif
-
-  uint8_t param1, param2;
-
-  writeRegister(REG_PARAMP, rampTime);       //Reg 0x0A this is same for SX1272 and SX1278
-
-  if (txPower > 20)
+  uint8_t MaxPower, OutputPower, OcpTrim, boostval;
+  
+  if (_Device & 0x10)
   {
-    txPower = 20;
+  //start setTxParams() for PABOOST 
+  
+  #ifdef  PACONFIGDEBUG
+  Serial.print(F(" PABOOST Device "));
+  #endif
+
+  boostval = PABOOSTON;
+  MaxPower = MAXPOWER17dBm;
+
+  if (txPower > 20)                      //upper power limit for 
+  {
+   txPower = 20;
   }
 
   if (txPower < 2)
   {
-    txPower = 2;
+   txPower = 2;
   }
 
   if (txPower > 17)
   {
-    writeRegister(REG_PADAC, 0x87);          //Reg 0x4D this is same for SX1272 and SX1278
+   writeRegister(REG_PADAC, 0x87);      //Reg 0x4D this is same for SX1272 and SX1278
+   OutputPower = txPower - 5;           //power range is 15dBm, max is now 20dBm min is 5dBm 
   }
   else
   {
-    writeRegister(REG_PADAC, 0x84);          //Reg 0x4D this is same for SX1272 and SX1278
+  writeRegister(REG_PADAC, 0x84);       //Reg 0x4D this is same for SX1272 and SX1278
+  OutputPower = txPower - 2;            //power range is 15dBm, max is 17dBm min is 2dBm
+  }  
+
+  if (_Device == DEVICE_SX1272_PABOOST) //power calculation for SX1272 is the same for < 17dbm and > 17dBm
+  {
+  OutputPower = txPower - 2;
   }
 
-  //now the device specific settings
-
-  if (_Device != DEVICE_SX1272)
-  {
-    //for all devices apart from SX1272
-
-    if (txPower > 17)
-    {
-      param1 = (txPower + 0xEB);
-      param2 = OCP_TRIM_130MA;
-    }
-
-    if (txPower <= 17)
-    {
-      param1 = txPower + 0xEE;
-      param2 = OCP_TRIM_100MA;
-    }
-
-    if (txPower <= 5)
-    {
-      param1 = txPower + 0xEE;
-      param2 = OCP_TRIM_80MA;
-    }
-
+  //end setTxParams() for PABOOST
   }
   else
   {
-    //for device SX1272
-
-    if (txPower > 17)
-    {
-      param1 = (txPower + 0x7F);
-      param2 = OCP_TRIM_130MA;
-    }
-
-    if (txPower <= 17)
-    {
-      param1 = txPower + 0x82;
-      param2 = OCP_TRIM_100MA;
-    }
-
-    if (txPower <= 5)
-    {
-      param1 = txPower + 0x82;
-      param2 = OCP_TRIM_80MA;
-    }
-
+  //start setTxParams() for RFO
+  
+  #ifdef  PACONFIGDEBUG
+  Serial.print(F(" RFO Device "));
+  #endif
+  
+  boostval = PABOOSTOFF;
+  MaxPower = MAXPOWER14dBm;
+  
+  if (txPower > 14)                          //14dBm is upper power limit for RFO
+  {
+   txPower = 14;
   }
 
-  writeRegister(REG_PACONFIG, param1);       //Reg 0x09 this changes for SX1272 and SX1278
-  writeRegister(REG_OCP, param2);            //Reg 0x0C this is same for SX1272 and SX1278
+  if (txPower < 0)
+  {
+   txPower = 0;
+  }
+  
+  OutputPower = txPower + 1;                 //power range is 15dBm, max is 14dBm min is 0dBm 
+  writeRegister(REG_PADAC, 0x84);            //must turn off high power setting for RFO mode
+  
+  //end setTxParams() for RFO 
+  }
+  
+  //common routines for PABOOST and RFO
+  OcpTrim = OCP_TRIM_110MA;                  //value for OcpTrim 11dBm to 16dBm 
+  
+  if (txPower >= 17)
+  {
+   OcpTrim = OCP_TRIM_150MA;
+  }
+
+  if (txPower <= 10)
+  {
+    OcpTrim = OCP_TRIM_80MA;
+  }
+  
+  writeRegister(REG_PARAMP, rampTime);   
+  writeRegister(REG_OCP, (OcpTrim+0x20));
+  writeRegister(REG_PACONFIG, (boostval  + MaxPower + OutputPower));    //MaxPower does not care for SX1272
+
+#ifdef  PACONFIGDEBUG
+  Serial.print(F("txPower,"));
+  Serial.print(txPower);
+  Serial.print(F(",REG_PACONFIG,"));
+  Serial.print(readRegister(REG_PACONFIG),HEX);
+  Serial.print(F(",PABOOST,"));
+  
+  if (readRegister(REG_PACONFIG) & 0x80)
+  {
+   Serial.print(F("ON,"));
+  }
+  else
+  {
+   Serial.print(F("OFF,"));
+  }   
+  
+  Serial.print(F("MaxPower,"));
+  Serial.print(MaxPower,HEX);
+  Serial.print(F(",OutputPower,"));
+  Serial.print(OutputPower,HEX);
+  Serial.print(F(","));
+  printOCPTRIM();
+  #endif
 }
 
 
+void SX127XLT::printOCPTRIM()
+{
+#ifdef SX127XDEBUG1
+  Serial.println(F("printOCPTRIM() "));
+#endif
+
+uint8_t regdata;
+regdata = readRegister(REG_OCP);
+
+Serial.print(F("REG_OCP,"));
+Serial.print(regdata,HEX);
+Serial.print(F(","));
+
+if (!(regdata & 0x20))
+{
+Serial.print(F("OCP_TRIM_OFF "));
+return;
+}
+
+//OCP must be on, so print trim value
+
+regdata = regdata & 0x1F;                //mask off trim value
+
+switch (regdata)
+{
+case OCP_TRIM_45MA:
+      Serial.print(F("OCP_TRIM_45MA "));
+      break;
+
+case OCP_TRIM_80MA:
+      Serial.print(F("OCP_TRIM_80MA "));
+      break;
+
+case OCP_TRIM_100MA:
+      Serial.print(F("OCP_TRIM_100MA "));
+      break;
+
+case OCP_TRIM_110MA:
+      Serial.print(F("OCP_TRIM_110MA "));
+      break;
+      
+case OCP_TRIM_120MA:
+      Serial.print(F("OCP_TRIM_120MA "));
+      break;
+
+case OCP_TRIM_130MA:
+      Serial.print(F("OCP_TRIM_130MA "));
+      break;
+
+case OCP_TRIM_140MA:
+      Serial.print(F("OCP_TRIM_140MA "));
+      break;
+
+case OCP_TRIM_150MA:
+      Serial.print(F("OCP_TRIM_150MA "));
+      break;
+}
+
+return;
+}
+ 
 
 void SX127XLT::setPacketParams(uint16_t packetParam1, uint8_t  packetParam2, uint8_t packetParam3, uint8_t packetParam4, uint8_t packetParam5)
 {
   //format is PreambleLength, Fixed\Variable length packets, Packetlength, CRC mode, IQ mode
 
 #ifdef SX127XDEBUG1
-  Serial.println(F("SetPacketParams()"));
+  Serial.println(F("SetPacketParams() "));
 #endif
 
   uint8_t preambleMSB, preambleLSB, regdata;
@@ -772,14 +908,26 @@ void SX127XLT::setPacketParams(uint16_t packetParam1, uint8_t  packetParam2, uin
   //TX Packetlength reg 0x22
   writeRegister(REG_PAYLOADLENGTH, packetParam3);                //when in implicit mode, this is used as receive length also
 
-  //IQ mode reg 0x33
-  regdata = ( (readRegister(REG_INVERTIQ)) & 0xBF );             //mask off invertIQ bit 6
-  writeRegister(REG_INVERTIQ, (regdata + packetParam5));
+  //IQ mode reg 0x33 and 0x3B
+  if (packetParam5 == LORA_IQ_INVERTED)
+  {
+  writeRegister(REG_INVERTIQ,  0x66);
+  writeRegister(REG_INVERTIQ2, 0x19);
+  }
+  
+  if (packetParam5 == LORA_IQ_NORMAL)
+  {
+  writeRegister(REG_INVERTIQ,  0x27);
+  writeRegister(REG_INVERTIQ2, 0x1d);
+  }
+  
+  //regdata = ( (readRegister(REG_INVERTIQ)) & 0xBE );             //mask off invertIQ bit 6 and bit 0
+  //writeRegister(REG_INVERTIQ, (regdata + packetParam5));
   //*******************************************************
 
 
   //CRC mode
-  _UseCRC = packetParam4;                                        //save CRC status
+  _UseCRC = packetParam4;                                                  //save CRC use status
 
   if (_Device != DEVICE_SX1272)
   {
@@ -803,8 +951,6 @@ void SX127XLT::setPacketParams(uint16_t packetParam1, uint8_t  packetParam2, uin
     regdata = ( (readRegister(REG_MODEMCONFIG1)) & (~READ_HASCRC_AND_2));  //mask of all bits bar CRC on - bit 1
     writeRegister(REG_MODEMCONFIG1, (regdata + (packetParam4 << 1)));      //write out with CRC bit 1 set appropriatly
   }
-
-
 }
 
 
@@ -813,7 +959,7 @@ void SX127XLT::setModulationParams(uint8_t modParam1, uint8_t modParam2, uint8_t
   //order is SpreadingFactor, Bandwidth, CodeRate, Optimisation
 
 #ifdef SX127XDEBUG1
-  Serial.println(F("setModulationParams()"));
+  Serial.println(F("setModulationParams() "));
 #endif
 
   uint8_t regdata, bw;
@@ -821,7 +967,7 @@ void SX127XLT::setModulationParams(uint8_t modParam1, uint8_t modParam2, uint8_t
   //Spreading factor - same for SX1272 and SX127X - reg 0x1D
   regdata = (readRegister(REG_MODEMCONFIG2) & (~READ_SF_AND_X));
   writeRegister(REG_MODEMCONFIG2, (regdata + (modParam1 << 4)));
-  
+
   if (_Device != DEVICE_SX1272)
   {
     //for all devices apart from SX1272
@@ -846,9 +992,9 @@ void SX127XLT::setModulationParams(uint8_t modParam1, uint8_t modParam2, uint8_t
   }
   else
   {
+ 
     //for SX1272
-    //bandwidth
-    regdata = (readRegister(REG_MODEMCONFIG1) & (~READ_BW_AND_2));   //value will be LORA_BW_500 128, LORA_BW_250 64, LORA_BW_125 0
+     regdata = (readRegister(REG_MODEMCONFIG1) & (~READ_BW_AND_2));   //value will be LORA_BW_500 128, LORA_BW_250 64, LORA_BW_125 0
 
     switch (modParam2)
     {
@@ -884,36 +1030,111 @@ void SX127XLT::setModulationParams(uint8_t modParam1, uint8_t modParam2, uint8_t
     writeRegister(REG_MODEMCONFIG1, (regdata + modParam4));
 
   }
-  
-  if ( modParam1 == LORA_SF6)
-  {
-  writeRegister(REG_DETECTOPTIMIZE, 0x05);
-  writeRegister(REG_DETECTIONTHRESHOLD, 0x0C);
-  }
-  else
-  {
-  writeRegister(REG_DETECTOPTIMIZE, 0x03);
-  writeRegister(REG_DETECTIONTHRESHOLD, 0x0A);
-  }
+
+  #ifdef APPLYERRATANOTE_2_3
+  //optimisations called by SX1276_77_8_ErrataNote_1_1
+
+  //ERRATA 2.3 - Receiver Spurious Reception of a LoRa Signal 
+  if( modParam2 < LORA_BW_500 )   
+            {
+                writeRegister( REG_DETECTOPTIMIZE, readRegister(REG_DETECTOPTIMIZE) & 0x7F );
+                writeRegister( REG_LRTEST30, 0x00 );
+                
+                switch(modParam2)
+                {
+                case LORA_BW_007: // 7.8 kHz
+                    writeRegister(REG_LRTEST2F,0x48);
+                    _savedOffset = _savedOffset + 7800;
+                    break;
+                case LORA_BW_010: // 10.4 kHz
+                    writeRegister(REG_LRTEST2F,0x44);
+                    _savedOffset = _savedOffset + 10400;
+                    break;
+                case LORA_BW_015: // 15.6 kHz
+                    writeRegister(REG_LRTEST2F,0x44);
+                    _savedOffset = _savedOffset + 15600;
+                    break;
+                case LORA_BW_020: // 20.8 kHz
+                    writeRegister(REG_LRTEST2F,0x44);
+                    _savedOffset = _savedOffset + 20800;
+                    break;
+                case LORA_BW_031: // 31.2 kHz
+                    writeRegister(REG_LRTEST2F,0x44);
+                    _savedOffset = _savedOffset + 31200;
+                    break;
+                case LORA_BW_041: // 41.4 kHz
+                    writeRegister(REG_LRTEST2F, 0x44 );
+                    _savedOffset = _savedOffset + 41400;
+                    break;
+                case LORA_BW_062: // 62.5 kHz
+                    writeRegister(REG_LRTEST2F,0x40);
+                    break;
+                case LORA_BW_125: // 125 kHz
+                    writeRegister(REG_LRTEST2F,0x40);
+                    break;
+                case LORA_BW_250: // 250 kHz
+                    writeRegister(REG_LRTEST2F,0x40);
+                    break;
+                }
+            }
+            else
+            {
+                writeRegister(REG_DETECTOPTIMIZE, readRegister(REG_DETECTOPTIMIZE ) | 0x80 );
+            }  
  
+  
+  setRfFrequency(_savedFrequency,_savedOffset);                      //apply the updated frequency
+#endif
+
+  //ERRATA 2.1 - SX1276_77_8_ErrataNote_1_1
+  if( ( modParam2 == LORA_BW_500 ) && ( _savedFrequency >= 862000000 ) )
+            {
+                //ERRATA 2.1 - Sensitivity Optimization with a 500 kHz Bandwidth >= 862Mhz
+                writeRegister(REG_HIGHBWOPTIMIZE1,0x02);
+                writeRegister(REG_HIGHBWOPTIMIZE2,0x64);
+            }
+            else if( modParam2 == LORA_BW_500 )
+            {
+                //ERRATA 2.1 - Sensitivity Optimization with a 500 kHz Bandwidth 410Mhz to 525Mhz
+                writeRegister(REG_HIGHBWOPTIMIZE1,0x02);
+                writeRegister(REG_HIGHBWOPTIMIZE2,0x7F);
+            }
+            else
+            {
+                // ERRATA 2.1 - Sensitivity Optimization with a 500 kHz Bandwidth
+                writeRegister(REG_HIGHBWOPTIMIZE1,0x03);
+            }
+
+
+//Datasheet SX1276-7-8-9_May_2020, page 115, REG_DETECTOPTIMIZE = 0x31, REG_LRDETECTIONTHRESHOLD = 0x37
+            if( modParam1 == LORA_SF6 )
+            {
+                writeRegister(REG_DETECTOPTIMIZE, ( readRegister( REG_DETECTOPTIMIZE ) & 0xF8 ) | 0x05 );
+                writeRegister(REG_DETECTIONTHRESHOLD, 0x0C);
+            }
+            else
+            {
+                writeRegister( REG_DETECTOPTIMIZE, ( readRegister( REG_DETECTOPTIMIZE ) & 0xF8 ) | 0x03 );
+                writeRegister( REG_DETECTIONTHRESHOLD, 0x0A );
+            }
 }
 
 
 void SX127XLT::setRfFrequency(uint64_t freq64, int32_t offset)
 {
 #ifdef SX127XDEBUG1
-  Serial.println(F("setRfFrequency()"));
+  Serial.println(F("setRfFrequency() "));
 #endif
 
-  savedFrequency = freq64;
-  savedOffset = offset;
-  
+  _savedFrequency = freq64;
+  _savedOffset = offset;
+
   freq64 = freq64 + offset;
   freq64 = ((uint64_t)freq64 << 19) / 32000000;
   _freqregH = freq64 >> 16;
   _freqregM = freq64 >> 8;
   _freqregL = freq64;
-    
+
   writeRegister(REG_FRMSB, _freqregH);
   writeRegister(REG_FRMID, _freqregM);
   writeRegister(REG_FRLSB, _freqregL);
@@ -924,7 +1145,7 @@ uint32_t SX127XLT::getFreqInt()
 {
   //get the current set LoRa device frequency, return as long integer
 #ifdef SX127XDEBUG1
-  Serial.println(F("getFreqInt()"));
+  Serial.println(F("getFreqInt() "));
 #endif
 
   uint8_t Msb, Mid, Lsb;
@@ -943,7 +1164,7 @@ uint32_t SX127XLT::getFreqInt()
 int32_t SX127XLT::getFrequencyErrorRegValue()
 {
 #ifdef SX127XDEBUG1
-  Serial.println(F("getFrequencyErrorRegValue()"));
+  Serial.println(F("getFrequencyErrorRegValue() "));
 #endif
 
   int32_t FrequencyError;
@@ -984,7 +1205,7 @@ int32_t SX127XLT::getFrequencyErrorRegValue()
 int32_t SX127XLT::getFrequencyErrorHz()
 {
 #ifdef SX127XDEBUG1
-  Serial.println(F("getFrequencyErrorHz()"));
+  Serial.println(F("getFrequencyErrorHz() "));
 #endif
 
   uint16_t msb, mid, lsb;
@@ -1069,8 +1290,6 @@ int32_t SX127XLT::getFrequencyErrorHz()
       default:
         bwconst = 0x00;
     }
-
-
   }
 
   freqerr = msb << 12;          //shift lower 4 bits of msb into high 4 bits of freqerr
@@ -1089,7 +1308,7 @@ void SX127XLT::setTx(uint32_t timeout)
   //There is no TX timeout function for SX127X, the value passed is ignored
 
 #ifdef SX127XDEBUG1
-  Serial.println(F("setTx()"));
+  Serial.println(F("setTx() "));
 #endif
 
   LTUNUSED(timeout);                                  //unused TX timeout passed for compatibility with SX126x, SX128x
@@ -1103,7 +1322,7 @@ void SX127XLT::setTx(uint32_t timeout)
     }
   */
 
-  writeRegister(REG_OPMODE, (MODE_TX + 0x88));    //TX on LoRa mode
+  writeRegister(REG_OPMODE, (MODE_TX + 0x88));       //TX on LoRa mode
 }
 
 
@@ -1152,7 +1371,7 @@ bool SX127XLT::readTXIRQ()
 bool SX127XLT::readRXIRQ()
 {
 #ifdef SX127XDEBUG1
-  Serial.println(F("readRXIRQ()"));
+  Serial.println(F("readRXIRQ() "));
 #endif
 
   uint16_t IRQreg;
@@ -1171,35 +1390,30 @@ bool SX127XLT::readRXIRQ()
 
 void SX127XLT::setLowPowerReceive()
 {
-  //set RX power saving mode
-
+  //set min LNA gain, AGC off
 #ifdef SX127XDEBUG1
-  Serial.println(F("setLowPowerReceive()"));
+  Serial.println(F("setLowPowerReceive() "));
 #endif
+  uint8_t regdata;
+  
+  regdata = readRegister(REG_MODEMCONFIG3);
+  bitClear(regdata,2);                       //set bit 2 to 0 turns off AGC
+  writeRegister(REG_MODEMCONFIG3, regdata ); //write data back
 
-  writeRegister(REG_LNA, 0x20 ); //at HF 100% LNA current
+  writeRegister(REG_LNA, 0xC0 );             //Minimum gain for PA_BOOST and default for RFO_HF default LNA current
 }
 
 
 void SX127XLT::setHighSensitivity()
 {
-  //set Boosted LNA for HF mode
+ //set max LNA gain and Boosted LNA for HF mode
 
 #ifdef SX127XDEBUG1
-  Serial.println(F("setHighSensitivity()"));
+  Serial.println(F("setHighSensitivity() "));
 #endif
 
-  if (_Device != DEVICE_SX1272)
-  {
-    //for all devices apart from SX1272
-    writeRegister(REG_LNA, 0x3B ); //at HF 150% LNA current.
-  }
-  else
-  {
-    //for SX1272
-    writeRegister(REG_LNA, 0x23 ); //at HF 10% LNA current.
-  }
-}
+ writeRegister(REG_LNA, 0x23 ); //MAX gain for PA_BOOST and for RFO_HF set 150% LNA current.
+ }
 
 
 void SX127XLT::setRXGain(uint8_t config)
@@ -1207,7 +1421,7 @@ void SX127XLT::setRXGain(uint8_t config)
   //set RX power saving mode
 
 #ifdef SX127XDEBUG1
-  Serial.println(F("setRXGain( )"));
+  Serial.println(F("setRXGain() "));
 #endif
 
   uint8_t regdata;
@@ -1231,7 +1445,7 @@ void SX127XLT::setRXGain(uint8_t config)
 uint8_t SX127XLT::getAGC()
 {
 #ifdef SX127XDEBUG1
-  Serial.println(F("getAGC()"));
+  Serial.println(F("getAGC() "));
 #endif
 
   uint8_t regdata;
@@ -1254,7 +1468,7 @@ uint8_t SX127XLT::getAGC()
 uint8_t SX127XLT::getLNAgain()
 {
 #ifdef SX127XDEBUG1
-  Serial.println(F("getLNAgain()"));
+  Serial.println(F("getLNAgain() "));
 #endif
 
   uint8_t regdata;
@@ -1267,7 +1481,7 @@ uint8_t SX127XLT::getLNAgain()
 uint8_t SX127XLT::getCRCMode()
 {
 #ifdef SX127XDEBUG1
-  Serial.println(F("getCRCMode()"));
+  Serial.println(F("getCRCMode() "));
 #endif
 
   uint8_t regdata;
@@ -1292,7 +1506,7 @@ uint8_t SX127XLT::getCRCMode()
 uint8_t SX127XLT::getHeaderMode()
 {
 #ifdef SX127XDEBUG1
-  Serial.println(F("getHeaderMode()"));
+  Serial.println(F("getHeaderMode() "));
 #endif
 
   uint8_t regdata;
@@ -1315,7 +1529,7 @@ uint8_t SX127XLT::getHeaderMode()
 uint8_t SX127XLT::getLNAboostLF()
 {
 #ifdef SX127XDEBUG1
-  Serial.println(F("getLNAboostLF"));
+  Serial.println(F("getLNAboostLFLF() "));
 #endif
 
   uint8_t regdata;
@@ -1328,7 +1542,7 @@ uint8_t SX127XLT::getLNAboostLF()
   }
   else
   {
-    regdata = (regdata & READ_LNABOOSTLF_AND_X);
+    regdata = (regdata & READ_LNABOOSTLF_AND_2);
   }
 
   return (regdata >> 3);
@@ -1338,7 +1552,7 @@ uint8_t SX127XLT::getLNAboostLF()
 uint8_t SX127XLT::getLNAboostHF()
 {
 #ifdef SX127XDEBUG1
-  Serial.println(F("getLNAboostHF()"));
+  Serial.println(F("getLNAboostHF() "));
 #endif
 
   uint8_t regdata;
@@ -1351,7 +1565,7 @@ uint8_t SX127XLT::getLNAboostHF()
   }
   else
   {
-    regdata = (regdata & READ_LNABOOSTHF_AND_X);
+    regdata = (regdata & READ_LNABOOSTHF_AND_2);
   }
 
   return regdata;
@@ -1377,7 +1591,7 @@ uint8_t SX127XLT::getPacketMode()
   //its either LoRa or FSK
 
 #ifdef SX127XDEBUG1
-  Serial.println(F("getPacketMode()"));
+  Serial.println(F("getPacketMode() "));
 #endif
 
   uint8_t regdata;
@@ -1391,7 +1605,7 @@ uint8_t SX127XLT::getPacketMode()
 uint8_t SX127XLT::readRXPacketL()
 {
 #ifdef SX127XDEBUG1
-  Serial.println(F("readRXPacketL()"));
+  Serial.println(F("readRXPacketL() "));
 #endif
 
   _RXPacketL = readRegister(REG_RXNBBYTES);
@@ -1403,33 +1617,65 @@ uint8_t SX127XLT::readRXPacketL()
 uint8_t SX127XLT::readTXPacketL()
 {
 #ifdef SX127XDEBUG1
-  Serial.println(F("readTXPacketL()"));
+  Serial.println(F("readTXPacketL() "));
 #endif
 
   return _TXPacketL;
 }
 
 
-uint8_t SX127XLT::readPacketRSSI()
+int16_t SX127XLT::readPacketRSSI()
 {
 #ifdef SX127XDEBUG1
-  Serial.println(F("readPacketRSSI()"));
+  Serial.println(F("readPacketRSSI() "));
 #endif
+  
+  //actual read SNR register values normally seen in practice are from 0 to 48 (0dB to +12dB) 
+  //and 167 to 255 (-22dB to 0dB)
+  
+  int16_t _PacketRSSI;            //RSSI of received packet
+  int8_t SNRregdata;
+  
+  if (_savedFrequency < 779000000)                            //779Mhz is lower frequency limit for SX1279 on band1 (HF Port)
+  { 
+   _PacketRSSI = -164 + readRegister(REG_PKTRSSIVALUE);
+  }
+  else
+  {
+  _PacketRSSI = -157 + readRegister(REG_PKTRSSIVALUE); 
+  }
 
-  uint8_t regdata;
-  regdata = readRegister(REG_PKTRSSIVALUE);
-  _PacketRSSI = (157 - regdata) * (-1);
+  SNRregdata = readRegister(REG_PKTSNRVALUE); 
+
+  if (SNRregdata < 0)                                          //check for negative SNR value 
+  {
+  //Serial.print(F(" (-SNR) "));
+  _PacketRSSI = (_PacketRSSI + (SNRregdata >> 2));            //add datasheet fiddle factor
+  }
+  
   return _PacketRSSI;
 }
 
 
-uint8_t SX127XLT::readPacketSNR()
+int16_t SX127XLT::readCurrentRSSI()
 {
 #ifdef SX127XDEBUG1
-  Serial.println(F("readPacketSNR()"));
+  Serial.println(F("readCurrentRSSI() "));
+#endif
+  
+  return readRegister(REG_CURRENTRSSIVALUE);
+}
+
+ 
+int8_t SX127XLT::readPacketSNR()
+{
+#ifdef SX127XDEBUG1
+  Serial.println(F("readPacketSNR() "));
 #endif
 
   uint8_t regdata;
+  int8_t  _PacketSNR;
+  
   regdata = readRegister(REG_PKTSNRVALUE);
 
   if (regdata > 127)
@@ -1448,7 +1694,7 @@ uint8_t SX127XLT::readPacketSNR()
 bool SX127XLT::readPacketCRCError()
 {
 #ifdef SX127XDEBUG1
-  Serial.println(F("readPacketCRCError()"));
+  Serial.println(F("readPacketCRCError() "));
 #endif
 
   uint16_t IRQreg;
@@ -1468,7 +1714,7 @@ bool SX127XLT::readPacketCRCError()
 bool SX127XLT::readPacketHeaderValid()
 {
 #ifdef SX127XDEBUG1
-  Serial.println(F("readPacketHeaderValid()"));
+  Serial.println(F("readPacketHeaderValid() "));
 #endif
 
   uint16_t IRQreg;
@@ -1488,7 +1734,7 @@ bool SX127XLT::readPacketHeaderValid()
 uint8_t SX127XLT::packetOK()
 {
 #ifdef SX127XDEBUG1
-  Serial.println(F("packetOK("));
+  Serial.println(F("packetOK() "));
 #endif
 
   bool packetHasCRC;
@@ -1520,7 +1766,7 @@ uint8_t SX127XLT::packetOK()
 uint8_t SX127XLT::readRXPacketType()
 {
 #ifdef SX127XDEBUG1
-  Serial.println(F("readRXPacketType()"));
+  Serial.println(F("readRXPacketType() "));
 #endif
 
   return _RXPacketType;
@@ -1530,7 +1776,7 @@ uint8_t SX127XLT::readRXPacketType()
 uint8_t SX127XLT::readRXDestination()
 {
 #ifdef SX127XDEBUG1
-  Serial.println(F("readRXDestination()"));
+  Serial.println(F("readRXDestination() "));
 #endif
   return _RXDestination;
 }
@@ -1539,7 +1785,7 @@ uint8_t SX127XLT::readRXDestination()
 uint8_t SX127XLT::readRXSource()
 {
 #ifdef SX127XDEBUG1
-  Serial.println(F("readRXSource()"));
+  Serial.println(F("readRXSource() "));
 #endif
 
   return _RXSource;
@@ -1549,7 +1795,7 @@ uint8_t SX127XLT::readRXSource()
 void SX127XLT::setBufferBaseAddress(uint8_t txBaseAddress, uint8_t rxBaseAddress)
 {
 #ifdef SX127XDEBUG1
-  Serial.println(F("setBufferBaseAddress()"));
+  Serial.println(F("setBufferBaseAddress() "));
 #endif
 
   writeRegister(REG_FIFOTXBASEADDR, txBaseAddress);
@@ -1560,7 +1806,7 @@ void SX127XLT::setBufferBaseAddress(uint8_t txBaseAddress, uint8_t rxBaseAddress
 void SX127XLT::setPacketType(uint8_t packettype )
 {
 #ifdef SX127XDEBUG1
-  Serial.println(F("setPacketType()"));
+  Serial.println(F("setPacketType() "));
 #endif
   uint8_t regdata;
 
@@ -1576,16 +1822,15 @@ void SX127XLT::setPacketType(uint8_t packettype )
   {
     _PACKET_TYPE = PACKET_TYPE_GFSK;
     writeRegister(REG_OPMODE, 0x00);                     //REG_OPMODE, need to set to sleep mode before configure for FSK
-    writeRegister(REG_OPMODE, regdata);                  //back to original standby mode with LoRa set
+    writeRegister(REG_OPMODE, regdata);                  //back to original standby mode with FSK set
   }
-
 }
 
 
 void SX127XLT::clearIrqStatus(uint16_t irqMask)
 {
 #ifdef SX127XDEBUG1
-  Serial.println(F("clearIrqStatus()"));
+  Serial.println(F("clearIrqStatus() "));
 #endif
 
   uint8_t masklsb;
@@ -1601,10 +1846,12 @@ void SX127XLT::clearIrqStatus(uint16_t irqMask)
 uint16_t SX127XLT::readIrqStatus()
 {
 #ifdef SX127XDEBUG1
-  Serial.print(F("readIrqStatus()"));
+  Serial.println(F("readIrqStatus()"));
 #endif
 
   bool packetHasCRC;
+  uint8_t regdata;
+  regdata = readRegister(REG_IRQFLAGS);
 
   packetHasCRC = (readRegister(REG_HOPCHANNEL) & 0x40);        //read the packet has CRC bit in RegHopChannel
 
@@ -1616,12 +1863,14 @@ uint16_t SX127XLT::readIrqStatus()
   Serial.println(_UseCRC);
 #endif
   
-  if ( !packetHasCRC && _UseCRC )                                //check if packet header indicates no CRC on packet, byt use CRC set
+  if (bitRead(regdata,6))                                     //check if its a packet receive (IRQ_RX_DONE set)
   {
-   bitSet(_IRQmsb, 10);                                          //flag the phantom packet, set bit 10
+    if (!packetHasCRC && _UseCRC)                             //check if packet header indicates no CRC on packet, byt use CRC set
+    {
+    bitSet(_IRQmsb, 10);                                      //flag the phantom packet, set bit 10
+    }
   }
-
-  return (readRegister(REG_IRQFLAGS) + _IRQmsb);
+  return (regdata + _IRQmsb);
 }
 
 
@@ -1630,7 +1879,7 @@ void SX127XLT::setDioIrqParams(uint16_t irqMask, uint16_t dio0Mask, uint16_t dio
   //note the irqmask contains the bit values of the interrupts that are allowed, so for all interrupts value is 0xFFFF
 
 #ifdef SX127XDEBUG1
-  Serial.println(F("setDioIrqParams()"));
+  Serial.println(F("setDioIrqParams() "));
 #endif
 
   uint8_t mask0, mask1, mask2;
@@ -1684,7 +1933,7 @@ void SX127XLT::setDioIrqParams(uint16_t irqMask, uint16_t dio0Mask, uint16_t dio
 void SX127XLT::printIrqStatus()
 {
 #ifdef SX127XDEBUG1
-  Serial.println(F("printIrqStatus()"));
+  Serial.println(F("printIrqStatus() "));
 #endif
 
   uint8_t _IrqStatus;
@@ -1752,14 +2001,13 @@ void SX127XLT::printIrqStatus()
   {
     Serial.print(F(",NO_PACKET_CRC"));
   }
-
 }
 
 
 void SX127XLT::printASCIIPacket(uint8_t *buffer, uint8_t size)
 {
 #ifdef SX127XDEBUG1
-  Serial.println(F("printASCIIPacket()"));
+  Serial.println(F("printASCIIPacket() "));
 #endif
 
   uint8_t index;
@@ -1768,14 +2016,13 @@ void SX127XLT::printASCIIPacket(uint8_t *buffer, uint8_t size)
   {
     Serial.write(buffer[index]);
   }
-
 }
 
 
 void SX127XLT::printHEXPacket(uint8_t *buffer, uint8_t size)
 {
 #ifdef SX127XDEBUG1
-  Serial.println(F("printHEXPacket()"));
+  Serial.println(F("printHEXPacket() "));
 #endif
 
   uint8_t index;
@@ -1792,7 +2039,7 @@ void SX127XLT::printASCIIorHEX(uint8_t temp)
 {
   //prints as ASCII if within range, otherwise as HEX.
 #ifdef SX127XDEBUG1
-  Serial.println(F("printASCIIorHEX()"));
+  Serial.println(F("printASCIIorHEX() "));
 #endif
 
   if ((temp < 0x10) || (temp > 0x7E))
@@ -1811,7 +2058,7 @@ void SX127XLT::printASCIIorHEX(uint8_t temp)
 void SX127XLT::printHEXByte(uint8_t temp)
 {
 #ifdef SX127XDEBUG1
-  Serial.println(F("printHEXByte()"));
+  Serial.println(F("printHEXByte() "));
 #endif
 
   if (temp < 0x10)
@@ -1842,7 +2089,7 @@ void SX127XLT::printHEXByte0x(uint8_t temp)
 bool SX127XLT::isRXdone()
 {
 #ifdef SX127XDEBUG1
-  Serial.println(F("isRXdone()"));
+  Serial.println(F("isRXdone() "));
 #endif
 
   return digitalRead(_DIO0);
@@ -1861,7 +2108,7 @@ bool SX127XLT::isTXdone()
 bool SX127XLT::isRXdoneIRQ()
 {
 #ifdef SX127XDEBUG1
-  Serial.println(F("isRXdoneIRQ()"));
+  Serial.println(F("isRXdoneIRQ() "));
 #endif
 
   return (readRegister(REG_IRQFLAGS) & IRQ_RX_DONE);
@@ -1871,7 +2118,7 @@ bool SX127XLT::isRXdoneIRQ()
 bool SX127XLT::isTXdoneIRQ()
 {
 #ifdef SX127XDEBUG1
-  Serial.println(F("isTXdoneIRQ()"));
+  Serial.println(F("isTXdoneIRQ() "));
 #endif
 
   return (readRegister(REG_IRQFLAGS) & IRQ_TX_DONE);
@@ -1881,7 +2128,7 @@ bool SX127XLT::isTXdoneIRQ()
 void SX127XLT::setTXDonePin(uint8_t pin)
 {
 #ifdef SX127XDEBUG1
-  Serial.println(F("setTXDonePin()"));
+  Serial.println(F("setTXDonePin() "));
 #endif
 
   _TXDonePin = pin;
@@ -1891,7 +2138,7 @@ void SX127XLT::setTXDonePin(uint8_t pin)
 void SX127XLT:: setRXDonePin(uint8_t pin)
 {
 #ifdef SX127XDEBUG1
-  Serial.println(F("setRXDonePin()"));
+  Serial.println(F("setRXDonePin() "));
 #endif
 
   _RXDonePin = pin;
@@ -1905,12 +2152,12 @@ uint8_t SX127XLT::receive(uint8_t *rxbuffer, uint8_t size, uint32_t rxtimeout, u
 #endif
 
   uint16_t index;
-  uint32_t endtimeoutmS;
+  uint32_t startmS;
   uint8_t regdata;
 
   setMode(MODE_STDBY_RC);
-  regdata = readRegister(REG_FIFORXBASEADDR);                               //retrieve the RXbase address pointer
-  writeRegister(REG_FIFOADDRPTR, regdata);                                  //and save in FIFO access ptr
+  regdata = readRegister(REG_FIFORXBASEADDR);                              //retrieve the RXbase address pointer
+  writeRegister(REG_FIFOADDRPTR, regdata);                                 //and save in FIFO access ptr
 
   setDioIrqParams(IRQ_RADIO_ALL, (IRQ_RX_DONE + IRQ_HEADER_VALID), 0, 0);  //set for IRQ on RX done
   setRx(0);                                                                //no actual RX timeout in this function
@@ -1926,13 +2173,15 @@ uint8_t SX127XLT::receive(uint8_t *rxbuffer, uint8_t size, uint32_t rxtimeout, u
   }
   else
   {
-    endtimeoutmS = millis() + rxtimeout;
-    while (!digitalRead(_RXDonePin) && (millis() < endtimeoutmS));
+    //change to allow for millis() rollover
+    //code was  endtimeoutmS = millis() + rxtimeout; while (!digitalRead(_RXDonePin) && (millis() < endtimeoutmS));
+    startmS = millis();
+    while (!digitalRead(_RXDonePin) && ((uint32_t) (millis() - startmS) < rxtimeout));
   }
 
-  setMode(MODE_STDBY_RC);                                                   //ensure to stop further packet reception
+  setMode(MODE_STDBY_RC);                                                  //ensure to stop further packet reception
 
-  if (!digitalRead(_RXDonePin))                                             //check if DIO still low, is so must be RX timeout
+  if (!digitalRead(_RXDonePin))                                            //check if DIO still low, is so must be RX timeout
   {
     _IRQmsb = IRQ_RX_TIMEOUT;
     return 0;
@@ -1976,19 +2225,19 @@ uint8_t SX127XLT::receive(uint8_t *rxbuffer, uint8_t size, uint32_t rxtimeout, u
 uint8_t SX127XLT::receiveAddressed(uint8_t *rxbuffer, uint8_t size, uint32_t rxtimeout, uint8_t wait)
 {
 #ifdef SX127XDEBUG1
-  Serial.println(F("receiveAddressed()"));
+  Serial.println(F("receiveAddressed() "));
 #endif
 
   uint16_t index;
-  uint32_t endtimeoutmS;
+  uint32_t startmS;
   uint8_t regdata;
 
   setMode(MODE_STDBY_RC);
   regdata = readRegister(REG_FIFORXBASEADDR);                                //retrieve the RXbase address pointer
   writeRegister(REG_FIFOADDRPTR, regdata);                                   //and save in FIFO access ptr
 
-  setDioIrqParams(IRQ_RADIO_ALL, (IRQ_RX_DONE + IRQ_HEADER_VALID), 0, 0);   //set for IRQ on RX done
-  setRx(0);                                                                 //no actual RX timeout in this function
+  setDioIrqParams(IRQ_RADIO_ALL, (IRQ_RX_DONE + IRQ_HEADER_VALID), 0, 0);    //set for IRQ on RX done
+  setRx(0);                                                                  //no actual RX timeout in this function
 
   if (!wait)
   {
@@ -2001,8 +2250,8 @@ uint8_t SX127XLT::receiveAddressed(uint8_t *rxbuffer, uint8_t size, uint32_t rxt
   }
   else
   {
-    endtimeoutmS = millis() + rxtimeout;
-    while (!digitalRead(_RXDonePin) && (millis() < endtimeoutmS));
+    startmS = millis();
+    while (!digitalRead(_RXDonePin) && ((uint32_t) (millis() - startmS) < rxtimeout));
   }
 
   setMode(MODE_STDBY_RC);                                          //ensure to stop further packet reception
@@ -2047,30 +2296,30 @@ uint8_t SX127XLT::receiveAddressed(uint8_t *rxbuffer, uint8_t size, uint32_t rxt
   SPI.endTransaction();
 #endif
 
-  return _RXPacketL;                           //so we can check for packet having enough buffer space
+  return _RXPacketL;                             //so we can check for packet having enough buffer space
 }
 
 
 uint8_t SX127XLT::readPacket(uint8_t *rxbuffer, uint8_t size)
 {
 #ifdef SX127XDEBUG1
-  Serial.println(F("readPacket()"));
+  Serial.println(F("readPacket() "));
 #endif
 
   uint8_t index, regdata;
 
   if ( readIrqStatus() != (IRQ_RX_DONE + IRQ_HEADER_VALID) )
   {
-    return 0;                                 //no RX done and header valid only, could be CRC error
+    return 0;                                   //no RX done and header valid only, could be CRC error
   }
 
   setMode(MODE_STDBY_RC);
-  regdata = readRegister(REG_FIFORXBASEADDR);  //retrieve the RXbase address pointer
-  writeRegister(REG_FIFOADDRPTR, regdata);     //and save in FIFO access ptr
+  regdata = readRegister(REG_FIFORXBASEADDR);   //retrieve the RXbase address pointer
+  writeRegister(REG_FIFOADDRPTR, regdata);      //and save in FIFO access ptr
 
   _RXPacketL = readRegister(REG_RXNBBYTES);
 
-  if (_RXPacketL > size)                      //check passed buffer is big enough for packet
+  if (_RXPacketL > size)                        //check passed buffer is big enough for packet
   {
     _RXPacketL = size;                          //truncate packet if not enough space
   }
@@ -2100,7 +2349,7 @@ uint8_t SX127XLT::readPacket(uint8_t *rxbuffer, uint8_t size)
 uint8_t SX127XLT::readPacketAddressed(uint8_t *rxbuffer, uint8_t size)
 {
 #ifdef SX127XDEBUG1
-  Serial.println(F("readPacketAddressed()"));
+  Serial.println(F("readPacketAddressed() "));
 #endif
 
   uint8_t index, regdata;
@@ -2149,7 +2398,7 @@ uint8_t SX127XLT::transmit(uint8_t *txbuffer, uint8_t size, uint32_t txtimeout, 
 
   uint8_t index, ptr;
   uint8_t bufferdata;
-  uint32_t endtimeoutmS;
+  uint32_t startmS;
 
   if (size == 0)
   {
@@ -2197,11 +2446,11 @@ uint8_t SX127XLT::transmit(uint8_t *txbuffer, uint8_t size, uint32_t txtimeout, 
   }
   else
   {
-    endtimeoutmS = (millis() + txtimeout);
-    while (!digitalRead(_TXDonePin) && (millis() < endtimeoutmS));
+    startmS = millis();
+    while (!digitalRead(_TXDonePin) && ((uint32_t) (millis() - startmS) < txtimeout));
   }
 
-  setMode(MODE_STDBY_RC);                                            //ensure we leave function with TX off
+  setMode(MODE_STDBY_RC);                              //ensure we leave function with TX off
 
   if (!digitalRead(_TXDonePin))
   {
@@ -2209,19 +2458,19 @@ uint8_t SX127XLT::transmit(uint8_t *txbuffer, uint8_t size, uint32_t txtimeout, 
     return 0;
   }
 
-  return _TXPacketL;                                                     //no timeout, so TXdone must have been set
+  return _TXPacketL;                                   //no timeout, so TXdone must have been set
 }
 
 
 uint8_t SX127XLT::transmitAddressed(uint8_t *txbuffer, uint8_t size, char txpackettype, char txdestination, char txsource, uint32_t txtimeout, int8_t txpower, uint8_t wait )
 {
 #ifdef SX127XDEBUG1
-  Serial.println(F("transmitAddressed()"));
+  Serial.println(F("transmitAddressed() "));
 #endif
 
   uint8_t index, ptr;
   uint8_t bufferdata;
-  uint32_t endtimeoutmS;
+  uint32_t startmS;
 
   if (size == 0)
   {
@@ -2232,7 +2481,7 @@ uint8_t SX127XLT::transmitAddressed(uint8_t *txbuffer, uint8_t size, char txpack
   ptr = readRegister(REG_FIFOTXBASEADDR);         //retrieve the TXbase address pointer
   writeRegister(REG_FIFOADDRPTR, ptr);            //and save in FIFO access ptr
 
-#ifdef USE_SPI_TRANSACTION                     //to use SPI_TRANSACTION enable define at beginning of CPP file 
+#ifdef USE_SPI_TRANSACTION                        //to use SPI_TRANSACTION enable define at beginning of CPP file 
   SPI.beginTransaction(SPISettings(LTspeedMaximum, LTdataOrder, LTdataMode));
 #endif
 
@@ -2256,7 +2505,7 @@ uint8_t SX127XLT::transmitAddressed(uint8_t *txbuffer, uint8_t size, char txpack
 
   writeRegister(REG_PAYLOADLENGTH, _TXPacketL);
 
-  setTxParams(txpower, RADIO_RAMP_DEFAULT);             //TX power and ramp time
+  setTxParams(txpower, RADIO_RAMP_DEFAULT);            //TX power and ramp time
 
   setDioIrqParams(IRQ_RADIO_ALL, IRQ_TX_DONE, 0, 0);   //set for IRQ on TX done
   setTx(0);                                            //TX timeout is not handled in setTX()
@@ -2266,35 +2515,32 @@ uint8_t SX127XLT::transmitAddressed(uint8_t *txbuffer, uint8_t size, char txpack
     return _TXPacketL;
   }
 
-  endtimeoutmS = (millis() + txtimeout);
-
   if (txtimeout == 0)
   {
     while (!digitalRead(_TXDonePin));                                      //Wait for DIO0 to go high, TX finished
   }
   else
   {
-    //endtimeoutmS = (millis() + txtimeout);
-    while (!digitalRead(_TXDonePin) && (millis() < endtimeoutmS));
+    startmS = millis();
+    while (!digitalRead(_TXDonePin) && ((uint32_t) (millis() - startmS) < txtimeout));
   }
 
   setMode(MODE_STDBY_RC);                                             //ensure we leave function with TX off
 
-  if (millis() >= endtimeoutmS)                                         //flag if TX timeout
+  if (!digitalRead(_TXDonePin))                                       //its a timeout if _TXDonepin still high
   {
     _IRQmsb = IRQ_TX_TIMEOUT;
     return 0;
   }
 
-  return _TXPacketL;                                                     //no timeout, so TXdone must have been set
-
+  return _TXPacketL;                                                  //no timeout, so TXdone must have been set
 }
 
 
 void SX127XLT::setupLoRa(uint32_t Frequency, int32_t Offset, uint8_t modParam1, uint8_t modParam2, uint8_t  modParam3, uint8_t modParam4)
 {
 #ifdef SX127XDEBUG1
-  Serial.println(F("setupLoRa()"));
+  Serial.println(F("setupLoRa() "));
 #endif
 
   setMode(MODE_STDBY_RC);                            //go into standby mode to configure device
@@ -2312,12 +2558,12 @@ void SX127XLT::setupLoRa(uint32_t Frequency, int32_t Offset, uint8_t modParam1, 
 uint8_t SX127XLT::getLoRaSF()
 {
 #ifdef SX127XDEBUG1
-  Serial.println(F("getLoRaSF()"));
+  Serial.println(F("getLoRaSF() "));
 #endif
 
   uint8_t regdata;
   regdata = readRegister(REG_MODEMCONFIG2);
-  regdata = ((regdata & READ_SF_AND_X) >> 4);       //SX1272 and SX1276 store SF in same place
+  regdata = ((regdata & READ_SF_AND_X) >> 4);        //SX1272 and SX1276 store SF in same place
 
   return regdata;
 }
@@ -2326,7 +2572,7 @@ uint8_t SX127XLT::getLoRaSF()
 uint8_t SX127XLT::getLoRaCodingRate()
 {
 #ifdef SX127XDEBUG1
-  Serial.println(F("getLoRaCodingRate"));
+  Serial.println(F("getLoRaCodingRate() "));
 #endif
 
   uint8_t regdata;
@@ -2349,7 +2595,7 @@ uint8_t SX127XLT::getLoRaCodingRate()
 uint8_t SX127XLT::getOptimisation()
 {
 #ifdef SX127XDEBUG1
-  Serial.println(F("getOptimisation"));
+  Serial.println(F("getOptimisation() "));
 #endif
 
   uint8_t regdata;
@@ -2373,7 +2619,7 @@ uint8_t SX127XLT::getOptimisation()
 uint8_t SX127XLT::getSyncWord()
 {
 #ifdef SX127XDEBUG1
-  Serial.println(F("getSyncWord"));
+  Serial.println(F("getSyncWord() "));
 #endif
 
   return readRegister(REG_SYNCWORD);
@@ -2385,7 +2631,7 @@ uint8_t SX127XLT::getInvertIQ()
   //IQ mode reg 0x33
 
 #ifdef SX127XDEBUG1
-  Serial.println(F("getInvertIQ"));
+  Serial.println(F("getInvertIQ() "));
 #endif
 
   uint8_t regdata;
@@ -2399,7 +2645,7 @@ uint8_t SX127XLT::getVersion()
   //IQ mode reg 0x33
 
 #ifdef SX127XDEBUG1
-  Serial.println(F("getVersion"));
+  Serial.println(F("getVersion() "));
 #endif
 
   return readRegister(REG_VERSION);
@@ -2409,7 +2655,7 @@ uint8_t SX127XLT::getVersion()
 uint16_t SX127XLT::getPreamble()
 {
 #ifdef SX127XDEBUG1
-  Serial.println(F("getPreamble"));
+  Serial.println(F("getPreamble() "));
 #endif
 
   uint16_t regdata;
@@ -2421,10 +2667,8 @@ uint16_t SX127XLT::getPreamble()
 uint32_t SX127XLT::returnBandwidth(byte BWregvalue)
 {
 #ifdef SX127XDEBUG1
-  Serial.println(F("returnBandwidth()"));
+  Serial.println(F("returnBandwidth() "));
 #endif
-
-  //uint8_t regdata;
 
   if (_Device == DEVICE_SX1272)
   {
@@ -2481,55 +2725,9 @@ uint32_t SX127XLT::returnBandwidth(byte BWregvalue)
       default:
         return 0xFF;                      //so that a bandwidth invalid entry can be identified ?
     }
-
   }
 }
 
-/*
-  uint32_t SX127XLT::returnBandwidth2(byte BWregvalue)
-  {
-  #ifdef SX127XDEBUG1
-  Serial.println(F("returnBandwidth2()"));
-  #endif
-
-  switch (BWregvalue)
-  {
-    case 0:
-      return 7800;
-
-    case 16:
-      return 10400;
-
-    case 32:
-      return 15600;
-
-    case 48:
-      return 20800;
-
-    case 64:
-      return 31200;
-
-    case 80:
-      return 41700;
-
-    case 96:
-      return 62500;
-
-    case 112:
-      return 125000;
-
-    case 128:
-      return 250000;
-
-    case 144:
-      return 500000;
-
-    default:
-      break;
-  }
-  return 0xFFFF;                      //so that a bandwidth not set can be identified
-  }
-*/
 
 uint8_t SX127XLT::returnOptimisation(uint8_t Bandwidth, uint8_t SpreadingFactor)
 {
@@ -2537,7 +2735,7 @@ uint8_t SX127XLT::returnOptimisation(uint8_t Bandwidth, uint8_t SpreadingFactor)
   //calculates whether low data rate optimisation should be on or off
 
 #ifdef SX127XDEBUG1
-  Serial.println(F("returnOptimisation()"));
+  Serial.println(F("returnOptimisation() "));
 #endif
 
   uint32_t tempBandwidth;
@@ -2573,7 +2771,7 @@ float SX127XLT::calcSymbolTime(float Bandwidth, uint8_t SpreadingFactor)
   //calculates symbol time from passed bandwidth (lbandwidth) and Spreading factor (lSF)and returns in mS
 
 #ifdef SX127XDEBUG1
-  Serial.println(F("calcSymbolTime()"));
+  Serial.println(F("calcSymbolTime() "));
 #endif
 
   float symbolTimemS;
@@ -2608,7 +2806,6 @@ void SX127XLT::printModemSettings()
     regdata = (readRegister(REG_MODEMCONFIG1) & READ_BW_AND_X);
   }
 
-  //Serial.print(getLoRaBandwidth());
   Serial.print(returnBandwidth(regdata));
   Serial.print(F(",CR4:"));
   Serial.print(getLoRaCodingRate());
@@ -2641,7 +2838,7 @@ void SX127XLT::printModemSettings()
 void SX127XLT::setSyncWord(uint8_t syncword)
 {
 #ifdef SX127XDEBUG1
-  Serial.println(F("setSyncWord()"));
+  Serial.println(F("setSyncWord() "));
 #endif
 
   writeRegister(REG_SYNCWORD, syncword);
@@ -2654,7 +2851,7 @@ uint8_t SX127XLT::receiveSXBuffer(uint8_t startaddr, uint32_t rxtimeout, uint8_t
   Serial.println(F("receiveSXBuffer()"));
 #endif
 
-  uint32_t endtimeoutmS;
+  uint32_t startmS;
 
   setMode(MODE_STDBY_RC);
   writeRegister(REG_FIFORXBASEADDR, startaddr);          //set start address of RX packet in buffer
@@ -2672,8 +2869,8 @@ uint8_t SX127XLT::receiveSXBuffer(uint8_t startaddr, uint32_t rxtimeout, uint8_t
   }
   else
   {
-    endtimeoutmS = millis() + rxtimeout;
-    while (!digitalRead(_RXDonePin) && (millis() < endtimeoutmS));
+    startmS = millis();
+    while (!digitalRead(_RXDonePin) && ((uint32_t) (millis() - startmS) < rxtimeout));
   }
 
   setMode(MODE_STDBY_RC);                                                   //ensure to stop further packet reception
@@ -2699,10 +2896,10 @@ uint8_t SX127XLT::receiveSXBuffer(uint8_t startaddr, uint32_t rxtimeout, uint8_t
 uint8_t SX127XLT::transmitSXBuffer(uint8_t startaddr, uint8_t length, uint32_t txtimeout, int8_t txpower, uint8_t wait)
 {
 #ifdef SX127XDEBUG1
-  Serial.println(F("transmitSXBuffer()"));
+  Serial.println(F("transmitSXBuffer() "));
 #endif
 
-  uint32_t endtimeoutmS = 0;
+  uint32_t startmS;
 
   setMode(MODE_STDBY_RC);
 
@@ -2722,17 +2919,17 @@ uint8_t SX127XLT::transmitSXBuffer(uint8_t startaddr, uint8_t length, uint32_t t
   if (txtimeout == 0)
   {
     while (!digitalRead(_TXDonePin));                   //Wait for DIO0 to go high, TX finished
-  }
+  } 
   else
   {
-    endtimeoutmS = (millis() + txtimeout);
-    while (!digitalRead(_TXDonePin) && (millis() < endtimeoutmS));
+    startmS = millis();
+    while (!digitalRead(_TXDonePin) && ((uint32_t) (millis() - startmS) < txtimeout));
   }
 
   setMode(MODE_STDBY_RC);                               //ensure we leave function with TX off
 
 
-  if (millis() >= endtimeoutmS)                         //flag if TX timeout
+  if (!digitalRead(_TXDonePin))                         //if _TXDonePin still high then TX timeout
   {
     _IRQmsb = IRQ_TX_TIMEOUT;
 
@@ -2747,7 +2944,7 @@ uint8_t SX127XLT::transmitSXBuffer(uint8_t startaddr, uint8_t length, uint32_t t
 void SX127XLT::printSXBufferHEX(uint8_t start, uint8_t end)
 {
 #ifdef SX127XDEBUG1
-  Serial.println(F("printSXBufferHEX()"));
+  Serial.println(F("printSXBufferHEX() "));
 #endif
 
   uint8_t index, regdata;
@@ -2755,7 +2952,7 @@ void SX127XLT::printSXBufferHEX(uint8_t start, uint8_t end)
   setMode(MODE_STDBY_RC);
   writeRegister(REG_FIFOADDRPTR, start);         //set FIFO access ptr to start
 
-#ifdef USE_SPI_TRANSACTION     //to use SPI_TRANSACTION enable define at beginning of CPP file 
+#ifdef USE_SPI_TRANSACTION                       //to use SPI_TRANSACTION enable define at beginning of CPP file 
   SPI.beginTransaction(SPISettings(LTspeedMaximum, LTdataOrder, LTdataMode));
 #endif
 
@@ -2781,7 +2978,7 @@ void SX127XLT::printSXBufferHEX(uint8_t start, uint8_t end)
 void SX127XLT::printSXBufferASCII(uint8_t start, uint8_t end)
 {
 #ifdef SX127XDEBUG1
-  Serial.println(F("printSXBufferASCII)"));
+  Serial.println(F("printSXBufferASCII() "));
 #endif
 
   uint8_t index, regdata;
@@ -2789,7 +2986,7 @@ void SX127XLT::printSXBufferASCII(uint8_t start, uint8_t end)
 
   writeRegister(REG_FIFOADDRPTR, start);      //and save in FIFO access ptr
 
-#ifdef USE_SPI_TRANSACTION   //to use SPI_TRANSACTION enable define at beginning of CPP file 
+#ifdef USE_SPI_TRANSACTION                    //to use SPI_TRANSACTION enable define at beginning of CPP file 
   SPI.beginTransaction(SPISettings(LTspeedMaximum, LTdataOrder, LTdataMode));
 #endif
 
@@ -2806,14 +3003,13 @@ void SX127XLT::printSXBufferASCII(uint8_t start, uint8_t end)
 #ifdef USE_SPI_TRANSACTION
   SPI.endTransaction();
 #endif
-
 }
 
 
 void SX127XLT::fillSXBuffer(uint8_t startaddress, uint8_t size, uint8_t character)
 {
 #ifdef SX127XDEBUG1
-  Serial.println(F("fillSXBuffer()"));
+  Serial.println(F("fillSXBuffer() "));
 #endif
   uint8_t index;
 
@@ -2837,15 +3033,13 @@ void SX127XLT::fillSXBuffer(uint8_t startaddress, uint8_t size, uint8_t characte
 #ifdef USE_SPI_TRANSACTION
   SPI.endTransaction();
 #endif
-
 }
-
 
 
 uint8_t SX127XLT::getByteSXBuffer(uint8_t addr)
 {
 #ifdef SX127XDEBUG1
-  Serial.println(F("getByteSXBuffer()"));
+  Serial.println(F("getByteSXBuffer() "));
 #endif
 
   uint8_t regdata;
@@ -2873,7 +3067,7 @@ uint8_t SX127XLT::getByteSXBuffer(uint8_t addr)
 void SX127XLT::writeByteSXBuffer(uint8_t addr, uint8_t regdata)
 {
 #ifdef SX127XDEBUG1
-  Serial.println(F("writeByteSXBuffer"));
+  Serial.println(F("writeByteSXBuffer() "));
 #endif
 
   setMode(MODE_STDBY_RC);                 //this is needed to ensure we can write to buffer OK.
@@ -2892,14 +3086,13 @@ void SX127XLT::writeByteSXBuffer(uint8_t addr, uint8_t regdata)
 #ifdef USE_SPI_TRANSACTION
   SPI.endTransaction();
 #endif
-
 }
 
 
 void SX127XLT::startWriteSXBuffer(uint8_t ptr)
 {
 #ifdef SX127XDEBUG1
-  Serial.println(F("startWriteSXBuffer()"));
+  Serial.println(F("startWriteSXBuffer() "));
 #endif
 
   setMode(MODE_STDBY_RC);
@@ -2919,7 +3112,7 @@ void SX127XLT::startWriteSXBuffer(uint8_t ptr)
 uint8_t SX127XLT::endWriteSXBuffer()
 {
 #ifdef SX127XDEBUG1
-  Serial.println(F("endWriteSXBuffer()"));
+  Serial.println(F("endWriteSXBuffer() "));
 #endif
 
   digitalWrite(_NSS, HIGH);
@@ -2935,7 +3128,7 @@ uint8_t SX127XLT::endWriteSXBuffer()
 void SX127XLT::startReadSXBuffer(uint8_t ptr)
 {
 #ifdef SX127XDEBUG1
-  Serial.println(F("startReadSXBuffer()"));
+  Serial.println(F("startReadSXBuffer() "));
 #endif
 
   setMode(MODE_STDBY_RC);
@@ -2957,7 +3150,7 @@ void SX127XLT::startReadSXBuffer(uint8_t ptr)
 uint8_t SX127XLT::endReadSXBuffer()
 {
 #ifdef SX127XDEBUG1
-  Serial.println(F("endReadSXBuffer()"));
+  Serial.println(F("endReadSXBuffer() "));
 #endif
 
   digitalWrite(_NSS, HIGH);
@@ -2967,72 +3160,52 @@ uint8_t SX127XLT::endReadSXBuffer()
 #endif
 
   return _RXPacketL;
-
 }
 
 
 void SX127XLT::writeUint8(uint8_t x)
 {
 #ifdef SX127XDEBUG1
-  Serial.println(F("writeUint8()"));
+  Serial.println(F("writeUint8() "));
 #endif
 
   SPI.transfer(x);
 
-  _TXPacketL++;                     //increment count of bytes written
+  _TXPacketL++;                      //increment count of bytes written
 }
 
 
 uint8_t SX127XLT::readUint8()
 {
 #ifdef SX127XDEBUG1
-  Serial.println(F("readUint8()"));
+  Serial.println(F("readUint8() "));
 #endif
 
   uint8_t x;
 
   x = SPI.transfer(0);
 
-  _RXPacketL++;                      //increment count of bytes read
+  _RXPacketL++;                       //increment count of bytes read
   return (x);
-}
-
-
-uint8_t SX127XLT::readBytes(uint8_t *rxbuffer,   uint8_t size)
-{
-#ifdef SX127XDEBUG1
-  Serial.println(F("readBytes()"));
-#endif
-
-  uint8_t x, index;
-  
-  for (index = 0; index < size; index++)
-  {
-  x = SPI.transfer(0);
-  rxbuffer[index] = x;
-  }
-  
-  _RXPacketL = _RXPacketL + size;                      //increment count of bytes read
-  return size;
 }
 
 
 void SX127XLT::writeInt8(int8_t x)
 {
 #ifdef SX127XDEBUG1
-  Serial.println(F("writeInt8()"));
+  Serial.println(F("writeInt8() "));
 #endif
 
   SPI.transfer(x);
 
-  _TXPacketL++;                     //increment count of bytes written
+  _TXPacketL++;                      //increment count of bytes written
 }
 
 
 int8_t SX127XLT::readInt8()
 {
 #ifdef SX127XDEBUG1
-  Serial.println(F("readInt8()"));
+  Serial.println(F("readInt8() "));
 #endif
 
   int8_t x;
@@ -3047,7 +3220,7 @@ int8_t SX127XLT::readInt8()
 void SX127XLT::writeChar(char x)
 {
 #ifdef SX127XDEBUG1
-  Serial.println(F("writeChar()"));
+  Serial.println(F("writeChar() "));
 #endif
 
   SPI.transfer(x);
@@ -3059,7 +3232,7 @@ void SX127XLT::writeChar(char x)
 char SX127XLT::readChar()
 {
 #ifdef SX127XDEBUG1
-  Serial.println(F("readChar()"));
+  Serial.println(F("readChar() "));
 #endif
 
   char x;
@@ -3074,7 +3247,7 @@ char SX127XLT::readChar()
 void SX127XLT::writeUint16(uint16_t x)
 {
 #ifdef SX127XDEBUG1
-  Serial.println(F("writeUint16()"));
+  Serial.println(F("writeUint16() "));
 #endif
 
   SPI.transfer(lowByte(x));
@@ -3087,7 +3260,7 @@ void SX127XLT::writeUint16(uint16_t x)
 uint16_t SX127XLT::readUint16()
 {
 #ifdef SX127XDEBUG1
-  Serial.println(F("writeUint16()"));
+  Serial.println(F("writeUint16() "));
 #endif
 
   uint8_t lowbyte, highbyte;
@@ -3103,7 +3276,7 @@ uint16_t SX127XLT::readUint16()
 void SX127XLT::writeInt16(int16_t x)
 {
 #ifdef SX127XDEBUG1
-  Serial.println(F("writeInt16()"));
+  Serial.println(F("writeInt16() "));
 #endif
 
   SPI.transfer(lowByte(x));
@@ -3116,7 +3289,7 @@ void SX127XLT::writeInt16(int16_t x)
 int16_t SX127XLT::readInt16()
 {
 #ifdef SX127XDEBUG1
-  Serial.println(F("readInt16()"));
+  Serial.println(F("readInt16() "));
 #endif
 
   uint8_t lowbyte, highbyte;
@@ -3132,7 +3305,7 @@ int16_t SX127XLT::readInt16()
 void SX127XLT::writeUint32(uint32_t x)
 {
 #ifdef SX127XDEBUG1
-  Serial.println(F("writeUint32()"));
+  Serial.println(F("writeUint32() "));
 #endif
 
   uint8_t i, j;
@@ -3157,7 +3330,7 @@ void SX127XLT::writeUint32(uint32_t x)
 uint32_t SX127XLT::readUint32()
 {
 #ifdef SX127XDEBUG1
-  Serial.println(F("readUint32()"));
+  Serial.println(F("readUint32() "));
 #endif
 
   uint8_t i, j;
@@ -3181,7 +3354,7 @@ uint32_t SX127XLT::readUint32()
 void SX127XLT::writeInt32(int32_t x)
 {
 #ifdef SX127XDEBUG1
-  Serial.println(F("writeInt32()"));
+  Serial.println(F("writeInt32() "));
 #endif
 
   uint8_t i, j;
@@ -3206,7 +3379,7 @@ void SX127XLT::writeInt32(int32_t x)
 int32_t SX127XLT::readInt32()
 {
 #ifdef SX127XDEBUG1
-  Serial.println(F("readInt32()"));
+  Serial.println(F("readInt32() "));
 #endif
 
   uint8_t i, j;
@@ -3230,7 +3403,7 @@ int32_t SX127XLT::readInt32()
 void SX127XLT::writeFloat(float x)
 {
 #ifdef SX127XDEBUG1
-  Serial.println(F("writeFloat()"));
+  Serial.println(F("writeFloat() "));
 #endif
 
   uint8_t i, j;
@@ -3255,7 +3428,7 @@ void SX127XLT::writeFloat(float x)
 float SX127XLT::readFloat()
 {
 #ifdef SX127XDEBUG1
-  Serial.println(F("readFloat()"));
+  Serial.println(F("readFloat() "));
 #endif
 
   uint8_t i, j;
@@ -3279,7 +3452,7 @@ float SX127XLT::readFloat()
 void SX127XLT::writeBuffer(uint8_t *txbuffer, uint8_t size)
 {
 #ifdef SX127XDEBUG1
-  Serial.println(F("writeBuffer()"));
+  Serial.println(F("writeBuffer() "));
 #endif
 
   uint8_t index, regdata;
@@ -3295,7 +3468,6 @@ void SX127XLT::writeBuffer(uint8_t *txbuffer, uint8_t size)
   }
 
   SPI.transfer(0);                     //this ensures last byte of buffer writen really is a null (0)
-
 }
 
 
@@ -3303,7 +3475,7 @@ void SX127XLT::writeBuffer(uint8_t *txbuffer, uint8_t size)
 void SX127XLT::writeBufferChar(char *txbuffer, uint8_t size)
 {
 #ifdef SX127XDEBUG1
-  Serial.println(F("writeBuffer()"));
+  Serial.println(F("writeBufferChar() "));
 #endif
 
   uint8_t index, regdata;
@@ -3319,53 +3491,92 @@ void SX127XLT::writeBufferChar(char *txbuffer, uint8_t size)
   }
 
   SPI.transfer(0);                     //this ensures last byte of buffer writen really is a null (0)
-
 }
+
+
+
+void SX127XLT::writeBufferChar(char *txbuffer)
+{
+#ifdef SX127XDEBUG1
+  Serial.println(F("writeBufferChar() "));
+#endif
+
+  uint8_t index = 0, regdata;
+
+ do
+  {
+    regdata = txbuffer[index];           //read data from txbuffer
+    SPI.transfer(regdata);               //write to device buffer 
+    index++;
+  } while (regdata != 0);                //keep reading until we have reached the null (0) at the buffer end or exceeded size of buffer allowed
+
+  _TXPacketL = _TXPacketL + index;       //increment count of bytes written
+
+  SPI.transfer(0);                       //this ensures last byte of buffer writen really is a null (0)
+}
+
 
 
 uint8_t SX127XLT::readBuffer(uint8_t *rxbuffer)
 {
 #ifdef SX127XDEBUG1
-  Serial.println(F("readBuffer()"));
+  Serial.println(F("readBuffer("));
 #endif
 
   uint8_t index = 0, regdata;
 
-  do                                     //need to find the size of the buffer first
+  do
   {
     regdata = SPI.transfer(0);
-    rxbuffer[index] = regdata;           //fill the buffer.
+    rxbuffer[index] = regdata;           //fill the rxbuffer.
     index++;
-  } while (regdata != 0);                //keep reading until we have reached the null (0) at the buffer end
-  //or exceeded size of buffer allowed
-  
-  _RXPacketL = _RXPacketL + index;       //increment count of bytes read
-  
-  return index;                          //return the actual size of the buffer, till the null (0) detected
+  } while (regdata != 0);                //keep reading until we have reached the null (0) at the buffer end or exceeded size of buffer allowed
 
+  _RXPacketL = _RXPacketL + index;       //increment count of bytes read
+
+  return index;                          //return the actual size of the buffer, when the null (0) detected
 }
+
+
+uint8_t SX127XLT::readBuffer(uint8_t *rxbuffer, uint8_t size)
+{
+#ifdef SX127XDEBUG1
+  Serial.println(F("readBuffer() "));
+#endif
+
+  uint8_t index, regdata;
+  
+  for (index = 0; index <= size; index++)
+  {
+   regdata = SPI.transfer(0);
+   rxbuffer[index] = regdata;            //fill the rxbuffer.
+  }
+  
+  _RXPacketL = _RXPacketL + size;        //increment count of bytes read
+
+  return size;                           //return the actual size of the buffer
+}
+
 
 
 uint8_t SX127XLT::readBufferChar(char *rxbuffer)
 {
 #ifdef SX127XDEBUG1
-  Serial.println(F("readBuffer()"));
+  Serial.println(F("readBufferChar() "));
 #endif
 
   uint8_t index = 0, regdata;
 
-  do                                     //need to find the size of the buffer first
+  do                                     
   {
     regdata = SPI.transfer(0);
     rxbuffer[index] = regdata;           //fill the buffer.
     index++;
   } while (regdata != 0);                //keep reading until we have reached the null (0) at the buffer end
-  //or exceeded size of buffer allowed
-  
-  _RXPacketL = _RXPacketL + index;       //increment count of bytes read
-  
-  return index;                          //return the actual size of the buffer, till the null (0) detected
 
+  _RXPacketL = _RXPacketL + index;       //increment count of bytes read
+
+  return index;                          //return the actual size of the buffer, when the null (0) detected
 }
 
 
@@ -3374,7 +3585,7 @@ void SX127XLT::rxtxInit(int8_t pinRXEN, int8_t pinTXEN)
   //not used on current SX127x modules
 
 #ifdef SX127XDEBUG1
-  Serial.println(F("rxtxInit()"));
+  Serial.println(F("rxtxInit() "));
 #endif
 
   _RXEN = pinRXEN;
@@ -3392,7 +3603,7 @@ void SX127XLT::rxEnable()
   //not used on current SX127x modules
 
 #ifdef SX127XDEBUG1
-  Serial.println(F("rxEnable()"));
+  Serial.println(F("rxEnable() "));
 #endif
 
   digitalWrite(_RXEN, HIGH);
@@ -3405,7 +3616,7 @@ void SX127XLT::txEnable()
   //not used on current SX127x modules
 
 #ifdef SX127XDEBUG1
-  Serial.println(F("txEnable()"));
+  Serial.println(F("txEnable() "));
 #endif
 
   digitalWrite(_RXEN, LOW);
@@ -3417,7 +3628,7 @@ void SX127XLT::setTXDirect()
 {
   //turns on transmitter, in direct mode for FSK and audio  power level is from 2 to 17
 #ifdef SX127XDEBUG1
-  Serial.print(F("setTXDirect()"));
+  Serial.println(F("setTXDirect()"));
 #endif
   writeRegister(REG_OPMODE, 0x0B);           //TX on direct mode, low frequency mode
 }
@@ -3426,7 +3637,7 @@ void SX127XLT::setTXDirect()
 void SX127XLT::toneFM(uint16_t frequency, uint32_t length, uint32_t deviation, float adjust, int8_t txpower)
 {
 #ifdef SX127XDEBUG1
-  Serial.print(F("toneFM()"));
+  Serial.println(F("toneFM() "));
 #endif
 
   uint16_t index;
@@ -3437,21 +3648,21 @@ void SX127XLT::toneFM(uint16_t frequency, uint32_t length, uint32_t deviation, f
   uint32_t loopcount;
   uint8_t freqregH, freqregM, freqregL;
 
-  #ifdef USE_SPI_TRANSACTION         //to use SPI_TRANSACTION enable define at beginning of CPP file 
+#ifdef USE_SPI_TRANSACTION           //to use SPI_TRANSACTION enable define at beginning of CPP file 
   SPI.beginTransaction(SPISettings(LTspeedMaximum, LTdataOrder, LTdataMode));
-  #endif
-  
+#endif
+
   digitalWrite(_NSS, LOW);           //set NSS low
   SPI.transfer(REG_FRMSB & 0x7F);    //mask address for read
   freqregH = SPI.transfer(0);
   freqregM = SPI.transfer(0);
   freqregL = SPI.transfer(0);
   digitalWrite(_NSS, HIGH);          //set NSS high
-  
+
 #ifdef USE_SPI_TRANSACTION
   SPI.endTransaction();
 #endif
-    
+
   freqreg = ( ( (uint32_t) freqregH << 16 ) | ( (uint32_t) freqregM << 8 ) | ( freqregL ) );
 
   registershift = deviation / FREQ_STEP;
@@ -3508,14 +3719,14 @@ void SX127XLT::toneFM(uint16_t frequency, uint32_t length, uint32_t deviation, f
 #endif
 
   writeRegister(REG_PLLHOP, 0xAD);            //set fast hop mode, needed for fast changes of frequency
-  
+
   setTxParams(txpower, RADIO_RAMP_DEFAULT);
   setTXDirect();
- 
-  #ifdef USE_SPI_TRANSACTION         //to use SPI_TRANSACTION enable define at beginning of CPP file 
+
+#ifdef USE_SPI_TRANSACTION                    //to use SPI_TRANSACTION enable define at beginning of CPP file 
   SPI.beginTransaction(SPISettings(LTspeedMaximum, LTdataOrder, LTdataMode));
-  #endif
-  
+#endif
+
   for (index = 1; index <= loopcount; index++)
   {
     digitalWrite(_NSS, LOW);                  //set NSS low
@@ -3524,7 +3735,7 @@ void SX127XLT::toneFM(uint16_t frequency, uint32_t length, uint32_t deviation, f
     SPI.transfer(ShiftM);
     SPI.transfer(ShiftL);
     digitalWrite(_NSS, HIGH);                 //set NSS high
-    
+
     delayMicroseconds(ToneDelayus);
 
     digitalWrite(_NSS, LOW);                  //set NSS low
@@ -3557,11 +3768,11 @@ void SX127XLT::setupDirect(uint32_t frequency, int32_t offset)
 {
   //setup LoRa device for direct modulation mode
 #ifdef SX127XDEBUG1
-  Serial.print(F("setupDirect()"));
+  Serial.println(F("setupDirect() "));
 #endif
   _PACKET_TYPE = PACKET_TYPE_GFSK;            //need to swap packet type
   setMode(MODE_SLEEP);                        //can only swap to direct mode in sleepmode
-  setMode(MODE_SLEEP);                        //can only swap to direct mode in sleepmode 
+  setMode(MODE_SLEEP);                        //can only swap to direct mode in sleepmode
   setMode(MODE_STDBY_RC);
   writeRegister(REG_DETECTOPTIMIZE, 0x00);    //set continuous mode
   setRfFrequency(frequency, offset);          //set the operating frequncy
@@ -3572,771 +3783,471 @@ void SX127XLT::setupDirect(uint32_t frequency, int32_t offset)
 
 int8_t SX127XLT::getDeviceTemperature()
 {
-  #ifdef SX127XDEBUG1
-  Serial.print(F("getDeviceTemperature()"));
-  #endif
-  
+#ifdef SX127XDEBUG1
+  Serial.println(F("getDeviceTemperature()"));
+#endif
+
   int8_t temperature;
   uint8_t regdata;
-  
+
   regdata = readRegister(REG_IMAGECAL & 0xFE);
-  
-  writeRegister(REG_IMAGECAL, 0x00);                //register back to power up default 
+
+  writeRegister(REG_IMAGECAL, 0x00);                //register back to power up default
 
   writeRegister(REG_OPMODE, 0x00);                  //goto sleep
-  writeRegister(REG_OPMODE, 0x00);                  //make sure switch to FSK mode 
+  writeRegister(REG_OPMODE, 0x00);                  //make sure switch to FSK mode
   writeRegister(REG_OPMODE, 0x01);                  //go into FSK standby
-  delay(5);                                        //wait for oscillator startup 
+  delay(5);                                         //wait for oscillator startup
   writeRegister(REG_OPMODE, 0x04);                  //put device in FSK RX synth mode
-  
+
   writeRegister(REG_IMAGECAL, 0x00);                //set TempMonitorOff = 0
-  delay(1);                                        //wait at least 140uS 
+  delay(1);                                         //wait at least 140uS
   writeRegister(REG_IMAGECAL, 0x01);                //set TempMonitorOff = 1
-  setMode(MODE_STDBY_RC);                          //go back to standby
-  
+  setMode(MODE_STDBY_RC);                           //go back to standby
+
   writeRegister(REG_IMAGECAL, (regdata + 1));       //register back to previous setting, with TempMonitorOff set
-    
+
   temperature = readRegister(REG_TEMP);
-  
-  if (temperature & 0x80 )                         //The sign bit is 1
+
+  if (temperature & 0x80 )                          //The sign bit is 1
   {
-    temperature = ( ( ~temperature + 1 ) & 0xFF ); //Invert and divide by 4
+    temperature = ( ( ~temperature + 1 ) & 0xFF );  //Invert and divide by 4
   }
   else
   {
-    temperature = ( temperature & 0xFF );          //Divide by 4
+    temperature = ( temperature & 0xFF );           //Divide by 4
   }
-  
-  writeRegister(REG_OPMODE,MODE_STDBY);
-   
+
+  writeRegister(REG_OPMODE, MODE_STDBY);
 
   return temperature;
 }
 
 
-
 void SX127XLT::fskCarrierOn(int8_t txpower)
 {
 #ifdef SX127XDEBUG1
-  Serial.print(F("fskCarrierOn()"));
+  Serial.println(F("fskCarrierOn() "));
 #endif
 
   writeRegister(REG_PLLHOP, 0xAD);          //set fast hop mode, needed for fast changes of frequency
   setTxParams(txpower, RADIO_RAMP_DEFAULT);
   setTXDirect();
-
 }
 
 
 void SX127XLT::fskCarrierOff()
 {
 #ifdef SX127XDEBUG1
-  Serial.print(F("fskCarrierOff()"));
+  Serial.println(F("fskCarrierOff() "));
 #endif
 
- setMode(MODE_STDBY_RC);                   //turns off carrier
-
+  setMode(MODE_STDBY_RC);                   //turns off carrier
 }
 
 
 void SX127XLT::setRfFrequencyDirect(uint8_t high, uint8_t mid, uint8_t low)
-{   
-  
-  #ifdef SX127XDEBUG1
-  Serial.print(F("setRfFrequencyDirect()"));
-  #endif
-  
-  #ifdef USE_SPI_TRANSACTION         //to use SPI_TRANSACTION enable define at beginning of CPP file 
+{
+
+#ifdef SX127XDEBUG1
+  Serial.println(F("setRfFrequencyDirect() "));
+#endif
+
+#ifdef USE_SPI_TRANSACTION                  //to use SPI_TRANSACTION enable define at beginning of CPP file 
   SPI.beginTransaction(SPISettings(LTspeedMaximum, LTdataOrder, LTdataMode));
-  #endif
-  
+#endif
+
   digitalWrite(_NSS, LOW);                  //set NSS low
   SPI.transfer(0x86);                       //address for write to REG_FRMSB
   SPI.transfer(high);
   SPI.transfer(mid);
   SPI.transfer(low);
   digitalWrite(_NSS, HIGH);                 //set NSS high
-  
-  #ifdef USE_SPI_TRANSACTION
+
+#ifdef USE_SPI_TRANSACTION
   SPI.endTransaction();
 #endif
-
-  
 }
 
 
 void SX127XLT::getRfFrequencyRegisters(uint8_t *buff)
 {
   //returns the register values for the current set frequency
-  
-  #ifdef SX127XDEBUG1
-  Serial.print(F("getRfFrequencyRegisters()"));
-  #endif
 
-  
-  #ifdef USE_SPI_TRANSACTION         //to use SPI_TRANSACTION enable define at beginning of CPP file 
+#ifdef SX127XDEBUG1
+  Serial.println(F("getRfFrequencyRegisters() "));
+#endif
+
+#ifdef USE_SPI_TRANSACTION         //to use SPI_TRANSACTION enable define at beginning of CPP file 
   SPI.beginTransaction(SPISettings(LTspeedMaximum, LTdataOrder, LTdataMode));
-  #endif
-  
+#endif
+
   digitalWrite(_NSS, LOW);                  //set NSS low
   SPI.transfer(REG_FRMSB & 0x7F);           //mask address for read
   buff[0] = SPI.transfer(0);                //read the byte into buffer
   buff[1] = SPI.transfer(0);                //read the byte into buffer
   buff[2] = SPI.transfer(0);                //read the byte into buffer
   digitalWrite(_NSS, HIGH);                 //set NSS high
-  
-  #ifdef USE_SPI_TRANSACTION
+
+#ifdef USE_SPI_TRANSACTION
   SPI.endTransaction();
 #endif
-
 }
-
 
 
 void SX127XLT::startFSKRTTY(uint32_t freqshift, uint8_t pips, uint16_t pipPeriodmS, uint16_t pipDelaymS, uint16_t leadinmS)
 {
-  
-  #ifdef SX127XDEBUG1
-  Serial.print(F("startFSKRTTY()"));
-  #endif
-  
-  uint8_t freqShiftRegs[3];                        //to hold returned registers for shifted frequency 
-  uint32_t setCentreFrequency;                     //the configured centre frequency 
+
+#ifdef SX127XDEBUG1
+  Serial.println(F("startFSKRTTY() "));
+#endif
+
+  uint8_t freqShiftRegs[3];                        //to hold returned registers for shifted frequency
+  uint32_t setCentreFrequency;                     //the configured centre frequency
   uint8_t index;
-  uint32_t endmS;
-  setCentreFrequency = savedFrequency;             //to avoid using the savedFrequency
-    
+  uint32_t startmS;
+  setCentreFrequency = _savedFrequency;            //to avoid using the savedFrequency
+
   writeRegister(REG_PLLHOP, 0xAD);                 //set fast hop mode, needed for fast changes of frequency
-  
-  setRfFrequency((savedFrequency + freqshift), savedOffset);          //temporaily set the RF frequency
-  getRfFrequencyRegisters(freqShiftRegs);                             //fill first 3 bytes with current frequency registers
-  setRfFrequency(setCentreFrequency, savedOffset);                    //reset the base frequency registers
-   
+
+  setRfFrequency((_savedFrequency + freqshift), _savedOffset);  //temporaily set the RF frequency
+  getRfFrequencyRegisters(freqShiftRegs);                       //fill first 3 bytes with current frequency registers
+  setRfFrequency(setCentreFrequency, _savedOffset);             //reset the base frequency registers
+
   _ShiftfreqregH = freqShiftRegs[0];
   _ShiftfreqregM = freqShiftRegs[1];
   _ShiftfreqregL = freqShiftRegs[2];
-  
-  writeRegister(REG_PLLHOP, 0xAD);          //set fast hop mode, needed for fast changes of frequency
+
+  writeRegister(REG_PLLHOP, 0xAD);                  //set fast hop mode, needed for fast changes of frequency
   setTxParams(10, RADIO_RAMP_DEFAULT);
-  
+
   for (index = 1; index <= pips; index++)
   {
-  setRfFrequencyDirect(_ShiftfreqregH, _ShiftfreqregM, _ShiftfreqregL); //set carrier frequency
-  setTXDirect();                                                           //turn on carrier 
-  delay(pipPeriodmS);
-  setMode(MODE_STDBY_RC);                                                  //turns off carrier
-  delay(pipDelaymS);
+    setRfFrequencyDirect(_ShiftfreqregH, _ShiftfreqregM, _ShiftfreqregL);    //set carrier frequency
+    setTXDirect();                                                           //turn on carrier
+    delay(pipPeriodmS);
+    setMode(MODE_STDBY_RC);                                                  //turns off carrier
+    delay(pipDelaymS);
   }
-  
-  setRfFrequencyDirect(_ShiftfreqregH, _ShiftfreqregM, _ShiftfreqregL); //set carrier frequency 
-  endmS = millis() + leadinmS; 
-  setTXDirect();                                                           //turn on carrier 
-  while (millis() < endmS);                                                //leave leadin on
 
+  setRfFrequencyDirect(_ShiftfreqregH, _ShiftfreqregM, _ShiftfreqregL);      //set carrier frequency
+  startmS = millis();
+  setTXDirect();                                                             //turn on carrier
+  while (((uint32_t) (millis() - startmS) < leadinmS));
 }
+
 
 void SX127XLT::transmitFSKRTTY(uint8_t chartosend, uint8_t databits, uint8_t stopbits, uint8_t parity, uint16_t baudPerioduS, int8_t pin)
 {
-  //micros() will rollover at 4294967295 or 71mins 35secs
-  //assume slowest baud rate is 45 (baud period of 22222us) then with 11 bits max to send if routine starts 
-  //when micros() > (4294967295 - (22222 * 11) = 4294722855 = 0xFFFC4525 then it could overflow during send
-  //Rather than deal with rolloever in the middle of a character lets wait till it overflows and then
-  //start the character  
-  
+#ifdef SX127XDEBUG1
+  Serial.println(F("transmitFSKRTTY() "));
+#endif
 
-  #ifdef SX127XDEBUG1
-  Serial.print(F("transmitFSKRTTY()"));
-  #endif
-   
   uint8_t numbits;
-  uint32_t enduS;
+  uint32_t startuS;
   uint8_t bitcount = 0;                       //set when a bit is 1
-  
-  if (micros() > 0xFFFB6000)                  //check if micros would overflow within circa 300mS, approx 1 char at 45baud
-  {
-  #ifdef DEBUGFSKRTTY
-  Serial.print(F("Overflow pending - micros() = "));
-  Serial.println(micros(),HEX);
-  #endif
-  while (micros() > 0xFFFB6000);              //wait a short while until micros overflows to 0
-  #ifdef DEBUGFSKRTTY
-  Serial.print(F("Paused - micros() = "));
-  Serial.println(micros(),HEX);
-  #endif
-  }
-  
-  enduS = micros() + baudPerioduS;
+
+  startuS = micros();
   setRfFrequencyDirect(_freqregH, _freqregM, _freqregL); //set carrier frequency  (low)
-  
+
   if (pin >= 0)
   {
-   digitalWrite(pin, LOW); 
+    digitalWrite(pin, LOW);
   }
-  
-  while (micros() < enduS);                   //start bit
+
+  while (((uint32_t) (micros() - startuS) < baudPerioduS));
   
   for (numbits = 1;  numbits <= databits; numbits++) //send bits, LSB first
   {
-    enduS = micros() + baudPerioduS;          //start the timer 
+   
+    startuS = micros();
     if ((chartosend & 0x01) != 0)             //test for bit set, a 1
     {
-       bitcount++;
-       if (pin >= 0)
-       {
-       digitalWrite(pin, HIGH); 
-       }
-    setRfFrequencyDirect(_ShiftfreqregH, _ShiftfreqregM, _ShiftfreqregL); //set carrier frequency for a 1 
+      bitcount++;
+      if (pin >= 0)
+      {
+        digitalWrite(pin, HIGH);
+      }
+      setRfFrequencyDirect(_ShiftfreqregH, _ShiftfreqregM, _ShiftfreqregL); //set carrier frequency for a 1
     }
     else
     {
-       if (pin >= 0)
-       {
-       digitalWrite(pin, LOW); 
-       }     
+      if (pin >= 0)
+      {
+        digitalWrite(pin, LOW);
+      }
       setRfFrequencyDirect(_freqregH, _freqregM, _freqregL);           //set carrier frequency for a 0
     }
     chartosend = (chartosend >> 1);           //get the next bit
-    while (micros() < enduS);
-  }
-   
-   enduS = micros() + baudPerioduS;          //start the timer for possible parity bit
-   
-   switch (parity) 
-   {
-    case ParityNone:
-         break;
-    
-    case ParityZero:
-         setRfFrequencyDirect(_freqregH, _freqregM, _freqregL);           //set carrier frequency for a 0
-         while (micros() < enduS);
-		 break;
-    
-    case ParityOne:
-         
-         setRfFrequencyDirect(_ShiftfreqregH, _ShiftfreqregM, _ShiftfreqregL);   //set carrier frequency for a 1
-         while (micros() < enduS);
-		 break;
 
-	case ParityOdd:
-         if (bitRead(bitcount, 0))                                         //test odd bit count, i.e. when bit 0 = 1 
-         {
-         setRfFrequencyDirect(_ShiftfreqregH, _ShiftfreqregM, _ShiftfreqregL);           //set carrier frequency for a 1 
-         }
-		 else
-         {
-         setRfFrequencyDirect(_freqregH, _freqregM, _freqregL);           //set carrier frequency for a 0 
-         }
-         while (micros() < enduS);
-		 break;
+    while (((uint32_t) (micros() - startuS) < baudPerioduS));
+  }
+
+  startuS = micros(); 
+  switch (parity)
+  {
+    case ParityNone:
+      break;
+
+    case ParityZero:
+      setRfFrequencyDirect(_freqregH, _freqregM, _freqregL);                  //set carrier frequency for a 0
+
+      while (((uint32_t) (micros() - startuS) < baudPerioduS));
+    break;
+
+    case ParityOne:
+
+      setRfFrequencyDirect(_ShiftfreqregH, _ShiftfreqregM, _ShiftfreqregL);   //set carrier frequency for a 1
+
+      while (((uint32_t) (micros() - startuS) < baudPerioduS));
+      break;
+
+    case ParityOdd:
+      if (bitRead(bitcount, 0))                                               //test odd bit count, i.e. when bit 0 = 1
+      {
+        setRfFrequencyDirect(_ShiftfreqregH, _ShiftfreqregM, _ShiftfreqregL); //set carrier frequency for a 1
+      }
+      else
+      {
+        setRfFrequencyDirect(_freqregH, _freqregM, _freqregL);                //set carrier frequency for a 0
+      }
+      while (((uint32_t) (micros() - startuS) < baudPerioduS));
+      break;
 
     case ParityEven:
-         if (bitRead(bitcount, 0))                                         //test odd bit count, i.e. when bit 0 = 1 
-         {
-         setRfFrequencyDirect(_freqregH, _freqregM, _freqregL);           //set carrier frequency for a 0 
-         }
-		 else
-         {
-         setRfFrequencyDirect(_ShiftfreqregH, _ShiftfreqregM, _ShiftfreqregL);             //set carrier frequency for a 1 
-         }
-		 while (micros() < enduS);
-         break; 
-     
-    default:
-	     break;
-    } 
+      if (bitRead(bitcount, 0))                                               //test odd bit count, i.e. when bit 0 = 1
+      {
+        setRfFrequencyDirect(_freqregH, _freqregM, _freqregL);                //set carrier frequency for a 0
+      }
+      else
+      {
+        setRfFrequencyDirect(_ShiftfreqregH, _ShiftfreqregM, _ShiftfreqregL); //set carrier frequency for a 1
+      }
+      while (((uint32_t) (micros() - startuS) < baudPerioduS));
+      break;
 
-  //stop bits, normally 1 or 2
-  enduS = micros() + (baudPerioduS * stopbits);
-  
+    default:
+      break;
+  }
+
+  startuS = micros();
+
   if (pin >= 0)
   {
-  digitalWrite(pin, HIGH); 
+    digitalWrite(pin, HIGH);
   }
-  
+
   setRfFrequencyDirect(_ShiftfreqregH, _ShiftfreqregM, _ShiftfreqregL); //set carrier frequency
-  
-  while (micros() < enduS);
-  
+
+   while ( (uint32_t) (micros() - startuS) < (baudPerioduS * stopbits)); 
 }
 
 
 void SX127XLT::transmitFSKRTTY(uint8_t chartosend, uint16_t baudPerioduS, int8_t pin)
 {
-  //micros() will rollover at 4294967295 or 71mins 35secs
-  //assume slowest baud rate is 45 (baud period of 22222us) then with 11 bits max to send if routine starts 
-  //when micros() > (4294967295 - (22222 * 11) = 4294722855 = 0xFFFC4525 then it could overflow during send
-  //Rather than deal with rolloever in the middle of a character lets wait till it overflows and then
-  //start the character
-  //This overloaded version of transmitFSKRTTY() uses 1 start bit, 7 data bits, no parity and 2 stop bits. 
-  
+  //This overloaded version of transmitFSKRTTY() defaults to 1 start bit, 7 data bits, no parity and 2 stop bits.
 
-  #ifdef SX127XDEBUG1
-  Serial.print(F("transmitFSKRTTY()"));
-  #endif
-   
+#ifdef SX127XDEBUG1
+  Serial.println(F("transmitFSKRTTY() "));
+#endif
+
   uint8_t numbits;
-  uint32_t enduS;
+  uint32_t startuS;
   
-  if (micros() > 0xFFFB6000)                  //check if micros would overflow within circa 300mS, approx 1 char at 45baud
-  {
-  #ifdef DEBUGFSKRTTY
-  Serial.print(F("Overflow pending - micros() = "));
-  Serial.println(micros(),HEX);
-  #endif
-  while (micros() > 0xFFFB6000);              //wait a short while until micros overflows to 0
-  #ifdef DEBUGFSKRTTY
-  Serial.print(F("Paused - micros() = "));
-  Serial.println(micros(),HEX);
-  #endif
-  }
+  //startbit
   
-  enduS = micros() + baudPerioduS;
+  startuS = micros();
   setRfFrequencyDirect(_freqregH, _freqregM, _freqregL); //set carrier frequency  (low)
-  
+
   if (pin >= 0)
   {
-   digitalWrite(pin, LOW); 
+    digitalWrite(pin, LOW);
   }
-  
-  while (micros() < enduS);                   //start bit
-  
-  for (numbits = 1;  numbits <= 7; numbits++) //send bits, LSB first
+
+  while (((uint32_t) (micros() - startuS) < baudPerioduS)); 
+
+  for (numbits = 1;  numbits <= 7; numbits++)           //send bits, LSB first
   {
-    enduS = micros() + baudPerioduS;          //start the timer 
-    if ((chartosend & 0x01) != 0)             //test for bit set, a 1
+    startuS = micros();
+    if ((chartosend & 0x01) != 0)                       //test for bit set, a 1
     {
-       if (pin >= 0)
-       {
-       digitalWrite(pin, HIGH); 
-       }
-    setRfFrequencyDirect(_ShiftfreqregH, _ShiftfreqregM, _ShiftfreqregL); //set carrier frequency for a 1 
+      if (pin >= 0)
+      {
+        digitalWrite(pin, HIGH);
+      }
+      setRfFrequencyDirect(_ShiftfreqregH, _ShiftfreqregM, _ShiftfreqregL); //set carrier frequency for a 1
     }
     else
     {
-       if (pin >= 0)
-       {
-       digitalWrite(pin, LOW); 
-       }     
-      setRfFrequencyDirect(_freqregH, _freqregM, _freqregL);           //set carrier frequency for a 0
+      if (pin >= 0)
+      {
+        digitalWrite(pin, LOW);
+      }
+      setRfFrequencyDirect(_freqregH, _freqregM, _freqregL);                //set carrier frequency for a 0
     }
     chartosend = (chartosend >> 1);           //get the next bit
-    while (micros() < enduS);
+    while (((uint32_t) (micros() - startuS) < baudPerioduS));
   }
-   
-  //stop bits, normally 1 or 2
-  enduS = micros() + (baudPerioduS * 2);
-  
+
+  //stop bits
+
+  startuS = micros();
+
   if (pin >= 0)
   {
-  digitalWrite(pin, HIGH); 
+    digitalWrite(pin, HIGH);
   }
-  
-  setRfFrequencyDirect(_ShiftfreqregH, _ShiftfreqregM, _ShiftfreqregL); //set carrier frequency
-  
-  while (micros() < enduS);
-  
-}
 
+  setRfFrequencyDirect(_ShiftfreqregH, _ShiftfreqregM, _ShiftfreqregL);     //set carrier frequency
+
+  while ((uint32_t) (micros() - startuS) < (baudPerioduS * 2));
+}
 
 
 void SX127XLT::printRTTYregisters()
 {
-  
-  #ifdef SX127XDEBUG1
-  Serial.print(F("printRTTYregisters()"));
-  #endif
-   
-Serial.print(F("NoShift Registers "));
-Serial.print(_freqregH, HEX);
-Serial.print(F(" "));
-Serial.print(_freqregM, HEX);
-Serial.print(F(" "));
-Serial.println(_freqregL, HEX);
 
-Serial.print(F("Shifted Registers "));
-Serial.print(_ShiftfreqregH, HEX);
-Serial.print(F(" "));
-Serial.print(_ShiftfreqregM, HEX);
-Serial.print(F(" "));
-Serial.println(_ShiftfreqregL, HEX);
+#ifdef SX127XDEBUG1
+  Serial.println(F("printRTTYregisters() "));
+#endif
 
+  Serial.print(F("NoShift Registers "));
+  Serial.print(_freqregH, HEX);
+  Serial.print(F(" "));
+  Serial.print(_freqregM, HEX);
+  Serial.print(F(" "));
+  Serial.println(_freqregL, HEX);
+
+  Serial.print(F("Shifted Registers "));
+  Serial.print(_ShiftfreqregH, HEX);
+  Serial.print(F(" "));
+  Serial.print(_ShiftfreqregM, HEX);
+  Serial.print(F(" "));
+  Serial.println(_ShiftfreqregL, HEX);
 }
+
 
 void SX127XLT::endFSKRTTY()
 {
-  #ifdef SX127XDEBUG1
-  Serial.print(F("endFSKRTTY()"));
-  #endif
-  
-  setMode(MODE_STDBY_RC);
+#ifdef SX127XDEBUG1
+  Serial.println(F("endFSKRTTY() "));
+#endif
 
+  setMode(MODE_STDBY_RC);
 }
 
 
 void SX127XLT::doAFC()
 {
-//int32_t frequencyerror;
+  #ifdef SX127XDEBUG1
+  Serial.println(F("doAFC() "));
+  #endif
+ 
+ _savedOffset = _savedOffset - getFrequencyErrorHz();
+  setRfFrequency(_savedFrequency, _savedOffset);     //adjust the operating frequency for AFC
+}
 
-//frequencyerror = getFrequencyErrorHz();
-savedOffset = savedOffset - getFrequencyErrorHz();
-setRfFrequency(savedFrequency, savedOffset);     //adjust the operating frequency for AFC
+
+void SX127XLT::doAFCPPM()
+{
+  #ifdef SX127XDEBUG1
+  Serial.println(F("doAFCPPM() "));
+  #endif
+
+  int32_t frequencyerror;
+  float Ferr_ppm;                                    //ppm error   
+  int8_t PPM_offset; 
+
+  frequencyerror = getFrequencyErrorHz();
+  _savedOffset = _savedOffset - frequencyerror;
+  setRfFrequency(_savedFrequency, _savedOffset);     //adjust the operating frequency for AFC
+  
+  //now deal with the PPM correction
+  Ferr_ppm = frequencyerror / (_savedFrequency/1E6);
+  PPM_offset = 0.95 * Ferr_ppm;
+  writeRegister(REG_PPMCORRECTION,PPM_offset);       //write PPM adjust value to device register
+}
+
+
+uint8_t SX127XLT::getPPM()
+{
+  #ifdef SX127XDEBUG1
+  Serial.println(F("getPPM() "));
+  #endif
+  
+  return readRegister(REG_PPMCORRECTION);
 }
 
 
 int32_t SX127XLT::getOffset()
 {
-return savedOffset;
+  #ifdef SX127XDEBUG1
+  Serial.println(F("getOffset() "));
+  #endif
+  return _savedOffset;
 }
 
 
-uint32_t SX127XLT::transmitReliable(uint8_t *txbuffer, uint8_t size, char txpackettype, char txdestination, char txsource, uint32_t txtimeout, int8_t txpower, uint8_t wait )
+uint8_t SX127XLT::readBufferbytes(uint8_t *buffer, uint8_t size)
 {
 #ifdef SX127XDEBUG1
-  Serial.println(F("transmitAddressed()"));
+  Serial.println(F("readBufferbytes() "));
 #endif
 
-  uint16_t libraryCRC = 0xFFFF;                    //start value for CRC calc
-  uint8_t index, ptr;
-  uint8_t bufferdata;
-  uint32_t endtimeoutmS;
+  uint8_t ptr = 0, regdata, index;
 
-  if (size == 0)
-  {
-    return false;
-  }
-
-  setMode(MODE_STDBY_RC);
-  ptr = readRegister(REG_FIFOTXBASEADDR);         //retrieve the TXbase address pointer
-  writeRegister(REG_FIFOADDRPTR, ptr);            //and save in FIFO access ptr
-
-#ifdef USE_SPI_TRANSACTION                       //to use SPI_TRANSACTION enable define at beginning of CPP file 
-  SPI.beginTransaction(SPISettings(LTspeedMaximum, LTdataOrder, LTdataMode));
-#endif
-
-  digitalWrite(_NSS, LOW);
-  SPI.transfer(WREG_FIFO);
-  SPI.transfer(txpackettype);                     //Write the packet type
-  SPI.transfer(txdestination);                    //Destination node
-  SPI.transfer(txsource);                         //Source node
-
-  libraryCRC = addCRC(txpackettype, libraryCRC);
-  libraryCRC = addCRC(txdestination, libraryCRC);
-  libraryCRC = addCRC(txsource, libraryCRC);
-  
-  _TXPacketL = 3 + size;                          //we have added 3 header bytes to size
-
-  for (index = 0; index <= 127; index++)
-  {
-    bufferdata = txbuffer[index];
-    libraryCRC = addCRC(bufferdata, libraryCRC);
-    SPI.transfer(bufferdata);
-  }
-  digitalWrite(_NSS, HIGH);
-
-#ifdef USE_SPI_TRANSACTION
-  SPI.endTransaction();
-#endif
-
-  writeRegister(REG_PAYLOADLENGTH, _TXPacketL);
-
-  setTxParams(txpower, RADIO_RAMP_DEFAULT);                       //TX power and ramp time
-
-  setDioIrqParams(IRQ_RADIO_ALL, IRQ_TX_DONE, 0, 0);              //set for IRQ on TX done
-  setTx(0);                                                       //TX timeout is not handled in setTX()
-
-  if (!wait)
-  {
-    return _TXPacketL;
-  }
-
-  endtimeoutmS = (millis() + txtimeout);
-
-  if (txtimeout == 0)
-  {
-    while (!digitalRead(_TXDonePin));                              //Wait for DIO0 to go high, TX finished
-  }
-  else
-  {
-    while (!digitalRead(_TXDonePin) && (millis() < endtimeoutmS));
-  }
-
-  setMode(MODE_STDBY_RC);                                          //ensure we leave function with TX off
-
-  if (millis() >= endtimeoutmS)                                    //flag if TX timeout
-  {
-    _IRQmsb = IRQ_TX_TIMEOUT;
-    return 0;
-  }
-
-#ifdef SX127XDEBUG1
-  Serial.println();
-  Serial.print("TXcrc,"); 
-  Serial.println(libraryCRC,HEX);
-#endif
-
-  return ( ( (uint32_t) libraryCRC << 16) + (uint8_t) _TXPacketL ); 
-}
-
-
-uint16_t SX127XLT::addCRC(uint8_t data, uint16_t libraryCRC)
-{
-  uint8_t j;
-
-  libraryCRC ^= ((uint16_t)data << 8);
-  for (j = 0; j < 8; j++)
-  {
-    if (libraryCRC & 0x8000)
-      libraryCRC = (libraryCRC << 1) ^ 0x1021;
-    else
-      libraryCRC <<= 1;
-  }
-  return libraryCRC;
-}
-
-
-uint32_t SX127XLT::receiveReliable(uint8_t *rxbuffer, uint8_t size, char packettype, char destination, char source, uint32_t rxtimeout, uint8_t wait )
-{
-//set packettype, destnode, source to ) for no matching check
-
-#ifdef SX127XDEBUG1
-  Serial.println(F("receiveReliable()"));
-#endif
-
-  uint16_t libraryCRC = 0xFFFF;                    //start value for CRC calc
-  uint16_t index;
-  uint32_t endtimeoutmS;
-  uint8_t regdata;
-
-  setMode(MODE_STDBY_RC);
-  regdata = readRegister(REG_FIFORXBASEADDR);                               //retrieve the RXbase address pointer
-  writeRegister(REG_FIFOADDRPTR, regdata);                                  //and save in FIFO access ptr
-
-  setDioIrqParams(IRQ_RADIO_ALL, (IRQ_RX_DONE + IRQ_HEADER_VALID), 0, 0);  //set for IRQ on RX done
-  setRx(0);                                                                //no actual RX timeout in this function
-
-  if (!wait)
-  {
-    return 0;                                                              //not wait requested so no packet length to pass
-  }
-
-  if (rxtimeout == 0)
-  {
-    while (!digitalRead(_RXDonePin));                                      //Wait for DIO0 to go high, no timeout, RX DONE
-  }
-  else
-  {
-    endtimeoutmS = millis() + rxtimeout;
-    while (!digitalRead(_RXDonePin) && (millis() < endtimeoutmS));
-  }
-
-  setMode(MODE_STDBY_RC);                                                   //ensure to stop further packet reception
-
-  if (!digitalRead(_RXDonePin))                                             //check if DIO still low, is so must be RX timeout
-  {
-    _IRQmsb = IRQ_RX_TIMEOUT;
-    return 0;
-  }
-
-  if ( readIrqStatus() != (IRQ_RX_DONE + IRQ_HEADER_VALID) )
-  {
-    return 0;                                                                //no RX done and header valid only, could be CRC error
-  }
-
-  _RXPacketL = readRegister(REG_RXNBBYTES);
-  
-
-  //if (_RXPacketL > size)                      //check passed buffer is big enough for packet
-  //{
-    //_RXPacketL = size;                        //truncate packet if not enough space in passed buffer
-  //}
-
-#ifdef USE_SPI_TRANSACTION   //to use SPI_TRANSACTION enable define at beginning of CPP file 
-  SPI.beginTransaction(SPISettings(LTspeedMaximum, LTdataOrder, LTdataMode));
-#endif
-
-  digitalWrite(_NSS, LOW);                    //start the burst read
-  SPI.transfer(REG_FIFO);
-  
-  _RXPacketType = SPI.transfer(0);
-  _RXDestination = SPI.transfer(0); 
-  _RXSource = SPI.transfer(0);
-  
-  libraryCRC = addCRC(_RXPacketType, libraryCRC);
-  libraryCRC = addCRC(_RXDestination, libraryCRC);
-  libraryCRC = addCRC(_RXSource, libraryCRC);
-  
-  //extractsize = _RXPacketL - 3;
-  
-  for (index = 0; index < size; index++)
+  for (index = 1; index <= size; index++)
   {
     regdata = SPI.transfer(0);
-    libraryCRC = addCRC(regdata, libraryCRC);
-    rxbuffer[index] = regdata;
+    buffer[ptr] = regdata;              //fill the buffer.
+    ptr++;
   }
-  digitalWrite(_NSS, HIGH);
 
-#ifdef USE_SPI_TRANSACTION
-  SPI.endTransaction();
-#endif
+  _RXPacketL = _RXPacketL + size;       //increment count of bytes read and written to buffer
 
-
-if (packettype > 0)
-     {
-     if (_RXPacketType != packettype)
-        {
-         return 0x1000;                       //set bit 16 to indicate not matching packet type
-        }
-     }
-  
-  if (destination > 0)
-     {
-     if (_RXDestination != destination)
-        {
-         return 0x20000;                      //set bit 17 to indicate not matching destintion node
-        }
-     }
- 
-  if (source > 0)
-     {
-     if (_RXSource != source)
-        {
-         return 0x40000;                      //set bit 18 to indicate not matching source node  
-        }
-     }  
-
-
-#ifdef SX127XDEBUG1
-  Serial.println();
-  Serial.print("RXcrc,"); 
-  Serial.println(libraryCRC,HEX);
-#endif
-
-  return ( ( (uint32_t) libraryCRC << 16) + (uint8_t) _RXPacketL ); 
+  return index;                         //return the actual size of the buffer
 }
 
 
-
-uint32_t SX127XLT::receiveFT(uint8_t *rxbuffer, uint8_t size, char packettype, char destination, char source, uint32_t rxtimeout, uint8_t wait )
+uint8_t SX127XLT::writeBufferbytes(uint8_t *buffer, uint8_t size)
 {
-//set packettype, destnode, source to ) for no matching check
-
 #ifdef SX127XDEBUG1
-  Serial.println(F("receiveReliable()"));
+  Serial.println(F("writeBufferbytes() "));
 #endif
 
-  uint16_t libraryCRC = 0xFFFF;                    //start value for CRC calc
-  uint16_t index;
-  uint32_t endtimeoutmS;
-  uint8_t regdata;
+  uint8_t regdata, index;
 
-  setMode(MODE_STDBY_RC);
-  regdata = readRegister(REG_FIFORXBASEADDR);                               //retrieve the RXbase address pointer
-  writeRegister(REG_FIFOADDRPTR, regdata);                                  //and save in FIFO access ptr
-
-  setDioIrqParams(IRQ_RADIO_ALL, (IRQ_RX_DONE + IRQ_HEADER_VALID), 0, 0);  //set for IRQ on RX done
-  setRx(0);                                                                //no actual RX timeout in this function
-
-  if (!wait)
-  {
-    return 0;                                                              //not wait requested so no packet length to pass
-  }
-
-  if (rxtimeout == 0)
-  {
-    while (!digitalRead(_RXDonePin));                                      //Wait for DIO0 to go high, no timeout, RX DONE
-  }
-  else
-  {
-    endtimeoutmS = millis() + rxtimeout;
-    while (!digitalRead(_RXDonePin) && (millis() < endtimeoutmS));
-  }
-
-  setMode(MODE_STDBY_RC);                                                   //ensure to stop further packet reception
-
-  if (!digitalRead(_RXDonePin))                                             //check if DIO still low, is so must be RX timeout
-  {
-    _IRQmsb = IRQ_RX_TIMEOUT;
-    return 0;
-  }
-
-  if ( readIrqStatus() != (IRQ_RX_DONE + IRQ_HEADER_VALID) )
-  {
-    return 0;                                                                //no RX done and header valid only, could be CRC error
-  }
-
-  _RXPacketL = readRegister(REG_RXNBBYTES);
-  
-
-  //if (_RXPacketL > size)                      //check passed buffer is big enough for packet
-  //{
-    //_RXPacketL = size;                        //truncate packet if not enough space in passed buffer
-  //}
-
-#ifdef USE_SPI_TRANSACTION   //to use SPI_TRANSACTION enable define at beginning of CPP file 
-  SPI.beginTransaction(SPISettings(LTspeedMaximum, LTdataOrder, LTdataMode));
-#endif
-
-  digitalWrite(_NSS, LOW);                    //start the burst read
-  SPI.transfer(REG_FIFO);
-  
-  _RXPacketType = SPI.transfer(0);
-  _RXDestination = SPI.transfer(0); 
-  _RXSource = SPI.transfer(0);
-  
-  libraryCRC = addCRC(_RXPacketType, libraryCRC);
-  libraryCRC = addCRC(_RXDestination, libraryCRC);
-  libraryCRC = addCRC(_RXSource, libraryCRC);
-  
-  //extractsize = _RXPacketL - 3;
-  
   for (index = 0; index < size; index++)
   {
-    regdata = SPI.transfer(0);
-    libraryCRC = addCRC(regdata, libraryCRC);
-    rxbuffer[index] = regdata;
+    regdata = buffer[index];
+    SPI.transfer(regdata);                                                
   }
-  digitalWrite(_NSS, HIGH);
 
-#ifdef USE_SPI_TRANSACTION
-  SPI.endTransaction();
-#endif
+  _TXPacketL = _TXPacketL + size;       //increment count of bytes read and written to buffer
 
-
-if (packettype > 0)
-     {
-     if (_RXPacketType != packettype)
-        {
-         return 0x1000;                       //set bit 16 to indicate not matching packet type
-        }
-     }
-  
-  if (destination > 0)
-     {
-     if (_RXDestination != destination)
-        {
-         return 0x20000;                      //set bit 17 to indicate not matching destintion node
-        }
-     }
- 
-  if (source > 0)
-     {
-     if (_RXSource != source)
-        {
-         return 0x40000;                      //set bit 18 to indicate not matching source node  
-        }
-     }  
-
-
-#ifdef SX127XDEBUG1
-  Serial.println();
-  Serial.print("RXcrc,"); 
-  Serial.println(libraryCRC,HEX);
-#endif
-
-  return ( ( (uint32_t) libraryCRC << 16) + (uint8_t) _RXPacketL ); 
+  return index;                         //return the actual size of the buffer
 }
 
 
+
+void SX127XLT::setDevicePABOOST()
+{
+#ifdef SX127XDEBUG1
+  Serial.println(F("writeBufferbytes() "));
+#endif
+
+bitSet(_Device, 4);             //set bit 4 of _Device type which defines device as using PABoost RF output
+}
+
+
+void SX127XLT::setDeviceRFO()
+{
+#ifdef SX127XDEBUG1
+  Serial.println(F("setDeviceRFO() "));
+#endif
+
+bitClear(_Device, 4);           //clear bit 4 of _Device type which defines device as using RFO RF output
+}
 
 
 

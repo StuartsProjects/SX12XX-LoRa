@@ -1,5 +1,5 @@
 /*******************************************************************************************************
-  Programs for Arduino - Copyright of the author Stuart Robinson - 29/10/20
+  Programs for Arduino - Copyright of the author Stuart Robinson - 30/12/19
 
   This program is supplied as is, it is up to the user of the program to decide if the program is
   suitable for the intended purpose and free from errors.
@@ -35,8 +35,7 @@
   number in Settings.h or the received packets will be ignored.
 
   The pin definitions, LoRa frequency and LoRa modem settings are in the Settings.h file. These settings
-  are not necessarily optimised for long range. Note that this example uses implict LoRa packet mode
-  which means the packet size is fixed. 
+  are not necessarily optimised for long range.
 
   Serial monitor baud rate is set at 115200.
 *******************************************************************************************************/
@@ -65,7 +64,9 @@ uint8_t RXPacketType;                      //type of received packet
 void loop()
 {
 
-  RXPacketL = LT.receiveSXBuffer(0, 2000, WAIT_RX);   //returns 0 if packet error of some sort, timeout 2000mS
+  RXPacketL = LT.receiveSXBuffer(0, 0, WAIT_RX);   //returns 0 if packet error of some sort
+
+  while (!digitalRead(DIO0));                      //wait for DIO0 to go high
 
   if ( LT.readIrqStatus() == (IRQ_RX_DONE + IRQ_HEADER_VALID))
   {
@@ -143,7 +144,7 @@ uint8_t packet_is_OK()
 void packet_is_Error()
 {
   uint16_t IRQStatus;
-  int8_t PacketRSSI;
+  int16_t PacketRSSI;
   IRQStatus = LT.readIrqStatus();
 
   if (IRQStatus & IRQ_RX_TIMEOUT)
@@ -153,7 +154,7 @@ void packet_is_Error()
   else
   {
     PacketRSSI = LT.readPacketRSSI();                        //read the signal strength of the received packet
-    Serial.print(F("Error,"));
+    Serial.print(F("Err,"));
     Serial.print(PacketRSSI);
     Serial.print(F("dBm"));
   }

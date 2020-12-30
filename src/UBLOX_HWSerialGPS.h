@@ -19,12 +19,14 @@ const PROGMEM  uint8_t GPGLLOff[]  = {0xB5, 0x62, 0x06, 0x01, 0x08, 0x00, 0xF0, 
 const PROGMEM  uint8_t GPGLSOff[]  = {0xB5, 0x62, 0x06, 0x01, 0x08, 0x00, 0xF0, 0x05, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x04, 0x46}; //16
 const PROGMEM  uint8_t GPGSAOff[]  = {0xB5, 0x62, 0x06, 0x01, 0x08, 0x00, 0xF0, 0x02, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x31}; //16
 const PROGMEM  uint8_t GPGSVOff[]  = {0xB5, 0x62, 0x06, 0x01, 0x08, 0x00, 0xF0, 0x03, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0x38}; //16
+const PROGMEM  uint8_t GNSSmode[] = {0xB5, 0x62, 0x06, 0x3E, 0x2C, 0x00, 0x00, 0x00, 0x20, 0x05, 0x00, 0x08, 0x10, 0x00, 0x01, 0x00, 0x01, 0x01, 0x01, 0x01,
+0x03, 0x00, 0x00, 0x00, 0x01, 0x01, 0x03, 0x08, 0x10, 0x00, 0x00, 0x00, 0x01, 0x01, 0x05, 0x00, 0x03, 0x00, 0x00, 0x00, 0x01, 0x01, 0x06, 0x08, 0x0E, 0x00, 
+0x00, 0x00, 0x01, 0x01, 0xFC, 0x11};
 
 //response to PollNavigation should be B5 62 06 24 24 00 FF FF 06 03
 //accepted response to configuaration command should be UBX-ACK-ACK B5 62 05 01
 //fail response to configuaration command should be UBX-ACK-NAK B5 62 05 00
 
-uint8_t GPS_GetByte();
 void GPS_OutputOn();
 void GPS_OutputOff();
 void GPS_PowerOn();
@@ -43,7 +45,9 @@ bool GPS_GPGLLOff();
 bool GPS_GPGLSOff();
 bool GPS_GPGSAOff();
 bool GPS_GPGSVOff();
+bool GPS_GNSSmode();
 bool GPS_CheckAck();
+uint8_t GPS_GetByte();
 
 
 const uint32_t GPS_WaitAck_mS = 1000;            //number of mS to wait for an ACK response from GPS
@@ -55,6 +59,14 @@ uint8_t GPS_Reply[GPS_Reply_Size];               //byte array for storing GPS re
 
 #define UBLOXINUSE                              //so complier can know which GPS library is used
 //#define GPSDebug
+
+#ifndef GPSConfigSerial                           // if GPSDebugSerial is not defined set to Serial as default
+ #define GPSConfigSerial Serial
+#endif
+
+#ifndef GPSDebugSerial                           // if GPSDebugSerial is not defined set to Serial as default
+ #define GPSDebugSerial Serial
+#endif
 
 #ifndef GPSBaud
 #define GPSBaud 9600
@@ -202,7 +214,7 @@ bool GPS_SendConfig(const uint8_t *Progmem_ptr, uint8_t arraysize, uint8_t reply
     {
       byteread = pgm_read_byte_near(Progmem_ptr++);
       Serial.print(byteread, HEX);
-      Serial.print(" ");
+      Serial.print(F(" "));
     }
 
     Serial.flush();          //make sure serial out buffer is empty
@@ -454,7 +466,6 @@ bool GPS_SoftwareBackup()
 }
 
 
-
 bool GPS_HotStart()
   {
   #ifdef GPSDebug
@@ -467,7 +478,6 @@ bool GPS_HotStart()
   return true;  
   
 } 
-
 
 
 bool GPS_GLONASSOff()
@@ -522,6 +532,17 @@ bool GPS_GPGSVOff()
 
   size_t SIZE = sizeof(GPGSVOff);
   return GPS_SendConfig(GPGSVOff, SIZE, 10, GPS_attempts);
+}
+
+
+bool GPS_GNSSmode()
+{
+#ifdef GPSDebug
+  Serial.print(F("GPS_GNSSmode() "));
+#endif
+
+  size_t SIZE = sizeof(GNSSmode);
+  return GPS_SendConfig(GNSSmode, SIZE, 10, GPS_attempts);
 }
 
 

@@ -1,5 +1,5 @@
 /*******************************************************************************************************
-  Programs for Arduino - Copyright of the author Stuart Robinson - 23/02/20
+  Programs for Arduino - Copyright of the author Stuart Robinson - 23/12/20
 
   This program is supplied as is, it is up to the user of the program to decide if the program is
   suitable for the intended purpose and free from errors.
@@ -13,9 +13,10 @@
 
   The desired shift in frequency is defined in the Settings.h file as 'FrequencyShift'. When the program 
   starts the actual frequency shift will be calculated according to the discrete frequency steps the 
-  LoRa device can be set to. There are settings for number of data bits, number of start bits and the 
-  value of parity which can be ParityNone, ParityOdd, ParityEven, ParityZero or ParityOne. 
-
+  LoRa device can be set to. This example uses the library function for sending FSKRTTY that is fixed at
+  7 databits, 1 stop bit and no parity bit. If you want to vary these settings see the example;
+  '78_FSKRTTY_Transmitter_Test_Configurable.ino'
+  
   Before the actual data transmission starts you can send a series of marker pips which are short bursts 
   of up shifted carrier which will be heard as beeps in a correctly tuned receiver. These pips can aid
   in setting the receiver decode frequemcy to match the transmission. on some LoRa devices, such as the SX127x
@@ -24,16 +25,10 @@
   the gaps between them and the period of leadin carrier before the data starts can all be set. To send no
   pips just set the number to 0.
 
-  The FSK RTTY routines use the micros() function for timing, and a check is made at the begging of a 
-  character to send to see if micros() migh overflow during the transmission of the character. This check
-  assumes the lowest baud rate of 45baud, and if an overflow is likley, there will be a short in transmission
-  pause to allow the overflow to occur.     
-   
-
   Serial monitor baud rate is set at 9600
 *******************************************************************************************************/
 
-#define Program_Version "V1.0"
+#define Program_Version "V1.1"
 
 #include <SPI.h>                                               //the lora device is SPI based                                         
 #include <SX127XLT.h>                                          //include the appropriate SX12XX library  
@@ -44,9 +39,9 @@ SX127XLT LT;                                                   //create a librar
 //Choose whichever test pattern takes your fancy
 //uint8_t testBuffer[] = "0123456789* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *";               //This string is sent as AFSK RTTY, 7 bit, 2 Stop bit, no parity, 300 baud.
 
-uint8_t testBuffer[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZ 0123456789";               
+//uint8_t testBuffer[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZ 0123456789";               
 //uint8_t testBuffer[] = "UUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUU";
-//uint8_t testBuffer[] = "$$MyFlight1,2213,14:54:37,51.48230,-3.18136,15,6,3680,23,66,3,0*2935";
+uint8_t testBuffer[] = "$$$$MyFlight1,2213,14:54:37,51.48230,-3.18136,15,6,3680,23,66,3,0*2935";
 
 uint8_t freqShiftRegs[3];                                      //to hold returned registers that set frequency
 
@@ -57,36 +52,32 @@ void loop()
   
   printRegisterSetup(FrequencyShift);
   Serial.println();
-  
+
+  LT.setupDirect(Frequency, Offset);
   LT.startFSKRTTY(FrequencyShift, NumberofPips, PipPeriodmS, PipDelaymS, LeadinmS);
 
-  if (micros() > 0xF8000000)
-  {
-  Serial.print(F("Waiting micros()"));
-  while(micros() < 0xFFFB6000); 
-  }
-  
   Serial.print(F("Start RTTY micros() = "));
-  Serial.println(micros(),HEX);
-  LT.transmitFSKRTTY(13, DataBits, StopBits, Parity, BaudPerioduS, LED1); //send carriage return
-  LT.transmitFSKRTTY(10, DataBits, StopBits, Parity, BaudPerioduS, LED1); //send line feed
+  Serial.println(micros());
+  Serial.print(F("Seconds to overflow "));
+  Serial.println(((0xFFFFFFFF - micros()) / 1E6),0);
+  
+  LT.transmitFSKRTTY(13, BaudPerioduS, LED1);      //send carriage return
+  LT.transmitFSKRTTY(10, BaudPerioduS, LED1);      //send line feed
+  
   for (index = 0; index < (sizeof(testBuffer)-1); index++)
   {
-    LT.transmitFSKRTTY(testBuffer[index], DataBits, StopBits, Parity, BaudPerioduS, LED1);
+    LT.transmitFSKRTTY(testBuffer[index], BaudPerioduS, LED1);
     Serial.write(testBuffer[index]);
   }
-  LT.transmitFSKRTTY(13, DataBits, StopBits, Parity, BaudPerioduS, LED1); //send carriage return
-  LT.transmitFSKRTTY(10, DataBits, StopBits, Parity, BaudPerioduS, LED1); //send line feed
+  LT.transmitFSKRTTY(13, BaudPerioduS, LED1);      //send carriage return
+  LT.transmitFSKRTTY(10, BaudPerioduS, LED1);      //send line feed
     
   Serial.println();
   Serial.print(F("END RTTY micros() = "));
-  Serial.println(micros(),HEX);
+  Serial.println(micros());
   digitalWrite(LED1, LOW);
   Serial.println();
   Serial.println();
-
-  
-  Serial.println(micros(),HEX);
   
   LT.setMode(MODE_STDBY_RC);
 

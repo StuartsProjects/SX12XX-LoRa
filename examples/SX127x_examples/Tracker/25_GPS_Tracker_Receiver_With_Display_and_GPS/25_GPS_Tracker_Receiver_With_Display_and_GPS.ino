@@ -1,5 +1,5 @@
 /*******************************************************************************************************
-  Programs for Arduino - Copyright of the author Stuart Robinson - 21/03/20
+  Programs for Arduino - Copyright of the author Stuart Robinson - 28/12/20
   This program is supplied as is, it is up to the user of the program to decide if the program is
   suitable for the intended purpose and free from errors.
 *******************************************************************************************************/
@@ -49,11 +49,11 @@ line in the Settings.h file;
 
 And then defining the hardware serial port you are using, which defaults to Serial1.
 
-Serial monitor baud rate is set at 9600.
+Serial monitor baud rate is set at 115200.
 *******************************************************************************************************/
 
 
-#define Program_Version "V1.1"
+#define Program_Version "V1.2"
 
 #include <SPI.h>
 #include <SX127XLT.h>
@@ -70,12 +70,15 @@ U8X8_SH1106_128X64_NONAME_HW_I2C disp(U8X8_PIN_NONE);       //1.3" OLED often so
 #include <TinyGPS++.h>                                      //http://arduiniana.org/libraries/tinygpsplus/
 TinyGPSPlus gps;                                            //create the TinyGPS++ object
 
-#ifdef USE_SOFTSERIAL_GPS
+#ifdef USESOFTSERIALGPS
 #include <SoftwareSerial.h>
 SoftwareSerial GPSserial(RXpin, TXpin);
-#else
-#define GPSserial HardwareSerialPort       //hardware serial port (eg Serial1) is configured in the Settings.h file
 #endif
+
+#ifdef USEHARDWARESERIALGPS
+#define GPSserial HARDWARESERIALPORT
+#endif
+
 
 uint32_t RXpacketCount;        //count of received packets
 uint8_t RXPacketL;             //length of received packet
@@ -157,16 +160,14 @@ void readGPS()
     gps.encode(GPSserial.read());
   }
 
-
-  if ( millis() > (LastRXGPSfixCheck + NoRXGPSfixms))
+  if ( (uint32_t) (millis() - LastRXGPSfixCheck) > NoRXGPSfixms)
   {
     RXGPSfix = false;
     LastRXGPSfixCheck = millis();
     dispscreen1();
   }
 
-
-  if (gps.location.isUpdated() && gps.altitude.isUpdated())
+  if (gps.location.isUpdated() && gps.altitude.isUpdated() && gps.date.isUpdated())
   {
     RXGPSfix = true;
     RXLat = gps.location.lat();
@@ -175,7 +176,7 @@ void readGPS()
     printRXLocation();
     LastRXGPSfixCheck = millis();
 
-    if ( FixCount == 1)                           //update screen when FIXcoount counts down from DisplayRate to 1
+    if ( FixCount == 1)                           //update screen when FIX count counts down from DisplayRate to 1
     {
       FixCount = DisplayRate;
       dispscreen1();
@@ -545,14 +546,30 @@ void GPSOFF()
 }
 
 
+void GPSTest()
+{
+  uint32_t startmS;
+  startmS = millis();
+
+  while ( (uint32_t) (millis() - startmS) < 2000)       //allows for millis() overflow
+  {
+    if (GPSserial.available() > 0)
+    {
+     Serial.write(GPSserial.read());
+    }
+  }
+  Serial.println();
+  Serial.println();
+  Serial.flush();
+}
+
+
 void setup()
 {
-  uint32_t endmS;
-
   pinMode(LED1, OUTPUT);                        //setup pin as output for indicator LED
   led_Flash(2, 125);                            //two quick LED flashes to indicate program start
 
-  Serial.begin(9600);
+  Serial.begin(115200);
   Serial.println();
   Serial.print(F(__TIME__));
   Serial.print(F(" "));
@@ -596,10 +613,7 @@ void setup()
 
   Serial.println();
   Serial.println(F("Startup GPS check"));
-
-  endmS = millis() + echomS;
-
-  //now startup GPS
+  
   if (GPSPOWER >= 0)
   {
     pinMode(GPSPOWER, OUTPUT);
@@ -607,12 +621,8 @@ void setup()
 
   GPSON();
   GPSserial.begin(GPSBaud);
-
-  while (millis() < endmS)
-  {
-    while (GPSserial.available() > 0)
-      Serial.write(GPSserial.read());
-  }
+  GPSTest();
+  
   Serial.println();
   Serial.println();
 

@@ -161,7 +161,7 @@
 #define    LORA_IQ_INVERTED                         0x40
 
 
-//For SX127x - mapping of these IRQs to the SX126x and SX1280 style is not easy
+//For SX127x - mapping of these IRQs to the SX126x and SX128x style is not easy
 //the values have been fixed to these following DIOs. For instance IRQ_RX_DONE,
 //IRQ_TX_DONE and IRQ_CAD_DONE can only be mapped to DIO0.
 //For most applications only DIO0, DIO1 and DIO2 are connected.
@@ -211,6 +211,7 @@ const uint8_t REG_RXPACKETCNTVALUELSB = 0x17;
 const uint8_t REG_PKTSNRVALUE = 0x19;
 const uint8_t REG_PKTRSSIVALUE = 0x1A;
 const uint8_t REG_RSSIVALUE = 0x1B;
+const uint8_t REG_CURRENTRSSIVALUE = 0x1B;
 const uint8_t REG_HOPCHANNEL = 0x1C;
 const uint8_t REG_MODEMCONFIG1 = 0x1D;
 const uint8_t REG_MODEMCONFIG2 = 0x1E;
@@ -224,11 +225,20 @@ const uint8_t REG_PPMCORRECTION = 0x27;
 const uint8_t REG_FEIMSB = 0x28;
 const uint8_t REG_FEIMID = 0x29;
 const uint8_t REG_FEILSB = 0x2A;
+const uint8_t REG_LRRSSIWIDEBAND = 0x2C;
+const uint8_t REG_LRTEST2F = 0x2F;
+const uint8_t REG_LRTEST30 = 0x30;
 const uint8_t REG_DETECTOPTIMIZE = 0x31;
 const uint8_t REG_INVERTIQ = 0x33;
+const uint8_t REG_LRTEST36 = 0x36;
+const uint8_t REG_HIGHBWOPTIMIZE1 = 0x36;
+const uint8_t REG_LRDETECTIONTHRESHOLD = 0x37;
 const uint8_t REG_DETECTIONTHRESHOLD = 0x37;
 const uint8_t REG_SYNCWORD = 0x39;
+const uint8_t REG_LRTEST3A = 0x3A;
+const uint8_t REG_HIGHBWOPTIMIZE2 = 0x3A;
 const uint8_t REG_IMAGECAL = 0x3B;
+const uint8_t REG_INVERTIQ2 = 0x3B;
 const uint8_t REG_TEMP = 0x3C;
 const uint8_t REG_DIOMAPPING1 = 0x40;
 const uint8_t REG_DIOMAPPING2 = 0x41;
@@ -236,14 +246,38 @@ const uint8_t REG_VERSION = 0x42;
 const uint8_t REG_PLLHOP = 0x44;
 const uint8_t REG_PADAC = 0x4D;
 
+
 #define PRINT_LOW_REGISTER   0x00
 #define PRINT_HIGH_REGISTER  0x4F
 
-#define DEVICE_SX1272  0x10
-#define DEVICE_SX1276  0x11
+#define DEVICE_SX1272  0x10         //for modules that use the PA_BOOST pin for RF output
+#define DEVICE_SX1276  0x11         //bit 4 set indicates PA_BOOST in use
 #define DEVICE_SX1277  0x12
 #define DEVICE_SX1278  0x13
 #define DEVICE_SX1279  0x14
+
+
+#define DEVICE_SX1272_PABOOST  0x10  //for modules that use the RF_BOOST pin for RF output
+#define DEVICE_SX1276_PABOOST  0x11  //bit 4 set indicates PA_BOOST in use
+#define DEVICE_SX1277_PABOOST  0x12
+#define DEVICE_SX1278_PABOOST  0x13
+#define DEVICE_SX1279_PABOOST  0x14
+
+//no support for SX1272 modules using RFO output, dont have one to test
+#define DEVICE_SX1276_RFO   0x01     //for modules that use the RFO LF_ANT or HF_ANT pin for RF output
+#define DEVICE_SX1277_RFO   0x02     //bit 4 clear indicates RFO in use
+#define DEVICE_SX1278_RFO   0x03
+#define DEVICE_SX1279_RFO   0x04
+
+
+//power settings
+#define MAXPOWER11dBm   0x00         //REG_PACONFIG = x000xxxx
+#define MAXPOWER14dBm   0x50         //REG_PACONFIG = x101xxxx
+#define MAXPOWER17dBm   0x70         //REG_PACONFIG = x111xxxx
+#define PABOOSTON       0x80
+#define PABOOSTOFF      0x00
+
+
 
 //SPI settings
 #define LTspeedMaximum  8000000
@@ -260,20 +294,6 @@ const uint8_t REG_PADAC = 0x4D;
 #define ParityZero 0xF0
 #define ParityOne  0xF1 
 
-
-/*
-//Atmel watchdog sleep times
-#define sleep16mS 0x00
-#define sleep32mS 0x01
-#define sleep64mS 0x02
-#define sleep125mS 0x03
-#define sleep250mS 0x04
-#define sleep500mS 0x05
-#define sleep1000mS 0x06
-#define sleep2000mS 0x07
-#define sleep4000mS 0x20
-#define sleep8000mS 0x21
-*/
 
 /*
   MIT license

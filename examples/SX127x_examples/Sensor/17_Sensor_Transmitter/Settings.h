@@ -5,7 +5,7 @@
   suitable for the intended purpose and free from errors.
 *******************************************************************************************************/
 
-//*******  Setup hardware pin definitions here ! ***************
+// *******  Setup hardware pin definitions here ! ***************
 
 //These are the pin definitions for one of my own boards, the Easy Pro Mini, 
 //be sure to change the definitiosn to match your own setup. Some pins such as DIO1,
@@ -28,7 +28,7 @@
 #define LORA_DEVICE DEVICE_SX1278               //this is the device we are using
 
 
-//*******  Setup LoRa Test Parameters Here ! ***************
+// *******  Setup LoRa Test Parameters Here ! ***************
 
 //LoRa Modem Parameters
 const uint32_t Frequency = 434000000;           //frequency of transmissions
@@ -47,7 +47,7 @@ const int8_t TXpower = 14;                      //LoRa transmit power in dBm
 const uint8_t sleeps = 112;                     //number of 8 second sleeps, gap between transmissions
 
 
-//*******  Setup node addressing here ! ***************
+// *******  Setup node addressing here ! ***************
 
 const uint8_t TXPacketType = Sensor1;           //the packet type sent
 const uint8_t TXDestination = 'B';              //the destination address of the receiver where the packet is being sent to 

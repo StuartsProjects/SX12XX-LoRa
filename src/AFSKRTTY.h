@@ -23,33 +23,35 @@ void sendAFSKRTTY(uint8_t chartosend, int8_t audiopin, int8_t checkpin, uint16_t
 //Format is 7 bits, no parity and 2 stop bits
 {
   uint8_t numbits;
-  uint32_t enduS;
-  
-  enduS = micros() + perioduS;
+  uint32_t startuS;
+
+  startuS = micros();
   digitalWrite(checkpin, LOW);
   tone(audiopin, tonelowHz);
-  while(micros() <  enduS);
 
-  for (numbits = 1;  numbits <= 7; numbits++) //send 7 bits, LSB first
+  while ( (uint32_t) (micros() - startuS) < perioduS);     //wait for start bit end
+
+  for (numbits = 1;  numbits <= 7; numbits++)             //send 7 bits, LSB first
   {
-    enduS = micros() + perioduS;                 
+    startuS = micros();
     if ((chartosend & 0x01) != 0)
     {
       digitalWrite(checkpin, HIGH);
-      tone(audiopin, tonehighHz);             //send a 1 bit high tone
+      tone(audiopin, tonehighHz);
     }
     else
     {
       digitalWrite(checkpin, LOW);
-      tone(audiopin, tonelowHz);              //send a 0 bit low tone
+      tone(audiopin, tonelowHz);                          //start 0 bit low tone
     }
-    chartosend = (chartosend / 2);            //get the next bit
-    while(micros() <  enduS);                 //wait bit period uS 
+    chartosend = (chartosend / 2);                        //get the next bit
+    while ( (uint32_t) (micros() - startuS) < perioduS);  //wait bit period uS
   }
-  enduS = micros() + (2*perioduS);
-  digitalWrite(checkpin, HIGH);               //start  mark condition
-  tone(audiopin, tonehighHz);                 //send a 1 bit high tone
-  while(micros() <  enduS); 
+  perioduS = perioduS * 2;
+  startuS = micros();
+  digitalWrite(checkpin, HIGH);                           //start  mark condition
+  tone(audiopin, tonehighHz);                             //start high tone
+  while ( (uint32_t) (micros() - startuS) < perioduS);
 }
 
 

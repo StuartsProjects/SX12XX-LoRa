@@ -30,7 +30,7 @@ uint8_t RXBUFFER[255];                           //create the buffer that receiv
 
 uint8_t RXPacketL;                               //stores length of packet received
 uint8_t TXPacketL;                               //stores length of packet sent
-int8_t  PacketRSSI;                              //stores RSSI of received packet
+int16_t PacketRSSI;                              //stores RSSI of received packet
 int8_t  PacketSNR;                               //stores signal to noise ratio (SNR) of received packet
 
 uint8_t PacketType;                              //for packet addressing, identifies packet type

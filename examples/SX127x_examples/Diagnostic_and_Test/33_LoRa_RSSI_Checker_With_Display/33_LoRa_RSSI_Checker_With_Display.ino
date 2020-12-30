@@ -37,7 +37,7 @@ SX127XLT LT;                                     //create a library class instan
 #include <U8x8lib.h>                                      //get library here >  https://github.com/olikraus/u8g2 
 U8X8_SSD1306_128X64_NONAME_HW_I2C disp(U8X8_PIN_NONE);    //use this line for standard 0.96" SSD1306
 //U8X8_SH1106_128X64_NONAME_HW_I2C disp(U8X8_PIN_NONE);   //use this line for 1.3" OLED often sold as 1.3" SSD1306
-
+#define DEFAULTFONT u8x8_font_chroma48medium8_r           //font for U8X8 Library
 
 uint32_t RXpacketCount;
 uint32_t RXpacketErrors;
@@ -45,7 +45,7 @@ uint16_t IRQStatus;
 
 uint8_t RXBUFFER[RXBUFFER_SIZE];                 //create the buffer that received packets are copied into
 uint8_t RXPacketL;                               //stores length of packet received
-int8_t  PacketRSSI;                              //stores RSSI of received packet
+int16_t PacketRSSI;                              //stores RSSI of received packet
 int8_t  PacketSNR;                               //stores signal to noise ratio of received packet
 
 
@@ -238,7 +238,7 @@ void setup()
   //SPI.beginTransaction(SPISettings(8000000, MSBFIRST, SPI_MODE0));
 
   disp.begin();
-  disp.setFont(u8x8_font_chroma48medium8_r);
+  disp.setFont(DEFAULTFONT);
 
   disp.clear();
   disp.setCursor(0, 0);

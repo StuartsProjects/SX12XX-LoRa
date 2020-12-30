@@ -1,5 +1,5 @@
 /*******************************************************************************************************
-  Programs for Arduino - Copyright of the author Stuart Robinson - 05/04/20
+  Programs for Arduino - Copyright of the author Stuart Robinson - 24/12/20
 
   This program is supplied as is, it is up to the user of the program to decide if the program is
   suitable for the intended purpose and free from errors.
@@ -9,7 +9,7 @@
   Program Operation -  This program is a portable GPS checker. It reads the GPS for 5 seconds and copies
   the characters from the GPS to the serial monitor, this is an example printout from a working GPS that
   has just been powered on;
-   
+
   28_GPS_Checker Starting
   Wait GPS Fix 5 seconds
   Timeout - No GPS Fix 5s
@@ -32,16 +32,19 @@
   the TinyGPS++ library and if there is no fix a message is printed on the serial monitor.
 
   When the program detects that the GPS has a fix, it prints the Latitude, Longitude, Altitude, Number
-  of satellites in use, the HDOP value, time and date to the serial monitor. 
+  of satellites in use, the HDOP value, time and date to the serial monitor.
 
   The program has the option of using a pin to control the power to the GPS, if the GPS module being used
   has this feature. To use the option change the define; '#define GPSPOWER -1' from -1 to the pin number
   being used. Also set the GPSONSTATE and GPSOFFSTATE to the appropriate logic levels.
 
+  There is a set of GPS co-ordinates defined, TestLatitude and TestLongitude, when the GPS has its location
+  fix the distance and direction to the Test location is calculated and shown on the serial monitor.
+
   Serial monitor baud rate is set at 115200.
 *******************************************************************************************************/
 
-#define Program_Version "V1.1"
+#define Program_Version "V1.2"
 #define authorname "Stuart Robinson"
 
 #include <TinyGPS++.h>                             //get library here > http://arduiniana.org/libraries/tinygpsplus/
@@ -49,6 +52,7 @@ TinyGPSPlus gps;                                   //create the TinyGPS++ object
 
 #define RXpin A3                                   //pin number for GPS RX input into Arduino - TX from GPS
 #define TXpin A2                                   //pin number for GPS TX output from Arduino- RX into GPS
+#define LED1 8                                     //pin number for LED, turns on when printing Fix data 
 
 #define GPSPOWER -1                                //Pin that controls power to GPS, set to -1 if not used
 #define GPSONSTATE HIGH                            //logic level to turn GPS on via pin GPSPOWER 
@@ -68,10 +72,16 @@ uint16_t year;
 uint32_t startGetFixmS;
 uint32_t endFixmS;
 
+//GPS co-ordinates to use for the test location transmission
+const float TestLatitude  = 51.48230;              //Cardiff castle keep, used for location testing purposes
+const float TestLongitude  = -3.18136;
+
+
 void loop()
 {
   if (gpsWaitFix(5))
   {
+    digitalWrite(LED1, HIGH);                      //LED on to indicate fix
     Serial.println();
     Serial.println();
     Serial.print(F("Fix time "));
@@ -93,6 +103,7 @@ void loop()
 
     printGPSfix();
     startGetFixmS = millis();    //have a fix, next thing that happens is checking for a fix, so restart timer
+    digitalWrite(LED1, LOW);
   }
   else
   {
@@ -109,16 +120,18 @@ bool gpsWaitFix(uint16_t waitSecs)
 {
   //waits a specified number of seconds for a fix, returns true for updated fix
 
-  uint32_t endwaitmS;
+  uint32_t startmS, waitmS;
   uint8_t GPSchar;
 
   Serial.print(F("Wait GPS Fix "));
   Serial.print(waitSecs);
   Serial.println(F(" seconds"));
 
-  endwaitmS = millis() + (waitSecs * 1000);
+  waitmS = waitSecs * 1000;                               //convert seconds wait into mS
 
-  while (millis() < endwaitmS)
+  startmS = millis();
+
+  while ( (uint32_t) (millis() - startmS) < waitmS)       //allows for millis() overflow
   {
     if (GPSserial.available() > 0)
     {
@@ -133,14 +146,16 @@ bool gpsWaitFix(uint16_t waitSecs)
       return true;
     }
   }
-
   return false;
 }
+
 
 
 void printGPSfix()
 {
   float tempfloat;
+  uint32_t distance;
+  uint16_t direction;
 
   Serial.print(F("New GPS Fix "));
 
@@ -188,6 +203,25 @@ void printGPSfix()
   Serial.print(F("/"));
   Serial.print(year);
 
+  distance = gps.distanceBetween(GPSLat, GPSLon, TestLatitude, TestLongitude);
+  direction = gps.courseTo(GPSLat, GPSLon, TestLatitude, TestLongitude);
+
+  Serial.println();
+  Serial.print(F("Distance to Test Location ("));
+  Serial.print(TestLatitude, 6);
+  Serial.print((","));
+  Serial.print(TestLongitude, 6);
+  Serial.print((") "));
+  Serial.print(distance);
+  Serial.print(("m"));
+  Serial.println();
+  Serial.print(F("Direction to Test Location ("));
+  Serial.print(TestLatitude, 6);
+  Serial.print((","));
+  Serial.print(TestLongitude, 6);
+  Serial.print((") "));
+  Serial.print(direction);
+  Serial.print(("d"));
   Serial.println();
   Serial.println();
 }
@@ -213,6 +247,8 @@ void GPSOFF()
 
 void setup()
 {
+  pinMode(LED1, OUTPUT);
+
   if (GPSPOWER >= 0)
   {
     pinMode(GPSPOWER, OUTPUT);

@@ -1,5 +1,5 @@
 /*******************************************************************************************************
-  Programs for Arduino - Copyright of the author Stuart Robinson - 29/02/20
+  Programs for Arduino - Copyright of the author Stuart Robinson - 16/10/20
 
   This program is supplied as is, it is up to the user of the program to decide if the program is
   suitable for the intended purpose and free from errors. 
@@ -40,9 +40,6 @@
 
 SX127XLT LT;
 
-#include <U8x8lib.h>                                        //get library here >  https://github.com/olikraus/u8g2 
-U8X8_SSD1306_128X64_NONAME_HW_I2C disp(U8X8_PIN_NONE);      //use this line for standard 0.96" SSD1306
-//U8X8_SH1106_128X64_NONAME_HW_I2C disp(U8X8_PIN_NONE);     //use this line for 1.3" OLED often sold as 1.3" SSD1306
 
 uint32_t RXpacketCount;          //count of all packets received
 uint32_t ValidPackets;           //count of packets received with valid data
@@ -50,7 +47,7 @@ uint32_t RXpacketErrors;         //count of all packets with errors received
 bool packetisgood;
 
 uint8_t RXPacketL;               //length of received packet
-int8_t  PacketRSSI;              //RSSI of received packet
+int16_t PacketRSSI;              //RSSI of received packet
 int8_t  PacketSNR;               //signal to noise ratio of received packet
 
 uint8_t RXPacketType;
@@ -62,6 +59,16 @@ uint16_t humidity;               //the BME280 humididty value
 uint16_t voltage;                //the battery voltage value
 uint8_t statusbyte;              //a status byte, not currently used
 uint16_t TXCRCvalue;             //the CRC value of the packet data as transmitted
+
+//for SSD1306
+#include <U8x8lib.h>                                          //get library here >  https://github.com/olikraus/u8g2 
+U8X8_SSD1306_128X64_NONAME_HW_I2C disp(U8X8_PIN_NONE);        //use this line for standard 0.96" SSD1306
+#define default_font u8x8_font_chroma48medium8_r
+
+//for SH1106
+//#include <U8x8lib.h>                                        //get library here >  https://github.com/olikraus/u8g2 
+//U8X8_SH1106_128X64_NONAME_HW_I2C disp(U8X8_PIN_NONE);       //use this line for 1.3" OLED often sold as 1.3" SSD1306
+//#define default_font u8x8_font_chroma48medium8_r
 
 
 void loop()
@@ -241,33 +248,6 @@ void printPacketCounts()
 }
 
 
-void packet_is_Error()
-{
-  uint16_t IRQStatus;
-
-  RXpacketErrors++;
-  IRQStatus = LT.readIrqStatus();
-
-  if (IRQStatus & IRQ_RX_TIMEOUT)
-  {
-    Serial.print(F("RXTimeout "));
-  }
-  else
-  {
-    Serial.print(F("PacketError "));
-    printreceptionDetails();
-    Serial.print(F(",IRQreg,"));
-    Serial.print(IRQStatus, HEX);
-    LT.printIrqStatus();
-    Serial.println();
-    disp.clearLine(7);
-    disp.setCursor(0, 7);
-    disp.print(F("Errors "));
-    disp.print(RXpacketErrors);
-  }
-}
-
-
 void displayscreen1()
 {
   //show sensor data on display
@@ -301,6 +281,36 @@ void displayscreen1()
 }
 
 
+void packet_is_Error()
+{
+  uint16_t IRQStatus;
+
+  RXpacketErrors++;
+  IRQStatus = LT.readIrqStatus();
+
+  if (IRQStatus & IRQ_RX_TIMEOUT)
+  {
+    Serial.print(F("RXTimeout "));
+  }
+  else
+  {
+    Serial.print(F("PacketError "));
+    printreceptionDetails();
+    Serial.print(F(",IRQreg,"));
+    Serial.print(IRQStatus, HEX);
+    LT.printIrqStatus();
+    Serial.println();
+    disp.clearLine(7);
+    disp.setCursor(0, 7);
+    disp.print(F("Errors "));
+    disp.print(RXpacketErrors);
+  }
+}
+
+
+
+
+
 void led_Flash(uint16_t flashes, uint16_t delaymS)
 {
   uint16_t index;
@@ -322,10 +332,6 @@ void setup()
 
   Serial.begin(9600);
 
-  disp.begin();
-  disp.setFont(u8x8_font_chroma48medium8_r);
-
-  disp.clear();
   disp.setCursor(0, 0);
   disp.print(F("Check LoRa"));
   disp.setCursor(0, 1);

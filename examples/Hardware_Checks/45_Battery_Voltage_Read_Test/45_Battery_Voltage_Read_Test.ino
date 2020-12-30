@@ -24,10 +24,10 @@
 ******************************************************************************************************
 */
 
-#define ADMultiplier 10.0                      //adjustment to convert AD value read into mV of battery voltage 
+#define ADMultiplier 6.36                      //adjustment to convert AD value read into mV of battery voltage 
 #define BATVREADON 8                           //used to turn on the resistor divider to measure voltage,                              //this pin turns on the MOSFET that switches in the resistor divider
 #define LED1 8                                 //pin for PCB LED  
-#define SupplyAD A7                            //Resitor divider for battery connected here 
+#define SupplyAD A0                            //Resitor divider for battery connected here 
 
 void loop()
 {
@@ -64,7 +64,7 @@ void printSupplyVoltage()
 
 uint16_t readSupplyVoltage()
 {
-  //relies on 1V1 internal reference and 91K & 11K resistor divider
+  //relies on internal reference and 91K & 11K resistor divider
   //returns supply in mV @ 10mV per AD bit read
   uint16_t temp;
   uint16_t volts = 0;
@@ -75,7 +75,7 @@ uint16_t readSupplyVoltage()
     digitalWrite(BATVREADON, HIGH);           //turn MOSFET connection resitor divider in circuit
   }
 
-  analogReference(INTERNAL1V1);
+  analogReference(INTERNAL);
   temp = analogRead(SupplyAD);
 
   for (index = 0; index <= 4; index++)      //sample AD 5 times

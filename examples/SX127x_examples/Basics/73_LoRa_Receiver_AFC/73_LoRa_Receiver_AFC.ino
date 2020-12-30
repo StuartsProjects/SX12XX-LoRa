@@ -14,7 +14,9 @@
   last frequency error, calculates the new offset and changes the set frequency accordingly. 
 
   When the receiver starts the frequency error may be as large as 4000hz, when the AFC operates the error 
-  should reduce to 100hz or so. 
+  should reduce to 100hz or so. The first AFC correction to run is doAFCPPM(); which based on the frequency
+  error also adjusts the PPM setting. If doAFC(); were only used then as the frequency error is reduced then
+  the PPM adjustment would reduce.
 
   Note that the maximum permitted frequency error between transmitter and receiver is 25% of the bandwidth
   in use. So at 125000hz bandwidth the maximum frequency error is 31500hz, if the bandwidth is 7800hz the
@@ -39,10 +41,11 @@ uint32_t errors;
 uint8_t RXBUFFER[RXBUFFER_SIZE];                //create the buffer that received packets are copied into
 
 uint8_t RXPacketL;                              //stores length of packet received
-int8_t  PacketRSSI;                             //stores RSSI of received packet
+int16_t PacketRSSI;                             //stores RSSI of received packet
 int8_t  PacketSNR;                              //stores signal to noise ratio (SNR) of received packet
 int32_t frequencyerror;                         //frequency error of receved packet
 
+bool FirstAFC = true;                           //used to note that AFC has been called more than once 
 
 void loop()
 {
@@ -65,7 +68,15 @@ void loop()
   else
   {
     packet_is_OK();
-    LT.doAFC();                                  //this corrects the frequency, only use after a valid packet has been received. 
+    if (FirstAFC)
+    {
+    LT.doAFCPPM();                               //the first time AFC is called do the PPM adjust also 
+    FirstAFC = false;
+    }
+    else
+    {
+    LT.doAFC();                                  //PPM adjust has been done so now just adjust frequency  
+    }
   }
 
   Serial.println();
@@ -94,7 +105,9 @@ void packet_is_OK()
   Serial.print(LT.getFrequencyErrorRegValue(),HEX);
   Serial.print(F(",FreqErrror,"));
   Serial.print(frequencyerror);
-  Serial.print(F("hz,RSSI,"));
+  Serial.print(F("hz,PpmCorrection,"));
+  Serial.print(LT.readRegister(REG_PPMCORRECTION));
+  Serial.print(F(",RSSI,"));
   Serial.print(PacketRSSI);
   Serial.print(F("dBm,SNR,"));
   Serial.print(PacketSNR);

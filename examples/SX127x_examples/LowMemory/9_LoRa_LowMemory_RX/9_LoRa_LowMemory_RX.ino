@@ -130,7 +130,7 @@ void packet_is_Error()
 
 void printpacketDetails()
 {
-  int8_t  PacketRSSI;              //RSSI of received packet
+  int16_t PacketRSSI;              //RSSI of received packet
   int8_t  PacketSNR;               //signal to noise ratio of received packet
   
   PacketRSSI = LoRa.readPacketRSSI();

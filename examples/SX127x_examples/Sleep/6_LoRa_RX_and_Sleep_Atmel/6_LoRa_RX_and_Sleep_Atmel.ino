@@ -39,7 +39,7 @@ uint32_t errors;
 uint8_t RXBUFFER[RXBUFFER_SIZE];     //create a buffer for the received packet
 
 uint8_t RXPacketL;                   //stores length of packet received
-int8_t  PacketRSSI;                  //stores RSSI of received packet
+int16_t PacketRSSI;                  //stores RSSI of received packet
 int8_t  PacketSNR;                   //stores signal to noise ratio of received packet
 
 
