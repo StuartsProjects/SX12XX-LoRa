@@ -25,11 +25,15 @@
   
 **************************************************************************/
 
+class SPIClass; // forward declaration
+
 class SX128XLT  {
 
   public:
 
     SX128XLT();
+
+    void setSpi(SPIClass& spi);
 
     bool begin(int8_t pinNSS, int8_t pinNRESET, int8_t pinRFBUSY, int8_t pinDIO1, int8_t pinDIO2, int8_t pinDIO3, int8_t pinRXEN, int8_t pinTXEN, uint8_t device);
     bool begin(int8_t pinNSS, int8_t pinNRESET, int8_t pinRFBUSY, int8_t pinDIO1, uint8_t device);
@@ -193,5 +197,6 @@ class SX128XLT  {
     uint16_t savedCalibration;
     uint32_t savedFrequencyReg;
 
+    SPIClass& _spi; // device to be used for SPI communication
 };
 #endif
