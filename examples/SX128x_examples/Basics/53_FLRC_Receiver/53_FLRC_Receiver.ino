@@ -172,7 +172,7 @@ void setup()
   Serial.println(F(__DATE__));
   Serial.println(F(Program_Version));
   Serial.println();
-  Serial.println(F("4_LoRa_Receiver Starting"));
+  Serial.println(F("53_FLRC_Receiver Starting"));
   Serial.println();
 
   if (BUZZER > 0)

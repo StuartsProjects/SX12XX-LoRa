@@ -186,5 +186,6 @@ readBufferChar	KEYWORD2
 writeBufferChar	KEYWORD2
 setLowPowerReceive	KEYWORD2
 doAFCPPM	KEYWORD2
+setTXDirect	KEYWORD2
 
 
