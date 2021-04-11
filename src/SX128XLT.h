@@ -68,6 +68,12 @@ class SX128XLT  {
     uint32_t getFreqInt();
     uint8_t getLoRaSF();
     uint32_t returnBandwidth(uint8_t data);
+
+    uint32_t getBandwidth()
+    {
+        return returnBandwidth(savedModParam2);
+    }
+
     uint8_t getLoRaCodingRate();
     uint8_t getInvertIQ();
     uint16_t getPreamble();
@@ -135,9 +141,9 @@ class SX128XLT  {
     uint8_t receiveSXBuffer(uint8_t startaddr, uint16_t timeout, uint8_t wait);
     uint8_t readBuffer(uint8_t *rxbuffer);
     void printSXBufferHEX(uint8_t start, uint8_t end);
-	uint16_t addCRC(uint8_t data, uint16_t libraryCRC);
-	void writeBufferChar(char *txbuffer, uint8_t size);
-	uint8_t readBufferChar(char *rxbuffer);
+    uint16_t addCRC(uint8_t data, uint16_t libraryCRC);
+    void writeBufferChar(char *txbuffer, uint8_t size);
+    uint8_t readBufferChar(char *rxbuffer);
 /***************************************************************************
 //End direct access SX buffer routines
 ***************************************************************************/
@@ -199,4 +205,105 @@ class SX128XLT  {
 
     SPIClass& _spi; // device to be used for SPI communication
 };
+
+inline
+uint8_t SX128XLT::getLoRaSF()
+{
+#ifdef SX128XDEBUG
+  Serial.println(F("getLoRaSF()"));
+#endif
+  return (savedModParam1 >> 4);
+}
+
+inline
+uint32_t SX128XLT::returnBandwidth(uint8_t data)
+{
+#ifdef SX128XDEBUG
+  Serial.println(F("returnBandwidth()"));
+#endif
+
+  switch (data)
+  {
+    case LORA_BW_0200:
+      return 203125;
+
+    case LORA_BW_0400:
+      return 406250;
+
+    case LORA_BW_0800:
+      return 812500;
+
+    case LORA_BW_1600:
+      return 1625000;
+
+    default:
+      break;
+  }
+
+  return 0x0;                      //so that a bandwidth not set can be identified
+}
+
+inline
+uint8_t SX128XLT::getLoRaCodingRate()
+{
+#ifdef SX128XDEBUG
+  Serial.println(F("getLoRaCodingRate"));
+#endif
+
+  return savedModParam3;
+}
+
+inline
+uint8_t SX128XLT::getInvertIQ()
+{
+//IQ mode reg 0x33
+#ifdef SX128XDEBUG
+  Serial.println(F("getInvertIQ"));
+#endif
+
+  return savedPacketParam5;
+}
+
+inline
+uint16_t SX128XLT::getPreamble()
+{
+#ifdef SX128XDEBUG
+  Serial.println(F("getPreamble"));
+#endif
+
+  return savedPacketParam1;
+}
+
+inline
+uint16_t SX128XLT::getSetCalibrationValue()
+{
+#ifdef SX128XDEBUG
+  Serial.println(F("getCalibrationValue()"));
+#endif
+
+  return savedCalibration;;
+  
+}
+
+inline
+uint8_t SX128XLT::readRXPacketType()
+{
+#ifdef SX128XDEBUG
+  Serial.println(F("readRXPacketType()"));
+#endif
+  
+  return _RXPacketType;
+}
+
+inline
+void SX128XLT::printHEXByte(uint8_t temp)
+{
+  if (temp < 0x10)
+  {
+    Serial.print(F("0"));
+  }
+  Serial.print(temp, HEX);
+}
+
+
 #endif

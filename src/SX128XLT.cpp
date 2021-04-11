@@ -924,74 +924,6 @@ uint32_t SX128XLT::getFreqInt()
   return uinttemp;
 }
 
-
-uint8_t SX128XLT::getLoRaSF()
-{
-#ifdef SX128XDEBUG
-  Serial.println(F("getLoRaSF()"));
-#endif
-  return (savedModParam1 >> 4);
-}
-
-
-uint32_t SX128XLT::returnBandwidth(uint8_t data)
-{
-#ifdef SX128XDEBUG
-  Serial.println(F("returnBandwidth()"));
-#endif
-
-  switch (data)
-  {
-    case LORA_BW_0200:
-      return 203125;
-
-    case LORA_BW_0400:
-      return 406250;
-
-    case LORA_BW_0800:
-      return 812500;
-
-    case LORA_BW_1600:
-      return 1625000;
-
-    default:
-      break;
-  }
-
-  return 0x0;                      //so that a bandwidth not set can be identified
-}
-
-
-uint8_t SX128XLT::getLoRaCodingRate()
-{
-#ifdef SX128XDEBUG
-  Serial.println(F("getLoRaCodingRate"));
-#endif
-
-  return savedModParam3;
-}
-
-
-uint8_t SX128XLT::getInvertIQ()
-{
-//IQ mode reg 0x33
-#ifdef SX128XDEBUG
-  Serial.println(F("getInvertIQ"));
-#endif
-
-  return savedPacketParam5;
-}
-
-
-uint16_t SX128XLT::getPreamble()
-{
-#ifdef SX128XDEBUG
-  Serial.println(F("getPreamble"));
-#endif
-
-  return savedPacketParam1;
-}
-
 void SX128XLT::printOperatingSettings()
 {
 #ifdef SX128XDEBUG
@@ -2243,18 +2175,6 @@ switch (bandwidth)
   
 }
 
-
-uint16_t SX128XLT::getSetCalibrationValue()
-{
-#ifdef SX128XDEBUG
-  Serial.println(F("getCalibrationValue()"));
-#endif
-
-return savedCalibration;;
-  
-}
-
-
 //*******************************************************************************
 //End Ranging routines
 //*******************************************************************************
@@ -2389,33 +2309,22 @@ void SX128XLT::printSXBufferHEX(uint8_t start, uint8_t end)
 
 }
 
-
-void SX128XLT::printHEXByte(uint8_t temp)
-{
-  if (temp < 0x10)
-  {
-    Serial.print(F("0"));
-  }
-  Serial.print(temp, HEX);
-}
-
-
 void SX128XLT::wake()
 {
 #ifdef SX128XDEBUG
   Serial.println(F("wake()"));
 #endif
 
-digitalWrite(_NSS, LOW);
-delay(1);
-digitalWrite(_NSS, HIGH);
-delay(1);
+  digitalWrite(_NSS, LOW);
+  delay(1);
+  digitalWrite(_NSS, HIGH);
+  delay(1);
 }
 
 
 int32_t SX128XLT::getFrequencyErrorRegValue()
 {
-  #ifdef SX128XDEBUG
+#ifdef SX128XDEBUG
   Serial.println(F("getFrequencyErrorRegValue()"));
 #endif
   
@@ -2432,7 +2341,7 @@ int32_t SX128XLT::getFrequencyErrorRegValue()
   reglsb = readRegister( REG_LR_ESTIMATED_FREQUENCY_ERROR_MSB + 2 );
   setMode(MODE_STDBY_RC);
 
-  #ifdef LORADEBUG
+#ifdef LORADEBUG
   Serial.println();
   Serial.print(F("Registers "));
   Serial.print(regmsb,HEX);
@@ -2440,17 +2349,17 @@ int32_t SX128XLT::getFrequencyErrorRegValue()
   Serial.print(regmid,HEX);
   Serial.print(F(" "));
   Serial.println(reglsb,HEX);
-  #endif
+#endif
     
   allreg = (uint32_t) ( regmsb << 16 ) | ( regmid << 8 ) | reglsb;
 
   if (allreg & 0x80000)
   {
-  FrequencyError = (0xFFFFF - allreg) * -1;
+      FrequencyError = (0xFFFFF - allreg) * -1;
   }
   else
   {
-  FrequencyError = allreg; 
+      FrequencyError = allreg; 
   }
 
   return FrequencyError;
@@ -2459,7 +2368,7 @@ int32_t SX128XLT::getFrequencyErrorRegValue()
 
 int32_t SX128XLT::getFrequencyErrorHz()
 {
-    #ifdef SX128XDEBUG
+#ifdef SX128XDEBUG
   Serial.println(F("getFrequencyErrorHz()"));
 #endif
   
@@ -2621,16 +2530,6 @@ uint8_t SX128XLT::receiveAddressed(uint8_t *rxbuffer, uint8_t size, uint16_t tim
   return _RXPacketL;                     //so we can check for packet having enough buffer space
 }
 
-
-uint8_t SX128XLT::readRXPacketType()
-{
-#ifdef SX128XDEBUG
-  Serial.println(F("readRXPacketType()"));
-#endif
-return _RXPacketType;
-}
-
-
 uint8_t SX128XLT::readPacket(uint8_t *rxbuffer, uint8_t size)
 {
 #ifdef SX128XDEBUG
@@ -2645,7 +2544,7 @@ uint8_t SX128XLT::readPacket(uint8_t *rxbuffer, uint8_t size)
   
   if (_RXPacketL > size)               //check passed buffer is big enough for packet
   {
-  _RXPacketL = size;                   //truncate packet if not enough space
+      _RXPacketL = size;                   //truncate packet if not enough space
   }
   
   RXstart = buffer[1];
