@@ -12,6 +12,7 @@
 #include <Arduino.h>
 #include <SX127XLT_Definitions.h>
 
+class SPIClass; // forward declaration
 
 class SX127XLT
 {
@@ -20,6 +21,8 @@ class SX127XLT
 
     SX127XLT();
 
+    void setSpi(SPIClass& spi);
+    
     bool begin(int8_t pinNSS, int8_t pinNRESET, int8_t pinDIO0, int8_t pinDIO1, int8_t pinDIO2, uint8_t device);
     bool begin(int8_t pinNSS, int8_t pinNRESET, int8_t pinDIO0, uint8_t device);
     bool begin(int8_t pinNSS, uint8_t device);
@@ -240,6 +243,8 @@ class SX127XLT
     uint8_t _ShiftfreqregH, _ShiftfreqregM, _ShiftfreqregL;  //register values for shifted frequency, used in FSK RTTY etc
     uint32_t _savedFrequency;       //when setRfFrequency() is used the set frequency is saved
     int32_t _savedOffset;           //when setRfFrequency() is used the set offset is saved
+
+    SPIClass& _spi; // device to be used for SPI communication
 };
 #endif
 

@@ -29,10 +29,14 @@
   
 **************************************************************************/
 
+class SPIClass; // forward declaration
+
 class SX126XLT  {
   public:
 
     SX126XLT();
+
+    void setSpi(SPIClass& spi);
 
     bool begin(int8_t pinNSS, int8_t pinNRESET, int8_t pinRFBUSY, int8_t pinDIO1, int8_t pinDIO2, int8_t pinDIO3, int8_t pinRXEN, int8_t pinTXEN, int8_t pinSW, uint8_t device);
     bool begin(int8_t pinNSS, int8_t pinNRESET, int8_t pinRFBUSY, int8_t pinDIO1, uint8_t device);
@@ -221,6 +225,7 @@ class SX126XLT  {
     uint8_t _freqregH, _freqregMH, _freqregML,_freqregL;  //the registers values for the set frequency
     uint8_t _ShiftfreqregH, _ShiftfreqregMH, _ShiftfreqregML, _ShiftfreqregL;  //register values for shifted frequency, used in FSK
 
+    SPIClass& _spi; // device to be used for SPI communication
 };
 #endif
 

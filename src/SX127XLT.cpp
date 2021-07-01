@@ -28,9 +28,16 @@
 
 
 SX127XLT::SX127XLT()
+    : _spi(SPI)
 {
 
 }
+
+void SX127XLT::setSpi(SPIClass& spi)
+{
+    _spi = spi;
+}
+
 
 /* Formats for :begin
   1 original   > begin(int8_t pinNSS, int8_t pinNRESET, int8_t pinDIO0, int8_t pinDIO1, int8_t pinDIO2, uint8_t device);
@@ -479,16 +486,16 @@ void SX127XLT::writeRegister(uint8_t address, uint8_t value)
 #endif
 
 #ifdef USE_SPI_TRANSACTION                  //to use SPI_TRANSACTION enable define at beginning of CPP file 
-  SPI.beginTransaction(SPISettings(LTspeedMaximum, LTdataOrder, LTdataMode));
+  _spi.beginTransaction(SPISettings(LTspeedMaximum, LTdataOrder, LTdataMode));
 #endif
 
   digitalWrite(_NSS, LOW);                  //set NSS low
-  SPI.transfer(address | 0x80);             //mask address for write
-  SPI.transfer(value);                      //write the byte
+  _spi.transfer(address | 0x80);             //mask address for write
+  _spi.transfer(value);                      //write the byte
   digitalWrite(_NSS, HIGH);                 //set NSS high
 
 #ifdef USE_SPI_TRANSACTION
-  SPI.endTransaction();
+  _spi.endTransaction();
 #endif
 
 #ifdef SX127XDEBUG2
@@ -511,16 +518,16 @@ uint8_t SX127XLT::readRegister(uint8_t address)
   uint8_t regdata;
 
 #ifdef USE_SPI_TRANSACTION         //to use SPI_TRANSACTION enable define at beginning of CPP file 
-  SPI.beginTransaction(SPISettings(LTspeedMaximum, LTdataOrder, LTdataMode));
+  _spi.beginTransaction(SPISettings(LTspeedMaximum, LTdataOrder, LTdataMode));
 #endif
 
   digitalWrite(_NSS, LOW);         //set NSS low
-  SPI.transfer(address & 0x7F);    //mask address for read
-  regdata = SPI.transfer(0);       //read the byte
+  _spi.transfer(address & 0x7F);    //mask address for read
+  regdata = _spi.transfer(0);       //read the byte
   digitalWrite(_NSS, HIGH);        //set NSS high
 
 #ifdef USE_SPI_TRANSACTION
-  SPI.endTransaction();
+  _spi.endTransaction();
 #endif
 
 #ifdef SX127XDEBUG2
@@ -2201,21 +2208,21 @@ uint8_t SX127XLT::receive(uint8_t *rxbuffer, uint8_t size, uint32_t rxtimeout, u
   }
 
 #ifdef USE_SPI_TRANSACTION   //to use SPI_TRANSACTION enable define at beginning of CPP file 
-  SPI.beginTransaction(SPISettings(LTspeedMaximum, LTdataOrder, LTdataMode));
+  _spi.beginTransaction(SPISettings(LTspeedMaximum, LTdataOrder, LTdataMode));
 #endif
 
   digitalWrite(_NSS, LOW);                    //start the burst read
-  SPI.transfer(REG_FIFO);
+  _spi.transfer(REG_FIFO);
 
   for (index = 0; index < _RXPacketL; index++)
   {
-    regdata = SPI.transfer(0);
+    regdata = _spi.transfer(0);
     rxbuffer[index] = regdata;
   }
   digitalWrite(_NSS, HIGH);
 
 #ifdef USE_SPI_TRANSACTION
-  SPI.endTransaction();
+  _spi.endTransaction();
 #endif
 
   return _RXPacketL;                           //so we can check for packet having enough buffer space
@@ -2275,25 +2282,25 @@ uint8_t SX127XLT::receiveAddressed(uint8_t *rxbuffer, uint8_t size, uint32_t rxt
   }
 
 #ifdef USE_SPI_TRANSACTION   //to use SPI_TRANSACTION enable define at beginning of CPP file 
-  SPI.beginTransaction(SPISettings(LTspeedMaximum, LTdataOrder, LTdataMode));
+  _spi.beginTransaction(SPISettings(LTspeedMaximum, LTdataOrder, LTdataMode));
 #endif
 
   digitalWrite(_NSS, LOW);                    //start the burst read
-  SPI.transfer(REG_FIFO);
+  _spi.transfer(REG_FIFO);
 
-  _RXPacketType = SPI.transfer(0);
-  _RXDestination = SPI.transfer(0);
-  _RXSource = SPI.transfer(0);
+  _RXPacketType = _spi.transfer(0);
+  _RXDestination = _spi.transfer(0);
+  _RXSource = _spi.transfer(0);
 
   for (index = 0; index < _RXPacketL; index++)
   {
-    regdata = SPI.transfer(0);
+    regdata = _spi.transfer(0);
     rxbuffer[index] = regdata;
   }
   digitalWrite(_NSS, HIGH);
 
 #ifdef USE_SPI_TRANSACTION
-  SPI.endTransaction();
+  _spi.endTransaction();
 #endif
 
   return _RXPacketL;                             //so we can check for packet having enough buffer space
@@ -2325,21 +2332,21 @@ uint8_t SX127XLT::readPacket(uint8_t *rxbuffer, uint8_t size)
   }
 
 #ifdef USE_SPI_TRANSACTION   //to use SPI_TRANSACTION enable define at beginning of CPP file 
-  SPI.beginTransaction(SPISettings(LTspeedMaximum, LTdataOrder, LTdataMode));
+  _spi.beginTransaction(SPISettings(LTspeedMaximum, LTdataOrder, LTdataMode));
 #endif
 
   digitalWrite(_NSS, LOW);                    //start the burst read
-  SPI.transfer(REG_FIFO);
+  _spi.transfer(REG_FIFO);
 
   for (index = 0; index < _RXPacketL; index++)
   {
-    regdata = SPI.transfer(0);
+    regdata = _spi.transfer(0);
     rxbuffer[index] = regdata;
   }
   digitalWrite(_NSS, HIGH);
 
 #ifdef USE_SPI_TRANSACTION
-  SPI.endTransaction();
+  _spi.endTransaction();
 #endif
 
   return _RXPacketL;                           //so we can check for packet having enough buffer space
@@ -2366,24 +2373,24 @@ uint8_t SX127XLT::readPacketAddressed(uint8_t *rxbuffer, uint8_t size)
   }
 
 #ifdef USE_SPI_TRANSACTION   //to use SPI_TRANSACTION enable define at beginning of CPP file 
-  SPI.beginTransaction(SPISettings(LTspeedMaximum, LTdataOrder, LTdataMode));
+  _spi.beginTransaction(SPISettings(LTspeedMaximum, LTdataOrder, LTdataMode));
 #endif
 
   digitalWrite(_NSS, LOW);                    //start the burst read
-  SPI.transfer(REG_FIFO);
-  _RXPacketType = SPI.transfer(0);
-  _RXDestination = SPI.transfer(0);
-  _RXSource = SPI.transfer(0);
+  _spi.transfer(REG_FIFO);
+  _RXPacketType = _spi.transfer(0);
+  _RXDestination = _spi.transfer(0);
+  _RXSource = _spi.transfer(0);
 
   for (index = 0; index < _RXPacketL; index++)
   {
-    regdata = SPI.transfer(0);
+    regdata = _spi.transfer(0);
     rxbuffer[index] = regdata;
   }
   digitalWrite(_NSS, HIGH);
 
 #ifdef USE_SPI_TRANSACTION
-  SPI.endTransaction();
+  _spi.endTransaction();
 #endif
 
   return _RXPacketL;                           //so we can check for packet having enough buffer space
@@ -2410,21 +2417,21 @@ uint8_t SX127XLT::transmit(uint8_t *txbuffer, uint8_t size, uint32_t txtimeout, 
   writeRegister(REG_FIFOADDRPTR, ptr);          //and save in FIFO access ptr
 
 #ifdef USE_SPI_TRANSACTION                   //to use SPI_TRANSACTION enable define at beginning of CPP file 
-  SPI.beginTransaction(SPISettings(LTspeedMaximum, LTdataOrder, LTdataMode));
+  _spi.beginTransaction(SPISettings(LTspeedMaximum, LTdataOrder, LTdataMode));
 #endif
 
   digitalWrite(_NSS, LOW);
-  SPI.transfer(WREG_FIFO);
+  _spi.transfer(WREG_FIFO);
 
   for (index = 0; index < size; index++)
   {
     bufferdata = txbuffer[index];
-    SPI.transfer(bufferdata);
+    _spi.transfer(bufferdata);
   }
   digitalWrite(_NSS, HIGH);
 
 #ifdef USE_SPI_TRANSACTION
-  SPI.endTransaction();
+  _spi.endTransaction();
 #endif
 
   _TXPacketL = size;
@@ -2482,25 +2489,25 @@ uint8_t SX127XLT::transmitAddressed(uint8_t *txbuffer, uint8_t size, char txpack
   writeRegister(REG_FIFOADDRPTR, ptr);            //and save in FIFO access ptr
 
 #ifdef USE_SPI_TRANSACTION                        //to use SPI_TRANSACTION enable define at beginning of CPP file 
-  SPI.beginTransaction(SPISettings(LTspeedMaximum, LTdataOrder, LTdataMode));
+  _spi.beginTransaction(SPISettings(LTspeedMaximum, LTdataOrder, LTdataMode));
 #endif
 
   digitalWrite(_NSS, LOW);
-  SPI.transfer(WREG_FIFO);
-  SPI.transfer(txpackettype);                     //Write the packet type
-  SPI.transfer(txdestination);                    //Destination node
-  SPI.transfer(txsource);                         //Source node
+  _spi.transfer(WREG_FIFO);
+  _spi.transfer(txpackettype);                     //Write the packet type
+  _spi.transfer(txdestination);                    //Destination node
+  _spi.transfer(txsource);                         //Source node
   _TXPacketL = 3 + size;                          //we have added 3 header bytes to size
 
   for (index = 0; index < size; index++)
   {
     bufferdata = txbuffer[index];
-    SPI.transfer(bufferdata);
+    _spi.transfer(bufferdata);
   }
   digitalWrite(_NSS, HIGH);
 
 #ifdef USE_SPI_TRANSACTION
-  SPI.endTransaction();
+  _spi.endTransaction();
 #endif
 
   writeRegister(REG_PAYLOADLENGTH, _TXPacketL);
@@ -2953,15 +2960,15 @@ void SX127XLT::printSXBufferHEX(uint8_t start, uint8_t end)
   writeRegister(REG_FIFOADDRPTR, start);         //set FIFO access ptr to start
 
 #ifdef USE_SPI_TRANSACTION                       //to use SPI_TRANSACTION enable define at beginning of CPP file 
-  SPI.beginTransaction(SPISettings(LTspeedMaximum, LTdataOrder, LTdataMode));
+  _spi.beginTransaction(SPISettings(LTspeedMaximum, LTdataOrder, LTdataMode));
 #endif
 
   digitalWrite(_NSS, LOW);                       //start the burst read
-  SPI.transfer(REG_FIFO);
+  _spi.transfer(REG_FIFO);
 
   for (index = start; index <= end; index++)
   {
-    regdata = SPI.transfer(0);
+    regdata = _spi.transfer(0);
     printHEXByte(regdata);
     Serial.print(F(" "));
 
@@ -2969,7 +2976,7 @@ void SX127XLT::printSXBufferHEX(uint8_t start, uint8_t end)
   digitalWrite(_NSS, HIGH);
 
 #ifdef USE_SPI_TRANSACTION
-  SPI.endTransaction();
+  _spi.endTransaction();
 #endif
 
 }
@@ -2987,21 +2994,21 @@ void SX127XLT::printSXBufferASCII(uint8_t start, uint8_t end)
   writeRegister(REG_FIFOADDRPTR, start);      //and save in FIFO access ptr
 
 #ifdef USE_SPI_TRANSACTION                    //to use SPI_TRANSACTION enable define at beginning of CPP file 
-  SPI.beginTransaction(SPISettings(LTspeedMaximum, LTdataOrder, LTdataMode));
+  _spi.beginTransaction(SPISettings(LTspeedMaximum, LTdataOrder, LTdataMode));
 #endif
 
   digitalWrite(_NSS, LOW);                    //start the burst read
-  SPI.transfer(REG_FIFO);
+  _spi.transfer(REG_FIFO);
 
   for (index = start; index <= end; index++)
   {
-    regdata = SPI.transfer(0);
+    regdata = _spi.transfer(0);
     Serial.write(regdata);
   }
   digitalWrite(_NSS, HIGH);
 
 #ifdef USE_SPI_TRANSACTION
-  SPI.endTransaction();
+  _spi.endTransaction();
 #endif
 }
 
@@ -3017,21 +3024,21 @@ void SX127XLT::fillSXBuffer(uint8_t startaddress, uint8_t size, uint8_t characte
   writeRegister(REG_FIFOADDRPTR, startaddress);     //and save in FIFO access ptr
 
 #ifdef USE_SPI_TRANSACTION                          //to use SPI_TRANSACTION enable define at beginning of CPP file 
-  SPI.beginTransaction(SPISettings(LTspeedMaximum, LTdataOrder, LTdataMode));
+  _spi.beginTransaction(SPISettings(LTspeedMaximum, LTdataOrder, LTdataMode));
 #endif
 
   digitalWrite(_NSS, LOW);                          //start the burst write
-  SPI.transfer(WREG_FIFO);
+  _spi.transfer(WREG_FIFO);
 
   for (index = 0; index < size; index++)
   {
-    SPI.transfer(character);
+    _spi.transfer(character);
   }
 
   digitalWrite(_NSS, HIGH);
 
 #ifdef USE_SPI_TRANSACTION
-  SPI.endTransaction();
+  _spi.endTransaction();
 #endif
 }
 
@@ -3048,16 +3055,16 @@ uint8_t SX127XLT::getByteSXBuffer(uint8_t addr)
   writeRegister(REG_FIFOADDRPTR, addr);       //set FIFO access ptr to location
 
 #ifdef USE_SPI_TRANSACTION                    //to use SPI_TRANSACTION enable define at beginning of CPP file 
-  SPI.beginTransaction(SPISettings(LTspeedMaximum, LTdataOrder, LTdataMode));
+  _spi.beginTransaction(SPISettings(LTspeedMaximum, LTdataOrder, LTdataMode));
 #endif
 
   digitalWrite(_NSS, LOW);                    //start the burst read
-  SPI.transfer(REG_FIFO);
-  regdata = SPI.transfer(0);
+  _spi.transfer(REG_FIFO);
+  regdata = _spi.transfer(0);
   digitalWrite(_NSS, HIGH);
 
 #ifdef USE_SPI_TRANSACTION
-  SPI.endTransaction();
+  _spi.endTransaction();
 #endif
 
   return regdata;
@@ -3075,16 +3082,16 @@ void SX127XLT::writeByteSXBuffer(uint8_t addr, uint8_t regdata)
   writeRegister(REG_FIFOADDRPTR, addr);   //set FIFO access ptr to location
 
 #ifdef USE_SPI_TRANSACTION                //to use SPI_TRANSACTION enable define at beginning of CPP file 
-  SPI.beginTransaction(SPISettings(LTspeedMaximum, LTdataOrder, LTdataMode));
+  _spi.beginTransaction(SPISettings(LTspeedMaximum, LTdataOrder, LTdataMode));
 #endif
 
   digitalWrite(_NSS, LOW);                //start the burst read
-  SPI.transfer(WREG_FIFO);
-  SPI.transfer(regdata);
+  _spi.transfer(WREG_FIFO);
+  _spi.transfer(regdata);
   digitalWrite(_NSS, HIGH);
 
 #ifdef USE_SPI_TRANSACTION
-  SPI.endTransaction();
+  _spi.endTransaction();
 #endif
 }
 
@@ -3101,11 +3108,11 @@ void SX127XLT::startWriteSXBuffer(uint8_t ptr)
   writeRegister(REG_FIFOADDRPTR, ptr);          //set buffer access ptr
 
 #ifdef USE_SPI_TRANSACTION                      //to use SPI_TRANSACTION enable define at beginning of CPP file 
-  SPI.beginTransaction(SPISettings(LTspeedMaximum, LTdataOrder, LTdataMode));
+  _spi.beginTransaction(SPISettings(LTspeedMaximum, LTdataOrder, LTdataMode));
 #endif
 
   digitalWrite(_NSS, LOW);
-  SPI.transfer(WREG_FIFO);
+  _spi.transfer(WREG_FIFO);
 }
 
 
@@ -3118,7 +3125,7 @@ uint8_t SX127XLT::endWriteSXBuffer()
   digitalWrite(_NSS, HIGH);
 
 #ifdef USE_SPI_TRANSACTION
-  SPI.endTransaction();
+  _spi.endTransaction();
 #endif
 
   return _TXPacketL;
@@ -3136,13 +3143,13 @@ void SX127XLT::startReadSXBuffer(uint8_t ptr)
   writeRegister(REG_FIFOADDRPTR, ptr);           //set buffer access ptr
 
 #ifdef USE_SPI_TRANSACTION                       //to use SPI_TRANSACTION enable define at beginning of CPP file 
-  SPI.beginTransaction(SPISettings(LTspeedMaximum, LTdataOrder, LTdataMode));
+  _spi.beginTransaction(SPISettings(LTspeedMaximum, LTdataOrder, LTdataMode));
 #endif
 
   digitalWrite(_NSS, LOW);                       //start the burst read
-  SPI.transfer(REG_FIFO);
+  _spi.transfer(REG_FIFO);
 
-  //next line would be data = SPI.transfer(0);
+  //next line would be data = _spi.transfer(0);
   //SPI interface ready for byte to read from
 }
 
@@ -3156,7 +3163,7 @@ uint8_t SX127XLT::endReadSXBuffer()
   digitalWrite(_NSS, HIGH);
 
 #ifdef USE_SPI_TRANSACTION
-  SPI.endTransaction();
+  _spi.endTransaction();
 #endif
 
   return _RXPacketL;
@@ -3169,7 +3176,7 @@ void SX127XLT::writeUint8(uint8_t x)
   Serial.println(F("writeUint8() "));
 #endif
 
-  SPI.transfer(x);
+  _spi.transfer(x);
 
   _TXPacketL++;                      //increment count of bytes written
 }
@@ -3183,7 +3190,7 @@ uint8_t SX127XLT::readUint8()
 
   uint8_t x;
 
-  x = SPI.transfer(0);
+  x = _spi.transfer(0);
 
   _RXPacketL++;                       //increment count of bytes read
   return (x);
@@ -3196,7 +3203,7 @@ void SX127XLT::writeInt8(int8_t x)
   Serial.println(F("writeInt8() "));
 #endif
 
-  SPI.transfer(x);
+  _spi.transfer(x);
 
   _TXPacketL++;                      //increment count of bytes written
 }
@@ -3210,7 +3217,7 @@ int8_t SX127XLT::readInt8()
 
   int8_t x;
 
-  x = SPI.transfer(0);
+  x = _spi.transfer(0);
 
   _RXPacketL++;                      //increment count of bytes read
   return (x);
@@ -3223,7 +3230,7 @@ void SX127XLT::writeChar(char x)
   Serial.println(F("writeChar() "));
 #endif
 
-  SPI.transfer(x);
+  _spi.transfer(x);
 
   _TXPacketL++;                     //increment count of bytes written
 }
@@ -3237,7 +3244,7 @@ char SX127XLT::readChar()
 
   char x;
 
-  x = SPI.transfer(0);
+  x = _spi.transfer(0);
 
   _RXPacketL++;                      //increment count of bytes read
   return (x);
@@ -3250,8 +3257,8 @@ void SX127XLT::writeUint16(uint16_t x)
   Serial.println(F("writeUint16() "));
 #endif
 
-  SPI.transfer(lowByte(x));
-  SPI.transfer(highByte(x));
+  _spi.transfer(lowByte(x));
+  _spi.transfer(highByte(x));
 
   _TXPacketL = _TXPacketL + 2;         //increment count of bytes written
 }
@@ -3265,8 +3272,8 @@ uint16_t SX127XLT::readUint16()
 
   uint8_t lowbyte, highbyte;
 
-  lowbyte = SPI.transfer(0);
-  highbyte = SPI.transfer(0);
+  lowbyte = _spi.transfer(0);
+  highbyte = _spi.transfer(0);
 
   _RXPacketL = _RXPacketL + 2;         //increment count of bytes read
   return ((highbyte << 8) + lowbyte);
@@ -3279,8 +3286,8 @@ void SX127XLT::writeInt16(int16_t x)
   Serial.println(F("writeInt16() "));
 #endif
 
-  SPI.transfer(lowByte(x));
-  SPI.transfer(highByte(x));
+  _spi.transfer(lowByte(x));
+  _spi.transfer(highByte(x));
 
   _TXPacketL = _TXPacketL + 2;         //increment count of bytes written
 }
@@ -3294,8 +3301,8 @@ int16_t SX127XLT::readInt16()
 
   uint8_t lowbyte, highbyte;
 
-  lowbyte = SPI.transfer(0);
-  highbyte = SPI.transfer(0);
+  lowbyte = _spi.transfer(0);
+  highbyte = _spi.transfer(0);
 
   _RXPacketL = _RXPacketL + 2;         //increment count of bytes read
   return ((highbyte << 8) + lowbyte);
@@ -3320,7 +3327,7 @@ void SX127XLT::writeUint32(uint32_t x)
   for (i = 0; i < 4; i++)
   {
     j = data.b[i];
-    SPI.transfer(j);
+    _spi.transfer(j);
   }
 
   _TXPacketL = _TXPacketL + 4;         //increment count of bytes written
@@ -3343,7 +3350,7 @@ uint32_t SX127XLT::readUint32()
 
   for (i = 0; i < 4; i++)
   {
-    j = SPI.transfer(0);
+    j = _spi.transfer(0);
     readdata.b[i] = j;
   }
   _RXPacketL = _RXPacketL + 4;         //increment count of bytes read
@@ -3369,7 +3376,7 @@ void SX127XLT::writeInt32(int32_t x)
   for (i = 0; i < 4; i++)
   {
     j = data.b[i];
-    SPI.transfer(j);
+    _spi.transfer(j);
   }
 
   _TXPacketL = _TXPacketL + 4;         //increment count of bytes written
@@ -3392,7 +3399,7 @@ int32_t SX127XLT::readInt32()
 
   for (i = 0; i < 4; i++)
   {
-    j = SPI.transfer(0);
+    j = _spi.transfer(0);
     readdata.b[i] = j;
   }
   _RXPacketL = _RXPacketL + 4;         //increment count of bytes read
@@ -3418,7 +3425,7 @@ void SX127XLT::writeFloat(float x)
   for (i = 0; i < 4; i++)
   {
     j = data.b[i];
-    SPI.transfer(j);
+    _spi.transfer(j);
   }
 
   _TXPacketL = _TXPacketL + 4;         //increment count of bytes written
@@ -3441,7 +3448,7 @@ float SX127XLT::readFloat()
 
   for (i = 0; i < 4; i++)
   {
-    j = SPI.transfer(0);
+    j = _spi.transfer(0);
     readdata.b[i] = j;
   }
   _RXPacketL = _RXPacketL + 4;         //increment count of bytes read
@@ -3464,10 +3471,10 @@ void SX127XLT::writeBuffer(uint8_t *txbuffer, uint8_t size)
   for (index = 0; index < size; index++)
   {
     regdata = txbuffer[index];
-    SPI.transfer(regdata);
+    _spi.transfer(regdata);
   }
 
-  SPI.transfer(0);                     //this ensures last byte of buffer writen really is a null (0)
+  _spi.transfer(0);                     //this ensures last byte of buffer writen really is a null (0)
 }
 
 
@@ -3487,10 +3494,10 @@ void SX127XLT::writeBufferChar(char *txbuffer, uint8_t size)
   for (index = 0; index < size; index++)
   {
     regdata = txbuffer[index];
-    SPI.transfer(regdata);
+    _spi.transfer(regdata);
   }
 
-  SPI.transfer(0);                     //this ensures last byte of buffer writen really is a null (0)
+  _spi.transfer(0);                     //this ensures last byte of buffer writen really is a null (0)
 }
 
 
@@ -3506,13 +3513,13 @@ void SX127XLT::writeBufferChar(char *txbuffer)
  do
   {
     regdata = txbuffer[index];           //read data from txbuffer
-    SPI.transfer(regdata);               //write to device buffer 
+    _spi.transfer(regdata);               //write to device buffer 
     index++;
   } while (regdata != 0);                //keep reading until we have reached the null (0) at the buffer end or exceeded size of buffer allowed
 
   _TXPacketL = _TXPacketL + index;       //increment count of bytes written
 
-  SPI.transfer(0);                       //this ensures last byte of buffer writen really is a null (0)
+  _spi.transfer(0);                       //this ensures last byte of buffer writen really is a null (0)
 }
 
 
@@ -3527,7 +3534,7 @@ uint8_t SX127XLT::readBuffer(uint8_t *rxbuffer)
 
   do
   {
-    regdata = SPI.transfer(0);
+    regdata = _spi.transfer(0);
     rxbuffer[index] = regdata;           //fill the rxbuffer.
     index++;
   } while (regdata != 0);                //keep reading until we have reached the null (0) at the buffer end or exceeded size of buffer allowed
@@ -3548,7 +3555,7 @@ uint8_t SX127XLT::readBuffer(uint8_t *rxbuffer, uint8_t size)
   
   for (index = 0; index <= size; index++)
   {
-   regdata = SPI.transfer(0);
+   regdata = _spi.transfer(0);
    rxbuffer[index] = regdata;            //fill the rxbuffer.
   }
   
@@ -3569,7 +3576,7 @@ uint8_t SX127XLT::readBufferChar(char *rxbuffer)
 
   do                                     
   {
-    regdata = SPI.transfer(0);
+    regdata = _spi.transfer(0);
     rxbuffer[index] = regdata;           //fill the buffer.
     index++;
   } while (regdata != 0);                //keep reading until we have reached the null (0) at the buffer end
@@ -3649,18 +3656,18 @@ void SX127XLT::toneFM(uint16_t frequency, uint32_t length, uint32_t deviation, f
   uint8_t freqregH, freqregM, freqregL;
 
 #ifdef USE_SPI_TRANSACTION           //to use SPI_TRANSACTION enable define at beginning of CPP file 
-  SPI.beginTransaction(SPISettings(LTspeedMaximum, LTdataOrder, LTdataMode));
+  _spi.beginTransaction(SPISettings(LTspeedMaximum, LTdataOrder, LTdataMode));
 #endif
 
   digitalWrite(_NSS, LOW);           //set NSS low
-  SPI.transfer(REG_FRMSB & 0x7F);    //mask address for read
-  freqregH = SPI.transfer(0);
-  freqregM = SPI.transfer(0);
-  freqregL = SPI.transfer(0);
+  _spi.transfer(REG_FRMSB & 0x7F);    //mask address for read
+  freqregH = _spi.transfer(0);
+  freqregM = _spi.transfer(0);
+  freqregL = _spi.transfer(0);
   digitalWrite(_NSS, HIGH);          //set NSS high
 
 #ifdef USE_SPI_TRANSACTION
-  SPI.endTransaction();
+  _spi.endTransaction();
 #endif
 
   freqreg = ( ( (uint32_t) freqregH << 16 ) | ( (uint32_t) freqregM << 8 ) | ( freqregL ) );
@@ -3724,39 +3731,39 @@ void SX127XLT::toneFM(uint16_t frequency, uint32_t length, uint32_t deviation, f
   setTXDirect();
 
 #ifdef USE_SPI_TRANSACTION                    //to use SPI_TRANSACTION enable define at beginning of CPP file 
-  SPI.beginTransaction(SPISettings(LTspeedMaximum, LTdataOrder, LTdataMode));
+  _spi.beginTransaction(SPISettings(LTspeedMaximum, LTdataOrder, LTdataMode));
 #endif
 
   for (index = 1; index <= loopcount; index++)
   {
     digitalWrite(_NSS, LOW);                  //set NSS low
-    SPI.transfer(0x86);                       //address for write to REG_FRMSB
-    SPI.transfer(ShiftH);
-    SPI.transfer(ShiftM);
-    SPI.transfer(ShiftL);
+    _spi.transfer(0x86);                       //address for write to REG_FRMSB
+    _spi.transfer(ShiftH);
+    _spi.transfer(ShiftM);
+    _spi.transfer(ShiftL);
     digitalWrite(_NSS, HIGH);                 //set NSS high
 
     delayMicroseconds(ToneDelayus);
 
     digitalWrite(_NSS, LOW);                  //set NSS low
-    SPI.transfer(0x86);                       //address for write to REG_FRMSB
-    SPI.transfer(NoShiftH);
-    SPI.transfer(NoShiftM);
-    SPI.transfer(NoShiftL);
+    _spi.transfer(0x86);                       //address for write to REG_FRMSB
+    _spi.transfer(NoShiftH);
+    _spi.transfer(NoShiftM);
+    _spi.transfer(NoShiftL);
     digitalWrite(_NSS, HIGH);                 //set NSS high
 
     delayMicroseconds(ToneDelayus);
   }
   //now set the frequency registers back to centre
   digitalWrite(_NSS, LOW);                  //set NSS low
-  SPI.transfer(0x86);                       //address for write to REG_FRMSB
-  SPI.transfer(freqregH);
-  SPI.transfer(freqregM);
-  SPI.transfer(freqregL);
+  _spi.transfer(0x86);                       //address for write to REG_FRMSB
+  _spi.transfer(freqregH);
+  _spi.transfer(freqregM);
+  _spi.transfer(freqregL);
   digitalWrite(_NSS, HIGH);                 //set NSS high
 
 #ifdef USE_SPI_TRANSACTION
-  SPI.endTransaction();
+  _spi.endTransaction();
 #endif
 
   writeRegister(REG_PLLHOP, 0x2D);          //restore PLLHOP register value
@@ -3854,18 +3861,18 @@ void SX127XLT::setRfFrequencyDirect(uint8_t high, uint8_t mid, uint8_t low)
 #endif
 
 #ifdef USE_SPI_TRANSACTION                  //to use SPI_TRANSACTION enable define at beginning of CPP file 
-  SPI.beginTransaction(SPISettings(LTspeedMaximum, LTdataOrder, LTdataMode));
+  _spi.beginTransaction(SPISettings(LTspeedMaximum, LTdataOrder, LTdataMode));
 #endif
 
   digitalWrite(_NSS, LOW);                  //set NSS low
-  SPI.transfer(0x86);                       //address for write to REG_FRMSB
-  SPI.transfer(high);
-  SPI.transfer(mid);
-  SPI.transfer(low);
+  _spi.transfer(0x86);                       //address for write to REG_FRMSB
+  _spi.transfer(high);
+  _spi.transfer(mid);
+  _spi.transfer(low);
   digitalWrite(_NSS, HIGH);                 //set NSS high
 
 #ifdef USE_SPI_TRANSACTION
-  SPI.endTransaction();
+  _spi.endTransaction();
 #endif
 }
 
@@ -3879,18 +3886,18 @@ void SX127XLT::getRfFrequencyRegisters(uint8_t *buff)
 #endif
 
 #ifdef USE_SPI_TRANSACTION         //to use SPI_TRANSACTION enable define at beginning of CPP file 
-  SPI.beginTransaction(SPISettings(LTspeedMaximum, LTdataOrder, LTdataMode));
+  _spi.beginTransaction(SPISettings(LTspeedMaximum, LTdataOrder, LTdataMode));
 #endif
 
   digitalWrite(_NSS, LOW);                  //set NSS low
-  SPI.transfer(REG_FRMSB & 0x7F);           //mask address for read
-  buff[0] = SPI.transfer(0);                //read the byte into buffer
-  buff[1] = SPI.transfer(0);                //read the byte into buffer
-  buff[2] = SPI.transfer(0);                //read the byte into buffer
+  _spi.transfer(REG_FRMSB & 0x7F);           //mask address for read
+  buff[0] = _spi.transfer(0);                //read the byte into buffer
+  buff[1] = _spi.transfer(0);                //read the byte into buffer
+  buff[2] = _spi.transfer(0);                //read the byte into buffer
   digitalWrite(_NSS, HIGH);                 //set NSS high
 
 #ifdef USE_SPI_TRANSACTION
-  SPI.endTransaction();
+  _spi.endTransaction();
 #endif
 }
 
@@ -4198,7 +4205,7 @@ uint8_t SX127XLT::readBufferbytes(uint8_t *buffer, uint8_t size)
 
   for (index = 1; index <= size; index++)
   {
-    regdata = SPI.transfer(0);
+    regdata = _spi.transfer(0);
     buffer[ptr] = regdata;              //fill the buffer.
     ptr++;
   }
@@ -4220,7 +4227,7 @@ uint8_t SX127XLT::writeBufferbytes(uint8_t *buffer, uint8_t size)
   for (index = 0; index < size; index++)
   {
     regdata = buffer[index];
-    SPI.transfer(regdata);                                                
+    _spi.transfer(regdata);                                                
   }
 
   _TXPacketL = _TXPacketL + size;       //increment count of bytes read and written to buffer
