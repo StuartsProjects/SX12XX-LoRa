@@ -1,7 +1,9 @@
 /*
-  Copyright 2019 - Stuart Robinson
+  Copyright 2021 - Stuart Robinson
   Licensed under a MIT license displayed at the bottom of this document.
   Original published 17/12/19
+  New version 23/12/20
+  New version, 15/07/21, Reliable packets added
 */
 
 #define LORA_MAC_PRIVATE_SYNCWORD                   0x12
@@ -208,6 +210,7 @@ const uint8_t REG_RXHEADERCNTVALUEMSB = 0x14;
 const uint8_t REG_RXHEADERCNTVALUELSB = 0x15;
 const uint8_t REG_RXPACKETCNTVALUEMSB = 0x16;
 const uint8_t REG_RXPACKETCNTVALUELSB = 0x17;
+const uint8_t REG_MODEMSTAT = 0x18;
 const uint8_t REG_PKTSNRVALUE = 0x19;
 const uint8_t REG_PKTRSSIVALUE = 0x1A;
 const uint8_t REG_RSSIVALUE = 0x1B;
@@ -292,7 +295,23 @@ const uint8_t REG_PADAC = 0x4D;
 #define ParityOdd 1
 #define ParityEven 2
 #define ParityZero 0xF0
-#define ParityOne  0xF1 
+#define ParityOne  0xF1
+
+
+//These are the bit numbers which when set indicate reliable errors, variable _ReliableErrors
+#define ReliableCRCError 0x00             //bit number set in _ReliableErrors when there is a reliable CRC missmatch
+#define ReliableIDError  0x01             //bit number set in _ReliableErrors when there is a NetworkID missmatch
+#define ReliableSizeError 0x02            //bit number set in _ReliableErrors when there is a size error for packet
+#define ReliableACKError 0x03             //bit number set in _ReliableErrors when there is a ACK error
+
+//These are the bit numbers which when set indicate reliable status flags, variable _ReliableFlags
+#define ReliableACKSent 0x00              //bit number set in _ReliableFlags when there is a ACK sent
+#define ReliableACKReceived 0x01          //bit number set in _ReliableFlags when there is a ACK received
+
+//These are the bit numbers which when set indicate reliable configuration, variable _ReliableConfig
+#define NoReliableCRC 0x00                //bit number set in _ReliableConfig when reliable CRC is not used
+#define NoAutoACK 0x01                    //bit number set in _ReliableConfig when ACK is not used 
+
 
 
 /*

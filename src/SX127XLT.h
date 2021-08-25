@@ -1,9 +1,18 @@
 /*
-  Copyright 2020 - Stuart Robinson
+  Copyright 2021 - Stuart Robinson
   Licensed under a MIT license displayed at the bottom of this document.
   Original published 17/12/19
-  New version 23/12/20
+  New version 23/12/20, add support for PA_BOOST
+  New version, 24/08/21, Reliable packets added
 */
+
+
+/* To Do
+  Done - Check for uint8_t IRQStatus = LoRa.readIrqStatus(); in examples, uint16_t is returned
+  Done - check for uneccessary use of CRCCCITTSX() where buffer is available
+  Done - Check that reliable bit number errors for _ReliableErrors and _ReliableConfig are used correctly
+*/
+
 
 
 #ifndef SX127XLT_h
@@ -205,9 +214,57 @@ class SX127XLT
     void writeBuffer(uint8_t *txbuffer, uint8_t size);
     void writeBufferChar(char *txbuffer, uint8_t size);
     void writeBufferChar(char *txbuffer);
-    uint8_t readBuffer(uint8_t *rxbuffer);
+    uint8_t readBuffer(uint8_t *rxbuffer);               //reads buffer till a null 0x00 is reached
     uint8_t readBuffer(uint8_t *rxbuffer, uint8_t size);
     uint8_t readBufferChar(char *rxbuffer);
+
+    //*******************************************************************************
+    //Reliable RX\TX routines
+    //*******************************************************************************
+
+    uint8_t transmitReliable(uint8_t *txbuffer, uint8_t size, uint16_t networkID, uint32_t txtimeout, int8_t txpower, uint8_t wait);
+    uint8_t receiveReliable(uint8_t *rxbuffer, uint8_t size, uint16_t networkID, uint32_t rxtimeout, uint8_t wait );
+
+    uint8_t transmitReliableAutoACK(uint8_t *txbuffer, uint8_t size, uint16_t networkID, uint32_t acktimeout, uint32_t txtimeout, int8_t txpower, uint8_t wait);
+    uint8_t receiveReliableAutoACK(uint8_t *rxbuffer, uint8_t size, uint16_t networkID, uint32_t ackdelay, int8_t txpower, uint32_t rxtimeout, uint8_t wait );
+
+    uint8_t transmitSXReliable(uint8_t startaddr, uint8_t length, uint16_t networkID, uint32_t txtimeout, int8_t txpower, uint8_t wait);
+    uint8_t transmitSXReliableAutoACK(uint8_t startaddr, uint8_t length, uint16_t networkID, uint32_t acktimeout, uint32_t txtimeout, int8_t txpower, uint8_t wait);
+
+    uint8_t receiveSXReliable(uint8_t startaddr, uint16_t networkID, uint32_t rxtimeout, uint8_t wait );
+    uint8_t receiveSXReliableAutoACK(uint8_t startaddr, uint16_t networkID, uint32_t ackdelay, int8_t txpower, uint32_t rxtimeout, uint8_t wait );
+
+    uint8_t sendReliableACK(uint16_t networkID, uint16_t payloadcrc, int8_t txpower);
+    uint8_t sendReliableACK(uint8_t *txbuffer, uint8_t size, uint16_t networkID, uint16_t payloadcrc, int8_t txpower);
+    uint8_t sendSXReliableACK(uint8_t startaddr, uint8_t length, uint16_t networkID, uint16_t payloadcrc, int8_t txpower);
+    uint8_t waitReliableACK(uint16_t networkID, uint16_t payloadcrc, uint32_t acktimeout);
+    uint8_t waitReliableACK(uint8_t *rxbuffer, uint8_t size, uint16_t networkID, uint16_t payloadcrc, uint32_t acktimeout);
+    uint8_t waitSXReliableACK(uint8_t startaddr, uint16_t networkID, uint16_t payloadcrc, uint32_t acktimeout);
+
+    void writeUint16SXBuffer(uint8_t addr, uint16_t regdata);
+    uint16_t readUint16SXBuffer(uint8_t addr);
+
+    uint8_t readReliableErrors();
+    uint8_t readReliableFlags();
+    uint8_t readReliableConfig();
+
+    void setReliableConfig(uint8_t bitset);
+    void clearReliableConfig(uint8_t bitclear);
+    uint8_t getReliableConfig(uint8_t bitread);
+
+    void printReliableConfig();
+    void printReliableStatus();
+    void setReliableRX();
+
+    uint16_t CRCCCITTReliable(uint8_t startadd, uint8_t endadd, uint16_t startvalue);
+    void writeArray(uint8_t *txbuffer, uint8_t size);
+    void printASCIIArray(uint8_t *buffer, uint8_t size);
+
+    uint16_t getRXPayloadCRC();
+    uint16_t getTXPayloadCRC();
+    uint16_t getRXNetworkID();
+    uint16_t getTXNetworkID();
+
 
     //*******************************************************************************
     //RX\TX Enable routines - Not yet tested as of 02/12/19
@@ -240,6 +297,11 @@ class SX127XLT
     uint8_t _ShiftfreqregH, _ShiftfreqregM, _ShiftfreqregL;  //register values for shifted frequency, used in FSK RTTY etc
     uint32_t _savedFrequency;       //when setRfFrequency() is used the set frequency is saved
     int32_t _savedOffset;           //when setRfFrequency() is used the set offset is saved
+    uint8_t _ReliableErrors;        //Reliable status byte
+    uint8_t _ReliableFlags;         //Reliable flags byte
+    uint8_t _ReliableConfig;        //Reliable config byte
+    uint8_t _TXPayloadL;            //length of payload in transmitted packet
+    uint8_t _RXPayloadL;            //length of payload in received packet
 };
 #endif
 

@@ -187,5 +187,39 @@ writeBufferChar	KEYWORD2
 setLowPowerReceive	KEYWORD2
 doAFCPPM	KEYWORD2
 setTXDirect	KEYWORD2
+transmitReliable	KEYWORD2
+receiveReliable	KEYWORD2
+transmitReliableAutoACK	KEYWORD2
+receiveReliableAutoACK	KEYWORD2
+transmitSXReliable	KEYWORD2
+transmitSXReliableAutoACK	KEYWORD2
+receiveSXReliable	KEYWORD2
+receiveSXReliableAutoACK	KEYWORD2
+sendReliableACK	KEYWORD2
+sendReliableACK	KEYWORD2
+sendSXReliableACK	KEYWORD2
+waitReliableACK	KEYWORD2
+waitReliableACK	KEYWORD2
+waitSXReliableACK	KEYWORD2
+writeUint16SXBuffer	KEYWORD2
+readUint16SXBuffer	KEYWORD2
+readReliableErrors	KEYWORD2
+readReliableFlags	KEYWORD2
+readReliableConfig	KEYWORD2
+setReliableConfig	KEYWORD2
+clearReliableConfig	KEYWORD2
+getReliableConfig	KEYWORD2
+printReliableConfig	KEYWORD2
+printReliableStatus	KEYWORD2
+setReliableRX	KEYWORD2
+CRCCCITTReliable	KEYWORD2
+writeArray	KEYWORD2
+printASCIIArray	KEYWORD2
+getRXPayloadCRC	KEYWORD2
+getTXPayloadCRC	KEYWORD2
+getRXNetworkID	KEYWORD2
+getTXNetworkID	KEYWORD2
+
+
 
 

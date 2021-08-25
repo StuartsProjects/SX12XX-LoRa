@@ -13,7 +13,7 @@
 */
 
 const char Sensor1 = '!';               //Sensor packet1
-const char HABPacket = '$';             //HAB style CSV ASCII packet 
+const char HABPacket = '$';             //HAB style CSV ASCII packet
 const char Broadcast = '*';             //Broadcast destination address
 const char RControl1 = 'D';             //Remote Control packet
 const char TestMode1 = '1';             //used to switch to Testmode1 settings
@@ -28,19 +28,35 @@ const char ACK = 'A';                   //Acknowledge
 const char NACK = 'N';                  //Not Acknowledge, error
 const char AFC = 'a';                   //Packet sent for AFC purposes
 
-const uint8_t Reliable = 0x80;          //this packet type indicates reliable data packet
-const uint8_t ReliableACK = 0x81;       //this packet type indicates reliable data packet acknowledge
-const uint8_t FTtype = 0xF0;            //FTsubtype file transfer type
-const uint8_t FTstart = 0xF1;           //FTsubtype file transfer start information, filename etc
-const uint8_t FTsegment = 0xF2;         //FTsubtype packet contains a numbered segment
-const uint8_t FTACK = 0xF3;             //FTsubtype ACK response for file transfers
-const uint8_t FTNACK = 0xF4;            //FTsubtype NACK response for file transfers
-const uint8_t FTclose  = 0xF5;          //FTsubtype request from TX to close file, transfer finished
-const uint8_t FTrestart  = 0xF6;        //FTsubtype request from RX to restart current file transfer
+#define Reliable 0x80                   //this packet type indicates reliable data packet
+#define ReliableACK 0x81                //this packet type indicates reliable data packet acknowledge
+#define ReliableNACK 0x82               //this packet type indicates reliable data packet not acknowledge (error)
+#define ReliableREQACK 0x83             //this packet type indicates a request to send an ACK
+
+//file transfer packetype definitions
+//these are base types, an ACK would be +1, a NACK would be +2.
+
+#define DTSegmentWrite 0xA0                //packet type for segment write
+#define DTSegmentWriteACK 0xA1             //packet type for segment write ACK
+#define DTSegmentWriteNACK 0xA2            //packet type for segment write NACK
+
+
+#define DTFileOpen 0xA4                    //packet type for file open, filename
+#define DTFileOpenACK 0xA5                 //packet type for file open, filename ACK
+#define DTFileOpenNACK 0xA6                //packet type for file open, filename NACK
+
+
+#define DTFileClose 0xA8                    //packet type for file close, filename
+#define DTFileCloseACK 0xA9                 //packet type for file close, filename ACK
+#define DTFileCloseNACK 0xAA                //packet type for file close, filename NACK
+
+const uint8_t FTposition = 0xAC;        //FT set write position in file packet
+const uint8_t FTdelete  = 0xB0;         //FT delete file packet
+const uint8_t FTrestart  = 0xB4;        //FT restart current file transfer packet ??
 
 //GPS Tracker Status byte settings
 const uint8_t GPSFix = 0;               //flag bit set when GPS has a current fix
-const uint8_t GPSConfigError = 1;       //flag bit set to indicate cannot configure GPS or wrong configuration 
+const uint8_t GPSConfigError = 1;       //flag bit set to indicate cannot configure GPS or wrong configuration
 const uint8_t CameraError = 2;          //flag bit indicating a camera device error
 const uint8_t GPSError = 3;             //flag bit set to indicate GPS error, response timeout for instance
 const uint8_t LORAError = 4;            //flag bit indication a lora device error
@@ -113,11 +129,37 @@ const uint8_t GPSHotFix = 7;              //bit when set enables GPS Hot Fix mod
   Values for reliable transmit\receive errors
 ******************************************************************************************************
 */
-const uint16_t packettypeErr = 0x01;
-const uint16_t destErr = 0x02;
-const uint16_t sourceErr = 0x04;
-const uint16_t timeoutErr = 0x08;
-const uint16_t IDErr = 0x10;
-const uint16_t crcErr = 0x20;
-const uint16_t seqErr = 0x40;
-const uint16_t packetErr = 0x80;
+
+//Reliable transmit, receive and ack return values. Bits 31 to 8 of the uint32_t function return value
+//are available to return errors, these need to match the definitions in ProgramLT_Definitions.h
+
+#define RELIABLE_PACKET_ERROR 0x0100     //receive packet CRC errors
+#define RELIABLE_NOT_RELIABLE 0x0200     //not a reliable packet type, 0x80, r 0x81.
+#define RELIABLE_TIMEOUT_ERROR 0x0400    //receive or transmit timeout 
+#define RELIABLE_DATACRC 0x0800          //CRC error for packet or data array
+
+#define RELIABLE_ACK_TIMEOUT 0x1000      //no ack in timeout period
+#define RELIABLE_NETWORKID 0x2000        //network ID missmatch
+#define RELIABLE_HEADERBUFFER_LENGTH 0x4000
+#define RELIABLE_DATABUFFER_LENGTH 0x8000
+#define RELIABLE_NOT_ACK 0x10000
+#define RELIABLE_ATTEMPTS 0x20000
+#define RELIABLE_ACK_GOOD 0x40000
+
+//#define RELIABLE_TIMEOUT_ERROR 0x0100    //receive packet timeout
+//#define RELIABLE_PACKET_ERROR 0x0200     //receive packet CRC errors
+//#define RELIABLE_NOT_RELIABLE 0x0400     //not a realible packet type, 0x80 or 0x81.
+//#define RELIABLE_NETWORKID 0x0800        //network ID missmatch
+//#define RELIABLE_HEADERBUFFER_LENGTH 0x1000
+//#define RELIABLE_DATABUFFER_LENGTH 0x2000
+//#define RELIABLE_DATACRC 0x4000          //CRC error for packet or data array
+//#define RELIABLE_NOT_ACK 0x8000
+//#define RELIABLE_ACK_TIMEOUT 0x10000
+//#define RELIABLE_ATTEMPTS 0x20000
+//#define RELIABLE_ACK_GOOD 0x80000000
+
+#define CRC_ON 1
+#define CRC_OFF 0
+
+#define ACK_ON 1
+#define ACK_OFF 0
