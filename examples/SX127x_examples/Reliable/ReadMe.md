@@ -99,6 +99,8 @@ With the 203 transmitter example running load the 204\_Reliable\_Receiver\_Contr
 
 These structure examples would be easy to expand to control more outputs such as servos and similar. 
 
+**Note:** Structures on different Arduino types can use different formats. If the transmitter is one Arduino type and the receiver is another type the receiver may not be able to read the transferred structure correctly.
+
 ## Writing variables direct to an array
 
 A SX12xx library file, arrayRW.h has routines that allow for variables to be directly written to an array. For example if the name of the array is 'controlarray' and then if you review the transmitter program, 205\_Reliable\_Transmitter\_Controller\_ArrayRW, you will see it fills the array with variables like this;
