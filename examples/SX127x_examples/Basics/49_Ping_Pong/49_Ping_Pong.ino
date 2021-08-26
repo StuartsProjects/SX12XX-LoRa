@@ -59,7 +59,7 @@ void loop()
   }
 
   Serial.println();
-  Serial.print(F("Received packet > "));
+  Serial.print(F("Listen for packet > "));
 
   //Receive a packet with timeout
   if (LT.receive(RXBUFFER, sizeof(RXBUFFER), 2000, WAIT_RX))      //wait for a packet to arrive with 2 second (2000mS) timeout
