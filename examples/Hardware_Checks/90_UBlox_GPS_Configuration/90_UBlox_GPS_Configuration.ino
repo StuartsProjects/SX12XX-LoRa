@@ -30,7 +30,7 @@
 *******************************************************************************************************/
 
 #define RXpin A3              //this is the pin that the Arduino will use to receive data from the GPS
-#define TXpin A2              //this is the pin that the Arduino can use to send data (commands) to the GPS - not used
+#define TXpin A2              //this is the pin that the Arduino can use to send data (commands) to the GPS
 
 #include <SoftwareSerial.h>
 SoftwareSerial GPS(RXpin, TXpin);
