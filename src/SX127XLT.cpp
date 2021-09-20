@@ -2929,7 +2929,7 @@ uint8_t SX127XLT::receiveSXBufferIRQ(uint8_t startaddr, uint32_t rxtimeout, uint
   else
   {
     startmS = millis();
-    while (!digitalRead(_RXDonePin) && ((uint32_t) (millis() - startmS) < rxtimeout));
+    while (!isRXdoneIRQ() && ((uint32_t) (millis() - startmS) < rxtimeout));
   }
 
   setMode(MODE_STDBY_RC);                                                   //ensure to stop further packet reception
