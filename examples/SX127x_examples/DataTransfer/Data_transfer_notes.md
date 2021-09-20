@@ -43,7 +43,7 @@ The examples **233\_SDfile\_Transfer\_Transmitter.ino** and **234\_SDfile\_Trans
 
 <br>
 <p align="center">
-  <img width="250"  src="/$50SAT_Large.jpg">
+  <img width="250"  src="/$50SAT_Large.JPG">
 </p>
 <br>
 
