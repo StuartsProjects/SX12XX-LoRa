@@ -46,6 +46,7 @@ SX127XLT LT;                                    //create a library class instanc
 uint8_t controlarray[4];                        //the array payload to send
 uint8_t controlarraysize;
 uint16_t PayloadCRC;
+uint8_t TXPacketL;
 
 const uint16_t NetworkID = 0x3210;              //NetworkID identifies this connection, needs to match value in receiver
 
@@ -70,10 +71,12 @@ void loop()
 
   //now transmit the packet
   digitalWrite(LED1, HIGH);                     //LED on to indicate transmit
-  if (LT.transmitReliable(controlarray, controlarraysize, NetworkID, TXtimeout, TXpower, WAIT_TX))
+  TXPacketL = LT.transmitReliable(controlarray, controlarraysize, NetworkID, TXtimeout, TXpower, WAIT_TX);
+
+  if (TXPacketL)
   {
     //if transmitReliable() returns > 0 then transmit was OK
-    PayloadCRC = LT.getTXPayloadCRC();          //read the actual transmitted CRC from the LoRa de
+    PayloadCRC = LT.getTXPayloadCRC(TXPacketL);          //read the actual transmitted CRC from the LoRa device
     packet_is_OK();
     Serial.println();
   }
@@ -134,7 +137,7 @@ void setup()
   }
   else
   {
-    Serial.println(F("No device responding"));
+    Serial.println(F("No LoRa device responding"));
     while (1);
   }
 

@@ -1,5 +1,5 @@
 /*******************************************************************************************************
-  Programs for Arduino - Copyright of the author Stuart Robinson - 21/07/21
+  Programs for Arduino - Copyright of the author Stuart Robinson - 13/09/21
 
   This program is supplied as is, it is up to the user of the program to decide if the program is
   suitable for the intended purpose and free from errors.
@@ -41,7 +41,7 @@ SX127XLT LT;                                    //create a library class instanc
 
 #define ACKdelay 100                            //delay in mS before sending acknowledge                    
 #define RXtimeout 60000                         //receive timeout in mS.  
-#define TXpower 10                              //dBm power to use for ACK   
+#define TXpower 2                               //dBm power to use for ACK   
 
 const uint8_t RXBUFFER_SIZE = 251;              //RX buffer size, set to max payload length of 251, or maximum expected length
 uint8_t RXBUFFER[RXBUFFER_SIZE];                //create the buffer that received packets are copied into
@@ -60,7 +60,7 @@ const uint16_t NetworkID = 0x3210;              //NetworkID identifies this conn
 void loop()
 {
   PacketOK = LT.receiveReliableAutoACK(RXBUFFER, RXBUFFER_SIZE, NetworkID, ACKdelay, TXpower, RXtimeout, WAIT_RX); //wait for a packet to arrive with 60seconds (60000mS) timeout
-
+  
   RXPacketL = LT.readRXPacketL();               //get the received packet length
   RXPayloadL = RXPacketL - 4;                   //payload length is always 4 bytes less than packet length
   PacketRSSI = LT.readPacketRSSI();             //read the received packets RSSI value
@@ -111,8 +111,8 @@ void packet_is_Error()
 void printPacketDetails()
 {
   LocalPayloadCRC = LT.CRCCCITT(RXBUFFER, RXPayloadL, 0xFFFF);  //calculate payload crc from the received RXBUFFER
-  TransmitterNetworkID = LT.getRXNetworkID();
-  RXPayloadCRC = LT.getRXPayloadCRC();
+  TransmitterNetworkID = LT.getRXNetworkID(RXPacketL);
+  RXPayloadCRC = LT.getRXPayloadCRC(RXPacketL);
 
   Serial.print(F("LocalNetworkID,0x"));
   Serial.print(NetworkID, HEX);
@@ -141,7 +141,7 @@ void setup()
   }
   else
   {
-    Serial.println(F("No device responding"));
+    Serial.println(F("No LoRa device responding"));
     while (1);
   }
 

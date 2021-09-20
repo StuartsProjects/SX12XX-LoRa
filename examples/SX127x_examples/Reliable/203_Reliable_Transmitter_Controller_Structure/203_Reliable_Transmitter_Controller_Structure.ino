@@ -42,6 +42,7 @@ SX127XLT LT;                                    //create a library class instanc
 #define LED1 8                                  //LED used to indicate transmission 
 #define LORA_DEVICE DEVICE_SX1278               //we need to define the device we are using
 #define TXpower 2                               //LoRa transmit power in dBm
+uint8_t TXPacketL;
 
 #define TXtimeout 1000                          //transmit timeout in mS. If 0 return from transmit function after send.  
 
@@ -50,6 +51,7 @@ struct controllerStructure
   uint16_t destinationNode;
   uint8_t outputNumber;
   uint8_t onoroff;
+//}__attribute__((packed));
 };
 
 struct controllerStructure controller1;         //define an instance called controller1 of the structure controllerStructure
@@ -81,10 +83,13 @@ void loop()
 
   //now transmit the packet
   digitalWrite(LED1, HIGH);                                               //LED on to indicate transmit
-  if (LT.transmitReliable((uint8_t *) &controller1, sizeof(controller1), NetworkID, TXtimeout, TXpower, WAIT_TX))  //will return packet length > 0 if sent OK, otherwise 0 if transmit error
+  
+  TXPacketL = LT.transmitReliable((uint8_t *) &controller1, sizeof(controller1), NetworkID, TXtimeout, TXpower, WAIT_TX);  //will return packet length > 0 if sent OK, otherwise 0 if transmit error
+
+  if (TXPacketL > 0)
   {
     //if transmitReliable() returns > 0 then transmit was OK
-    PayloadCRC = LT.getTXPayloadCRC();                                    //read the actual transmitted CRC from the LoRa device buffer
+    PayloadCRC = LT.getTXPayloadCRC(TXPacketL);                 //read the actual transmitted CRC from the LoRa device buffer
     packet_is_OK();
     Serial.println();
   }
@@ -135,7 +140,7 @@ void setup()
   }
   else
   {
-    Serial.println(F("No device responding"));
+    Serial.println(F("No LoRa device responding"));
     while (1);
   }
 

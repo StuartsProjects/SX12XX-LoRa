@@ -75,9 +75,6 @@ void loop()
   onoroff = arrayReadUint8();                    //0 for off, 1 for on
   RXPayloadL = endarrayRW();                     //this function returns the length of the array decoded
 
-
-
-
   if (PacketOK > 0)
   {
     //if the LT.receiveReliable() returns a value > 0 for PacketOK then packet was received OK
@@ -163,8 +160,8 @@ void actionpayload()
 void printPacketDetails()
 {
   LocalPayloadCRC = LT.CRCCCITT(RXBUFFER, RXPayloadL, 0xFFFF);    //calculate payload crc from the received RXBUFFER
-  TransmitterNetworkID = LT.getRXNetworkID();
-  RXPayloadCRC = LT.getRXPayloadCRC();
+  TransmitterNetworkID = LT.getRXNetworkID(RXPacketL);
+  RXPayloadCRC = LT.getRXPayloadCRC(RXPacketL);
 
   Serial.print(F("LocalNetworkID,0x"));
   Serial.print(NetworkID, HEX);
@@ -193,7 +190,7 @@ void setup()
   }
   else
   {
-    Serial.println(F("No device responding"));
+    Serial.println(F("No LoRa device responding"));
     while (1);
   }
 

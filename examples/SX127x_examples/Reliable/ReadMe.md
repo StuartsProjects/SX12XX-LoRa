@@ -99,7 +99,7 @@ With the 203 transmitter example running load the 204\_Reliable\_Receiver\_Contr
 
 These structure examples would be easy to expand to control more outputs such as servos and similar. 
 
-**Note:** Structures on different Arduino types can use different formats. If the transmitter is one Arduino type and the receiver is another type the receiver may not be able to read the transferred structure correctly.
+**Note:** Structures on different Arduino types can use different formats. If the transmitter is one Arduino type and the receiver is another type the receiver may not be able to read the transferred structure correctly. 
 
 ## Writing variables direct to an array
 
@@ -205,8 +205,8 @@ And for reading direct from the LoRa devices buffer;
 
 The CRC of the transmitted payload, that is appended to the packet and printed out in the examples, can be obtained by the sketch in several ways, first the simplest way is to use a SX12XX library function after the packet has been transmitted or received;
 
-	TXpayloadCRC = LT.getTXPayloadCRC();
-	RXpayloadCRC = LT.getRXPayloadCRC();
+	TXpayloadCRC = LT.getTXPayloadCRC(TXPacketL);
+	RXpayloadCRC = LT.getRXPayloadCRC(RXPacketL);
 
 The payload CRC can be read direct from the end of the packet buffer of the LoRa device like this;
 
@@ -235,8 +235,8 @@ Where 0xFFFF is the CRC check start value, normally 0xFFFF.
 
 The NetworkID used for the transmission or reception of a packet, that is appended to the packet and printed out in the examples, can be obtained by the sketch using an SX12XX library function after the packet has been transmitted or received;
 
-	TXNetworkID = LT.getTXNetworkID();
-	RXNetworkID = LT.getRXNetworkID();
+	TXNetworkID = LT.getTXNetworkID(TXPacketL);
+	RXNetworkID = LT.getRXNetworkID(RXPacketL);
 
 
 ## Sending and receiving reliable packets with an acknowledge
@@ -369,10 +369,10 @@ In this case the returned values are test values of Latitude, Longitude and Alti
 
 The original requesting node sees that the valid reply\Acknowledge is a GPS location request from station 123 and can then act on the data.
 
+Examples **219\_Reliable\_Transmitter\_Data\_RequestorIRQ** and **220\_Reliable\_Receiver\_Data\_RequestorIRQ** are versions of the above 217 and 218 examples that do not require access to the DIO0 pin on the LoRa device to detect RXdone and TXDone. These versions can be useful for situations where there are few microcontroller pins available to drive the LoRa device such as with the ESP32CAM for instance.  
 
 
-
-## Using program 220\_LoRa\_Packet\_Monitor
+## Using program 221\_LoRa\_Packet\_Monitor
 
 When debugging what's going on in a send and acknowledge set-up its useful to be able to see what is happening in real time. This packet monitor example will display the bytes received in hexadecimal, in the example printout below you can see two packets. The 16 byte packet contains the text 'Hello World' and then the NetworkID, 0x3210, then the payload CRC, 0xBC69 at the end. 
 

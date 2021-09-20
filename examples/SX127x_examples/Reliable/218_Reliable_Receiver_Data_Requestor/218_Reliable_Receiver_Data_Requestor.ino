@@ -1,5 +1,5 @@
 /*******************************************************************************************************
-  Programs for Arduino - Copyright of the author Stuart Robinson - 21/07/21
+  Programs for Arduino - Copyright of the author Stuart Robinson - 13/09/21
 
   This program is supplied as is, it is up to the user of the program to decide if the program is
   suitable for the intended purpose and free from errors.
@@ -70,14 +70,16 @@ const float TestLatitude  = 51.48230;           //GPS co-ordinates to use for te
 const float TestLongitude  = -3.18136;          //Cardiff castle keep, used for testing purposes
 const float TestAltitude = 25.5;
 
+uint8_t startaddr = 0;                          //address in SX buffer to start packet
+
 
 void loop()
 {
 
-  if (LT.receiveSXReliable(0, NetworkID, RXtimeout, WAIT_RX))
+  if (LT.receiveSXReliable(startaddr, NetworkID, RXtimeout, WAIT_RX))
   {
     Serial.print(F("Reliable packet received > "));
-    LT.startReadSXBuffer(0);                       //start buffer read at location 0
+    LT.startReadSXBuffer(startaddr);               //start buffer read at location startaddr
     RequestType = LT.readUint8();                  //get the request type
     StationNumber = LT.readUint8();                //get the station number for the request
     RXPayloadL = LT.endReadSXBuffer();             //this function returns the length of the array read
@@ -141,8 +143,8 @@ void packet_is_Error()
 void printPacketDetails()
 {
   LocalPayloadCRC = LT.CRCCCITT(RXBUFFER, RXPayloadL, 0xFFFF);  //calculate payload crc from the received RXBUFFER
-  TransmitterNetworkID = LT.getRXNetworkID();
-  RXPayloadCRC = LT.getRXPayloadCRC();
+  TransmitterNetworkID = LT.getRXNetworkID(RXPacketL);
+  RXPayloadCRC = LT.getRXPayloadCRC(RXPacketL);
 
   Serial.print(F("LocalNetworkID,0x"));
   Serial.print(NetworkID, HEX);
@@ -158,11 +160,11 @@ void printPacketDetails()
 
 void actionRequest()
 {
-  LocalPayloadCRC = LT.getRXPayloadCRC();       //fetch received payload crc
+  LocalPayloadCRC = LT.getRXPayloadCRC(RXPacketL);       //fetch received payload crc
 
   if (RequestType == RequestGPSLocation)
   {
-    LT.startWriteSXBuffer(0);                   //initialise SX buffer write at address 0
+    LT.startWriteSXBuffer(startaddr);           //initialise SX buffer write at address 0
     LT.writeUint8(RequestGPSLocation);          //identify type of request
     LT.writeUint8(ThisStation);                 //who is the request reply from
     LT.writeFloat(TestLatitude);                //add latitude
@@ -171,7 +173,7 @@ void actionRequest()
     TXPayloadL = LT.endWriteSXBuffer();         //close SX buffer write
 
     delay(ACKdelay);
-    LT.sendSXReliableACK(0, TXPayloadL, NetworkID, LocalPayloadCRC, TXpower);
+    LT.sendSXReliableACK(startaddr, TXPayloadL, NetworkID, LocalPayloadCRC, TXpower);
     Serial.println(F("Request replied"));
   }
 
@@ -193,7 +195,7 @@ void setup()
   }
   else
   {
-    Serial.println(F("No device responding"));
+    Serial.println(F("No LoRa device responding"));
     while (1);
   }
 

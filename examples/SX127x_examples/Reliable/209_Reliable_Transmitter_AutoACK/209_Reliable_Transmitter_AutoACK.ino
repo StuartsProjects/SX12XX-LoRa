@@ -1,5 +1,5 @@
 /*******************************************************************************************************
-  Programs for Arduino - Copyright of the author Stuart Robinson - 21/07/21
+  Programs for Arduino - Copyright of the author Stuart Robinson - 13/09/21
 
   This program is supplied as is, it is up to the user of the program to decide if the program is
   suitable for the intended purpose and free from errors.
@@ -26,6 +26,9 @@
   within the ACKtimeout period, the original packet is re-transmitted until a valid acknowledgement is
   received. This program should be used with the matching receiver program, 210_Reliable_Receiver_AutoACK.
 
+  The program will attempt to transmit the packet and have it acknowledged by the receiver a number of times
+  as defined by constant TXattempts. If there is no acknowledge withing this time it will be reported. 
+
   It is possible to use the 'NetworkID' to direct the packet to specific receivers.
 
   Serial monitor baud rate should be set at 115200.
@@ -45,6 +48,7 @@ SX127XLT LT;                                    //create a library class instanc
 
 #define ACKtimeout 1000                         //Acknowledge timeout in mS                      
 #define TXtimeout 1000                          //transmit timeout in mS. If 0 return from transmit function after send.  
+#define TXattempts 10                           //number of times to attempt to TX and get an Ack before failing  
 
 uint8_t buff[] = "Hello World";                 //the payload to send
 uint16_t PayloadCRC;
@@ -57,6 +61,8 @@ void loop()
 {
 
   //keep transmitting the packet until an ACK is received
+  uint8_t attempts = TXattempts;
+  
   do
   {
     Serial.print(F("Transmit Payload > "));
@@ -64,25 +70,41 @@ void loop()
     Serial.println();
     Serial.flush();
 
+    Serial.print(F("Send attempt "));
+    Serial.println(TXattempts - attempts + 1);
+    
     TXPacketL = LT.transmitReliableAutoACK(buff, sizeof(buff), NetworkID, ACKtimeout, TXtimeout, TXpower, WAIT_TX);
-
+    attempts--;
+    
     if (TXPacketL > 0)
     {
       //if transmitReliable() returns > 0 then transmit and ack was OK
-      PayloadCRC = LT.getTXPayloadCRC();                        //read the actual transmitted CRC from the LoRa device buffer
+      PayloadCRC = LT.getTXPayloadCRC(TXPacketL);                        //read the actual transmitted CRC from the LoRa device buffer
       packet_is_OK();
       Serial.println();
     }
     else
     {
-      //if transmitReliableAutoACK() returns 0 there was an error
+      //if transmitReliableAutoACK() returns 0 there was an error, timeout etc
       packet_is_Error();
       Serial.println();
     }
     delay(500);                                        //small delay between tranmission attampts
   }
-  while (TXPacketL == 0);
+  while ((TXPacketL == 0) && (attempts != 0));
 
+  if (TXPacketL > 0)
+  {
+  Serial.println(F("Packet acknowledged"));  
+  } 
+
+  if (attempts == 0)
+  {
+  Serial.print(F("No acknowledge after "));
+  Serial.print(TXattempts);  
+  Serial.print(F(" attempts"));
+  }
+  
   Serial.println();
   delay(5000);                                         //have a delay between packets
 }
@@ -121,7 +143,7 @@ void setup()
   }
   else
   {
-    Serial.println(F("No device responding"));
+    Serial.println(F("No LoRa device responding"));
     while (1);
   }
 

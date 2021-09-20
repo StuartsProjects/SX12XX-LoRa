@@ -28,31 +28,38 @@ const char ACK = 'A';                   //Acknowledge
 const char NACK = 'N';                  //Not Acknowledge, error
 const char AFC = 'a';                   //Packet sent for AFC purposes
 
-#define Reliable 0x80                   //this packet type indicates reliable data packet
-#define ReliableACK 0x81                //this packet type indicates reliable data packet acknowledge
-#define ReliableNACK 0x82               //this packet type indicates reliable data packet not acknowledge (error)
-#define ReliableREQACK 0x83             //this packet type indicates a request to send an ACK
 
 //file transfer packetype definitions
-//these are base types, an ACK would be +1, a NACK would be +2.
 
 #define DTSegmentWrite 0xA0                //packet type for segment write
 #define DTSegmentWriteACK 0xA1             //packet type for segment write ACK
 #define DTSegmentWriteNACK 0xA2            //packet type for segment write NACK
-
+#define DTSegmentWriteHeaderL 6
 
 #define DTFileOpen 0xA4                    //packet type for file open, filename
 #define DTFileOpenACK 0xA5                 //packet type for file open, filename ACK
 #define DTFileOpenNACK 0xA6                //packet type for file open, filename NACK
+#define DTFileOpenHeaderL 12
 
+#define DTFileClose 0xA8                   //packet type for file close, filename
+#define DTFileCloseACK 0xA9                //packet type for file close, filename ACK
+#define DTFileCloseNACK 0xAA               //packet type for file close, filename NACK
+#define DTFileCloseHeaderL 12
 
-#define DTFileClose 0xA8                    //packet type for file close, filename
-#define DTFileCloseACK 0xA9                 //packet type for file close, filename ACK
-#define DTFileCloseNACK 0xAA                //packet type for file close, filename NACK
+#define DTDataSeek 0xAC                    //packet type for seek to date or file position
+#define DTDataSeekACK 0xAD                 //packet type for seek to date or file position ACK
+#define DTDataSeekNACK 0xAE                //packet type for seek to date or file position NACK
+#define DTDataSeekHeaderL 9
 
-const uint8_t FTposition = 0xAC;        //FT set write position in file packet
-const uint8_t FTdelete  = 0xB0;         //FT delete file packet
-const uint8_t FTrestart  = 0xB4;        //FT restart current file transfer packet ??
+#define DTStart 0xB0                       //packet type for start (or restart) file transfer
+#define DTStartACK 0xB1                    //packet type for start (or restart) ACK
+#define DTStartNACK 0xB2                   //packet type for start (or restart) NACK
+#define DTStartHeaderL 6                   //header length for start (or restart) file transfer
+
+#define DTWake 0xB4                        //packet type for wake of node
+#define DTWakeACK 0xB5                     //packet type for wake of node ACK
+#define DTWakeNACK 0xB6                     //packet type for wake of node ACK
+#define DTWakeHeaderL 6                    //header length for for wake of node
 
 //GPS Tracker Status byte settings
 const uint8_t GPSFix = 0;               //flag bit set when GPS has a current fix
@@ -123,40 +130,6 @@ const uint8_t FSKRTTYEnable = 2;          //bit num to set in config byte to ena
 const uint8_t DozeEnable = 4;             //bit num to set in config byte to put tracker in Doze mode
 const uint8_t GPSHotFix = 7;              //bit when set enables GPS Hot Fix mode.
 
-
-/*
-******************************************************************************************************
-  Values for reliable transmit\receive errors
-******************************************************************************************************
-*/
-
-//Reliable transmit, receive and ack return values. Bits 31 to 8 of the uint32_t function return value
-//are available to return errors, these need to match the definitions in ProgramLT_Definitions.h
-
-#define RELIABLE_PACKET_ERROR 0x0100     //receive packet CRC errors
-#define RELIABLE_NOT_RELIABLE 0x0200     //not a reliable packet type, 0x80, r 0x81.
-#define RELIABLE_TIMEOUT_ERROR 0x0400    //receive or transmit timeout 
-#define RELIABLE_DATACRC 0x0800          //CRC error for packet or data array
-
-#define RELIABLE_ACK_TIMEOUT 0x1000      //no ack in timeout period
-#define RELIABLE_NETWORKID 0x2000        //network ID missmatch
-#define RELIABLE_HEADERBUFFER_LENGTH 0x4000
-#define RELIABLE_DATABUFFER_LENGTH 0x8000
-#define RELIABLE_NOT_ACK 0x10000
-#define RELIABLE_ATTEMPTS 0x20000
-#define RELIABLE_ACK_GOOD 0x40000
-
-//#define RELIABLE_TIMEOUT_ERROR 0x0100    //receive packet timeout
-//#define RELIABLE_PACKET_ERROR 0x0200     //receive packet CRC errors
-//#define RELIABLE_NOT_RELIABLE 0x0400     //not a realible packet type, 0x80 or 0x81.
-//#define RELIABLE_NETWORKID 0x0800        //network ID missmatch
-//#define RELIABLE_HEADERBUFFER_LENGTH 0x1000
-//#define RELIABLE_DATABUFFER_LENGTH 0x2000
-//#define RELIABLE_DATACRC 0x4000          //CRC error for packet or data array
-//#define RELIABLE_NOT_ACK 0x8000
-//#define RELIABLE_ACK_TIMEOUT 0x10000
-//#define RELIABLE_ATTEMPTS 0x20000
-//#define RELIABLE_ACK_GOOD 0x80000000
 
 #define CRC_ON 1
 #define CRC_OFF 0

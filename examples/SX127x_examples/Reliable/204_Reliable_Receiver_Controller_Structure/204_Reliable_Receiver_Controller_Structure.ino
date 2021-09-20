@@ -156,8 +156,8 @@ void actionpayload()
 void printPacketDetails()
 {
   LocalPayloadCRC = LT.CRCCCITT((uint8_t *) &controller1, sizeof(controller1), 0xFFFF);  //calculate payload crc from the received RXBUFFER
-  TransmitterNetworkID = LT.getRXNetworkID();
-  RXPayloadCRC = LT.getRXPayloadCRC();
+  TransmitterNetworkID = LT.getRXNetworkID(RXPacketL);
+  RXPayloadCRC = LT.getRXPayloadCRC(RXPacketL);
   Serial.print(F("LocalNetworkID,0x"));
   Serial.print(NetworkID, HEX);
   Serial.print(F(",TransmitterNetworkID,0x"));
@@ -185,7 +185,7 @@ void setup()
   }
   else
   {
-    Serial.println(F("No device responding"));
+    Serial.println(F("No LoRa device responding"));
     while (1);
   }
 

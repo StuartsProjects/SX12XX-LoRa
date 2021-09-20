@@ -1,5 +1,5 @@
 /*******************************************************************************************************
-  Programs for Arduino - Copyright of the author Stuart Robinson - 21/07/21
+  Programs for Arduino - Copyright of the author Stuart Robinson - 13/09/21
 
   This program is supplied as is, it is up to the user of the program to decide if the program is
   suitable for the intended purpose and free from errors.
@@ -72,6 +72,7 @@ const uint8_t RequestGPSLocation = 1;           //request number for GPS locatio
 float Latitude;
 float Longitude;
 float Altitude;
+uint8_t startaddr = 0;                          //address in SX buffer to start packet
 
 
 void loop()
@@ -81,11 +82,11 @@ void loop()
   {
     RequestStation = 123;                       //the number of station to reply to request
 
-    Serial.print(F("Transmit Request"));
+    Serial.print(F("Transmit Request "));
     Serial.flush();
 
     //build the request payload
-    LT.startWriteSXBuffer(0);                   //initialise SX buffer write at address 0
+    LT.startWriteSXBuffer(startaddr);           //initialise SX buffer write at address 0
     LT.writeUint8(RequestGPSLocation);          //identify type of packet
     LT.writeUint8(RequestStation);              //station to reply to request
     TXPayloadL = LT.endWriteSXBuffer();         //close SX buffer write
@@ -93,11 +94,11 @@ void loop()
     PayloadCRC = LT.CRCCCITT(buff, sizeof(buff), 0xFFFF);
 
     //now transmit the request
-    LT.transmitSXReliable(0, TXPayloadL, NetworkID, TXtimeout, TXpower, WAIT_TX);
+    TXPacketL = LT.transmitSXReliable(startaddr, TXPayloadL, NetworkID, TXtimeout, TXpower, WAIT_TX);
 
-    PayloadCRC = LT.getTXPayloadCRC();
+    PayloadCRC = LT.getTXPayloadCRC(TXPacketL);
 
-    RXPacketL = LT.waitSXReliableACK(0, NetworkID, PayloadCRC, ACKtimeout);
+    RXPacketL = LT.waitSXReliableACK(startaddr, NetworkID, PayloadCRC, ACKtimeout);
 
     if (RXPacketL > 0)
     {
@@ -113,8 +114,8 @@ void loop()
       //if transmitReliable() returns 0 there was an error
       packet_is_Error();
       Serial.println();
-      Serial.println();
       Serial.println(F("No Ack Received"));
+      Serial.println();
     }
 
     delay(200);                                        //small delay between tranmission attampts
@@ -146,7 +147,7 @@ void packet_is_Error()
 void actionReply()
 {
 
-  LT.startReadSXBuffer(0);                 //initialise SX buffer write at address 0
+  LT.startReadSXBuffer(startaddr);         //initialise SX buffer write at address startaddr
   RequestType = LT.readUint8();            //identify type of request
   Station = LT.readUint8();                //who is the request reply from
   Latitude = LT.readFloat();               //read latitude
@@ -211,7 +212,7 @@ void setup()
   }
   else
   {
-    Serial.println(F("No device responding"));
+    Serial.println(F("No LoRa device responding"));
     while (1);
   }
 

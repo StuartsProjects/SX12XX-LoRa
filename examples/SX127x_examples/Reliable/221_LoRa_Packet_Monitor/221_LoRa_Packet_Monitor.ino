@@ -122,7 +122,7 @@ void setup()
 
   Serial.begin(115200);
 
-  Serial.println(F("220_LoRa_Packet_Monitor Starting"));
+  Serial.println(F("221_LoRa_Packet_Monitor Starting"));
 
   SPI.begin();
 
@@ -138,7 +138,7 @@ void setup()
   }
   else
   {
-    Serial.println(F("No device responding"));
+    Serial.println(F("No LoRa device responding"));
     while (1)
     {
       led_Flash(50, 50);

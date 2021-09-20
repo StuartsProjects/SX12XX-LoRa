@@ -1,5 +1,5 @@
 /*******************************************************************************************************
-  Programs for Arduino - Copyright of the author Stuart Robinson - 21/07/21
+  Programs for Arduino - Copyright of the author Stuart Robinson - 13/09/21
 
   This program is supplied as is, it is up to the user of the program to decide if the program is
   suitable for the intended purpose and free from errors.
@@ -52,28 +52,30 @@ const uint16_t NetworkID = 0x3210;              //NetworkID identifies this conn
 uint16_t destinationNode = 2;                   //node number we are controlling, 0 to 65535
 uint8_t outputNumber = 1;                       //output number on node we are controlling
 uint8_t onoroff = 0;                            //set to 0 to set remote output off, 1 to set it on
+uint8_t startaddr = 0;                          //address in SX buffer to start packet
 
 
 void loop()
 {
-
-  LT.startWriteSXBuffer(0);                     //start the write at SX12XX internal buffer location 0
+  LT.startWriteSXBuffer(startaddr);             //start the write at SX12XX internal buffer location startaddr
   LT.writeUint16(destinationNode);              //destination node for packet
   LT.writeUint8(outputNumber);                  //output number on receiver
   LT.writeUint8(onoroff);                       //0 for off, 1 for on
   TXPayloadL = LT.endWriteSXBuffer();           //closes packet write and returns the length of the payload to send
 
   Serial.print(F("Transmit SX buffer > "));
-  LT.printSXBufferHEX(0, TXPayloadL - 1);       //print the sent SX array as HEX
+  LT.printSXBufferHEX(startaddr, TXPayloadL + startaddr - 1);       //print the sent SX array as HEX
   Serial.println();
   Serial.flush();
 
   //now transmit the packet
   digitalWrite(LED1, HIGH);
-  if (LT.transmitSXReliable(0, TXPayloadL, NetworkID, TXtimeout, TXpower, WAIT_TX))  //will return packet length > 0 if sent OK, otherwise 0 if transmit error
+  TXPacketL = LT.transmitSXReliable(startaddr, TXPayloadL, NetworkID, TXtimeout, TXpower, WAIT_TX);  //will return packet length > 0 if sent OK, otherwise 0 if transmit error
+  
+  if (TXPacketL > 0)
   {
     //if transmitReliable() returns > 0 then transmit was OK
-    PayloadCRC = LT.getTXPayloadCRC();                                     //read the actual transmitted CRC from the LoRa device buffer
+    PayloadCRC = LT.getTXPayloadCRC(TXPacketL);                                     //read the actual transmitted CRC from the LoRa device buffer
     packet_is_OK();
     Serial.println();
   }
@@ -132,7 +134,7 @@ void setup()
   }
   else
   {
-    Serial.println(F("No device responding"));
+    Serial.println(F("No LoRa device responding"));
     while (1);
   }
 

@@ -303,6 +303,9 @@ const uint8_t REG_PADAC = 0x4D;
 #define ReliableIDError  0x01             //bit number set in _ReliableErrors when there is a NetworkID missmatch
 #define ReliableSizeError 0x02            //bit number set in _ReliableErrors when there is a size error for packet
 #define ReliableACKError 0x03             //bit number set in _ReliableErrors when there is a ACK error
+#define ReliableTimeout 0x04              //bit number set in _ReliableErrors when there is a timeout error
+#define SegmentSequenceError 0x05         //bit number set in _ReliableErrors when there is a segment sequence error
+#define FileError 0x06                    //bit number set in _ReliableErrors when there ia a file (SD) error
 
 //These are the bit numbers which when set indicate reliable status flags, variable _ReliableFlags
 #define ReliableACKSent 0x00              //bit number set in _ReliableFlags when there is a ACK sent
@@ -311,6 +314,7 @@ const uint8_t REG_PADAC = 0x4D;
 //These are the bit numbers which when set indicate reliable configuration, variable _ReliableConfig
 #define NoReliableCRC 0x00                //bit number set in _ReliableConfig when reliable CRC is not used
 #define NoAutoACK 0x01                    //bit number set in _ReliableConfig when ACK is not used 
+
 
 
 

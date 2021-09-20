@@ -1,5 +1,5 @@
 /*******************************************************************************************************
-  Programs for Arduino - Copyright of the author Stuart Robinson - 21/07/21
+  Programs for Arduino - Copyright of the author Stuart Robinson - 13/09/21
 
   This program is supplied as is, it is up to the user of the program to decide if the program is
   suitable for the intended purpose and free from errors.
@@ -54,17 +54,17 @@ uint16_t destinationNode;                       //node number we are controlling
 const uint16_t thisNode = 2;                    //node number for this node
 uint8_t outputNumber = 1;                       //output number on node we are controlling
 uint8_t onoroff = 1;                            //set to 0 to set remote output off, 1 to set it on
-
-
+uint8_t startaddr = 0;                          //address in SX buffer to start packet
+  
 void loop()
 {
-  PacketOK = LT.receiveSXReliable(0, NetworkID, RXtimeout, WAIT_RX); //wait for a packet to arrive with 60seconds (60000mS) timeout
+  PacketOK = LT.receiveSXReliable(startaddr, NetworkID, RXtimeout, WAIT_RX); //wait for a packet to arrive with 60seconds (60000mS) timeout
 
-  RXPacketL = LT.readRXPacketL();                //get the received packet length
+  RXPacketL = LT.readRXPacketL();                //get the received packet length, get this before reading packet 
   RXPayloadL = RXPacketL - 4;
   PacketRSSI = LT.readPacketRSSI();              //read the received packets RSSI value
 
-  LT.startReadSXBuffer(0);                       //start buffer read at location 0
+  LT.startReadSXBuffer(startaddr);               //start buffer read at location 0 
   destinationNode = LT.readUint16();             //load the destination node
   outputNumber = LT.readUint8();                 //load the output number
   onoroff = LT.readUint8();                      //0 for off, 1 for on
@@ -76,7 +76,7 @@ void loop()
     //then only action payload if destinationNode = thisNode
 
     Serial.print(F("Payload received OK > "));
-    LT.printSXBufferHEX(0, RXPayloadL - 1);
+    LT.printSXBufferHEX(startaddr, startaddr + RXPayloadL - 1);
     Serial.println();
 
     Serial.print(F("destinationNode "));
@@ -154,9 +154,9 @@ void actionpayload()
 
 void printPacketDetails()
 {
-  LocalPayloadCRC = LT.CRCCCITTSX(0, RXPayloadL - 1, 0xFFFF);  //calculate payload crc from the received payload in LoRa device buffer
-  TransmitterNetworkID = LT.getRXNetworkID();
-  RXPayloadCRC = LT.getRXPayloadCRC();
+  LocalPayloadCRC = LT.CRCCCITTSX(startaddr, startaddr + RXPayloadL - 1, 0xFFFF);  //calculate payload crc from the received payload in LoRa device buffer
+  TransmitterNetworkID = LT.getRXNetworkID(RXPacketL);
+  RXPayloadCRC = LT.getRXPayloadCRC(RXPacketL);                //used the saved packet value to retrieve the payload CRC
 
   Serial.print(F("LocalNetworkID,0x"));
   Serial.print(NetworkID, HEX);
@@ -185,7 +185,7 @@ void setup()
   }
   else
   {
-    Serial.println(F("No device responding"));
+    Serial.println(F("No LoRa device responding"));
     while (1);
   }
 

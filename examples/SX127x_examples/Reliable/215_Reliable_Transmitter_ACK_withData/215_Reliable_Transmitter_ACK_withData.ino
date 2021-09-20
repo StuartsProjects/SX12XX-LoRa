@@ -1,5 +1,5 @@
 /*******************************************************************************************************
-  Programs for Arduino - Copyright of the author Stuart Robinson - 21/07/21
+  Programs for Arduino - Copyright of the author Stuart Robinson - 13/09/21
 
   This program is supplied as is, it is up to the user of the program to decide if the program is
   suitable for the intended purpose and free from errors.
@@ -91,8 +91,8 @@ void loop()
       //if transmitReliable() returns 0 there was an error
       packet_is_Error();
       Serial.println();
-      Serial.println();
       Serial.println(F("No Ack Received"));
+      Serial.println();
     }
 
     delay(200);                                        //small delay between tranmission attampts
@@ -136,7 +136,7 @@ void setup()
   }
   else
   {
-    Serial.println(F("No device responding"));
+    Serial.println(F("No LoRa device responding"));
     while (1);
   }
 

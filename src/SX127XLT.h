@@ -4,16 +4,8 @@
   Original published 17/12/19
   New version 23/12/20, add support for PA_BOOST
   New version, 24/08/21, Reliable packets added
+  New version, 19/09/21, Data Transfer packets added, support for no DIO0 operation added
 */
-
-
-/* To Do
-  Done - Check for uint8_t IRQStatus = LoRa.readIrqStatus(); in examples, uint16_t is returned
-  Done - check for uneccessary use of CRCCCITTSX() where buffer is available
-  Done - Check that reliable bit number errors for _ReliableErrors and _ReliableConfig are used correctly
-*/
-
-
 
 #ifndef SX127XLT_h
 #define SX127XLT_h
@@ -176,6 +168,9 @@ class SX127XLT
     uint8_t receiveSXBuffer(uint8_t startaddr, uint32_t rxtimeout, uint8_t wait);
     uint8_t transmitSXBuffer(uint8_t startaddr, uint8_t length, uint32_t txtimeout, int8_t txpower, uint8_t wait);
 
+    uint8_t receiveSXBufferIRQ(uint8_t startaddr, uint32_t rxtimeout, uint8_t wait);
+    uint8_t transmitSXBufferIRQ(uint8_t startaddr, uint8_t length, uint32_t txtimeout, int8_t txpower, uint8_t wait);
+
     void printSXBufferHEX(uint8_t start, uint8_t end);
     void printSXBufferASCII(uint8_t start, uint8_t end);
     void fillSXBuffer(uint8_t startaddress, uint8_t size, uint8_t character);
@@ -228,18 +223,23 @@ class SX127XLT
     uint8_t transmitReliableAutoACK(uint8_t *txbuffer, uint8_t size, uint16_t networkID, uint32_t acktimeout, uint32_t txtimeout, int8_t txpower, uint8_t wait);
     uint8_t receiveReliableAutoACK(uint8_t *rxbuffer, uint8_t size, uint16_t networkID, uint32_t ackdelay, int8_t txpower, uint32_t rxtimeout, uint8_t wait );
 
-    uint8_t transmitSXReliable(uint8_t startaddr, uint8_t length, uint16_t networkID, uint32_t txtimeout, int8_t txpower, uint8_t wait);
-    uint8_t transmitSXReliableAutoACK(uint8_t startaddr, uint8_t length, uint16_t networkID, uint32_t acktimeout, uint32_t txtimeout, int8_t txpower, uint8_t wait);
-
-    uint8_t receiveSXReliable(uint8_t startaddr, uint16_t networkID, uint32_t rxtimeout, uint8_t wait );
-    uint8_t receiveSXReliableAutoACK(uint8_t startaddr, uint16_t networkID, uint32_t ackdelay, int8_t txpower, uint32_t rxtimeout, uint8_t wait );
-
     uint8_t sendReliableACK(uint16_t networkID, uint16_t payloadcrc, int8_t txpower);
     uint8_t sendReliableACK(uint8_t *txbuffer, uint8_t size, uint16_t networkID, uint16_t payloadcrc, int8_t txpower);
-    uint8_t sendSXReliableACK(uint8_t startaddr, uint8_t length, uint16_t networkID, uint16_t payloadcrc, int8_t txpower);
+
     uint8_t waitReliableACK(uint16_t networkID, uint16_t payloadcrc, uint32_t acktimeout);
     uint8_t waitReliableACK(uint8_t *rxbuffer, uint8_t size, uint16_t networkID, uint16_t payloadcrc, uint32_t acktimeout);
+
+    uint8_t transmitSXReliable(uint8_t startaddr, uint8_t length, uint16_t networkID, uint32_t txtimeout, int8_t txpower, uint8_t wait);
+    uint8_t transmitSXReliableAutoACK(uint8_t startaddr, uint8_t length, uint16_t networkID, uint32_t acktimeout, uint32_t txtimeout, int8_t txpower, uint8_t wait);
+    uint8_t receiveSXReliable(uint8_t startaddr, uint16_t networkID, uint32_t rxtimeout, uint8_t wait );
+    uint8_t receiveSXReliableAutoACK(uint8_t startaddr, uint16_t networkID, uint32_t ackdelay, int8_t txpower, uint32_t rxtimeout, uint8_t wait );
+    uint8_t sendSXReliableACK(uint8_t startaddr, uint8_t length, uint16_t networkID, uint16_t payloadcrc, int8_t txpower);
     uint8_t waitSXReliableACK(uint8_t startaddr, uint16_t networkID, uint16_t payloadcrc, uint32_t acktimeout);
+
+    uint8_t transmitSXReliableIRQ(uint8_t startaddr, uint8_t length, uint16_t networkID, uint32_t txtimeout, int8_t txpower, uint8_t wait);
+    uint8_t receiveSXReliableIRQ(uint8_t startaddr, uint16_t networkID, uint32_t rxtimeout, uint8_t wait );
+    uint8_t sendSXReliableACKIRQ(uint8_t startaddr, uint8_t length, uint16_t networkID, uint16_t payloadcrc, int8_t txpower);
+    uint8_t waitSXReliableACKIRQ(uint8_t startaddr, uint16_t networkID, uint16_t payloadcrc, uint32_t acktimeout);
 
     void writeUint16SXBuffer(uint8_t addr, uint16_t regdata);
     uint16_t readUint16SXBuffer(uint8_t addr);
@@ -260,11 +260,24 @@ class SX127XLT
     void writeArray(uint8_t *txbuffer, uint8_t size);
     void printASCIIArray(uint8_t *buffer, uint8_t size);
 
-    uint16_t getRXPayloadCRC();
-    uint16_t getTXPayloadCRC();
-    uint16_t getRXNetworkID();
-    uint16_t getTXNetworkID();
+    uint16_t getRXPayloadCRC(uint8_t length);          //cannot rely on _RXPacketL, since some SX reads adjust it
+    uint16_t getTXPayloadCRC(uint8_t length);          //cannot rely on _TXPacketL, since some SX reads adjust it
+    uint16_t getRXNetworkID(uint8_t length);           //cannot rely on _RXPacketL, since some SX reads adjust it
+    uint16_t getTXNetworkID(uint8_t length);           //cannot rely on _TXPacketL, since some SX reads adjust it
 
+    //*******************************************************************************
+    //Data Array - File Transfer functions
+    //*******************************************************************************
+
+    uint8_t transmitDT(uint8_t *header, uint8_t headersize, uint8_t *dataarray, uint8_t size, uint16_t networkID, uint32_t txtimeout, int8_t txpower, uint8_t wait);
+    uint8_t receiveDT(uint8_t *header, uint8_t headersize, uint8_t *dataarray, uint8_t size, uint16_t networkID, uint32_t rxtimeout, uint8_t wait );
+    uint8_t sendACKDT(uint8_t *header, uint8_t headersize, int8_t txpower);
+    uint8_t waitACKDT(uint8_t *header, uint8_t headersize, uint32_t acktimeout);
+
+    uint8_t transmitDTIRQ(uint8_t *header, uint8_t headersize, uint8_t *dataarray, uint8_t size, uint16_t networkID, uint32_t txtimeout, int8_t txpower, uint8_t wait);
+    uint8_t receiveDTIRQ(uint8_t *header, uint8_t headersize, uint8_t *dataarray, uint8_t size, uint16_t networkID, uint32_t rxtimeout, uint8_t wait );
+    uint8_t sendACKDTIRQ(uint8_t *header, uint8_t headersize, int8_t txpower);
+    uint8_t waitACKDTIRQ(uint8_t *header, uint8_t headersize, uint32_t acktimeout);
 
     //*******************************************************************************
     //RX\TX Enable routines - Not yet tested as of 02/12/19
@@ -300,8 +313,7 @@ class SX127XLT
     uint8_t _ReliableErrors;        //Reliable status byte
     uint8_t _ReliableFlags;         //Reliable flags byte
     uint8_t _ReliableConfig;        //Reliable config byte
-    uint8_t _TXPayloadL;            //length of payload in transmitted packet
-    uint8_t _RXPayloadL;            //length of payload in received packet
+
 };
 #endif
 
