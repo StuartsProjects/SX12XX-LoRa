@@ -2236,6 +2236,84 @@ uint8_t SX127XLT::receive(uint8_t *rxbuffer, uint8_t size, uint32_t rxtimeout, u
 }
 
 
+uint8_t SX127XLT::receiveIRQ(uint8_t *rxbuffer, uint8_t size, uint32_t rxtimeout, uint8_t wait )
+{
+#ifdef SX127XDEBUG1
+  Serial.println(F("receive()"));
+#endif
+
+  uint16_t index;
+  uint32_t startmS;
+  uint8_t regdata;
+
+  setMode(MODE_STDBY_RC);
+  regdata = readRegister(REG_FIFORXBASEADDR);                              //retrieve the RXbase address pointer
+  writeRegister(REG_FIFOADDRPTR, regdata);                                 //and save in FIFO access ptr
+
+  setDioIrqParams(IRQ_RADIO_ALL, (IRQ_RX_DONE), 0, 0);  //set for IRQ on RX done
+  //setDioIrqParams(IRQ_RADIO_ALL, (IRQ_RX_DONE + IRQ_HEADER_VALID), 0, 0);  //set for IRQ on RX done
+  setRx(0);                                                                //no actual RX timeout in this function
+
+  if (!wait)
+  {
+    return 0;                                                              //not wait requested so no packet length to pass
+  }
+
+  if (rxtimeout == 0)
+  {
+    while (!isRXdoneIRQ());                                                 //Wait for IRQ to go high, no timeout, RX DONE
+  }
+  else
+  {
+    //change to allow for millis() rollover
+    //code was  endtimeoutmS = millis() + rxtimeout; while (!digitalRead(_RXDonePin) && (millis() < endtimeoutmS));
+    startmS = millis();
+    while (!isRXdoneIRQ() && ((uint32_t) (millis() - startmS) < rxtimeout));
+  }
+
+  setMode(MODE_STDBY_RC);                                                  //ensure to stop further packet reception
+
+  if (!isRXdoneIRQ())                                                      //check if IRQ still low, is so must be RX timeout
+  {
+    _IRQmsb = IRQ_RX_TIMEOUT;
+    return 0;
+  }
+
+
+  if ( readIrqStatus() != (IRQ_RX_DONE + IRQ_HEADER_VALID) )
+  {
+    return 0;                                                                //no RX done and header valid only, could be CRC error
+  }
+
+  _RXPacketL = readRegister(REG_RXNBBYTES);
+
+  if (_RXPacketL > size)                      //check passed buffer is big enough for packet
+  {
+    _RXPacketL = size;                        //truncate packet if not enough space in passed buffer
+  }
+
+#ifdef USE_SPI_TRANSACTION   //to use SPI_TRANSACTION enable define at beginning of CPP file 
+  SPI.beginTransaction(SPISettings(LTspeedMaximum, LTdataOrder, LTdataMode));
+#endif
+
+  digitalWrite(_NSS, LOW);                    //start the burst read
+  SPI.transfer(REG_FIFO);
+
+  for (index = 0; index < _RXPacketL; index++)
+  {
+    regdata = SPI.transfer(0);
+    rxbuffer[index] = regdata;
+  }
+  digitalWrite(_NSS, HIGH);
+
+#ifdef USE_SPI_TRANSACTION
+  SPI.endTransaction();
+#endif
+
+  return _RXPacketL;
+}
+
+
 uint8_t SX127XLT::receiveAddressed(uint8_t *rxbuffer, uint8_t size, uint32_t rxtimeout, uint8_t wait)
 {
 #ifdef SX127XDEBUG1
@@ -2467,6 +2545,78 @@ uint8_t SX127XLT::transmit(uint8_t *txbuffer, uint8_t size, uint32_t txtimeout, 
   setMode(MODE_STDBY_RC);                              //ensure we leave function with TX off
 
   if (!digitalRead(_TXDonePin))
+  {
+    _IRQmsb = IRQ_TX_TIMEOUT;
+    return 0;
+  }
+
+  return _TXPacketL;                                   //no timeout, so TXdone must have been set
+}
+
+
+uint8_t SX127XLT::transmitIRQ(uint8_t *txbuffer, uint8_t size, uint32_t txtimeout, int8_t txpower, uint8_t wait)
+{
+#ifdef SX127XDEBUG1
+  Serial.println(F("transmit()"));
+#endif
+
+  uint8_t index, ptr;
+  uint8_t bufferdata;
+  uint32_t startmS;
+
+  if (size == 0)
+  {
+    return false;
+  }
+
+  setMode(MODE_STDBY_RC);
+  ptr = readRegister(REG_FIFOTXBASEADDR);       //retrieve the TXbase address pointer
+  writeRegister(REG_FIFOADDRPTR, ptr);          //and save in FIFO access ptr
+
+#ifdef USE_SPI_TRANSACTION                   //to use SPI_TRANSACTION enable define at beginning of CPP file 
+  SPI.beginTransaction(SPISettings(LTspeedMaximum, LTdataOrder, LTdataMode));
+#endif
+
+  digitalWrite(_NSS, LOW);
+  SPI.transfer(WREG_FIFO);
+
+  for (index = 0; index < size; index++)
+  {
+    bufferdata = txbuffer[index];
+    SPI.transfer(bufferdata);
+  }
+  digitalWrite(_NSS, HIGH);
+
+#ifdef USE_SPI_TRANSACTION
+  SPI.endTransaction();
+#endif
+
+  _TXPacketL = size;
+  writeRegister(REG_PAYLOADLENGTH, _TXPacketL);
+
+  setTxParams(txpower, RADIO_RAMP_DEFAULT);            //TX power and ramp time
+
+  setDioIrqParams(IRQ_RADIO_ALL, IRQ_TX_DONE, 0, 0);   //set for IRQ on TX done on first DIO pin
+  setTx(0);                                            //TX timeout is not handled in setTX()
+
+  if (!wait)
+  {
+    return _TXPacketL;
+  }
+
+  if (txtimeout == 0)
+  {
+    while (!isTXdoneIRQ());                            //Wait for IRQ to go high, TX finished
+  }
+  else
+  {
+    startmS = millis();
+    while (!isTXdoneIRQ() && ((uint32_t) (millis() - startmS) < txtimeout));
+  }
+
+  setMode(MODE_STDBY_RC);                              //ensure we leave function with TX off
+
+  if (!isTXdoneIRQ())
   {
     _IRQmsb = IRQ_TX_TIMEOUT;
     return 0;
