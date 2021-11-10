@@ -4,54 +4,6 @@
 #include "Arduino.h"
 #include <SX128XLT_Definitions.h>
 
-/**************************************************************************
-
-  ToDO
-
-  DONE - Why is SX1280LT.setPacketType(PACKET_TYPE_LORA) required before getFreqInt works with FLRC
-       - The register addresses where the frequency is stored are different for FLRC and LORA
-  DONE - Checkbusy at end of setmode ? - not needed, Checkbusy before all SPI activity
-  DONE - Ranging in complement2 - warning: comparison between signed and unsigned integer
-  DONE - Trap use of devices with RX\TX switching in ranging mode
-  DONE - Ensure ranging distance is not negative
-  DONE - Is there a direct register access to packet length for transmit ?
-
-  Add routine to change _periodbase for RX,TX timeout
-
-  Test RSSI and SNR are realistic for LoRa and FLRC
-  Review error rate in FLRC mode
-  Error packets at -99dBm due to noise ?
-  Add support for printPacketStatus for FLRC
-
-  Check on SetReliableRX writeRegister(REG_OPMODE, (MODE_RXCONTINUOUS + 0x80));
-  Check in waitACKDT() setReliableRX(0);
-  Check in waitACKDT() //} while ( ((uint32_t) (millis() - startmS) < acktimeout)  || ((readRegister(REG_MODEMSTAT) & 0x03)) );
-  Check for  SX127XDEBUGRELIABLE
-  setrx() is unit16_t on SX1280, check all sketches restrict to 65mS
-  Add bitSet(_ReliableFlags, ReliableTimeout);to sendACKDT on SX128x ans SX127X
-  Should be 16 bit ? uint8_t readPacketRSSI();
-  Investigate write of buffer direct to SD routines.
-  ESP32 Easy Mikrobus ESP32 220520 LoRa deviceintit fails
-  Change FLRC basic examples to show packet length
-  Change readPacketRSSI() to  readCommand(RADIO_GET_PACKETSTATUS, status, 1) ;
-  Check if ( (regdataL & IRQ_HEADER_ERROR) | (regdataL & IRQ_CRC_ERROR) | (regdataL & IRQ_RX_TX_TIMEOUT ) ) is assuming 8 bit
-  Whats this; SX128XLT::addCRC(uint8_t data, uint16_t libraryCRC)
-  Add setMode(MODE_STDBY_RC); to transmit routines on timeout
-  In waitrelaibleack check if ( (regdata & IRQ_HEADER_ERROR) | (regdata & IRQ_CRC_ERROR) | (regdata & IRQ_RX_TX_TIMEOUT )  )
-  Add  setFLRCPayloadLength(127); to receive or TX routines, or in setRX() ?
-  Test file transfer with file shorter than segment length
-  Check affect of setHighSensitivity()
-  Check for const uint8_t TXpower = -6;                      //Power for transmissions in dBm
-  In FLRC display of parameters SX1280,PacketMode_FLRC,Unknown,LNAgain_HighSensitivity
-  DONE - DataSheet 3.2 16.2.2 block in LoRa receive mode, corrupted header, use HeaderError IRQ mapped to DIO line
-  Eh ? //For FLRC packet type, the SyncWord is one byte shorter and the base address is shifted by one byte
-  Add  printHEXPacket(char *buffer, uint8_t size)
-  For relaible example using structures check 8bit to 32bit platforms, }__attribute__((packed, aligned(1)));
-  Add example 43_LoRa_Data_Throughput_Acknowledge_Receiver
-  Check RSSI matches If the SNR ≤ 0, RSSI_{packet, real} = RSSI_{packet,measured} – SNR_{measured}
-  Check 14.5.3 Ranging RSSI latest datasheet
-
-**************************************************************************/
 
 class SX128XLT  {
 
