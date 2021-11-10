@@ -79,7 +79,7 @@ SoftwareSerial GPSserial(RXpin, TXpin);
 
 uint32_t RXpacketCount;        //count of received packets
 uint8_t RXPacketL;             //length of received packet
-int8_t  PacketRSSI;            //signal strength (RSSI) dBm of received packet
+int16_t PacketRSSI;            //signal strength (RSSI) dBm of received packet
 int8_t  PacketSNR;             //signal to noise ratio (SNR) dB of received packet
 uint8_t PacketType;            //for packet addressing, identifies packet type
 uint8_t Destination;           //for packet addressing, identifies the destination (receiving) node
@@ -619,6 +619,3 @@ void setup()
   Serial.println(F("Receiver ready"));
   Serial.println();
 }
-
-
-

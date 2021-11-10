@@ -7,6 +7,7 @@
   New version, 19/09/21, Data Transfer packets added, support for no DIO0 operation added
 */
 
+
 #ifndef SX127XLT_h
 #define SX127XLT_h
 
@@ -32,20 +33,17 @@ class SX127XLT
     void calibrateImage(uint8_t null);
     uint16_t CRCCCITT(uint8_t *buffer, uint16_t size, uint16_t startvalue);
     uint16_t CRCCCITTSX(uint8_t startadd, uint8_t endadd, uint16_t startvalue);
-
     void setDevice(uint8_t type);
     void printDevice();
     uint8_t getOperatingMode();
     bool isReceiveDone();
     bool isTransmitDone();
-
     void writeRegister( uint8_t address, uint8_t value );
     uint8_t readRegister( uint8_t address );
     void printRegisters(uint16_t start, uint16_t end);
     void printRegister(uint8_t reg);
     void printOperatingMode();
     void printOperatingSettings();
-
     void setTxParams(int8_t txPower, uint8_t rampTime);
     void setPacketParams(uint16_t packetParam1, uint8_t  packetParam2, uint8_t packetParam3, uint8_t packetParam4, uint8_t packetParam5);
     void setModulationParams(uint8_t modParam1, uint8_t modParam2, uint8_t  modParam3, uint8_t  modParam4);
@@ -53,17 +51,13 @@ class SX127XLT
     uint32_t getFreqInt();
     int32_t getFrequencyErrorRegValue();
     int32_t getFrequencyErrorHz();
-
     void setTx(uint32_t timeout);
     void setRx(uint32_t timeout);
     bool readTXIRQ();
     bool readRXIRQ();
-
-
     void setLowPowerReceive();
     void setHighSensitivity();
     void setRXGain(uint8_t config);
-
     uint8_t getAGC();
     uint8_t getLNAgain();
     uint8_t getCRCMode();
@@ -72,7 +66,6 @@ class SX127XLT
     uint8_t getLNAboostLF();
     uint8_t getOpmode();
     uint8_t getPacketMode();
-
     uint8_t readRXPacketL();
     uint8_t readTXPacketL();
     int16_t readPacketRSSI();
@@ -84,22 +77,17 @@ class SX127XLT
     uint8_t readRXPacketType();
     uint8_t readRXDestination();
     uint8_t readRXSource();
-
     void setBufferBaseAddress(uint8_t txBaseAddress, uint8_t rxBaseAddress);
     void setPacketType(uint8_t PacketType);
-
     void clearIrqStatus( uint16_t irqMask );
     uint16_t readIrqStatus();
     void setDioIrqParams(uint16_t irqMask, uint16_t dio0Mask, uint16_t dio1Mask, uint16_t dio2Mask );
     void printIrqStatus();
-
-
     void printASCIIPacket(uint8_t *buff, uint8_t tsize);
     void printHEXPacket(uint8_t *buff, uint8_t tsize);
     void printASCIIorHEX(uint8_t temp);
     void printHEXByte(uint8_t temp);
     void printHEXByte0x(uint8_t temp);
-
     bool isRXdone();
     bool isTXdone();
     bool isRXdoneIRQ();
@@ -116,7 +104,6 @@ class SX127XLT
     uint8_t receiveAddressed(uint8_t *rxbuffer, uint8_t size, uint32_t rxtimeout, uint8_t wait);
     uint8_t readPacket(uint8_t *rxbuffer, uint8_t size);
     uint8_t readPacketAddressed(uint8_t *rxbuffer, uint8_t size);
-
     uint8_t transmit(uint8_t *txbuffer, uint8_t size, uint32_t txtimeout, int8_t txPower, uint8_t wait);
     uint8_t transmitIRQ(uint8_t *txbuffer, uint8_t size, uint32_t txtimeout, int8_t txPower, uint8_t wait);
     uint8_t transmitAddressed(uint8_t *txbuffer, uint8_t size, char txpackettype, char txdestination, char txsource, uint32_t txtimeout, int8_t txpower, uint8_t wait);
@@ -126,7 +113,7 @@ class SX127XLT
     //*******************************************************************************
 
     void setupLoRa(uint32_t Frequency, int32_t Offset, uint8_t modParam1, uint8_t modParam2, uint8_t  modParam3, uint8_t modParam4);
-
+    void setupLoRa(uint32_t Frequency);
     uint8_t getLoRaSF();
     uint8_t getLoRaCodingRate();
     uint8_t getOptimisation();
@@ -134,7 +121,6 @@ class SX127XLT
     uint8_t getInvertIQ();
     uint8_t getVersion();
     uint16_t getPreamble();
-
     uint32_t returnBandwidth(uint8_t BWregvalue);
     uint8_t returnOptimisation(uint8_t SpreadingFactor, uint8_t Bandwidth);
     float calcSymbolTime(float Bandwidth, uint8_t SpreadingFactor);
@@ -169,16 +155,13 @@ class SX127XLT
 
     uint8_t receiveSXBuffer(uint8_t startaddr, uint32_t rxtimeout, uint8_t wait);
     uint8_t transmitSXBuffer(uint8_t startaddr, uint8_t length, uint32_t txtimeout, int8_t txpower, uint8_t wait);
-
     uint8_t receiveSXBufferIRQ(uint8_t startaddr, uint32_t rxtimeout, uint8_t wait);
     uint8_t transmitSXBufferIRQ(uint8_t startaddr, uint8_t length, uint32_t txtimeout, int8_t txpower, uint8_t wait);
-
     void printSXBufferHEX(uint8_t start, uint8_t end);
     void printSXBufferASCII(uint8_t start, uint8_t end);
     void fillSXBuffer(uint8_t startaddress, uint8_t size, uint8_t character);
     uint8_t getByteSXBuffer(uint8_t addr);
     void writeByteSXBuffer(uint8_t addr, uint8_t regdata);
-
     void startWriteSXBuffer(uint8_t ptr);
     uint8_t endWriteSXBuffer();
     void startReadSXBuffer(uint8_t ptr);

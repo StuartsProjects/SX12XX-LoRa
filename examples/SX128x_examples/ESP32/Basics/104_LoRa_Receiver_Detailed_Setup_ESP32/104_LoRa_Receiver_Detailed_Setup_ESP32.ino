@@ -40,7 +40,7 @@ uint32_t errors;
 uint8_t RXBUFFER[RXBUFFER_SIZE];                 //create the buffer that received packets are copied into
 
 uint8_t RXPacketL;                               //stores length of packet received
-int8_t  PacketRSSI;                              //stores RSSI of received packet
+int16_t PacketRSSI;                              //stores RSSI of received packet
 int8_t  PacketSNR;                               //stores signal to noise ratio (SNR) of received packet
 
 
@@ -244,4 +244,3 @@ void setup()
   Serial.println(RXBUFFER_SIZE);
   Serial.println();
 }
-

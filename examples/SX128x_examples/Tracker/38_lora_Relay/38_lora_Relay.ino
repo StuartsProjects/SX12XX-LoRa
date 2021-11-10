@@ -6,17 +6,13 @@
 *******************************************************************************************************/
 
 /*******************************************************************************************************
-  Program Operation - This program will receive a lora packet and relay (re-transmit) it. The receiving
+  Program Operation - This program will receive a LoRa packet and relay (re-transmit) it. The receiving
   and transmitting can use different frequencies and lora settings, although in this example they are
   the same. The receiving and transmitting settings are in the 'Settings.h' file. If the relay is located
   in an advantageous position, for instance on top of a tall tree, building or in an radio controlled model
   then the range at which trackers or nodes on the ground can be received is considerably increased.
   In these circumstances the relay may listen at a long range setting using SF12 for example and then
   re-transmit back to the ground at SF7.
-
-  For an example of the use of such a program see this report;
-
-  How to Search 500 Square Kilometres in 10 minutes.pdf in the libraries 'Test_Reports' folder.
 
   Serial monitor baud rate is set at 9600.
 
@@ -30,7 +26,7 @@
 SX128XLT LT;
 
 uint8_t RXPacketL, TXPacketL;
-int8_t PacketRSSI, PacketSNR;
+int16_t PacketRSSI, PacketSNR;
 uint16_t RXPacketErrors;
 
 
@@ -169,5 +165,3 @@ void setup()
   Serial.println();
   Serial.println("Relay Ready");
 }
-
-

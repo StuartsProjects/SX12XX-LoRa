@@ -112,7 +112,6 @@ void loop()
 
 void packet_is_OK()
 {
-  Serial.println(F("Packet acknowledged"));
   Serial.print(F("LocalNetworkID,0x"));
   Serial.print(NetworkID, HEX);
   Serial.print(F(",TransmittedPayloadCRC,0x"));        //print CRC of transmitted packet

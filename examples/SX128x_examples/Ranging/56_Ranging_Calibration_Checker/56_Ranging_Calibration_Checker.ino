@@ -162,9 +162,9 @@ void setup()
 
   //The function call list below shows the complete setup for the LoRa device for ranging using the information
   //defined in the Settings.h file.
-  //The 'Setup LoRa device for Ranging' list below can be replaced with a single function call, note that 
+  //The 'Setup LoRa device for Ranging' list below can be replaced with a single function call, note that
   //the calibration value will be loaded automatically from the table in the library;
-  
+
   //LT.setupRanging(Frequency, Offset, SpreadingFactor, Bandwidth, CodeRate, RangingAddress, RangingRole);
 
   //***************************************************************************************************
@@ -199,6 +199,3 @@ void setup()
 
   delay(2000);
 }
-
-
-

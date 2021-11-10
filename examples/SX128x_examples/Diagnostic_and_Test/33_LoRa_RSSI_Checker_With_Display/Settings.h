@@ -22,19 +22,18 @@
 #define RX_EN -1                //pin for RX enable, used on some SX1280 devices, set to -1 if not used
 #define TX_EN -1                //pin for TX enable, used on some SX1280 devices, set to -1 if not used  
 #define BUZZER -1               //pin for BUZZER, set to -1 if not used 
-                       
+
 #define LORA_DEVICE DEVICE_SX1280               //we need to define the device we are using  
 
 //LoRa Modem Parameters
 const uint32_t Frequency = 2445000000;           //frequency of transmissions
-const int32_t Offset = 0;                        //offset frequency for calibration purposes  
+const int32_t Offset = 0;                        //offset frequency for calibration purposes
 const uint8_t Bandwidth = LORA_BW_0400;          //LoRa bandwidth
 const uint8_t SpreadingFactor = LORA_SF7;        //LoRa spreading factor
 const uint8_t CodeRate = LORA_CR_4_5;            //LoRa coding rate
 
-const uint8_t TXpower = 10;                      //Power for transmissions in dBm
+const int8_t TXpower = 10;                       //Power for transmissions in dBm
 
 const uint16_t packet_delay = 1000;              //mS delay between packets
 
 #define RXBUFFER_SIZE 32                         //RX buffer size  
-

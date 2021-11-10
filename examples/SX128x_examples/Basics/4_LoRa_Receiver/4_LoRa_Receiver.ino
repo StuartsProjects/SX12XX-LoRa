@@ -2,7 +2,7 @@
   Programs for Arduino - Copyright of the author Stuart Robinson - 08/02/20
 
   This program is supplied as is, it is up to the user of the program to decide if the program is
-  suitable for the intended purpose and free from errors. 
+  suitable for the intended purpose and free from errors.
 *******************************************************************************************************/
 
 /*******************************************************************************************************
@@ -38,7 +38,7 @@ uint32_t errors;
 uint8_t RXBUFFER[RXBUFFER_SIZE];                 //create the buffer that received packets are copied into
 
 uint8_t RXPacketL;                               //stores length of packet received
-int8_t  PacketRSSI;                              //stores RSSI of received packet
+int16_t  PacketRSSI;                             //stores RSSI of received packet
 int8_t  PacketSNR;                               //stores signal to noise ratio of received packet
 
 
@@ -136,8 +136,8 @@ void packet_is_Error()
     LT.printIrqStatus();                            //print the names of the IRQ registers set
   }
 
-  delay(250);                                       //gives a longer buzzer and LED flash for error 
-  
+  delay(250);                                       //gives a longer buzzer and LED flash for error
+
 }
 
 
@@ -212,7 +212,7 @@ void setup()
   //The function call list below shows the complete setup for the LoRa device using the information defined in the
   //Settings.h file.
   //The 'Setup LoRa device' list below can be replaced with a single function call;
- //LT.setupLoRa(Frequency, Offset, SpreadingFactor, Bandwidth, CodeRate);
+  //LT.setupLoRa(Frequency, Offset, SpreadingFactor, Bandwidth, CodeRate);
 
   //***************************************************************************************************
   //Setup LoRa device
@@ -244,4 +244,3 @@ void setup()
   Serial.println(RXBUFFER_SIZE);
   Serial.println();
 }
-

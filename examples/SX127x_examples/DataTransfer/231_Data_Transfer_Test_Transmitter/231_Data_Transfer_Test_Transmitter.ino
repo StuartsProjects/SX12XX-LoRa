@@ -1,37 +1,33 @@
 /*******************************************************************************************************
-  Programs for Arduino - Copyright of the author Stuart Robinson - 20/09/21
+  Programs for Arduino - Copyright of the author Stuart Robinson - 06/11/21
 
   This program is supplied as is, it is up to the user of the program to decide if the program is
   suitable for the intended purpose and free from errors.
 *******************************************************************************************************/
 
 /*******************************************************************************************************
-  Program Operation - This is a simulation test program for the use of a data transfer (DT) packet.
+  Program Operation - This is a program that simulates the transfer of a file using data transfer (DT)
+  packet functions from the SX128X library. No SD cards are needed for the simulation. The file length
+  used to simulate the transfer is defined by DTFileSize in the DTSettings.h file. Use with matching
+  receiver program 232_Transfer_Simulator_Receiver.ino
 
   DT packets can be used for transfering large amounts of data in a sequence of packets or segments,
-  in a reliable and resiliant way. A segemnt will be transmitted until a valid acknowledge comes from the
-  receiver. Use with the matching receiver program, 232_Data_Transfer_Test_Receiver.ino
+  in a reliable and resiliant way. The file open requests to the remote receiver, each segement sent and
+  the remote file close will all keep transmitting until a valid acknowledge comes from the receiver.
+  Use this transmitter with the matching receiver program, 234_LoRa_SDfile_Transfer_Receiver.ino.
 
-  The purpose of this test program is to allow you to check the reliability of a set of LoRa modem
-  parameters that might be used for file transfers, without the need to use SD card modules. Define the LoRa
-  parameters in the settings.h file and also define a segment size. The transmitter will then transmit a
-  numbered sequence of segments and the receiver uses the seqment numbers and number of received packet to
-  provide running totals which tell you how many packets are being missed (and needed to be re-tranmitted)
-  due to errors etc.
+  On transmission the NetworkID and CRC of the payload are appended to the end of the packet by the library
+  routines. The use of a NetworkID and CRC ensures that the receiver can validate the packet to a high degree
+  of certainty.
 
-  Each DT packet contains a variable length header array and a variable length data array. On transmission
-  the provided NetworkID and CRC of the entire packet are appended to the end of the packet. This ensures
-  that the receiver can validate the packet to a high degree of certainty. The receiver will not accept
-  packets that dont have the appropriate NetworkID or payload CRC at the end of the packet. You can test
-  this by setting up a transmitter such as \SX127X_examples\Basics\3_LoRa_Transmitter.ino, the receiver
-  should see these packets but will not accept them for processing as valid data.
+  The transmitter sends the sequence of segments in order. If the sequence fails for some reason, the receiver
+  will return a NACK packet to the transmitter requesting the segment sequence it was expecting.
 
-  The transmitter sends a sequence of segments in order and the receiver keeps track of the sequence. If
-  the sequence fails for some reason, the transmitter resets for instance, the receiver will return a NACK
-  packet to the transmitter requesting the segment sequence it was expecting.
+  Details of the packet identifiers, header and data lengths and formats used are in the file;
+  'Data transfer packet definitions.md' in the \SX127X_examples\DataTransfer\ folder.
 
-  Details of the packet identifiers, header and data lengths and format are in the file
-  Data_transfer_packet_definitions.md in the \SX127X_examples\DataTransfer\ folder.
+  The transfer can be carried out using LoRa packets, max segment size (defined by DTSegmentSize) is 245 bytes
+  for LoRa.
 
   Serial monitor baud rate is set at 115200.
 *******************************************************************************************************/
@@ -40,175 +36,118 @@
 
 #include <SX127XLT.h>
 #include <ProgramLT_Definitions.h>
-#include "Settings.h"                             //LoRa settings etc.
+#include "DTSettings.h"                      //LoRa settings etc.
 #include <arrayRW.h>
 
-SX127XLT LoRa;                                    //create an SX127XLT library instance called LoRa
+SX127XLT LoRa;                               //create an SX127XLT library instance called LoRa
 
-uint8_t RXPacketType;                             //type of received packet, segment write, ACK, NACK etc
-uint8_t RXFlags;                                  //DTflags byte in header, could be used to control actions in TX and RX
-uint8_t RXHeaderL;                                //length of header
-uint8_t RXDataarrayL;                             //length of data array\segment
-uint16_t DTSegment = 0;                           //current segment number
+#define PRINTSEGMENTNUM                      //enable this define to print segment numbers 
 
-int16_t PacketRSSI;                               //stores RSSI of received packet
-int8_t  PacketSNR;                                //stores signal to noise ratio of received packet
+//#define DEBUG
+//#define DISABLEPAYLOADCRC                  //enable this define if you want to disable payload CRC checking
 
-uint16_t AckCount;                                //keep a track of acks that are received within timeout period
-uint16_t NoAckCount;                              //keep a track of acks not received within timeout period
+#include "DTLibrarySIM.h"
 
-uint8_t DTheader[16];                             //header array
-uint8_t DTdata[245];                              //data/segment array
+char DTFileName[] = "/Simulate.JPG";         //file name to simulate sending
 
 
 void loop()
 {
-  sendDataSegment(DTSegment, DTSegmentSize);
-  Serial.println();
-  delay(packetdelaymS);
-}
-
-
-bool sendDataSegment(uint16_t segnum, uint8_t segmentsize)
-{
-  //****************************************************************
-  //Send data segment
-  //****************************************************************
-
-  uint8_t ValidACK;
-  uint8_t TXOK;
-
-  build_DTSegmentHeader(DTheader, DTSegmentWriteHeaderL, segmentsize, segnum);
-
-  Serial.print(F("Send Segment,"));
-  Serial.print(segnum);
-  Serial.print(F(" "));
-  printheader(DTheader, DTSegmentWriteHeaderL);
-  Serial.print(F(" "));
-  printdata(DTdata, segmentsize);                         //print segment size of data array only
-  Serial.println();
-
+  Serial.println(("Transfer started"));
 
   do
   {
-    digitalWrite(LED1, HIGH);
-    TXOK = LoRa.transmitDT(DTheader, DTSegmentWriteHeaderL, (uint8_t *) DTdata, segmentsize, NetworkID, TXtimeoutmS, TXpower,  WAIT_TX);
-    digitalWrite(LED1, LOW);
+    DTStartmS = millis();
 
-    if (TXOK == 0)                                        //if there has been a send and ack error, RXPacketL returns as 0
+    //opens the local file to send and sets up transfer parameters
+    if (startFileTransfer(DTFileName, sizeof(DTFileName), DTSendAttempts))
     {
-      Serial.println(F("Transmit error"));
-      return false;
+      Serial.print(DTFileName);
+      Serial.println(F(" opened OK on remote"));
+      printLocalFileDetails();
+      Serial.println();
+      NoAckCount = 0;
+    }
+    else
+    {
+      Serial.print(DTFileName);
+      Serial.println(F("  Error opening remote file - restart transfer"));
+      DTFileTransferComplete = false;
+      continue;
     }
 
-    ValidACK = LoRa.waitACKDT(DTheader, DTSegmentWriteHeaderL, ACKtimeoutDTmS);
+    delay(packetdelaymS);
 
-    RXPacketType = DTheader[0];
-
-    if (ValidACK == 0)
+    if (!sendSegments())
     {
-      NoAckCount++;
-      Serial.println(F("ERROR No Ack"));
-      Serial.print(F("NoAckCount,"));
-      Serial.print(NoAckCount);
-      LoRa.printReliableStatus();
       Serial.println();
-      return 0;
+      Serial.println(F("**********************************************************"));
+      Serial.println(F("Error - Segment write with no file open - Restart received"));
+      Serial.println(F("**********************************************************"));
+      Serial.println();
+      continue;
     }
 
-    if (RXPacketType == DTSegmentWriteNACK)
+    if (endFileTransfer(DTFileName, sizeof(DTFileName)))         //send command to close remote file
     {
-      DTSegment = DTheader[4] +  (DTheader[5] << 8);                 //load what the segment should be
-      RXHeaderL = DTheader[2];
-      Serial.println();
-      Serial.println(F("************************************"));
-      Serial.print(F("Received restart request at segment "));
-      Serial.println(DTSegment);
-      printheader(DTheader, RXHeaderL);
-      Serial.println();
-      Serial.println(F("************************************"));
-      Serial.println();
-      Serial.flush();
+      DTSendmS = millis() - DTStartmS;                  //record time taken for transfer
+      Serial.print(DTFileName);
+      Serial.println(F(" closed OK on remote"));
+      beginarrayRW(DTheader, 4);
+      DTDestinationFileLength = arrayReadUint32();
+      Serial.print(F("Acknowledged remote destination file length "));
+      Serial.println(DTDestinationFileLength);
+      /*
+        if (DTDestinationFileLength != DTSourceFileLength)
+        {
+        Serial.println(F("ERROR - file lengths do not match"));
+        }
+        else
+        {
+        Serial.println(F("File lengths match"));
+        }
+      */
+      /*
+        #ifdef ENABLEFILECRC
+            DTDestinationFileCRC = arrayReadUint16();
+            Serial.print(F("Acknowledged remote destination file CRC 0x"));
+            Serial.println(DTDestinationFileCRC, HEX);
+            if (DTDestinationFileCRC != DTSourceFileCRC)
+            {
+              Serial.println(F("ERROR - file CRCs do not match"));
+            }
+            else
+            {
+              Serial.println(F("File CRCs match"));
+            }
+        #endif
+      */
+      DTFileTransferComplete = true;
     }
-
-    //ack is valid, segment was acknowledged if here
-
-    if (RXPacketType == DTSegmentWriteACK)
+    else
     {
-      readACKHeader();
-      AckCount++;
-      printPacketDetails();
-      DTSegment++;
+      DTFileTransferComplete = false;
+      Serial.println(F("ERROR send close remote destination file failed - program halted"));
     }
-
-
   }
-  while (ValidACK == 0);
-
-  return true;
-}
+  while (!DTFileTransferComplete);
 
 
-void readACKHeader()
-{
-  //the first 6 bytes of the segment write header contain the important stuff, so load it up
-  //so we can decide what to do next.
-
-  beginarrayRW(DTheader, 0);                      //start buffer read at location 0
-  RXPacketType = arrayReadUint8();                //load the packet type
-  RXFlags = arrayReadUint8();                     //initial DTflags byte, not used here
-  RXHeaderL = arrayReadUint8();                   //load the header length
-  RXDataarrayL = arrayReadUint8();                //load the datalength
-  DTSegment = arrayReadUint16();                  //load the segment number
-}
-
-
-void printdata(uint8_t *dataarray, uint8_t arraysize)
-{
-  Serial.print(F("Databytes,"));
-  Serial.print(arraysize);
-  Serial.print(F("  "));
-  printarrayHEX((uint8_t *) dataarray, arraysize);
-}
-
-
-void printheader(uint8_t *hdr, uint8_t hdrsize)
-{
-  Serial.print(F("Headerbytes,"));
-  Serial.print(hdrsize);
-  Serial.print(F(" "));
-  printarrayHEX(hdr, hdrsize);
-}
-
-
-void build_DTSegmentHeader(uint8_t *header, uint8_t headersize, uint8_t datalen, uint16_t segnum)
-{
-  //this builds the header buffer for the a segment transmit
-
-  beginarrayRW(header, 0);                //start writing to array at location 0
-  arrayWriteUint8(DTSegmentWrite);        //write the packet type
-  arrayWriteUint8(0);                     //initial DTflags byte, not used here
-  arrayWriteUint8(headersize);            //write length of header
-  arrayWriteUint8(datalen);               //write length of data array
-  arrayWriteUint16(segnum);               //write the DTsegment number
-  endarrayRW();
-}
-
-
-void printPacketDetails()
-{
-  PacketRSSI = LoRa.readPacketRSSI();
-  PacketSNR = LoRa.readPacketSNR();
-  Serial.print(F("AckCount,"));
-  Serial.print(AckCount);
-  Serial.print(F(",NoAckCount,"));
-  Serial.print(NoAckCount);
-  Serial.print(F(",AckRSSI,"));
-  Serial.print(PacketRSSI);
-  Serial.print(F("dBm,AckSNR,"));
-  Serial.print(PacketSNR);
-  Serial.print(F("dB"));
+  Serial.print(F("NoAckCount "));
+  Serial.println( NoAckCount);
   Serial.println();
+
+  DTsendSecs = (float) DTSendmS / 1000;
+  Serial.print(F("Transmit time "));
+  Serial.print(DTsendSecs, 3);
+  Serial.println(F("secs"));
+  Serial.print(F("Transmit rate "));
+  Serial.print( (DTFileSize * 8) / (DTsendSecs), 0 );
+  Serial.println(F("bps"));
+  Serial.println(("Transfer finished"));
+
+  Serial.println(("Program halted"));
+  while (1);
 }
 
 
@@ -227,12 +166,14 @@ void led_Flash(uint16_t flashes, uint16_t delaymS)
 
 void setup()
 {
-  pinMode(LED1, OUTPUT);                         //setup pin as output for indicator LED
-  led_Flash(2, 125);                             //two quick LED flashes to indicate program start
+  pinMode(LED1, OUTPUT);                          //setup pin as output for indicator LED
+  led_Flash(2, 125);                              //two quick LED flashes to indicate program start
+  setDTLED(LED1);                                 //setup LED pin for data transfer indicator
 
   Serial.begin(115200);
   Serial.println();
-  Serial.println(F("231_Data_Transfer_Test_Transmitter starting"));
+  Serial.println(F(__FILE__));
+  Serial.flush();
 
   SPI.begin();
 
@@ -251,12 +192,26 @@ void setup()
 
   LoRa.setupLoRa(Frequency, Offset, SpreadingFactor, Bandwidth, CodeRate, Optimisation);
 
-  //fill data array with test data
-  for (uint8_t index = 0; index < DTSegmentSize; index++)
+  LoRa.printOperatingSettings();
+  Serial.println();
+  LoRa.printModemSettings();
+  Serial.println();
+
+#ifdef DISABLEPAYLOADCRC
+  LoRa.setReliableConfig(NoReliableCRC);
+#endif
+
+  if (LoRa.getReliableConfig(NoReliableCRC))
   {
-    DTdata[index] = index;
+    Serial.println(F("Payload CRC disabled"));
+  }
+  else
+  {
+    Serial.println(F("Payload CRC enabled"));
   }
 
-  Serial.println(F("Data Transfer Test ready"));
+  DTFileTransferComplete = false;
+
+  Serial.println(F("SDfile transfer ready"));
   Serial.println();
 }

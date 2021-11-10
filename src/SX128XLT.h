@@ -12,17 +12,45 @@
        - The register addresses where the frequency is stored are different for FLRC and LORA
   DONE - Checkbusy at end of setmode ? - not needed, Checkbusy before all SPI activity
   DONE - Ranging in complement2 - warning: comparison between signed and unsigned integer
-  DONE - Trap use of devices with RX\TX switching in ranging mode 
+  DONE - Trap use of devices with RX\TX switching in ranging mode
   DONE - Ensure ranging distance is not negative
-  
-  
-  Add routine to change period_base for RX,TX timeout
-  Is there a direct register access to packet length for transmit ?
+  DONE - Is there a direct register access to packet length for transmit ?
+
+  Add routine to change _periodbase for RX,TX timeout
+
   Test RSSI and SNR are realistic for LoRa and FLRC
   Review error rate in FLRC mode
   Error packets at -99dBm due to noise ?
   Add support for printPacketStatus for FLRC
-  
+
+  Check on SetReliableRX writeRegister(REG_OPMODE, (MODE_RXCONTINUOUS + 0x80));
+  Check in waitACKDT() setReliableRX(0);
+  Check in waitACKDT() //} while ( ((uint32_t) (millis() - startmS) < acktimeout)  || ((readRegister(REG_MODEMSTAT) & 0x03)) );
+  Check for  SX127XDEBUGRELIABLE
+  setrx() is unit16_t on SX1280, check all sketches restrict to 65mS
+  Add bitSet(_ReliableFlags, ReliableTimeout);to sendACKDT on SX128x ans SX127X
+  Should be 16 bit ? uint8_t readPacketRSSI();
+  Investigate write of buffer direct to SD routines.
+  ESP32 Easy Mikrobus ESP32 220520 LoRa deviceintit fails
+  Change FLRC basic examples to show packet length
+  Change readPacketRSSI() to  readCommand(RADIO_GET_PACKETSTATUS, status, 1) ;
+  Check if ( (regdataL & IRQ_HEADER_ERROR) | (regdataL & IRQ_CRC_ERROR) | (regdataL & IRQ_RX_TX_TIMEOUT ) ) is assuming 8 bit
+  Whats this; SX128XLT::addCRC(uint8_t data, uint16_t libraryCRC)
+  Add setMode(MODE_STDBY_RC); to transmit routines on timeout
+  In waitrelaibleack check if ( (regdata & IRQ_HEADER_ERROR) | (regdata & IRQ_CRC_ERROR) | (regdata & IRQ_RX_TX_TIMEOUT )  )
+  Add  setFLRCPayloadLength(127); to receive or TX routines, or in setRX() ?
+  Test file transfer with file shorter than segment length
+  Check affect of setHighSensitivity()
+  Check for const uint8_t TXpower = -6;                      //Power for transmissions in dBm
+  In FLRC display of parameters SX1280,PacketMode_FLRC,Unknown,LNAgain_HighSensitivity
+  DONE - DataSheet 3.2 16.2.2 block in LoRa receive mode, corrupted header, use HeaderError IRQ mapped to DIO line
+  Eh ? //For FLRC packet type, the SyncWord is one byte shorter and the base address is shifted by one byte
+  Add  printHEXPacket(char *buffer, uint8_t size)
+  For relaible example using structures check 8bit to 32bit platforms, }__attribute__((packed, aligned(1)));
+  Add example 43_LoRa_Data_Throughput_Acknowledge_Receiver
+  Check RSSI matches If the SNR ≤ 0, RSSI_{packet, real} = RSSI_{packet,measured} – SNR_{measured}
+  Check 14.5.3 Ranging RSSI latest datasheet
+
 **************************************************************************/
 
 class SX128XLT  {
@@ -33,7 +61,9 @@ class SX128XLT  {
 
     bool begin(int8_t pinNSS, int8_t pinNRESET, int8_t pinRFBUSY, int8_t pinDIO1, int8_t pinDIO2, int8_t pinDIO3, int8_t pinRXEN, int8_t pinTXEN, uint8_t device);
     bool begin(int8_t pinNSS, int8_t pinNRESET, int8_t pinRFBUSY, int8_t pinDIO1, uint8_t device);
-    bool begin(int8_t pinNSS, int8_t pinNRESET, int8_t pinRFBUSY, int8_t pinDIO1, int8_t pinRXEN, int8_t pinTXEN, uint8_t device); 
+    bool begin(int8_t pinNSS, int8_t pinNRESET, int8_t pinRFBUSY, int8_t pinDIO1, int8_t pinRXEN, int8_t pinTXEN, uint8_t device);
+    bool begin(int8_t pinNSS, int8_t pinNRESET, int8_t pinRFBUSY, uint8_t device);
+    bool begin(int8_t pinNSS, int8_t pinRFBUSY, uint8_t device);
 
     void rxEnable();
     void txEnable();
@@ -56,6 +86,7 @@ class SX128XLT  {
     void setBufferBaseAddress(uint8_t txBaseAddress, uint8_t rxBaseAddress);
     void setModulationParams(uint8_t modParam1, uint8_t modParam2, uint8_t  modParam3);
     void setPacketParams(uint8_t packetParam1, uint8_t  packetParam2, uint8_t packetParam3, uint8_t packetParam4, uint8_t packetParam5, uint8_t packetParam6, uint8_t packetParam7);
+    void setPacketParams(uint8_t packetParam1, uint8_t  packetParam2, uint8_t packetParam3, uint8_t packetParam4, uint8_t packetParam5);
     void setDioIrqParams(uint16_t irqMask, uint16_t dio1Mask, uint16_t dio2Mask, uint16_t dio3Mask );
     void setHighSensitivity();
     void setLowPowerRX();
@@ -72,6 +103,7 @@ class SX128XLT  {
     void printRegisters(uint16_t Start, uint16_t End);
     void printASCIIPacket(uint8_t *buff, uint8_t tsize);
     uint8_t transmit(uint8_t *txbuffer, uint8_t size, uint16_t timeout, int8_t txpower, uint8_t wait);
+    uint8_t transmitIRQ(uint8_t *txbuffer, uint8_t size, uint16_t timeout, int8_t txpower, uint8_t wait);
     void setTxParams(int8_t TXpower, uint8_t RampTime);
     void setTx(uint16_t timeout);
     void clearIrqStatus( uint16_t irq );
@@ -79,27 +111,34 @@ class SX128XLT  {
     void printIrqStatus();
     uint16_t CRCCCITT(uint8_t *buffer, uint8_t size, uint16_t start);
     uint8_t receive(uint8_t *rxbuffer, uint8_t size, uint16_t timeout, uint8_t wait);
-    uint8_t readPacketRSSI();
-    uint8_t readPacketSNR();
+    uint8_t receiveIRQ(uint8_t *rxbuffer, uint8_t size, uint16_t timeout, uint8_t wait);
+    int16_t readPacketRSSI2();
+    int16_t readPacketRSSI();
+    int8_t readPacketSNR();
     uint8_t readRXPacketL();
     void setRx(uint16_t timeout);
     void setSyncWord1(uint32_t syncword);
-    void setSleep(uint8_t sleepconfig); 
+    void setSyncWord2(uint32_t syncword);
+    void setSyncWord3(uint32_t syncword);
+    void setSyncWordErrors(uint8_t errors);
+    void setSleep(uint8_t sleepconfig);
     uint16_t CRCCCITTSX(uint8_t startadd, uint8_t endadd, uint16_t startvalue);
     uint8_t getByteSXBuffer(uint8_t addr);
     int32_t getFrequencyErrorRegValue();
     int32_t getFrequencyErrorHz();
     void printHEXByte(uint8_t temp);
-    void wake()	;
+    void wake();
     uint8_t transmitAddressed(uint8_t *txbuffer, uint8_t size, char txpackettype, char txdestination, char txsource, uint32_t timeout, int8_t txpower, uint8_t wait);
     uint8_t receiveAddressed(uint8_t *rxbuffer, uint8_t size, uint16_t timeout, uint8_t wait);
     uint8_t readRXPacketType();
     uint8_t readPacket(uint8_t *rxbuffer, uint8_t size);
-/**********************************************************
-*****************
-//Start direct access SX buffer routines
-***************************************************************************/
+    void setPeriodBase(uint8_t value);
+    uint8_t getPeriodBase();
 
+
+    //***************************************************************************
+    //Start direct access SX buffer routines
+    //***************************************************************************
     void startWriteSXBuffer(uint8_t ptr);
     uint8_t endWriteSXBuffer();
     void startReadSXBuffer(uint8_t ptr);
@@ -127,23 +166,19 @@ class SX128XLT  {
     float readFloat();
 
     uint8_t transmitSXBuffer(uint8_t startaddr, uint8_t length, uint16_t timeout, int8_t txpower, uint8_t wait);
+    uint8_t transmitSXBufferIRQ(uint8_t startaddr, uint8_t length, uint16_t timeout, int8_t txpower, uint8_t wait);
     void writeBuffer(uint8_t *txbuffer, uint8_t size);
     uint8_t receiveSXBuffer(uint8_t startaddr, uint16_t timeout, uint8_t wait);
+    uint8_t receiveSXBufferIRQ(uint8_t startaddr, uint16_t timeout, uint8_t wait );
     uint8_t readBuffer(uint8_t *rxbuffer);
     void printSXBufferHEX(uint8_t start, uint8_t end);
-	uint16_t addCRC(uint8_t data, uint16_t libraryCRC);
-	void writeBufferChar(char *txbuffer, uint8_t size);
-	uint8_t readBufferChar(char *rxbuffer);
-/***************************************************************************
-//End direct access SX buffer routines
-***************************************************************************/
+    void writeBufferChar(char *txbuffer, uint8_t size);
+    uint8_t readBufferChar(char *rxbuffer);
 
 
-/***************************************************************************
-//Start ranging routines
-***************************************************************************/
-
-
+    //***************************************************************************
+    //Start ranging routines
+    //***************************************************************************
     void setRangingSlaveAddress(uint32_t address);
     void setRangingMasterAddress(uint32_t address);
     void setRangingCalibration(uint16_t cal);
@@ -156,11 +191,71 @@ class SX128XLT  {
     uint8_t receiveRanging(uint32_t address, uint16_t timeout, int8_t txpower, uint8_t wait);
     uint16_t lookupCalibrationValue(uint8_t spreadingfactor, uint8_t bandwidth);
     uint16_t getSetCalibrationValue();
+    int16_t getRangingRSSI();
 
-/***************************************************************************
-//End ranging routines
-***************************************************************************/
- 
+
+    //*******************************************************************************
+    //Reliable RX\TX routines
+    //*******************************************************************************
+    uint8_t transmitReliable(uint8_t *txbuffer, uint8_t size, uint16_t networkID, uint32_t txtimeout, int8_t txpower, uint8_t wait);
+    uint8_t receiveReliable(uint8_t *rxbuffer, uint8_t size, uint16_t networkID, uint32_t rxtimeout, uint8_t wait );
+
+    uint8_t transmitReliableAutoACK(uint8_t *txbuffer, uint8_t size, uint16_t networkID, uint32_t acktimeout, uint32_t txtimeout, int8_t txpower, uint8_t wait);
+    uint8_t receiveReliableAutoACK(uint8_t *rxbuffer, uint8_t size, uint16_t networkID, uint32_t ackdelay, int8_t txpower, uint32_t rxtimeout, uint8_t wait );
+
+    uint8_t sendReliableACK(uint16_t networkID, uint16_t payloadcrc, int8_t txpower);
+    uint8_t sendReliableACK(uint8_t *txbuffer, uint8_t size, uint16_t networkID, uint16_t payloadcrc, int8_t txpower);
+    uint8_t waitReliableACK(uint16_t networkID, uint16_t payloadcrc, uint32_t acktimeout);
+    uint8_t waitReliableACK(uint8_t *rxbuffer, uint8_t size, uint16_t networkID, uint16_t payloadcrc, uint32_t acktimeout);
+
+    void printASCIIArray(uint8_t *buffer, uint8_t size);
+    uint8_t getReliableConfig(uint8_t bitread);
+
+    uint16_t getTXPayloadCRC(uint8_t length);
+    void printReliableStatus();
+    uint16_t getRXPayloadCRC(uint8_t length);
+    uint16_t getRXNetworkID(uint8_t length);
+    uint16_t getTXNetworkID(uint8_t length);
+    void writeUint16SXBuffer(uint8_t addr, uint16_t regdata);
+    uint16_t readUint16SXBuffer(uint8_t addr);
+
+    void printHEXPacket(uint8_t *buffer, uint8_t size);
+    void printHEXPacket(char *buffer, uint8_t size);
+    void printArrayHEX(uint8_t *buffer, uint8_t size);
+    void printArrayHEX(char *buffer, uint8_t size);
+    void setReliableConfig(uint8_t bitset);
+
+    uint8_t getPacketType();
+    void setReliableRX(uint16_t timeout);
+
+    void setupFLRC(uint32_t frequency, int32_t offset, uint8_t modParam1, uint8_t modParam2, uint8_t  modParam3, uint32_t syncword);
+    void setFLRCPayloadLengthReg(uint8_t length);
+    void setLoRaPayloadLengthReg(uint8_t length);
+    void setPayloadLength(uint8_t length);
+    uint16_t CRCCCITTReliable(uint8_t startadd, uint8_t endadd, uint16_t startvalue);
+
+    uint8_t transmitSXReliable(uint8_t startaddr, uint8_t length, uint16_t networkID, uint32_t txtimeout, int8_t txpower, uint8_t wait);
+    uint8_t transmitSXReliableIRQ(uint8_t startaddr, uint8_t length, uint16_t networkID, uint32_t txtimeout, int8_t txpower, uint8_t wait);
+    uint8_t receiveSXReliable(uint8_t startaddr, uint16_t networkID, uint32_t rxtimeout, uint8_t wait );
+    uint8_t receiveSXReliableIRQ(uint8_t startaddr, uint16_t networkID, uint32_t rxtimeout, uint8_t wait );
+    uint8_t transmitSXReliableAutoACK(uint8_t startaddr, uint8_t length, uint16_t networkID, uint32_t acktimeout, uint32_t txtimeout, int8_t txpower, uint8_t wait);
+    uint8_t receiveSXReliableAutoACK(uint8_t startaddr, uint16_t networkID, uint32_t ackdelay, int8_t txpower, uint32_t rxtimeout, uint8_t wait );
+    uint8_t waitSXReliableACK(uint8_t startaddr, uint16_t networkID, uint16_t payloadcrc, uint32_t acktimeout);
+    uint8_t waitSXReliableACKIRQ(uint8_t startaddr, uint16_t networkID, uint16_t payloadcrc, uint32_t acktimeout);
+    uint8_t sendSXReliableACK(uint8_t startaddr, uint8_t length, uint16_t networkID, uint16_t payloadcrc, int8_t txpower);
+    uint8_t sendSXReliableACKIRQ(uint8_t startaddr, uint8_t length, uint16_t networkID, uint16_t payloadcrc, int8_t txpower);
+
+
+    //*******************************************************************************
+    //Data Transfer functions
+    //*******************************************************************************
+    uint8_t transmitDT(uint8_t *header, uint8_t headersize, uint8_t *dataarray, uint8_t datasize, uint16_t networkID, uint32_t txtimeout, int8_t txpower, uint8_t wait);
+    uint8_t waitACKDT(uint8_t *header, uint8_t headersize, uint32_t acktimeout);
+    uint8_t receiveDT(uint8_t *header, uint8_t headersize, uint8_t *dataarray, uint8_t datasize, uint16_t networkID, uint32_t rxtimeout, uint8_t wait );
+    uint8_t sendACKDT(uint8_t *header, uint8_t headersize, int8_t txpower);
+
+
+
   private:
 
     int8_t _NSS, _NRESET, _RFBUSY, _DIO1, _DIO2, _DIO3;
@@ -169,8 +264,8 @@ class SX128XLT  {
     uint8_t _RXPacketType;          //type number of received packet
     uint8_t _RXDestination;         //destination address of received packet
     uint8_t _RXSource;              //source address of received packet
-    int8_t  _PacketRSSI;            //RSSI of received packet
-    int8_t  _PacketSNR;             //signal to noise ratio of received packet
+    //int8_t  _PacketRSSI;          //RSSI of received packet - removed November 2021, not used
+    //int8_t  _PacketSNR;           //signal to noise ratio of received packet - removed November 2021, not used
     int8_t  _TXPacketL;             //transmitted packet length
     uint8_t _RXcount;               //used to keep track of the bytes read from SX1280 buffer during readFloat() etc
     uint8_t _TXcount;               //used to keep track of the bytes written to SX1280 buffer during writeFloat() etc
@@ -180,7 +275,7 @@ class SX128XLT  {
     uint8_t _Device;                //saved device type
     uint8_t _TXDonePin;             //the pin that will indicate TX done
     uint8_t _RXDonePin;             //the pin that will indicate RX done
-    uint8_t _PERIODBASE = PERIODBASE_01_MS; 
+    uint8_t _PERIODBASE = PERIODBASE_01_MS;
 
     uint8_t  savedRegulatorMode;
     uint8_t  savedPacketType;
@@ -192,6 +287,10 @@ class SX128XLT  {
     int8_t   savedTXPower;
     uint16_t savedCalibration;
     uint32_t savedFrequencyReg;
+
+    uint8_t _ReliableErrors;        //Reliable status byte
+    uint8_t _ReliableFlags;         //Reliable flags byte
+    uint8_t _ReliableConfig;        //Reliable config byte
 
 };
 #endif

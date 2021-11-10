@@ -152,6 +152,6 @@ void setup()
   Serial.println();
   LT.printOperatingSettings();
   Serial.println();
-  Serial.print(F("Receiver ready"));
+  Serial.print(F("Packet monitor ready"));
   Serial.println();
 }

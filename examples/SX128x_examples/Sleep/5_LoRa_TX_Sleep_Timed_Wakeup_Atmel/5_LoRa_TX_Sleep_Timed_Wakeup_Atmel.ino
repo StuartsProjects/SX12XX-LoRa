@@ -32,7 +32,7 @@
 
 SX128XLT LT;
 
-boolean SendOK;
+bool SendOK;
 int8_t TestPower;
 uint8_t TXPacketL;
 

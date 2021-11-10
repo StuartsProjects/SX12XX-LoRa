@@ -1,5 +1,5 @@
 /*******************************************************************************************************
-  Programs for Arduino - Copyright of the author Stuart Robinson - 15/05/20
+  Programs for Arduino - Copyright of the author Stuart Robinson - 04/11/21
 
   This program is supplied as is, it is up to the user of the program to decide if the program is
   suitable for the intended purpose and free from errors.
@@ -21,18 +21,19 @@
   There is the option of turning on an a requirement for an acknowledgement from a remote receiver, before
   the transmitter sends the next packet, set this; 'const bool waitforACK = true;' definition in the
   settings file. The matching receiver program '43_LoRa_Data_Throughput_Acknowledge_Receiver' does then need
-  to be configured with same lora settings as this transmitter. When this option is set, the program will 
+  to be configured with same lora settings as this transmitter. When this option is set, the program will
   keep running until the number of transmissions and acknowledgements has completed without any timeouts
-  in order to produce a valid average.   
+  in order to produce a valid average.
 
   The results of the test are printed out thus;
 
-  SX1280,434000000hz,SF7,BW500000,CR4:5,LDRO_Off,SyncWord_0x12,IQNormal,Preamble_8
-  Total transmit time 100 packets = 1382mS
-  Average 16 byte packet transmit time = 13.82mS
-  Packets per second 72.36
+  SX1280,PacketMode_LORA,2444999936hz,SF5,BW1625000,CR4:5
+  Total transmit time 50 packets = 199mS
+  Average 16 byte packet transmit time = 3.00mS
+  Packets per second 333.33
   Bits per packet sent = 128
-  Data rate = 9262bps
+  Data rate = 42667bps
+
 
 
   Serial monitor baud rate is set at 9600
@@ -145,8 +146,8 @@ void loop()
 
     Serial.print(averagePacketTime, 2);
     Serial.println(F("mS"));
-    Serial.print(F("Packets per second ")); 
-    Serial.println((float) (1000/averagePacketTime));
+    Serial.print(F("Packets per second "));
+    Serial.println((float) (1000 / averagePacketTime));
     bitsPerpacket = (uint32_t) (TXPacketL * 8);
     Serial.print(F("Bits per packet sent = "));
     Serial.println(bitsPerpacket);
@@ -279,4 +280,3 @@ void setup()
   Serial.print(F("Transmitter ready"));
   Serial.println();
 }
-

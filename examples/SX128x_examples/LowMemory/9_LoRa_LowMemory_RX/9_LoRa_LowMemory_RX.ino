@@ -38,7 +38,7 @@ uint32_t RXpacketCount;
 uint16_t errors;
 
 uint8_t RXPacketL;               //length of received packet
-int8_t  PacketRSSI;              //RSSI of received packet
+int16_t PacketRSSI;              //RSSI of received packet
 int8_t  PacketSNR;               //signal to noise ratio of received packet
 
 
@@ -74,7 +74,7 @@ uint8_t packet_is_OK()
   int8_t temperature;
   uint32_t txcount;
 
-  uint8_t receivebuffer[16];            //create receive buffer, make sure this is big enough for buffer sent !!!
+  char receivebuffer[16];                //create receive buffer, make sure this is big enough for buffer sent !!!
 
   //packet has been received, now read from the SX12xx Buffer using the same variable type and
   //order as the transmit side used.
@@ -84,7 +84,7 @@ uint8_t packet_is_OK()
   Serial.print(F("  "));
 
   LT.startReadSXBuffer(0);               //start buffer read at location 0
-  LT.readBuffer(receivebuffer);          //read in the character buffer
+  LT.readBufferChar(receivebuffer);      //read in the character buffer
   txcount  = LT.readUint32();            //read in the TXCount
   latitude = LT.readFloat();             //read in the latitude
   longitude = LT.readFloat();            //read in the longitude
@@ -190,6 +190,3 @@ void setup()
   Serial.println(F("Receiver ready"));
   Serial.println();
 }
-
-
-

@@ -30,7 +30,7 @@ SX128XLT LT;
 uint32_t RXpacketCount;        //count of received packets
 
 uint8_t RXPacketL;             //length of received packet
-int8_t PacketRSSI;             //RSSI of received packet
+int16_t PacketRSSI;            //RSSI of received packet
 int8_t PacketSNR;              //signal to noise ratio of received packet
 uint8_t PacketType;            //for packet addressing, identifies packet type
 uint8_t Destination;           //for packet addressing, identifies the destination (receiving) node
@@ -44,6 +44,7 @@ uint32_t TXGPSFixTime;         //time in mS for fix
 uint16_t TXVolts;              //supply\battery voltage
 uint8_t TXSats;                //number of sattelites in use
 uint32_t TXupTimemS;           //up time of TX in mS
+
 
 void loop()
 {
@@ -317,6 +318,3 @@ void setup()
   Serial.println(F("Receiver ready"));
   Serial.println();
 }
-
-
-

@@ -53,6 +53,7 @@ SX128XLT LT;
 int8_t TestPower;
 uint8_t TXPacketL;
 
+
 void loop()
 {
   Serial.println(F("Start Test Sequence"));
@@ -156,7 +157,7 @@ void SendTest1ModePacket()
 
   digitalWrite(LED1, HIGH);
   TXPacketL = LT.transmitAddressed(buff, sizeof(buff), TestMode1, Broadcast, ThisNode, 5000, start_power, WAIT_TX);
-  delay(mode_delaymS);                //longer delay, so that the start test sequence is obvious
+  delay(mode_delaymS);                                //longer delay, so that the start test sequence is obvious
   digitalWrite(LED1, LOW);
 
   if (TXPacketL == 0)
@@ -263,4 +264,3 @@ void setup()
   Serial.println();
 
 }
-

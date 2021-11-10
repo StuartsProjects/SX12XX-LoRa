@@ -51,8 +51,7 @@ struct controllerStructure
   uint16_t destinationNode;
   uint8_t outputNumber;
   uint8_t onoroff;
-//}__attribute__((packed));
-};
+}__attribute__((packed, aligned(1)));           //remove structure padding so there is compatibility between 8bit and 32bit Arduinos   
 
 struct controllerStructure controller1;         //define an instance called controller1 of the structure controllerStructure
 uint16_t PayloadCRC;

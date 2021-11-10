@@ -143,9 +143,8 @@ bool SX127XLT::begin(int8_t pinNSS, int8_t pinNRESET, int8_t pinDIO0, uint8_t de
 
   resetDevice();
 
-
 #ifdef SX127XDEBUGPINS
-  Serial.println(F("format 2 begin() "));
+  Serial.println(F("2 begin() "));
   Serial.println(F("SX127XLT constructor instantiated successfully"));
   Serial.print(F("NSS "));
   Serial.println(_NSS);
@@ -166,14 +165,19 @@ bool SX127XLT::begin(int8_t pinNSS, int8_t pinNRESET, int8_t pinDIO0, uint8_t de
 
 bool SX127XLT::begin(int8_t pinNSS, uint8_t device)
 {
-  //format 3 pins, assign the all available pins
+  //format 3 pins, no DIO0 or NRESET
 #ifdef SX127XDEBUG1
-  Serial.println(F("3 begin() "));
+  Serial.println(F("3 begin()"));
 #endif
 
-  //assign the passed pins to the class private variabled
   _NSS = pinNSS;
+  _NRESET = -1;
+  _DIO0 = -1;
+  _DIO1 = -1;
+  _DIO2 = -1;
   _Device = device;            //device type needs to be assigned before reset
+  _TXDonePin = _DIO0;          //this is defalt pin for sensing TX done
+  _RXDonePin = _DIO0;          //this is defalt pin for sensing RX done
   _ReliableConfig = 0;         //reliable config needs to start at 0
 
   pinMode(_NSS, OUTPUT);
@@ -181,7 +185,7 @@ bool SX127XLT::begin(int8_t pinNSS, uint8_t device)
 
 
 #ifdef SX127XDEBUGPINS
-  Serial.println(F("2 begin()"));
+  Serial.println(F("3 begin()"));
   Serial.println(F("SX127XLT constructor instantiated successfully"));
   Serial.print(F("NSS "));
   Serial.println(_NSS);
@@ -202,19 +206,22 @@ void SX127XLT::resetDevice()
   Serial.println(F("resetDevice() "));
 #endif
 
-  if (_Device == DEVICE_SX1272)
+  if (_NRESET >= 0)
   {
-    digitalWrite(_NRESET, HIGH);
-    delay(2);
-    digitalWrite(_NRESET, LOW);
-    delay(20);
-  }
-  else
-  {
-    digitalWrite(_NRESET, LOW);
-    delay(2);
-    digitalWrite(_NRESET, HIGH);
-    delay(20);
+    if (_Device == DEVICE_SX1272)
+    {
+      digitalWrite(_NRESET, HIGH);
+      delay(2);
+      digitalWrite(_NRESET, LOW);
+      delay(20);
+    }
+    else
+    {
+      digitalWrite(_NRESET, LOW);
+      delay(2);
+      digitalWrite(_NRESET, HIGH);
+      delay(20);
+    }
   }
 }
 
@@ -296,6 +303,7 @@ void SX127XLT::calibrateImage(uint8_t null)
   LTUNUSED(null);
 
   uint8_t regdata, savedmode;
+
   savedmode = readRegister(REG_OPMODE);
   writeRegister(REG_OPMODE, 0x00);              //sleep
   writeRegister(REG_OPMODE, 0x00);              //sleep
@@ -369,12 +377,10 @@ uint16_t SX127XLT::CRCCCITTSX(uint8_t startadd, uint8_t endadd, uint16_t startva
   Serial.println(F("CRCCCITTSX() "));
 #endif
 
-
   uint16_t index, libraryCRC;
   uint8_t j;
 
   libraryCRC = startvalue;                                  //start value for CRC16
-
   startReadSXBuffer(startadd);                              //begin the buffer read
 
   for (index = startadd; index <= endadd; index++)
@@ -646,12 +652,9 @@ void SX127XLT::printOperatingSettings()
 
   printDevice();
   Serial.print(F(","));
-
   printOperatingMode();
-
   Serial.print(F(",Version_"));
   Serial.print(getVersion(), HEX);
-
   Serial.print(F(",PacketMode_"));
 
   if (getPacketMode())
@@ -681,7 +684,6 @@ void SX127XLT::printOperatingSettings()
   {
     Serial.print(F("Off"));
   }
-
 
   Serial.print(F(",AGCauto_"));
   if (getAGC())
@@ -726,6 +728,7 @@ void SX127XLT::setTxParams(int8_t txPower, uint8_t rampTime)
 #ifdef SX127XDEBUG1
   Serial.println(F("setTxParams() "));
 #endif
+
   uint8_t MaxPower, OutputPower, OcpTrim, boostval;
 
   if (_Device & 0x10)
@@ -760,7 +763,7 @@ void SX127XLT::setTxParams(int8_t txPower, uint8_t rampTime)
       OutputPower = txPower - 2;            //power range is 15dBm, max is 17dBm min is 2dBm
     }
 
-    if (_Device == DEVICE_SX1272_PABOOST) //power calculation for SX1272 is the same for < 17dbm and > 17dBm
+    if (_Device == DEVICE_SX1272_PABOOST)   //power calculation for SX1272 is the same for < 17dbm and > 17dBm
     {
       OutputPower = txPower - 2;
     }
@@ -795,7 +798,7 @@ void SX127XLT::setTxParams(int8_t txPower, uint8_t rampTime)
   }
 
   //common routines for PABOOST and RFO
-  OcpTrim = OCP_TRIM_110MA;                  //value for OcpTrim 11dBm to 16dBm
+  OcpTrim = OCP_TRIM_110MA;                    //value for OcpTrim 11dBm to 16dBm
 
   if (txPower >= 17)
   {
@@ -844,8 +847,8 @@ void SX127XLT::printOCPTRIM()
 #endif
 
   uint8_t regdata;
-  regdata = readRegister(REG_OCP);
 
+  regdata = readRegister(REG_OCP);
   Serial.print(F("REG_OCP,"));
   Serial.print(regdata, HEX);
   Serial.print(F(","));
@@ -913,6 +916,7 @@ void SX127XLT::setPacketParams(uint16_t packetParam1, uint8_t  packetParam2, uin
   //*******************************************************
   //These changes are the same for SX1272 and SX127X
   //PreambleLength reg 0x20, 0x21
+
   preambleMSB = packetParam1 >> 8;
   preambleLSB = packetParam1 & 0xFF;
   writeRegister(REG_PREAMBLEMSB, preambleMSB);
@@ -934,13 +938,13 @@ void SX127XLT::setPacketParams(uint16_t packetParam1, uint8_t  packetParam2, uin
     writeRegister(REG_INVERTIQ2, 0x1d);
   }
 
-  //regdata = ( (readRegister(REG_INVERTIQ)) & 0xBE );             //mask off invertIQ bit 6 and bit 0
+  //regdata = ( (readRegister(REG_INVERTIQ)) & 0xBE );           //mask off invertIQ bit 6 and bit 0
   //writeRegister(REG_INVERTIQ, (regdata + packetParam5));
   //*******************************************************
 
 
   //CRC mode
-  _UseCRC = packetParam4;                                                  //save CRC use status
+  _UseCRC = packetParam4;                                         //save CRC use status
 
   if (_Device != DEVICE_SX1272)
   {
@@ -1005,7 +1009,6 @@ void SX127XLT::setModulationParams(uint8_t modParam1, uint8_t modParam2, uint8_t
   }
   else
   {
-
     //for SX1272
     regdata = (readRegister(REG_MODEMCONFIG1) & (~READ_BW_AND_2));   //value will be LORA_BW_500 128, LORA_BW_250 64, LORA_BW_125 0
 
@@ -1118,7 +1121,6 @@ void SX127XLT::setModulationParams(uint8_t modParam1, uint8_t modParam2, uint8_t
     writeRegister(REG_HIGHBWOPTIMIZE1, 0x03);
   }
 
-
   //Datasheet SX1276-7-8-9_May_2020, page 115, REG_DETECTOPTIMIZE = 0x31, REG_LRDETECTIONTHRESHOLD = 0x37
   if ( modParam1 == LORA_SF6 )
   {
@@ -1141,13 +1143,11 @@ void SX127XLT::setRfFrequency(uint64_t freq64, int32_t offset)
 
   _savedFrequency = freq64;
   _savedOffset = offset;
-
   freq64 = freq64 + offset;
   freq64 = ((uint64_t)freq64 << 19) / 32000000;
   _freqregH = freq64 >> 16;
   _freqregM = freq64 >> 8;
   _freqregL = freq64;
-
   writeRegister(REG_FRMSB, _freqregH);
   writeRegister(REG_FRMID, _freqregM);
   writeRegister(REG_FRLSB, _freqregL);
@@ -1164,6 +1164,7 @@ uint32_t SX127XLT::getFreqInt()
   uint8_t Msb, Mid, Lsb;
   uint32_t uinttemp;
   float floattemp;
+
   Msb = readRegister(REG_FRMSB);
   Mid = readRegister(REG_FRMID);
   Lsb = readRegister(REG_FRLSB);
@@ -1185,7 +1186,6 @@ int32_t SX127XLT::getFrequencyErrorRegValue()
   uint32_t allreg;
 
   setMode(MODE_STDBY_RC);
-
   msb = readRegister(REG_FEIMSB);
   mid = readRegister(REG_FEIMID);
   lsb = readRegister(REG_FEILSB);
@@ -1309,7 +1309,6 @@ int32_t SX127XLT::getFrequencyErrorHz()
   mid = (mid << 8) + lsb;
   mid = (mid >> 4);
   freqerr = freqerr + mid;
-
   freqerr = (int16_t) (freqerr * bwconst);
 
   return freqerr;
@@ -1485,6 +1484,7 @@ uint8_t SX127XLT::getLNAgain()
 #endif
 
   uint8_t regdata;
+
   regdata = readRegister(REG_LNA);
   regdata = (regdata & READ_LNAGAIN_AND_X);
   return (regdata >> 5);
@@ -1601,8 +1601,6 @@ uint8_t SX127XLT::getOpmode()
 
 uint8_t SX127XLT::getPacketMode()
 {
-  //its either LoRa or FSK
-
 #ifdef SX127XDEBUG1
   Serial.println(F("getPacketMode() "));
 #endif
@@ -1646,7 +1644,7 @@ int16_t SX127XLT::readPacketRSSI()
   //actual read SNR register values normally seen in practice are from 0 to 48 (0dB to +12dB)
   //and 167 to 255 (-22dB to 0dB)
 
-  int16_t _PacketRSSI;            //RSSI of received packet
+  int16_t _PacketRSSI;                                        //RSSI of received packet
   int8_t SNRregdata;
 
   if (_savedFrequency < 779000000)                            //779Mhz is lower frequency limit for SX1279 on band1 (HF Port)
@@ -1662,8 +1660,7 @@ int16_t SX127XLT::readPacketRSSI()
 
   if (SNRregdata < 0)                                          //check for negative SNR value
   {
-    //Serial.print(F(" (-SNR) "));
-    _PacketRSSI = (_PacketRSSI + (SNRregdata >> 2));            //add datasheet fiddle factor
+    _PacketRSSI = (_PacketRSSI + (SNRregdata >> 2));           //add datasheet fiddle factor
   }
 
   return _PacketRSSI;
@@ -1876,11 +1873,11 @@ uint16_t SX127XLT::readIrqStatus()
   Serial.println(_UseCRC);
 #endif
 
-  if (bitRead(regdata, 6))                                    //check if its a packet receive (IRQ_RX_DONE set)
+  if (bitRead(regdata, 6))                                     //check if its a packet receive (IRQ_RX_DONE set)
   {
-    if (!packetHasCRC && _UseCRC)                             //check if packet header indicates no CRC on packet, byt use CRC set
+    if (!packetHasCRC && _UseCRC)                              //check if packet header indicates no CRC on packet, byt use CRC set
     {
-      bitSet(_IRQmsb, 10);                                      //flag the phantom packet, set bit 10
+      bitSet(_IRQmsb, 10);                                     //flag the phantom packet, set bit 10
     }
   }
   return (regdata + _IRQmsb);
@@ -1898,7 +1895,6 @@ void SX127XLT::setDioIrqParams(uint16_t irqMask, uint16_t dio0Mask, uint16_t dio
   uint8_t mask0, mask1, mask2;
 
   LTUNUSED(dio2Mask);                      //variable left in call for compatibility with other libraries
-
 
   switch (dio0Mask)
   {
@@ -1918,7 +1914,7 @@ void SX127XLT::setDioIrqParams(uint16_t irqMask, uint16_t dio0Mask, uint16_t dio
       mask0 = 0x0C;
   }
 
-  switch (dio1Mask)               //for compatibility with other libraries IRQ_RX_TIMEOUT = IRQ_RX_TX_TIMEOUT
+  switch (dio1Mask)                        //for compatibility with other libraries IRQ_RX_TIMEOUT = IRQ_RX_TX_TIMEOUT
   {
     case IRQ_RX_TIMEOUT:
       mask1 = 0;
@@ -1936,7 +1932,7 @@ void SX127XLT::setDioIrqParams(uint16_t irqMask, uint16_t dio0Mask, uint16_t dio
       mask1 = 0x30;
   }
 
-  mask2 = 0x00;                  //is always IRQ_FSHS_CHANGE_CHANNEL
+  mask2 = 0x00;                             //is always IRQ_FSHS_CHANGE_CHANNEL
 
   writeRegister(REG_IRQFLAGSMASK, ~irqMask);
   writeRegister(REG_DIOMAPPING1, (mask0 + mask1 + mask2));
@@ -2195,7 +2191,7 @@ uint8_t SX127XLT::receive(uint8_t *rxbuffer, uint8_t size, uint32_t rxtimeout, u
 
   setMode(MODE_STDBY_RC);                                                  //ensure to stop further packet reception
 
-  if (!digitalRead(_RXDonePin))                                            //check if DIO still low, is so must be RX timeout
+  if (!digitalRead(_RXDonePin))                                            //check if DIO still low, if so must be RX timeout
   {
     _IRQmsb = IRQ_RX_TIMEOUT;
     return 0;
@@ -2204,7 +2200,7 @@ uint8_t SX127XLT::receive(uint8_t *rxbuffer, uint8_t size, uint32_t rxtimeout, u
 
   if ( readIrqStatus() != (IRQ_RX_DONE + IRQ_HEADER_VALID) )
   {
-    return 0;                                                                //no RX done and header valid only, could be CRC error
+    return 0;                                                              //no RX done and header valid only, could be CRC error
   }
 
   _RXPacketL = readRegister(REG_RXNBBYTES);
@@ -2261,7 +2257,7 @@ uint8_t SX127XLT::receiveIRQ(uint8_t *rxbuffer, uint8_t size, uint32_t rxtimeout
 
   if (rxtimeout == 0)
   {
-    while (!isRXdoneIRQ());                                                 //Wait for IRQ to go high, no timeout, RX DONE
+    while (!isRXdoneIRQ());                                                //Wait for IRQ to go high, no timeout, RX DONE
   }
   else
   {
@@ -2282,7 +2278,7 @@ uint8_t SX127XLT::receiveIRQ(uint8_t *rxbuffer, uint8_t size, uint32_t rxtimeout
 
   if ( readIrqStatus() != (IRQ_RX_DONE + IRQ_HEADER_VALID) )
   {
-    return 0;                                                                //no RX done and header valid only, could be CRC error
+    return 0;                                                              //no RX done and header valid only, could be CRC error
   }
 
   _RXPacketL = readRegister(REG_RXNBBYTES);
@@ -2327,7 +2323,6 @@ uint8_t SX127XLT::receiveAddressed(uint8_t *rxbuffer, uint8_t size, uint32_t rxt
   setMode(MODE_STDBY_RC);
   regdata = readRegister(REG_FIFORXBASEADDR);                                //retrieve the RXbase address pointer
   writeRegister(REG_FIFOADDRPTR, regdata);                                   //and save in FIFO access ptr
-
   setDioIrqParams(IRQ_RADIO_ALL, (IRQ_RX_DONE + IRQ_HEADER_VALID), 0, 0);    //set for IRQ on RX done
   setRx(0);                                                                  //no actual RX timeout in this function
 
@@ -2346,9 +2341,9 @@ uint8_t SX127XLT::receiveAddressed(uint8_t *rxbuffer, uint8_t size, uint32_t rxt
     while (!digitalRead(_RXDonePin) && ((uint32_t) (millis() - startmS) < rxtimeout));
   }
 
-  setMode(MODE_STDBY_RC);                                          //ensure to stop further packet reception
+  setMode(MODE_STDBY_RC);                                                  //ensure to stop further packet reception
 
-  if (!digitalRead(_RXDonePin))                                         //check if not DIO still low, is so must be RX timeout
+  if (!digitalRead(_RXDonePin))                                            //check if not DIO still low, is so must be RX timeout
   {
     _IRQmsb = IRQ_RX_TIMEOUT;
     return 0;
@@ -2356,14 +2351,14 @@ uint8_t SX127XLT::receiveAddressed(uint8_t *rxbuffer, uint8_t size, uint32_t rxt
 
   if ( readIrqStatus() != (IRQ_RX_DONE + IRQ_HEADER_VALID) )
   {
-    return 0;                       //no RX done and header valid only, could be CRC error
+    return 0;                                 //no RX done and header valid only, could be CRC error
   }
 
   _RXPacketL = readRegister(REG_RXNBBYTES);
 
   if (_RXPacketL > size)                      //check passed buffer is big enough for packet
   {
-    _RXPacketL = size;                          //truncate packet if not enough space in passed buffer
+    _RXPacketL = size;                        //truncate packet if not enough space in passed buffer
   }
 
 #ifdef USE_SPI_TRANSACTION   //to use SPI_TRANSACTION enable define at beginning of CPP file 
@@ -2408,7 +2403,6 @@ uint8_t SX127XLT::readPacket(uint8_t *rxbuffer, uint8_t size)
   setMode(MODE_STDBY_RC);
   regdata = readRegister(REG_FIFORXBASEADDR);   //retrieve the RXbase address pointer
   writeRegister(REG_FIFOADDRPTR, regdata);      //and save in FIFO access ptr
-
   _RXPacketL = readRegister(REG_RXNBBYTES);
 
   if (_RXPacketL > size)                        //check passed buffer is big enough for packet
@@ -2420,7 +2414,7 @@ uint8_t SX127XLT::readPacket(uint8_t *rxbuffer, uint8_t size)
   SPI.beginTransaction(SPISettings(LTspeedMaximum, LTdataOrder, LTdataMode));
 #endif
 
-  digitalWrite(_NSS, LOW);                    //start the burst read
+  digitalWrite(_NSS, LOW);                      //start the burst read
   SPI.transfer(REG_FIFO);
 
   for (index = 0; index < _RXPacketL; index++)
@@ -2449,19 +2443,18 @@ uint8_t SX127XLT::readPacketAddressed(uint8_t *rxbuffer, uint8_t size)
   setMode(MODE_STDBY_RC);
   regdata = readRegister(REG_FIFORXBASEADDR);  //retrieve the RXbase address pointer
   writeRegister(REG_FIFOADDRPTR, regdata);     //and save in FIFO access ptr
-
   _RXPacketL = readRegister(REG_RXNBBYTES);
 
-  if (_RXPacketL > size)                      //check passed buffer is big enough for packet
+  if (_RXPacketL > size)                       //check passed buffer is big enough for packet
   {
-    _RXPacketL = size;                        //truncate packet if not enough space
+    _RXPacketL = size;                         //truncate packet if not enough space
   }
 
 #ifdef USE_SPI_TRANSACTION   //to use SPI_TRANSACTION enable define at beginning of CPP file 
   SPI.beginTransaction(SPISettings(LTspeedMaximum, LTdataOrder, LTdataMode));
 #endif
 
-  digitalWrite(_NSS, LOW);                    //start the burst read
+  digitalWrite(_NSS, LOW);                     //start the burst read
   SPI.transfer(REG_FIFO);
   _RXPacketType = SPI.transfer(0);
   _RXDestination = SPI.transfer(0);
@@ -2501,7 +2494,7 @@ uint8_t SX127XLT::transmit(uint8_t *txbuffer, uint8_t size, uint32_t txtimeout, 
   ptr = readRegister(REG_FIFOTXBASEADDR);       //retrieve the TXbase address pointer
   writeRegister(REG_FIFOADDRPTR, ptr);          //and save in FIFO access ptr
 
-#ifdef USE_SPI_TRANSACTION                   //to use SPI_TRANSACTION enable define at beginning of CPP file 
+#ifdef USE_SPI_TRANSACTION                      //to use SPI_TRANSACTION enable define at beginning of CPP file 
   SPI.beginTransaction(SPISettings(LTspeedMaximum, LTdataOrder, LTdataMode));
 #endif
 
@@ -2521,9 +2514,7 @@ uint8_t SX127XLT::transmit(uint8_t *txbuffer, uint8_t size, uint32_t txtimeout, 
 
   _TXPacketL = size;
   writeRegister(REG_PAYLOADLENGTH, _TXPacketL);
-
   setTxParams(txpower, RADIO_RAMP_DEFAULT);            //TX power and ramp time
-
   setDioIrqParams(IRQ_RADIO_ALL, IRQ_TX_DONE, 0, 0);   //set for IRQ on TX done on first DIO pin
   setTx(0);                                            //TX timeout is not handled in setTX()
 
@@ -2593,9 +2584,7 @@ uint8_t SX127XLT::transmitIRQ(uint8_t *txbuffer, uint8_t size, uint32_t txtimeou
 
   _TXPacketL = size;
   writeRegister(REG_PAYLOADLENGTH, _TXPacketL);
-
   setTxParams(txpower, RADIO_RAMP_DEFAULT);            //TX power and ramp time
-
   setDioIrqParams(IRQ_RADIO_ALL, IRQ_TX_DONE, 0, 0);   //set for IRQ on TX done on first DIO pin
   setTx(0);                                            //TX timeout is not handled in setTX()
 
@@ -2651,6 +2640,7 @@ uint8_t SX127XLT::transmitAddressed(uint8_t *txbuffer, uint8_t size, char txpack
 
   digitalWrite(_NSS, LOW);
   SPI.transfer(WREG_FIFO);
+
   SPI.transfer(txpackettype);                     //Write the packet type
   SPI.transfer(txdestination);                    //Destination node
   SPI.transfer(txsource);                         //Source node
@@ -2668,9 +2658,7 @@ uint8_t SX127XLT::transmitAddressed(uint8_t *txbuffer, uint8_t size, char txpack
 #endif
 
   writeRegister(REG_PAYLOADLENGTH, _TXPacketL);
-
   setTxParams(txpower, RADIO_RAMP_DEFAULT);            //TX power and ramp time
-
   setDioIrqParams(IRQ_RADIO_ALL, IRQ_TX_DONE, 0, 0);   //set for IRQ on TX done
   setTx(0);                                            //TX timeout is not handled in setTX()
 
@@ -2681,7 +2669,7 @@ uint8_t SX127XLT::transmitAddressed(uint8_t *txbuffer, uint8_t size, char txpack
 
   if (txtimeout == 0)
   {
-    while (!digitalRead(_TXDonePin));                                      //Wait for DIO0 to go high, TX finished
+    while (!digitalRead(_TXDonePin));                   //Wait for DIO0 to go high, TX finished
   }
   else
   {
@@ -2689,15 +2677,15 @@ uint8_t SX127XLT::transmitAddressed(uint8_t *txbuffer, uint8_t size, char txpack
     while (!digitalRead(_TXDonePin) && ((uint32_t) (millis() - startmS) < txtimeout));
   }
 
-  setMode(MODE_STDBY_RC);                                             //ensure we leave function with TX off
+  setMode(MODE_STDBY_RC);                               //ensure we leave function with TX off
 
-  if (!digitalRead(_TXDonePin))                                       //its a timeout if _TXDonepin still high
+  if (!digitalRead(_TXDonePin))                         //its a timeout if _TXDonepin still high
   {
     _IRQmsb = IRQ_TX_TIMEOUT;
     return 0;
   }
 
-  return _TXPacketL;                                                  //no timeout, so TXdone must have been set
+  return _TXPacketL;                                     //no timeout, so TXdone must have been set
 }
 
 
@@ -2712,6 +2700,24 @@ void SX127XLT::setupLoRa(uint32_t Frequency, int32_t Offset, uint8_t modParam1, 
   setRfFrequency(Frequency, Offset);                 //set the operating frequncy
   calibrateImage(0);                                 //run calibration after setting frequency
   setModulationParams(modParam1, modParam2, modParam3, modParam4);
+  setBufferBaseAddress(0x00, 0x00);                  //set bases addresses for TX and RX packets in SX buffer
+  setPacketParams(8, LORA_PACKET_VARIABLE_LENGTH, 255, LORA_CRC_ON, LORA_IQ_NORMAL); //set the packet options
+  setSyncWord(LORA_MAC_PRIVATE_SYNCWORD);            //syncword to use, 0x12 for standard private, 0x34 for public (LORAWAN)
+  setHighSensitivity();
+}
+
+
+void SX127XLT::setupLoRa(uint32_t Frequency)
+{
+#ifdef SX127XDEBUG1
+  Serial.println(F("setupLoRa() "));
+#endif
+
+  setMode(MODE_STDBY_RC);                            //go into standby mode to configure device
+  setPacketType(PACKET_TYPE_LORA);                   //use LoRa packets
+  setRfFrequency(Frequency, 0);                      //set the operating frequncy
+  calibrateImage(0);                                 //run calibration after setting frequency
+  setModulationParams(LORA_SF7, LORA_BW_125, LORA_CR_4_5, LDRO_AUTO);
   setBufferBaseAddress(0x00, 0x00);                  //set bases addresses for TX and RX packets in SX buffer
   setPacketParams(8, LORA_PACKET_VARIABLE_LENGTH, 255, LORA_CRC_ON, LORA_IQ_NORMAL); //set the packet options
   setSyncWord(LORA_MAC_PRIVATE_SYNCWORD);            //syncword to use, 0x12 for standard private, 0x34 for public (LORAWAN)
@@ -2793,7 +2799,6 @@ uint8_t SX127XLT::getSyncWord()
 uint8_t SX127XLT::getInvertIQ()
 {
   //IQ mode reg 0x33
-
 #ifdef SX127XDEBUG1
   Serial.println(F("getInvertIQ() "));
 #endif
@@ -2902,6 +2907,7 @@ uint8_t SX127XLT::returnOptimisation(uint8_t Bandwidth, uint8_t SpreadingFactor)
 
   uint32_t tempBandwidth;
   float symbolTime;
+
   tempBandwidth = returnBandwidth(Bandwidth);
   symbolTime = calcSymbolTime(tempBandwidth, SpreadingFactor);
 
@@ -3016,7 +3022,7 @@ uint8_t SX127XLT::receiveSXBuffer(uint8_t startaddr, uint32_t rxtimeout, uint8_t
   uint32_t startmS;
 
   setMode(MODE_STDBY_RC);
-  writeRegister(REG_FIFORXBASEADDR, startaddr);          //set start address of RX packet in buffer
+  writeRegister(REG_FIFORXBASEADDR, startaddr);                             //set start address of RX packet in buffer
   setDioIrqParams(IRQ_RADIO_ALL, (IRQ_RX_DONE + IRQ_HEADER_VALID), 0, 0);   //set for IRQ on RX done
   setRx(0);                                                                 //no actual RX timeout in this function
 
@@ -3063,7 +3069,7 @@ uint8_t SX127XLT::receiveSXBufferIRQ(uint8_t startaddr, uint32_t rxtimeout, uint
   uint32_t startmS;
 
   setMode(MODE_STDBY_RC);
-  writeRegister(REG_FIFORXBASEADDR, startaddr);          //set start address of RX packet in buffer
+  writeRegister(REG_FIFORXBASEADDR, startaddr);                             //set start address of RX packet in buffer
   setDioIrqParams(IRQ_RADIO_ALL, (IRQ_RX_DONE + IRQ_HEADER_VALID), 0, 0);   //set for IRQ on RX done
   setRx(0);                                                                 //no actual RX timeout in this function
 
@@ -3110,12 +3116,9 @@ uint8_t SX127XLT::transmitSXBuffer(uint8_t startaddr, uint8_t length, uint32_t t
   uint32_t startmS;
 
   setMode(MODE_STDBY_RC);
-
   writeRegister(REG_FIFOTXBASEADDR, startaddr);         //set start address of packet in buffer
   writeRegister(REG_PAYLOADLENGTH, length);
-
   setTxParams(txpower, RADIO_RAMP_DEFAULT);             //TX power and ramp time
-
   setDioIrqParams(IRQ_RADIO_ALL, IRQ_TX_DONE, 0, 0);    //set for IRQ on TX done
   setTx(0);                                             //TX timeout is not handled in setTX()
 
@@ -3157,12 +3160,9 @@ uint8_t SX127XLT::transmitSXBufferIRQ(uint8_t startaddr, uint8_t length, uint32_
   uint32_t startmS;
 
   setMode(MODE_STDBY_RC);
-
   writeRegister(REG_FIFOTXBASEADDR, startaddr);         //set start address of packet in buffer
   writeRegister(REG_PAYLOADLENGTH, length);
-
   setTxParams(txpower, RADIO_RAMP_DEFAULT);             //TX power and ramp time
-
   setDioIrqParams(IRQ_RADIO_ALL, IRQ_TX_DONE, 0, 0);    //set for IRQ on TX done
   setTx(0);                                             //TX timeout is not handled in setTX()
 
@@ -3183,8 +3183,7 @@ uint8_t SX127XLT::transmitSXBufferIRQ(uint8_t startaddr, uint8_t length, uint32_
 
   setMode(MODE_STDBY_RC);                               //ensure we leave function with TX off
 
-
-  if (!isTXdoneIRQ())                         //if _TXDonePin still high then TX timeout
+  if (!isTXdoneIRQ())                                   //if _TXDonePin still high then TX timeout
   {
     _IRQmsb = IRQ_TX_TIMEOUT;
 
@@ -3237,8 +3236,8 @@ void SX127XLT::printSXBufferASCII(uint8_t start, uint8_t end)
 #endif
 
   uint8_t index, regdata;
-  setMode(MODE_STDBY_RC);
 
+  setMode(MODE_STDBY_RC);
   writeRegister(REG_FIFOADDRPTR, start);      //and save in FIFO access ptr
 
 #ifdef USE_SPI_TRANSACTION                    //to use SPI_TRANSACTION enable define at beginning of CPP file 
@@ -3326,7 +3325,6 @@ void SX127XLT::writeByteSXBuffer(uint8_t addr, uint8_t regdata)
 #endif
 
   setMode(MODE_STDBY_RC);                 //this is needed to ensure we can write to buffer OK.
-
   writeRegister(REG_FIFOADDRPTR, addr);   //set FIFO access ptr to location
 
 #ifdef USE_SPI_TRANSACTION                //to use SPI_TRANSACTION enable define at beginning of CPP file 
@@ -3351,7 +3349,6 @@ void SX127XLT::startWriteSXBuffer(uint8_t ptr)
 #endif
 
   setMode(MODE_STDBY_RC);
-
   _TXPacketL = 0;                               //this variable used to keep track of bytes written
   writeRegister(REG_FIFOADDRPTR, ptr);          //set buffer access ptr
 
@@ -3425,7 +3422,6 @@ void SX127XLT::writeUint8(uint8_t x)
 #endif
 
   SPI.transfer(x);
-
   _TXPacketL++;                      //increment count of bytes written
 }
 
@@ -3439,8 +3435,8 @@ uint8_t SX127XLT::readUint8()
   uint8_t x;
 
   x = SPI.transfer(0);
-
   _RXPacketL++;                       //increment count of bytes read
+
   return (x);
 }
 
@@ -3452,8 +3448,7 @@ void SX127XLT::writeInt8(int8_t x)
 #endif
 
   SPI.transfer(x);
-
-  _TXPacketL++;                      //increment count of bytes written
+  _TXPacketL++;                       //increment count of bytes written
 }
 
 
@@ -3466,8 +3461,8 @@ int8_t SX127XLT::readInt8()
   int8_t x;
 
   x = SPI.transfer(0);
-
   _RXPacketL++;                      //increment count of bytes read
+
   return (x);
 }
 
@@ -3479,7 +3474,6 @@ void SX127XLT::writeChar(char x)
 #endif
 
   SPI.transfer(x);
-
   _TXPacketL++;                     //increment count of bytes written
 }
 
@@ -3493,8 +3487,8 @@ char SX127XLT::readChar()
   char x;
 
   x = SPI.transfer(0);
-
   _RXPacketL++;                      //increment count of bytes read
+
   return (x);
 }
 
@@ -3507,8 +3501,7 @@ void SX127XLT::writeUint16(uint16_t x)
 
   SPI.transfer(lowByte(x));
   SPI.transfer(highByte(x));
-
-  _TXPacketL = _TXPacketL + 2;         //increment count of bytes written
+  _TXPacketL = _TXPacketL + 2;       //increment count of bytes written
 }
 
 
@@ -3522,8 +3515,8 @@ uint16_t SX127XLT::readUint16()
 
   lowbyte = SPI.transfer(0);
   highbyte = SPI.transfer(0);
+  _RXPacketL = _RXPacketL + 2;        //increment count of bytes read
 
-  _RXPacketL = _RXPacketL + 2;         //increment count of bytes read
   return ((highbyte << 8) + lowbyte);
 }
 
@@ -3536,7 +3529,6 @@ void SX127XLT::writeInt16(int16_t x)
 
   SPI.transfer(lowByte(x));
   SPI.transfer(highByte(x));
-
   _TXPacketL = _TXPacketL + 2;         //increment count of bytes written
 }
 
@@ -3551,8 +3543,8 @@ int16_t SX127XLT::readInt16()
 
   lowbyte = SPI.transfer(0);
   highbyte = SPI.transfer(0);
-
   _RXPacketL = _RXPacketL + 2;         //increment count of bytes read
+
   return ((highbyte << 8) + lowbyte);
 }
 
@@ -3726,7 +3718,6 @@ void SX127XLT::writeBuffer(uint8_t *txbuffer, uint8_t size)
 }
 
 
-
 void SX127XLT::writeBufferChar(char *txbuffer, uint8_t size)
 {
 #ifdef SX127XDEBUG1
@@ -3747,7 +3738,6 @@ void SX127XLT::writeBufferChar(char *txbuffer, uint8_t size)
 
   SPI.transfer(0);                     //this ensures last byte of buffer writen really is a null (0)
 }
-
 
 
 void SX127XLT::writeBufferChar(char *txbuffer)
@@ -3838,7 +3828,6 @@ uint8_t SX127XLT::readBufferChar(char *rxbuffer)
 void SX127XLT::rxtxInit(int8_t pinRXEN, int8_t pinTXEN)
 {
   //not used on current SX127x modules
-
 #ifdef SX127XDEBUG1
   Serial.println(F("rxtxInit() "));
 #endif
@@ -3856,7 +3845,6 @@ void SX127XLT::rxtxInit(int8_t pinRXEN, int8_t pinTXEN)
 void SX127XLT::rxEnable()
 {
   //not used on current SX127x modules
-
 #ifdef SX127XDEBUG1
   Serial.println(F("rxEnable() "));
 #endif
@@ -3869,7 +3857,6 @@ void SX127XLT::rxEnable()
 void SX127XLT::txEnable()
 {
   //not used on current SX127x modules
-
 #ifdef SX127XDEBUG1
   Serial.println(F("txEnable() "));
 #endif
@@ -4003,19 +3990,19 @@ void SX127XLT::toneFM(uint16_t frequency, uint32_t length, uint32_t deviation, f
     delayMicroseconds(ToneDelayus);
   }
   //now set the frequency registers back to centre
-  digitalWrite(_NSS, LOW);                  //set NSS low
-  SPI.transfer(0x86);                       //address for write to REG_FRMSB
+  digitalWrite(_NSS, LOW);                    //set NSS low
+  SPI.transfer(0x86);                         //address for write to REG_FRMSB
   SPI.transfer(freqregH);
   SPI.transfer(freqregM);
   SPI.transfer(freqregL);
-  digitalWrite(_NSS, HIGH);                 //set NSS high
+  digitalWrite(_NSS, HIGH);                   //set NSS high
 
 #ifdef USE_SPI_TRANSACTION
   SPI.endTransaction();
 #endif
 
-  writeRegister(REG_PLLHOP, 0x2D);          //restore PLLHOP register value
-  setMode(MODE_STDBY_RC);                   //turns off carrier
+  writeRegister(REG_PLLHOP, 0x2D);            //restore PLLHOP register value
+  setMode(MODE_STDBY_RC);                     //turns off carrier
 }
 
 
@@ -4025,6 +4012,7 @@ void SX127XLT::setupDirect(uint32_t frequency, int32_t offset)
 #ifdef SX127XDEBUG1
   Serial.println(F("setupDirect() "));
 #endif
+
   _PACKET_TYPE = PACKET_TYPE_GFSK;            //need to swap packet type
   setMode(MODE_SLEEP);                        //can only swap to direct mode in sleepmode
   setMode(MODE_SLEEP);                        //can only swap to direct mode in sleepmode
@@ -4046,22 +4034,17 @@ int8_t SX127XLT::getDeviceTemperature()
   uint8_t regdata;
 
   regdata = readRegister(REG_IMAGECAL & 0xFE);
-
   writeRegister(REG_IMAGECAL, 0x00);                //register back to power up default
-
   writeRegister(REG_OPMODE, 0x00);                  //goto sleep
   writeRegister(REG_OPMODE, 0x00);                  //make sure switch to FSK mode
   writeRegister(REG_OPMODE, 0x01);                  //go into FSK standby
   delay(5);                                         //wait for oscillator startup
   writeRegister(REG_OPMODE, 0x04);                  //put device in FSK RX synth mode
-
   writeRegister(REG_IMAGECAL, 0x00);                //set TempMonitorOff = 0
   delay(1);                                         //wait at least 140uS
   writeRegister(REG_IMAGECAL, 0x01);                //set TempMonitorOff = 1
   setMode(MODE_STDBY_RC);                           //go back to standby
-
   writeRegister(REG_IMAGECAL, (regdata + 1));       //register back to previous setting, with TempMonitorOff set
-
   temperature = readRegister(REG_TEMP);
 
   if (temperature & 0x80 )                          //The sign bit is 1
@@ -4085,7 +4068,7 @@ void SX127XLT::fskCarrierOn(int8_t txpower)
   Serial.println(F("fskCarrierOn() "));
 #endif
 
-  writeRegister(REG_PLLHOP, 0xAD);          //set fast hop mode, needed for fast changes of frequency
+  writeRegister(REG_PLLHOP, 0xAD);                   //set fast hop mode, needed for fast changes of frequency
   setTxParams(txpower, RADIO_RAMP_DEFAULT);
   setTXDirect();
 }
@@ -4097,7 +4080,7 @@ void SX127XLT::fskCarrierOff()
   Serial.println(F("fskCarrierOff() "));
 #endif
 
-  setMode(MODE_STDBY_RC);                   //turns off carrier
+  setMode(MODE_STDBY_RC);                             //turns off carrier
 }
 
 
@@ -4133,7 +4116,7 @@ void SX127XLT::getRfFrequencyRegisters(uint8_t *buff)
   Serial.println(F("getRfFrequencyRegisters() "));
 #endif
 
-#ifdef USE_SPI_TRANSACTION         //to use SPI_TRANSACTION enable define at beginning of CPP file 
+#ifdef USE_SPI_TRANSACTION                  //to use SPI_TRANSACTION enable define at beginning of CPP file 
   SPI.beginTransaction(SPISettings(LTspeedMaximum, LTdataOrder, LTdataMode));
 #endif
 
@@ -4161,19 +4144,16 @@ void SX127XLT::startFSKRTTY(uint32_t freqshift, uint8_t pips, uint16_t pipPeriod
   uint32_t setCentreFrequency;                     //the configured centre frequency
   uint8_t index;
   uint32_t startmS;
-  setCentreFrequency = _savedFrequency;            //to avoid using the savedFrequency
 
-  writeRegister(REG_PLLHOP, 0xAD);                 //set fast hop mode, needed for fast changes of frequency
-
+  setCentreFrequency = _savedFrequency;                         //to avoid using the savedFrequency
+  writeRegister(REG_PLLHOP, 0xAD);                              //set fast hop mode, needed for fast changes of frequency
   setRfFrequency((_savedFrequency + freqshift), _savedOffset);  //temporaily set the RF frequency
   getRfFrequencyRegisters(freqShiftRegs);                       //fill first 3 bytes with current frequency registers
   setRfFrequency(setCentreFrequency, _savedOffset);             //reset the base frequency registers
-
   _ShiftfreqregH = freqShiftRegs[0];
   _ShiftfreqregM = freqShiftRegs[1];
   _ShiftfreqregL = freqShiftRegs[2];
-
-  writeRegister(REG_PLLHOP, 0xAD);                  //set fast hop mode, needed for fast changes of frequency
+  writeRegister(REG_PLLHOP, 0xAD);                              //set fast hop mode, needed for fast changes of frequency
   setTxParams(10, RADIO_RAMP_DEFAULT);
 
   for (index = 1; index <= pips; index++)
@@ -4188,6 +4168,7 @@ void SX127XLT::startFSKRTTY(uint32_t freqshift, uint8_t pips, uint16_t pipPeriod
   setRfFrequencyDirect(_ShiftfreqregH, _ShiftfreqregM, _ShiftfreqregL);      //set carrier frequency
   startmS = millis();
   setTXDirect();                                                             //turn on carrier
+
   while (((uint32_t) (millis() - startmS) < leadinmS));
 }
 
@@ -4200,7 +4181,7 @@ void SX127XLT::transmitFSKRTTY(uint8_t chartosend, uint8_t databits, uint8_t sto
 
   uint8_t numbits;
   uint32_t startuS;
-  uint8_t bitcount = 0;                       //set when a bit is 1
+  uint8_t bitcount = 0;                                  //set when a bit is 1
 
   startuS = micros();
   setRfFrequencyDirect(_freqregH, _freqregM, _freqregL); //set carrier frequency  (low)
@@ -4212,11 +4193,11 @@ void SX127XLT::transmitFSKRTTY(uint8_t chartosend, uint8_t databits, uint8_t sto
 
   while (((uint32_t) (micros() - startuS) < baudPerioduS));
 
-  for (numbits = 1;  numbits <= databits; numbits++) //send bits, LSB first
+  for (numbits = 1;  numbits <= databits; numbits++)     //send bits, LSB first
   {
 
     startuS = micros();
-    if ((chartosend & 0x01) != 0)             //test for bit set, a 1
+    if ((chartosend & 0x01) != 0)                        //test for bit set, a 1
     {
       bitcount++;
       if (pin >= 0)
@@ -4231,9 +4212,9 @@ void SX127XLT::transmitFSKRTTY(uint8_t chartosend, uint8_t databits, uint8_t sto
       {
         digitalWrite(pin, LOW);
       }
-      setRfFrequencyDirect(_freqregH, _freqregM, _freqregL);           //set carrier frequency for a 0
+      setRfFrequencyDirect(_freqregH, _freqregM, _freqregL);      //set carrier frequency for a 0
     }
-    chartosend = (chartosend >> 1);           //get the next bit
+    chartosend = (chartosend >> 1);                               //get the next bit
 
     while (((uint32_t) (micros() - startuS) < baudPerioduS));
   }
@@ -4372,7 +4353,6 @@ void SX127XLT::printRTTYregisters()
   Serial.print(_freqregM, HEX);
   Serial.print(F(" "));
   Serial.println(_freqregL, HEX);
-
   Serial.print(F("Shifted Registers "));
   Serial.print(_ShiftfreqregH, HEX);
   Serial.print(F(" "));
@@ -4490,7 +4470,7 @@ void SX127XLT::setDevicePABOOST()
   Serial.println(F("setDevicePABOOST() "));
 #endif
 
-  bitSet(_Device, 4);             //set bit 4 of _Device type which defines device as using PABoost RF output
+  bitSet(_Device, 4);                    //set bit 4 of _Device type which defines device as using PABoost RF output
 }
 
 
@@ -4500,7 +4480,7 @@ void SX127XLT::setDeviceRFO()
   Serial.println(F("setDeviceRFO() "));
 #endif
 
-  bitClear(_Device, 4);           //clear bit 4 of _Device type which defines device as using RFO RF output
+  bitClear(_Device, 4);                  //clear bit 4 of _Device type which defines device as using RFO RF output
 }
 
 
@@ -4709,12 +4689,11 @@ uint8_t SX127XLT::transmitReliableAutoACK(uint8_t *txbuffer, uint8_t size, uint1
 
 uint8_t SX127XLT::receiveReliable(uint8_t *rxbuffer, uint8_t size, uint16_t networkID, uint32_t rxtimeout, uint8_t wait )
 {
-  /*
-     Maximum LoRa packet size is 255 bytes, so allowing for the 4 bytes appended to the end of a reliable
-     packet, the maximum payload size is 251 bytes. So to avoid overwriting memory, we do need to check if
-     the passed array is big enough to take the payload received in the packet. The assumed payload length will
-     always be 4 bytes less than the received packet length
-  */
+
+  //Maximum LoRa packet size is 255 bytes, so allowing for the 4 bytes appended to the end of a reliable
+  //packet, the maximum payload size is 251 bytes. So to avoid overwriting memory, we do need to check if
+  //the passed array is big enough to take the payload received in the packet. The assumed payload length will
+  //always be 4 bytes less than the received packet length
 
 #ifdef SX127XDEBUGRELIABLE
   Serial.println();
@@ -4740,7 +4719,6 @@ uint8_t SX127XLT::receiveReliable(uint8_t *rxbuffer, uint8_t size, uint16_t netw
   setMode(MODE_STDBY_RC);
   setDioIrqParams(IRQ_RADIO_ALL, IRQ_RX_DONE, 0, 0);                       //set for IRQ on RX done
   writeRegister(REG_FIFOADDRPTR, 0);                                       //and save in FIFO access ptr
-
   setRx(0);                                                                //no actual RX timeout in this function
 
   if (!wait)
@@ -4791,7 +4769,7 @@ uint8_t SX127XLT::receiveReliable(uint8_t *rxbuffer, uint8_t size, uint16_t netw
   SPI.beginTransaction(SPISettings(LTspeedMaximum, LTdataOrder, LTdataMode));
 #endif
 
-  digitalWrite(_NSS, LOW);                        //start the burst read
+  digitalWrite(_NSS, LOW);                              //start the burst read
   SPI.transfer(REG_FIFO);
 
   for (index = 0; index < (_RXPacketL - 4); index++)
@@ -5155,7 +5133,7 @@ uint8_t SX127XLT::waitReliableACK(uint8_t *rxbuffer, uint8_t size, uint16_t netw
 
       if ( (RXnetworkID == networkID) && (RXcrc == payloadcrc))
       {
-        if ((_RXPacketL - 4) > size )                    //check passed buffer is big enough for payload
+        if ((_RXPacketL - 4) > size )                        //check passed buffer is big enough for payload
         {
           bitSet(_ReliableErrors, ReliableACKError);
           bitSet(_ReliableErrors, ReliableSizeError);
@@ -5163,13 +5141,13 @@ uint8_t SX127XLT::waitReliableACK(uint8_t *rxbuffer, uint8_t size, uint16_t netw
         }
 
         bitSet(_ReliableFlags, ReliableACKReceived);
-        writeRegister(REG_FIFOADDRPTR, 0);               //set FIFO access ptr
+        writeRegister(REG_FIFOADDRPTR, 0);                   //set FIFO access ptr
 
 #ifdef USE_SPI_TRANSACTION
         SPI.beginTransaction(SPISettings(LTspeedMaximum, LTdataOrder, LTdataMode));
 #endif
 
-        digitalWrite(_NSS, LOW);                         //start the burst read
+        digitalWrite(_NSS, LOW);                             //start the burst read
         SPI.transfer(REG_FIFO);
 
         for (index = 0; index < (_RXPacketL - 4); index++)   //read packet into rxbuffer
@@ -5183,7 +5161,7 @@ uint8_t SX127XLT::waitReliableACK(uint8_t *rxbuffer, uint8_t size, uint16_t netw
         SPI.endTransaction();
 #endif
 
-        return _RXPacketL;                                //_RXPacketL should be payload length + 4
+        return _RXPacketL;                                    //_RXPacketL should be payload length + 4
       }
       else
       {
@@ -5208,7 +5186,6 @@ void SX127XLT::writeUint16SXBuffer(uint8_t addr, uint16_t regdata)
 #endif
 
   setMode(MODE_STDBY_RC);                 //this is needed to ensure we can write to buffer OK.
-
   writeRegister(REG_FIFOADDRPTR, addr);   //set FIFO access ptr to location
 
 #ifdef USE_SPI_TRANSACTION
@@ -5582,7 +5559,6 @@ uint8_t SX127XLT::transmitSXReliable(uint8_t startaddr, uint8_t length, uint16_t
 
   writeUint16SXBuffer(startaddr + _TXPacketL - 4, networkID);
   writeUint16SXBuffer(startaddr + _TXPacketL - 2, payloadcrc);
-
   writeRegister(REG_PAYLOADLENGTH, _TXPacketL);
   setTxParams(txpower, RADIO_RAMP_DEFAULT);            //TX power and ramp time
   setDioIrqParams(IRQ_RADIO_ALL, IRQ_TX_DONE, 0, 0);   //set for IRQ on TX done on first DIO pin
@@ -5649,7 +5625,6 @@ uint8_t SX127XLT::transmitSXReliableIRQ(uint8_t startaddr, uint8_t length, uint1
 
   writeUint16SXBuffer(startaddr + _TXPacketL - 4, networkID);
   writeUint16SXBuffer(startaddr + _TXPacketL - 2, payloadcrc);
-
   writeRegister(REG_PAYLOADLENGTH, _TXPacketL);
   setTxParams(txpower, RADIO_RAMP_DEFAULT);            //TX power and ramp time
   setDioIrqParams(IRQ_RADIO_ALL, IRQ_TX_DONE, 0, 0);   //set for IRQ on TX done on first DIO pin
@@ -5772,7 +5747,6 @@ uint8_t SX127XLT::receiveSXReliable(uint8_t startaddr, uint16_t networkID, uint3
 
   _ReliableErrors = 0;
   _ReliableFlags = 0;
-
   setMode(MODE_STDBY_RC);
   writeRegister(REG_FIFORXBASEADDR, startaddr);                            //set start address of RX packet in buffer
   setDioIrqParams(IRQ_RADIO_ALL, IRQ_RX_DONE, 0, 0);                       //set for IRQ on RX done
@@ -5915,7 +5889,7 @@ uint8_t SX127XLT::receiveSXReliableIRQ(uint8_t startaddr, uint16_t networkID, ui
     }
   }
 
-  if (_ReliableErrors)                                      //if there has been a reliable error return a RX fail
+  if (_ReliableErrors)                                       //if there has been a reliable error return a RX fail
   {
     return 0;
   }
@@ -6000,19 +5974,19 @@ uint8_t SX127XLT::receiveSXReliableAutoACK(uint8_t startaddr, uint16_t networkID
     }
   }
 
-  if (_ReliableErrors)                                      //if there has been a reliable error return a RX fail
+  if (_ReliableErrors)                                            //if there has been a reliable error return a RX fail
   {
     return 0;
   }
 
   delay(ackdelay);
   temp1 = readUint16SXBuffer(startaddr);                          //save bytes that would be overwritten by ack
-  temp2 = readUint16SXBuffer(startaddr + 2);                          //save bytes that would be overwritten by ack
+  temp2 = readUint16SXBuffer(startaddr + 2);                      //save bytes that would be overwritten by ack
 
   _TXPacketL = sendReliableACK(RXnetworkID, payloadcrc, txpower);
 
   writeUint16SXBuffer(startaddr, temp1);                          //restore bytes that would be overwritten by ack
-  writeUint16SXBuffer(startaddr + 2, temp2);                          //restore bytes that would be overwritten by ack
+  writeUint16SXBuffer(startaddr + 2, temp2);                      //restore bytes that would be overwritten by ack
 
   if (_TXPacketL != 4)
   {
@@ -6020,7 +5994,7 @@ uint8_t SX127XLT::receiveSXReliableAutoACK(uint8_t startaddr, uint16_t networkID
     return 0;
   }
 
-  return _RXPacketL;                                        //return indicating RX ack sent OK.
+  return _RXPacketL;                                              //return indicating RX ack sent OK.
 }
 
 
@@ -6031,16 +6005,13 @@ uint8_t SX127XLT::sendSXReliableACK(uint8_t startaddr, uint8_t length, uint16_t 
   Serial.print(F(" {RELIABLE} sendSXReliableACK() "));
 #endif
 
-  uint32_t startmS, txtimeout = 60000;                         //set TX timeout to 60 seconds
+  uint32_t startmS, txtimeout = 60000;                            //set TX timeout to 60 seconds
 
   setMode(MODE_STDBY_RC);
   writeRegister(REG_FIFOTXBASEADDR, startaddr);                   //set FIFO access ptr
   _TXPacketL = length + 4;
-
   writeUint16SXBuffer((length + startaddr), networkID);
   writeUint16SXBuffer((length + startaddr + 2), payloadcrc);
-
-  writeRegister(REG_PAYLOADLENGTH, _TXPacketL);
   writeRegister(REG_PAYLOADLENGTH, _TXPacketL);
   setTxParams(txpower, RADIO_RAMP_DEFAULT);                  //TX power and ramp time
   setDioIrqParams(IRQ_RADIO_ALL, IRQ_TX_DONE, 0, 0);         //set for IRQ on TX done
@@ -6058,7 +6029,7 @@ uint8_t SX127XLT::sendSXReliableACK(uint8_t startaddr, uint8_t length, uint16_t 
   }
 
   bitSet(_ReliableFlags, ReliableACKSent);
-  return _TXPacketL;                                                  //TX OK so return TXpacket length
+  return _TXPacketL;                                          //TX OK so return TXpacket length
 }
 
 
@@ -6074,21 +6045,19 @@ uint8_t SX127XLT::sendSXReliableACKIRQ(uint8_t startaddr, uint8_t length, uint16
   uint32_t startmS, txtimeout = 60000;                         //set TX timeout to 60 seconds
 
   setMode(MODE_STDBY_RC);
-  writeRegister(REG_FIFOTXBASEADDR, startaddr);                   //set FIFO access ptr
+  writeRegister(REG_FIFOTXBASEADDR, startaddr);                //set FIFO access ptr
   _TXPacketL = length + 4;
-
   writeUint16SXBuffer((length + startaddr), networkID);
   writeUint16SXBuffer((length + startaddr + 2), payloadcrc);
-
   writeRegister(REG_PAYLOADLENGTH, _TXPacketL);
-  setTxParams(txpower, RADIO_RAMP_DEFAULT);                  //TX power and ramp time
-  setDioIrqParams(IRQ_RADIO_ALL, IRQ_TX_DONE, 0, 0);         //set for IRQ on TX done
-  setTx(0);                                                  //start transmission
+  setTxParams(txpower, RADIO_RAMP_DEFAULT);                     //TX power and ramp time
+  setDioIrqParams(IRQ_RADIO_ALL, IRQ_TX_DONE, 0, 0);            //set for IRQ on TX done
+  setTx(0);                                                     //start transmission
 
   startmS = millis();
   while (!isTXdoneIRQ() && ((uint32_t) (millis() - startmS) < txtimeout));
 
-  setMode(MODE_STDBY_RC);                                    //ensure we leave function with TX off
+  setMode(MODE_STDBY_RC);                                        //ensure we leave function with TX off
 
   if (!isTXdoneIRQ())
   {
@@ -6097,9 +6066,8 @@ uint8_t SX127XLT::sendSXReliableACKIRQ(uint8_t startaddr, uint8_t length, uint16
   }
 
   bitSet(_ReliableFlags, ReliableACKSent);
-  return _TXPacketL;                                                  //TX OK so return TXpacket length
+  return _TXPacketL;                                              //TX OK so return TXpacket length
 }
-
 
 
 uint8_t SX127XLT::waitSXReliableACK(uint8_t startaddr, uint16_t networkID, uint16_t payloadcrc, uint32_t acktimeout)
@@ -6111,7 +6079,8 @@ uint8_t SX127XLT::waitSXReliableACK(uint8_t startaddr, uint16_t networkID, uint1
 
   uint16_t RXnetworkID, RXcrc;
   uint32_t startmS;
-  writeRegister(REG_FIFORXBASEADDR, startaddr);              //set the RX base address pointer
+
+  writeRegister(REG_FIFORXBASEADDR, startaddr);                    //set the RX base address pointer
   setReliableRX();
   startmS = millis();
 
@@ -6121,7 +6090,7 @@ uint8_t SX127XLT::waitSXReliableACK(uint8_t startaddr, uint16_t networkID, uint1
 
   do
   {
-    if (digitalRead(_RXDonePin))                                             //has a packet arrived ?
+    if (digitalRead(_RXDonePin))                                    //has a packet arrived ?
     {
       _RXPacketL = readRegister(REG_RXNBBYTES);
 
@@ -6137,7 +6106,7 @@ uint8_t SX127XLT::waitSXReliableACK(uint8_t startaddr, uint16_t networkID, uint1
       if ( (RXnetworkID == networkID) && (RXcrc == payloadcrc))
       {
         bitSet(_ReliableFlags, ReliableACKReceived);
-        return _RXPacketL;                                 //_RXPacketL should be payload length + 4
+        return _RXPacketL;                                          //_RXPacketL should be payload length + 4
       }
       else
       {
@@ -6162,6 +6131,7 @@ uint8_t SX127XLT::waitSXReliableACKIRQ(uint8_t startaddr, uint16_t networkID, ui
 
   uint16_t RXnetworkID, RXcrc;
   uint32_t startmS;
+
   writeRegister(REG_FIFORXBASEADDR, startaddr);              //set the RX base address pointer
   setReliableRX();
   startmS = millis();
@@ -6183,7 +6153,7 @@ uint8_t SX127XLT::waitSXReliableACKIRQ(uint8_t startaddr, uint16_t networkID, ui
       if ( (RXnetworkID == networkID) && (RXcrc == payloadcrc))
       {
         bitSet(_ReliableFlags, ReliableACKReceived);
-        return _RXPacketL;                                 //_RXPacketL should be payload length + 4
+        return _RXPacketL;                                   //_RXPacketL should be payload length + 4
       }
       else
       {
@@ -6199,12 +6169,9 @@ uint8_t SX127XLT::waitSXReliableACKIRQ(uint8_t startaddr, uint16_t networkID, ui
 
 
 
-//***********************************************************************************
-//
-//Data Transfer - File Transfer functions - TX and RX base addresses assumed to be 0
-//
-//***********************************************************************************
-
+//*****************************************************************************************
+//Data Transfer functions - added September 2021 - TX and RX base addresses assumed to be 0
+//*****************************************************************************************
 
 uint8_t SX127XLT::transmitDT(uint8_t *header, uint8_t headersize, uint8_t *dataarray, uint8_t datasize, uint16_t networkID, uint32_t txtimeout, int8_t txpower, uint8_t wait)
 {
@@ -6260,7 +6227,7 @@ uint8_t SX127XLT::transmitDT(uint8_t *header, uint8_t headersize, uint8_t *dataa
     SPI.transfer(bufferdata);
   }
 
-  //append the network ID and payload CRFC at end
+  //append the network ID and payload CRC at end
   SPI.transfer(lowByte(networkID));
   SPI.transfer(highByte(networkID));
   SPI.transfer(lowByte(payloadcrc));
@@ -6319,7 +6286,6 @@ uint8_t SX127XLT::receiveDT(uint8_t *header, uint8_t headersize, uint8_t *dataar
 
   _ReliableErrors = 0;
   _ReliableFlags = 0;
-
   setMode(MODE_STDBY_RC);
   setDioIrqParams(IRQ_RADIO_ALL, IRQ_RX_DONE, 0, 0);                       //set for IRQ on RX done
   setRx(0);                                                                //no actual RX timeout in this function
@@ -6349,12 +6315,11 @@ uint8_t SX127XLT::receiveDT(uint8_t *header, uint8_t headersize, uint8_t *dataar
 
   if ( readIrqStatus() != (IRQ_RX_DONE + IRQ_HEADER_VALID) )
   {
-    return 0;                                               //no RX done and header valid only, could be CRC error
+    return 0;                                                              //no RX done and header valid only, could be CRC error
   }
 
   RXHeaderL = getByteSXBuffer(2);
   RXDataL = getByteSXBuffer(3);
-
   _RXPacketL = readRegister(REG_RXNBBYTES);
 
   if (RXHeaderL > headersize )
@@ -6442,13 +6407,11 @@ uint8_t SX127XLT::sendACKDT(uint8_t *header, uint8_t headersize, int8_t txpower)
 
   uint32_t startmS, txtimeout = 60000;                            //set TX timeout to 60 seconds
   uint8_t bufferdata, index;
-
   uint16_t networkID;
   uint16_t payloadCRC;
 
   setMode(MODE_STDBY_RC);
   _TXPacketL = headersize + 4;
-
   networkID = readUint16SXBuffer(_RXPacketL - 4);
   payloadCRC = readUint16SXBuffer(_RXPacketL - 2);
 
@@ -6514,8 +6477,8 @@ uint8_t SX127XLT::waitACKDT(uint8_t *header, uint8_t headersize, uint32_t acktim
 
   networkID = readUint16SXBuffer(_TXPacketL - 4);              //get networkID used to transmit previous packet, before next RX
   payloadCRC = readUint16SXBuffer(_TXPacketL - 2);             //get payloadCRC used to transmit previous packet, before next RX
-
   setReliableRX();
+
   startmS = millis();
 
   do
@@ -6551,7 +6514,6 @@ uint8_t SX127XLT::waitACKDT(uint8_t *header, uint8_t headersize, uint32_t acktim
       if ( (RXnetworkID == networkID))
       {
         bitSet(_ReliableFlags, ReliableACKReceived);
-
         writeRegister(REG_FIFOADDRPTR, 0);                      //set FIFO access ptr
 
 #ifdef USE_SPI_TRANSACTION
@@ -6572,7 +6534,7 @@ uint8_t SX127XLT::waitACKDT(uint8_t *header, uint8_t headersize, uint32_t acktim
         SPI.endTransaction();
 #endif
 
-        return _RXPacketL;                                       //_RXPacketL should be payload length + 4
+        return _RXPacketL;                                      //_RXPacketL should be payload length + 4
       }
       else
       {
@@ -6586,16 +6548,6 @@ uint8_t SX127XLT::waitACKDT(uint8_t *header, uint8_t headersize, uint32_t acktim
   bitSet(_ReliableErrors, ReliableTimeout);
   return 0;
 }
-
-
-
-//*******************************************************************************
-//
-//Data Transfer IRQ - File Transfer functions - TX and RX base addresses assumed to be 0
-//
-//These IRQ functions do not need to read a DIO pin for RX and TX completion
-//
-//*******************************************************************************
 
 
 uint8_t SX127XLT::transmitDTIRQ(uint8_t *header, uint8_t headersize, uint8_t *dataarray, uint8_t datasize, uint16_t networkID, uint32_t txtimeout, int8_t txpower, uint8_t wait)
@@ -6665,7 +6617,6 @@ uint8_t SX127XLT::transmitDTIRQ(uint8_t *header, uint8_t headersize, uint8_t *da
 #endif
 
   writeRegister(REG_PAYLOADLENGTH, _TXPacketL);
-
   setTxParams(txpower, RADIO_RAMP_DEFAULT);            //TX power and ramp time
   setDioIrqParams(IRQ_RADIO_ALL, IRQ_TX_DONE, 0, 0);   //set for IRQ on TX done on first DIO pin
   setTx(0);                                            //TX timeout is not handled in setTX()
@@ -6697,7 +6648,6 @@ uint8_t SX127XLT::transmitDTIRQ(uint8_t *header, uint8_t headersize, uint8_t *da
 }
 
 
-
 uint8_t SX127XLT::receiveDTIRQ(uint8_t *header, uint8_t headersize, uint8_t *dataarray, uint8_t datasize, uint16_t networkID, uint32_t rxtimeout, uint8_t wait )
 {
 #ifdef SX127XDEBUGRELIABLE
@@ -6712,7 +6662,6 @@ uint8_t SX127XLT::receiveDTIRQ(uint8_t *header, uint8_t headersize, uint8_t *dat
 
   _ReliableErrors = 0;
   _ReliableFlags = 0;
-
   setMode(MODE_STDBY_RC);
   setDioIrqParams(IRQ_RADIO_ALL, IRQ_RX_DONE, 0, 0);                       //set for IRQ on RX done
   setRx(0);                                                                //no actual RX timeout in this function
@@ -6747,7 +6696,6 @@ uint8_t SX127XLT::receiveDTIRQ(uint8_t *header, uint8_t headersize, uint8_t *dat
 
   RXHeaderL = getByteSXBuffer(2);
   RXDataL = getByteSXBuffer(3);
-
   _RXPacketL = readRegister(REG_RXNBBYTES);
 
   if (RXHeaderL > headersize )
@@ -6835,17 +6783,14 @@ uint8_t SX127XLT::sendACKDTIRQ(uint8_t *header, uint8_t headersize, int8_t txpow
 
   uint32_t startmS, txtimeout = 60000;                             //set TX timeout to 15 seconds
   uint8_t bufferdata, index;
-
   uint16_t networkID;
   uint16_t payloadCRC;
 
   setMode(MODE_STDBY_RC);
   _TXPacketL = headersize + 4;
-
   networkID = readUint16SXBuffer(_RXPacketL - 4);
   payloadCRC = readUint16SXBuffer(_RXPacketL - 2);
-
-  writeRegister(REG_FIFOADDRPTR, 0);                                //set FIFO access ptr
+  writeRegister(REG_FIFOADDRPTR, 0);                               //set FIFO access ptr
 
 #ifdef USE_SPI_TRANSACTION
   SPI.beginTransaction(SPISettings(LTspeedMaximum, LTdataOrder, LTdataMode));
@@ -6907,8 +6852,8 @@ uint8_t SX127XLT::waitACKDTIRQ(uint8_t *header, uint8_t headersize, uint32_t ack
 
   networkID = readUint16SXBuffer(_TXPacketL - 4);                  //get networkID used to transmit previous packet, before next RX
   payloadCRC = readUint16SXBuffer(_TXPacketL - 2);                 //get payloadCRC used to transmit previous packet, before next RX
-
   setReliableRX();
+
   startmS = millis();
 
   do
@@ -6944,7 +6889,6 @@ uint8_t SX127XLT::waitACKDTIRQ(uint8_t *header, uint8_t headersize, uint32_t ack
       if ( (RXnetworkID == networkID))
       {
         bitSet(_ReliableFlags, ReliableACKReceived);
-
         writeRegister(REG_FIFOADDRPTR, 0);                     //set FIFO access ptr
 
 #ifdef USE_SPI_TRANSACTION
@@ -6979,7 +6923,6 @@ uint8_t SX127XLT::waitACKDTIRQ(uint8_t *header, uint8_t headersize, uint32_t ack
   bitSet(_ReliableErrors, ReliableTimeout);
   return 0;
 }
-
 
 
 /*

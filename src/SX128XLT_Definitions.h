@@ -27,6 +27,14 @@
 #define LORA_CR_4_7   0x03
 #define LORA_CR_4_8   0x04
 
+//March 2020  A new interleaving scheme has been implemented to increase robustness to
+//burst interference and/or strong Doppler events.
+//Note: There is a limitation on maximum payload length for LORA_CR_LI_4_8. Payload length should
+//not exceed 253 bytes if CRC is enabled.
+#define LORA_CR_LI_4_5   0x05
+#define LORA_CR_LI_4_6   0x06
+#define LORA_CR_LI_4_8   0x07
+
 //LoRa CAD settings
 #define LORA_CAD_01_SYMBOL                0x00
 #define LORA_CAD_02_SYMBOL                0x20
@@ -150,12 +158,17 @@
 #define REG_LR_ESTIMATED_FREQUENCY_ERROR_MID 0x955
 #define REG_LR_ESTIMATED_FREQUENCY_ERROR_LSB 0x956
 #define REG_LR_RANGINGRESULTBASEADDR      0x0961
+#define REG_RANGING_RSSI                  0x0964
+#define REG_LR_FLRCPAYLOADLENGTH          0x09C3         //found by experiment
 #define REG_LR_SYNCWORDTOLERANCE          0x09CD
 #define REG_LR_SYNCWORDBASEADDRESS1       0x09CE
 #define REG_FLRCSYNCWORD1_BASEADDR        0x09CF
 #define REG_LR_SYNCWORDBASEADDRESS2       0x09D3
 #define REG_FLRCSYNCWORD2_BASEADDR        0x09D4
 #define REG_LR_SYNCWORDBASEADDRESS3       0x09D8
+#define REG_FLRCSYNCWORD3_BASEADDR        0x09D9
+
+#define REG_RANGING_RSSI                  0x0964
 
 #define REG_LR_ESTIMATED_FREQUENCY_ERROR_MASK       0x0FFFFF
 
@@ -293,6 +306,15 @@
 #define FLRC_SYNC_NOSYNC         0x00
 #define FLRC_SYNC_WORD_LEN_P32S  0x04
 
+#define RX_DISABLE_SYNC_WORD       0x00
+#define RX_MATCH_SYNC_WORD_1       0x10
+#define RX_MATCH_SYNC_WORD_2       0x20
+#define RX_MATCH_SYNC_WORD_1_2     0x30
+#define RX_MATCH_SYNC_WORD_3       0x40
+#define RX_MATCH_SYNC_WORD_1_3     0x50
+#define RX_MATCH_SYNC_WORD_2_3     0x60
+#define RX_MATCH_SYNC_WORD_1_2_3   0x70
+
 #define FLRC_BR_1_300_BW_1_2 0x45   //1.3Mbs  
 #define FLRC_BR_1_000_BW_1_2 0x69   //1.04Mbs 
 #define FLRC_BR_0_650_BW_0_6 0x86   //0.65Mbs
@@ -373,6 +395,8 @@
 #define LTdataOrder     MSBFIRST
 #define LTdataMode      SPI_MODE0
 
+#define    WAIT_RX_NOACK                            0x05  
+#define    WAIT_TX_NOACK                            0x04
 #define    RANGING_VALID                            0x03
 #define    RANGING_TIMEOUT                          0x02 
 #define    WAIT_RX                                  0x01  
@@ -386,3 +410,40 @@
 const uint16_t RNG_CALIB_0400[] = { 10260,  10244,  10228,  10212,  10196,  10180  };   //SF5 to SF10
 const uint16_t RNG_CALIB_0800[] = { 11380,  11370,  11360,  11350,  11340,  11330  };
 const uint16_t RNG_CALIB_1600[] = { 13100,  13160,  13220,  13280,  13340,  13400  };
+
+
+//These are the bit numbers which when set indicate reliable errors, variable _ReliableErrors
+#define ReliableCRCError 0x00             //bit number set in _ReliableErrors when there is a reliable CRC missmatch
+#define ReliableIDError  0x01             //bit number set in _ReliableErrors when there is a NetworkID missmatch
+#define ReliableSizeError 0x02            //bit number set in _ReliableErrors when there is a size error for packet
+#define ReliableACKError 0x03             //bit number set in _ReliableErrors when there is a ACK error
+#define ReliableTimeout 0x04              //bit number set in _ReliableErrors when there is a timeout error
+#define SegmentSequenceError 0x05         //bit number set in _ReliableErrors when there is a segment sequence error
+#define FileError 0x06                    //bit number set in _ReliableErrors when there ia a file (SD) error
+
+//These are the bit numbers which when set indicate reliable status flags, variable _ReliableFlags
+#define ReliableACKSent 0x00              //bit number set in _ReliableFlags when there is a ACK sent
+#define ReliableACKReceived 0x01          //bit number set in _ReliableFlags when there is a ACK received
+
+//These are the bit numbers which when set indicate reliable configuration, variable _ReliableConfig
+#define NoReliableCRC 0x00                //bit number set in _ReliableConfig when reliable CRC is not used
+#define NoAutoACK 0x01                    //bit number set in _ReliableConfig when ACK is not used 
+
+
+/*
+  MIT license
+
+  Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated
+  documentation files (the "Software"), to deal in the Software without restriction, including without limitation
+  the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software,
+  and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+
+  The above copyright notice and this permission notice shall be included in all copies or substantial portions
+  of the Software.
+
+  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED
+  TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL
+  THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF
+  CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+  DEALINGS IN THE SOFTWARE.
+*/

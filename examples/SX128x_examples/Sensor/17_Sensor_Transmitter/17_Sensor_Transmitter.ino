@@ -7,7 +7,7 @@
 
 /*******************************************************************************************************
   Program Operation - The program transmits a LoRa packet without using a processor buffer, the LoRa
-  devices internal buffer is filled directly with variables.
+  devices internal buffer is filled directly with variables. The program is for Atmel Arduinos.
 
   The sensor used is a BME280. The pressure, humidity, and temperature are read and transmitted. There
   is also a 16bit value of battery mV (simulated) and and a 8 bit status value at the packet end.
@@ -47,7 +47,7 @@
 #include "Settings.h"
 #include <ProgramLT_Definitions.h>
 
-#include <avr/wdt.h>                        //watchdog timer library, integral to Arduino IDE
+#include <avr/wdt.h>                        //watchdog timer library for Atmel processors, integral to Arduino IDE
 #include <LowPower.h>                       //get the library here; https://github.com/rocketscream/Low-Power
 
 SX128XLT LT;
@@ -98,7 +98,7 @@ void loop()
   //wait a bit ................
   Serial.println(F(" - Awake !!"));         //the processor has woken up
   Serial.println();
-  
+
   LT.wake();
   normalBME280();                           //BME280 sensor to normal mode
 }
@@ -312,4 +312,3 @@ void setup()
 
   readSensors();                            //do an initial sensor read
 }
-

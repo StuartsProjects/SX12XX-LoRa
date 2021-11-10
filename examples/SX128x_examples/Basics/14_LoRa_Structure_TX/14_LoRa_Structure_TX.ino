@@ -55,7 +55,7 @@ struct trackerPacket
   uint8_t satellites;
   uint16_t voltage;
   int8_t temperature;
-};
+} __attribute__((packed, aligned(1)));                 //remove structure padding so there is compatibility between 8bit and 32bit Arduinos
 
 struct trackerPacket location1;                        //define an instance called location1 of the structure trackerPacket
 
@@ -142,4 +142,3 @@ void setup()
   Serial.println(F("Transmitter ready"));
   Serial.println();
 }
-

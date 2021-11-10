@@ -7,7 +7,7 @@
 
 
 /*******************************************************************************************************
-  Program Operation - 
+  Program Operation -
 
   Serial monitor baud rate is set at 9600
 *******************************************************************************************************/
@@ -97,7 +97,7 @@ void setup()
   led_Flash(2, 125);
 
   SPI.begin();
-  
+
   if (LT.begin(NSS, NRESET, RFBUSY, DIO1, LORA_DEVICE))
   {
     Serial.println(F("Device found"));
@@ -115,7 +115,7 @@ void setup()
 
   //The function call list below shows the complete setup for the LoRa device for ranging using the information
   //defined in the Settings.h file.
-  //The 'Setup LoRa device for Ranging' list below can be replaced with a single function call, note that 
+  //The 'Setup LoRa device for Ranging' list below can be replaced with a single function call, note that
   //the calibration value will be loaded automatically from the table in the library;
   //LT.setupRanging(Frequency, Offset, SpreadingFactor, Bandwidth, CodeRate, RangingAddress, RangingRole);
 
@@ -141,7 +141,6 @@ void setup()
   LT.setRangingCalibration(11300);               //override automatic lookup of calibration value from library table
 
   Serial.print(F("Calibration,"));
-  Serial.println(LT.getSetCalibrationValue());           //reads the calibratuion value currently set 
+  Serial.println(LT.getSetCalibrationValue());           //reads the calibratuion value currently set
   delay(2000);
 }
-

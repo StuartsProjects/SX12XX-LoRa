@@ -18,18 +18,18 @@
   the same.
 
   The contents of the packet received, and printed to serial monitor, should be;
-  
-  "tracker1" (buffer)      - trackerID 
-  1+             (uint32_t)    - packet count    
-  51.23456       (float)       - latitude   
+
+  "tracker1" (buffer)      - trackerID
+  1+             (uint32_t)    - packet count
+  51.23456       (float)       - latitude
   -3.12345       (float)       - longitude
-  199            (uint16_t)    - altitude  
-  8              (uint8_t)     - number of satellites 
-  3999           (uint16_t)    - battery voltage 
+  199            (uint16_t)    - altitude
+  8              (uint8_t)     - number of satellites
+  3999           (uint16_t)    - battery voltage
   -9             (int8_t)      - temperature
 
   Serial monitor baud rate is set at 9600.
-  
+
 *******************************************************************************************************/
 
 #include <SPI.h>
@@ -45,7 +45,7 @@ uint32_t startmS, endmS;
 void loop()
 {
   TXpacketCount++;
-  
+
   if (Send_Test_Packet())
   {
     Serial.print(TXpacketCount);
@@ -151,4 +151,3 @@ void setup()
   Serial.println(F("Transmitter ready"));
   Serial.println();
 }
-

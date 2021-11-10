@@ -37,11 +37,9 @@
 
 const int8_t TXpower = 10;                       //Transmit power used when sending packet starting test sequence
 const int8_t start_power = 10;                   //link test starts at this transmit power, maximum +12dBm
-const int8_t end_power = -18;                    //and ends at this power, minimum -18dBm 
+const int8_t end_power = -18;                    //and ends at this power, minimum -18dBm
 const uint8_t ThisNode = 'T';                    //this identifies the node in transmissions
 
 
 #define packet_delay 250                         //mS delay between packets
 #define mode_delaymS 2000                        //mS delay after sending start test sequence  
-
-

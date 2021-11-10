@@ -68,7 +68,7 @@ void loop()
   //keep transmitting the packet until an ACK is received
   do
   {
-    LT.startWriteSXBuffer(startaddr);              //start the write at SX12XX internal buffer location 0
+    LT.startWriteSXBuffer(startaddr);             //start the write at SX12XX internal buffer location 0
     LT.writeUint16(destinationNode);              //destination node for packet
     LT.writeUint8(outputNumber);                  //output number on receiver
     LT.writeUint8(onoroff);                       //0 for off, 1 for on

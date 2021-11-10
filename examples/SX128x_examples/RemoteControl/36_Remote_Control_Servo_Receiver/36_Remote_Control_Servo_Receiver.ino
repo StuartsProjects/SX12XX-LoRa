@@ -9,17 +9,11 @@
   Program Operation - This is a remote control receiver that uses a LoRa link to control the positions of
   servos sent from a remote transmitter.
 
-  If the ttransmitter joystick has a switch, often made by pressing on the joystick, then this can be used
+  If the transmitter joystick has a switch, often made by pressing on the joystick, then this can be used
   to remote control an output on the receiver.
 
   The program is intended as a proof of concept demonstration of how to remote control servos, the program
   is not designed as a practical remote control device for RC model cars for instance.
-
-  It would be straight forward to make the transmitter program send packets continuously, but in most places
-  in the world that would break a normal limitation of 10% duty cycle for unlicensed use. Therefore the
-  program was designed to only transmit at a 10% duty cycle. Thus the fastest (lowest air time) packets are
-  used, spreading factor 6 at a bandwidth of 500khz. This results in an air time for the 5 byte control
-  packet of around 4mS, so there are around 25 sent per second.
 
   To have the receiver program print out the joystick values (0-255) read from the received packet, comment
   in the line;
@@ -68,10 +62,8 @@ void loop()
   RXPacketL = LT.receiveSXBuffer(0, 0, WAIT_RX);   //returns 0 if packet error of some sort
 
   while (!digitalRead(DIO1));                      //wait for DIO1 to go high
-
-  IRQStatus = LT.readIrqStatus();
-
-  if  (IRQStatus & (IRQ_RX_DONE + IRQ_HEADER_VALID) )
+  
+  if  (LT.readIrqStatus() == (IRQ_RX_DONE + IRQ_HEADER_VALID + IRQ_PREAMBLE_DETECTED) )
   {
     packet_is_OK();
   }
@@ -147,7 +139,7 @@ uint8_t packet_is_OK()
 void packet_is_Error()
 {
   uint16_t IRQStatus;
-  int8_t PacketRSSI;
+  int16_t PacketRSSI;
   IRQStatus = LT.readIrqStatus();
 
   if (IRQStatus & IRQ_RX_TIMEOUT)
@@ -251,6 +243,3 @@ void setup()
   Serial.println(F("36_Remote_Control_Servo_Receiver ready"));
   Serial.println();
 }
-
-
-

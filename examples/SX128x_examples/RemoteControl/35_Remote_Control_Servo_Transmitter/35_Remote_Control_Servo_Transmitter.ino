@@ -187,4 +187,3 @@ void setup()
 
   Serial.println(F("35_Remote_Control_Servo_Transmitter ready"));
 }
-

@@ -37,8 +37,3 @@ const int32_t Offset = 0;                        //offset frequency for calibrat
 const uint8_t Bandwidth = LORA_BW_0200;          //LoRa bandwidth
 const uint8_t SpreadingFactor = LORA_SF12;       //LoRa spreading factor
 const uint8_t CodeRate = LORA_CR_4_5;            //LoRa coding rate
-
-
-
-
-

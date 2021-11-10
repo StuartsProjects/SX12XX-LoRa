@@ -101,7 +101,7 @@ These structure examples would be easy to expand to control more outputs such as
 
 **Note:** Structures on different Arduino types can use different formats. If the transmitter is one Arduino type and the receiver is another type the receiver may not be able to read the transferred structure correctly. 
 
-## Writing variables direct to an array
+### Writing variables direct to an array
 
 A SX12xx library file, arrayRW.h has routines that allow for variables to be directly written to an array. For example if the name of the array is 'controlarray' and then if you review the transmitter program, 205\_Reliable\_Transmitter\_Controller\_ArrayRW, you will see it fills the array with variables like this;
 
@@ -149,7 +149,7 @@ And the read functions are;
 	arrayReadByteArray(uint8_t *buff, uint8_t len)
  
 
-## Low memory controller
+### Low memory controller
 
 Programs 207\_Reliable\_SXTransmitter\_Controller and 208\_Reliable\_SXReceiver\_Controller demonstrate how use the SX12XX library to directly write and read variables to and from the LoRa devices internal buffer directly for transmit and receive functions. There is no memory array required to be defined filled or used by transmitter and receiver programs. If large packets are being sent and received this can save a significant amount of memory.  
 
@@ -282,7 +282,7 @@ The auto acknowledge is a simple way of making the transmission of packets more 
 
 Here the destinationNode number is directed to a particular node number, 2 in that example. If the packet is received by node number 5, then there should be no acknowledge sent. In these circumstances the receiver program needs to intervene directly on the received packet, read the payload and check for a matching destinationNode number. If there is a match then an acknowledge can be sent manually and the transmitter knows the packet has been received. 
 
-## Low memory acknowledge 
+### Low memory acknowledge 
 
 Example programs **211\_Reliable\_SXTransmitter\_AutoACK** and **212\_Reliable\_SXReceiver\_AutoACK** demonstrate how to use the SX12xx library functions to bypass the need to use an intermediate array for the payload. Instead of filling an array with a structure or byte array full of variables, the variables to send are written directly to the LoRa device internal buffer on transmit and read from the buffer on receive. 
 
@@ -313,7 +313,7 @@ And if on receive the packet passes the NetworkID and payloadCRC checks (PacketO
 Note that in this example the payload contains a 16 bit destinationNode variable, which can be used to direct the packet to one of many nodes. The sketch checks that the destinationNode matches the number given to that receiver and if there is a match actions the packet. 
 
 
-## Manual acknowledge
+### Manual acknowledge
 
 The programs **213\_Reliable\_Transmitter\_Controller\_ManualACK** and **214\_Reliable\_Receiver\_Controller\_ManualACK** use a manual acknowledge set-up whereby the receive picks up the transmitted payload and reads the destinationNode parameter to decide if the packet is destined for that node. If it is the acknowledge is sent which contains the networkID and the CRC of the original payload, thus the transmitter knows the sent packet has been received correctly. 
 
@@ -321,7 +321,7 @@ The receive sketch can pause at the point the payload is being actioned, perhaps
 
 There is a further enhancement to the manual acknowledge set-up, the acknowledge can contain some data to be returned to the transmitter. 
 
-## Manual acknowledge returning data
+### Manual acknowledge returning data
 
 The standard acknowledge is only 4 bytes, the NetworkID and payload CRC. However the acknowledge can be sent with an array of data included in the acknowledge.
 
@@ -334,7 +334,7 @@ Here the receiver sending the acknowledge can include an array txbuffer of a spe
 To demonstrate returning an array in the acknowledge examples 201 and 202 were modified so that the transmitted 'Hello World' example has 'Goodbye' returned from the receiver with the acknowledge and is then printed out on the transmitter. The modified programs are **215\_Reliable\_Transmitter\_ManualACK\_withData** and **216\_Reliable\_Receiver\_ManualACK\_withData**
 
 
-## Requesting data
+### Requesting data
 
 We can use the acknowledge functions of reliable packets to send a request to a remote station to transfer data. The returned data will include the networkID and payloadCRC sent with the request and since the returned data\packet is also protected by the internal LoRa packet CRC we can be fairly confident we are getting valid data back. 
 
@@ -372,7 +372,7 @@ The original requesting node sees that the valid reply\Acknowledge is a GPS loca
 Examples **219\_Reliable\_Transmitter\_Data\_RequestorIRQ** and **220\_Reliable\_Receiver\_Data\_RequestorIRQ** are versions of the above 217 and 218 examples that do not require access to the DIO0 pin on the LoRa device to detect RXdone and TXDone. These versions can be useful for situations where there are few microcontroller pins available to drive the LoRa device such as with the ESP32CAM for instance.  
 
 
-## Using program 221\_LoRa\_Packet\_Monitor
+### Using program 221\_LoRa\_Packet\_Monitor
 
 When debugging what's going on in a send and acknowledge set-up its useful to be able to see what is happening in real time. This packet monitor example will display the bytes received in hexadecimal, in the example printout below you can see two packets. The 16 byte packet contains the text 'Hello World' and then the NetworkID, 0x3210, then the payload CRC, 0xBC69 at the end. 
 

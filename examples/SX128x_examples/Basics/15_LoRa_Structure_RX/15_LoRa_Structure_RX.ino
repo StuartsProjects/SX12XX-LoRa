@@ -41,7 +41,7 @@ SX128XLT LT;
 
 uint8_t RXPacketL;               //stores length of packet received
 uint32_t RXpacketCount;          //count of received packets
-int8_t PacketRSSI;               //RSSI of received packet
+int16_t PacketRSSI;              //RSSI of received packet
 int8_t PacketSNR;                //signal to noise ratio of received packet
 uint32_t errors;                 //count of packet errors
 
@@ -56,7 +56,7 @@ struct trackerPacket
   uint8_t satellites;
   uint16_t voltage;
   int8_t temperature;
-};
+} __attribute__((packed, aligned(1)));          //remove structure padding so there is compatibility between 8bit and 32bit Arduinos
 
 struct trackerPacket location1;                 //define an instance called location1 of the structure trackerPacket
 
@@ -191,4 +191,3 @@ void setup(void)
   Serial.println();
   Serial.println();
 }
-

@@ -16,7 +16,7 @@
 #define NRESET 9                                //reset pin on LoRa device
 #define RFBUSY 7                                //RFBUSY pin on LoRa device   
 #define LED1 8                                  //on board LED, high for on
-#define DIO1 3                                  //DIO0 pin on LoRa device, used for RX and TX done 
+#define DIO1 3                                  //DIO1 pin on LoRa device, used for RX and TX done 
 
 #define LORA_DEVICE DEVICE_SX1280               //we need to define the device we are using
 
@@ -27,8 +27,8 @@
 #define Frequency 2445000000                    //frequency of transmissions
 #define Offset 0                                //offset frequency for calibration purposes  
 
-#define Bandwidth LORA_BW_1600                  //LoRa bandwidth
-#define SpreadingFactor LORA_SF5                //LoRa spreading factor
+#define Bandwidth LORA_BW_0400                  //LoRa bandwidth
+#define SpreadingFactor LORA_SF7                //LoRa spreading factor
 #define CodeRate LORA_CR_4_5                    //LoRa coding rate
 
 const int8_t TXpower = 10;                      //LoRa transmit power in dBm
@@ -36,7 +36,5 @@ const int8_t TXpower = 10;                      //LoRa transmit power in dBm
 
 //*******  Setup packet parameters Here ! ***************
 const uint8_t numberPackets = 50;               //number of packets to send in transmit loop
-const uint8_t TXPacketL = 16;                   //length of packet to send  
-const bool waitforACK = false;                  //set to true to have transmit wait for ack before continuing
-
-
+const uint8_t TXPacketL = 16;                   //length of packet to send
+const bool waitforACK = true;                   //set to true to have transmit wait for ack before continuing

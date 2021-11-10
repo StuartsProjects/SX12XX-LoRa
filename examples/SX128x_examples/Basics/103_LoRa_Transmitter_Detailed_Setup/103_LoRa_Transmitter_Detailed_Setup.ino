@@ -44,7 +44,7 @@ void loop()
 
   TXPacketL = sizeof(buff);                                    //set TXPacketL to length of array
   buff[TXPacketL - 1] = '*';                                   //replace null character at buffer end so its visible on receiver
-  
+
   LT.printASCIIPacket(buff, TXPacketL);                        //print the buffer (the sent packet) as ASCII
 
   digitalWrite(LED1, HIGH);
@@ -163,6 +163,7 @@ void setup()
   LT.setModulationParams(SpreadingFactor, Bandwidth, CodeRate);
   LT.setPacketParams(12, LORA_PACKET_VARIABLE_LENGTH, 255, LORA_CRC_ON, LORA_IQ_NORMAL, 0, 0);
   LT.setDioIrqParams(IRQ_RADIO_ALL, (IRQ_TX_DONE + IRQ_RX_TX_TIMEOUT), 0, 0);
+  LT.setHighSensitivity();
   //***************************************************************************************************
 
 
@@ -179,4 +180,3 @@ void setup()
   Serial.print(F("Transmitter ready"));
   Serial.println();
 }
-

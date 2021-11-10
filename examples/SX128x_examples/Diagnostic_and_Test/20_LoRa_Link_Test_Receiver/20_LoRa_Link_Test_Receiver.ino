@@ -33,7 +33,7 @@ uint32_t errors;
 uint8_t RXBUFFER[RXBUFFER_SIZE];                 //create the buffer that received packets are copied into
 
 uint8_t RXPacketL;                               //stores length of packet received
-int8_t  PacketRSSI;                              //stores RSSI of received packet
+int16_t  PacketRSSI;                             //stores RSSI of received packet
 int8_t  PacketSNR;                               //stores signal to noise ratio of received packet
 
 uint32_t Test1Count[32];                         //buffer where counts of received packets are stored, -18dbm to +12dBm
@@ -117,33 +117,33 @@ void processPacket()
   {
     if (RXBUFFER[0] == ' ')
     {
-    lTXpower = 0;
+      lTXpower = 0;
     }
 
     if (RXBUFFER[0] == '+')
     {
-    lTXpower = ((RXBUFFER[1] - 48) * 10) +  (RXBUFFER[2] - 48);   //convert packet text to power
+      lTXpower = ((RXBUFFER[1] - 48) * 10) +  (RXBUFFER[2] - 48);   //convert packet text to power
     }
-    
+
     if (RXBUFFER[0] == '-')
     {
-    lTXpower = (((RXBUFFER[1] - 48) * 10) +  (RXBUFFER[2] - 48)) * -1;  //convert packet text to power
+      lTXpower = (((RXBUFFER[1] - 48) * 10) +  (RXBUFFER[2] - 48)) * -1;  //convert packet text to power
     }
 
     Serial.print(F(" ("));
 
     if (RXBUFFER[0] != '-')
     {
-    Serial.write(RXBUFFER[0]);
+      Serial.write(RXBUFFER[0]);
     }
-    
+
     Serial.print(lTXpower);
     Serial.print(F("dBm)"));
 
     if (updateCounts)
     {
-      temp = (Test1Count[lTXpower+18]);
-      Test1Count[lTXpower+18] = temp + 1;
+      temp = (Test1Count[lTXpower + 18]);
+      Test1Count[lTXpower + 18] = temp + 1;
     }
   }
 
@@ -180,7 +180,7 @@ void print_Test1Count()
   Serial.println();
   for (index = 30; index >= 0; index--)
   {
-    Serial.print(index-18);
+    Serial.print(index - 18);
     Serial.print(F("dBm,"));
     j = Test1Count[index];
     Serial.print(j);
@@ -285,7 +285,7 @@ void setup()
   //SPI.beginTransaction(SPISettings(8000000, MSBFIRST, SPI_MODE0));
 
   //setup hardware pins used by device, then check if device is found
-   if (LT.begin(NSS, NRESET, RFBUSY, DIO1, DIO2, DIO3, RX_EN, TX_EN, LORA_DEVICE))
+  if (LT.begin(NSS, NRESET, RFBUSY, DIO1, DIO2, DIO3, RX_EN, TX_EN, LORA_DEVICE))
   {
     Serial.println(F("LoRa Device found"));
     led_Flash(2, 125);
@@ -314,4 +314,3 @@ void setup()
   Serial.println(RXBUFFER_SIZE);
   Serial.println();
 }
-

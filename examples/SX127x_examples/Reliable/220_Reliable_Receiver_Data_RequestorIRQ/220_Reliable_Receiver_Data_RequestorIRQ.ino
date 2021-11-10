@@ -6,7 +6,7 @@
 *******************************************************************************************************/
 
 /*******************************************************************************************************
-  Program Operation - This is a demonstration of using relaible packets to request data from a remote
+  Program Operation - This is a demonstration of using reliable packets to request data from a remote
   station. Each stations needs a number defined in 'ThisStation' and are numbered 0 to 255.
 
 

@@ -36,7 +36,7 @@ uint16_t errors;
 
 uint8_t RXPacketL;               //length of received packet
 uint8_t RXPacketType;            //type of received packet
-int8_t  PacketRSSI;              //RSSI of received packet
+int16_t PacketRSSI;              //RSSI of received packet
 int8_t  PacketSNR;               //signal to noise ratio of received packet
 
 uint8_t SwitchByte = 0xFF;       //this is the transmitted switch values, bit 0 = Switch0 etc
@@ -292,6 +292,3 @@ void setup()
 
   Serial.println(F("Receiver ready"));
 }
-
-
-

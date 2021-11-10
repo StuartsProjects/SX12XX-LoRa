@@ -16,10 +16,9 @@ SX128XLT LT;
 
 #ifdef ENABLEOLED
 #include <U8x8lib.h>                                        //https://github.com/olikraus/u8g2 
-U8X8_SSD1306_128X64_NONAME_HW_I2C disp(U8X8_PIN_NONE);      //standard 0.96" SSD1306
-//U8X8_SH1106_128X64_NONAME_HW_I2C disp(U8X8_PIN_NONE);     //1.3" OLED often sold as 1.3" SSD1306
+//U8X8_SSD1306_128X64_NONAME_HW_I2C disp(U8X8_PIN_NONE);      //standard 0.96" SSD1306
+U8X8_SH1106_128X64_NONAME_HW_I2C disp(U8X8_PIN_NONE);     //1.3" OLED often sold as 1.3" SSD1306
 #endif
-
 
 
 uint16_t rangeing_errors, rangeings_valid, rangeing_results;
@@ -28,6 +27,7 @@ uint32_t endwaitmS, startrangingmS, range_result_sum, range_result_average;
 float distance, distance_sum, distance_average;
 bool ranging_error;
 int32_t range_result;
+int16_t RangingRSSI;
 
 
 void loop()
@@ -41,6 +41,8 @@ void loop()
   {
 
     startrangingmS = millis();
+
+    Serial.println(F("Start Ranging"));
 
     LT.transmitRanging(RangingAddress, TXtimeoutmS, RangingTXPower, WAIT_TX);
 
@@ -67,6 +69,12 @@ void loop()
 
       Serial.print(F(",Distance,"));
       Serial.print(distance, 1);
+      Serial.print(F(",RSSIReg,"));
+      Serial.print(LT.readRegister(REG_RANGING_RSSI));
+      RangingRSSI = LT.getRangingRSSI();
+      Serial.print(F(",RSSI,"));
+      Serial.print(RangingRSSI);
+      Serial.print(F("dBm"));
       digitalWrite(LED1, LOW);
     }
     else
@@ -92,7 +100,7 @@ void loop()
       {
         distance_average = (distance_sum / rangeing_results);
       }
-      
+
       Serial.print(F(",TotalValid,"));
       Serial.print(rangeings_valid);
       Serial.print(F(",TotalErrors,"));
@@ -123,6 +131,10 @@ void display_screen1()
   disp.print(distance_average, 1);
   disp.print(F("m"));
   disp.setCursor(0, 2);
+  disp.print(F("RSSI "));
+  disp.print(RangingRSSI);
+  disp.print(F("dBm"));
+  disp.setCursor(0, 4);
   disp.print(F("OK,"));
   disp.print(rangeings_valid);
   disp.print(F(",Err,"));
@@ -182,6 +194,17 @@ void setup()
 
   //LT.setRangingCalibration(Calibration);               //override automatic lookup of calibration value from library table
 
+  Serial.println();
+  LT.printModemSettings();                               //reads and prints the configured LoRa settings, useful check
+  Serial.println();
+  LT.printOperatingSettings();                           //reads and prints the configured operating settings, useful check
+  Serial.println();
+  Serial.println();
+  LT.printRegisters(0x900, 0x9FF);                       //print contents of device registers, normally 0x900 to 0x9FF
+  Serial.println();
+  Serial.println();
+
+
 #ifdef ENABLEDISPLAY
   Serial.println("Display Enabled");
   disp.begin();
@@ -200,7 +223,6 @@ void setup()
   disp.print(distance_adjustment, 4);
 #endif
 
-
   Serial.print(F("Address "));
   Serial.println(RangingAddress);
   Serial.print(F("CalibrationValue "));
@@ -209,4 +231,3 @@ void setup()
 
   delay(2000);
 }
-

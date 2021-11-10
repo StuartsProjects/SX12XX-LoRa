@@ -1,8 +1,8 @@
 /*******************************************************************************************************
-  Programs for Arduino - Copyright of the author Stuart Robinson - 09/02/20
+  Programs for Arduino - Copyright of the author Stuart Robinson - 29/09/21
 
   This program is supplied as is, it is up to the user of the program to decide if the program is
-  suitable for the intended purpose and free from errors. 
+  suitable for the intended purpose and free from errors.
 *******************************************************************************************************/
 
 
@@ -13,7 +13,7 @@
 
   There is a printout of the valid packets received, the packet is assumed to be in ASCII printable text,
   if its not ASCII text characters from 0x20 to 0x7F, expect weird things to happen on the Serial Monitor.
-  The LED will flash for each packet received and the buzzer will sound, if fitted.
+  The LED will flash for each packet received.
 
   Sample serial monitor output;
 
@@ -25,8 +25,6 @@
 
   Serial monitor baud rate is set at 9600.
 *******************************************************************************************************/
-
-#define Program_Version "V1.0"
 
 #include <SPI.h>                                 //the lora device is SPI based so load the SPI library
 #include <SX128XLT.h>                            //include the appropriate library   
@@ -40,7 +38,7 @@ uint32_t errors;
 uint8_t RXBUFFER[RXBUFFER_SIZE];                 //create the buffer that received packets are copied into
 
 uint8_t RXPacketL;                               //stores length of packet received
-int8_t  PacketRSSI;                              //stores RSSI of received packet
+int16_t  PacketRSSI;                             //stores RSSI of received packet
 
 
 void loop()
@@ -48,11 +46,6 @@ void loop()
   RXPacketL = LT.receive(RXBUFFER, RXBUFFER_SIZE, 60000, WAIT_RX); //wait for a packet to arrive with 60seconds (60000mS) timeout
 
   digitalWrite(LED1, HIGH);                      //something has happened
-
-  if (BUZZER > 0)                                //turn buzzer on
-  {
-    digitalWrite(BUZZER, HIGH);
-  }
 
   PacketRSSI = LT.readPacketRSSI();              //read the recived RSSI value
 
@@ -63,11 +56,6 @@ void loop()
   else
   {
     packet_is_OK();
-  }
-
-  if (BUZZER > 0)
-  {
-    digitalWrite(BUZZER, LOW);                    //buzzer off
   }
 
   digitalWrite(LED1, LOW);                        //LED off
@@ -132,8 +120,7 @@ void packet_is_Error()
     LT.printIrqStatus();                            //print the names of the IRQ registers set
   }
 
-  delay(250);                                       //gives a longer buzzer and LED flash for error 
-  
+
 }
 
 
@@ -167,21 +154,8 @@ void setup()
 
   Serial.begin(9600);
   Serial.println();
-  Serial.print(F(__TIME__));
-  Serial.print(F(" "));
-  Serial.println(F(__DATE__));
-  Serial.println(F(Program_Version));
-  Serial.println();
   Serial.println(F("53_FLRC_Receiver Starting"));
   Serial.println();
-
-  if (BUZZER > 0)
-  {
-    pinMode(BUZZER, OUTPUT);
-    digitalWrite(BUZZER, HIGH);
-    delay(50);
-    digitalWrite(BUZZER, LOW);
-  }
 
   SPI.begin();
 
@@ -190,39 +164,39 @@ void setup()
   //SPI.beginTransaction(SPISettings(8000000, MSBFIRST, SPI_MODE0));
 
   //setup hardware pins used by device, then check if device is found
-  if (LT.begin(NSS, NRESET, RFBUSY, DIO1, DIO2, DIO3, RX_EN, TX_EN, LORA_DEVICE))
+  if (LT.begin(NSS, NRESET, RFBUSY, DIO1, RX_EN, TX_EN, LORA_DEVICE))
   {
-    Serial.println(F("LoRa Device found"));
+    Serial.println(F("FLRC Device found"));
     led_Flash(2, 125);
     delay(1000);
   }
   else
   {
-    Serial.println(F("No device responding"));
+    Serial.println(F("No FLRC device responding"));
     while (1)
     {
       led_Flash(50, 50);                                       //long fast speed LED flash indicates device error
     }
   }
 
-  //The function call list below shows the complete setup for the LoRa device using the information defined in the
-  //Settings.h file.
 
+  LT.setupFLRC(Frequency, Offset, BandwidthBitRate, CodingRate, BT, Syncword);
+
+  //The full details of the setupFLRC function call above are listed below
   //***************************************************************************************************
   //Setup FLRC
   //***************************************************************************************************
-  LT.setMode(MODE_STDBY_RC);
-  LT.setRegulatorMode(USE_LDO);
-  LT.setPacketType(PACKET_TYPE_FLRC);
-  LT.setRfFrequency(Frequency, Offset);
-  LT.setBufferBaseAddress(0, 0);
-  LT.setModulationParams(BandwidthBitRate, CodingRate, BT);
-  LT.setPacketParams(PREAMBLE_LENGTH_32_BITS, FLRC_SYNC_WORD_LEN_P32S, RADIO_RX_MATCH_SYNCWORD_1, RADIO_PACKET_VARIABLE_LENGTH, 127, RADIO_CRC_3_BYTES, RADIO_WHITENING_OFF);
-  LT.setDioIrqParams(IRQ_RADIO_ALL, (IRQ_TX_DONE + IRQ_RX_TX_TIMEOUT), 0, 0);              //set for IRQ on TX done and timeout on DIO1
-  LT.setSyncWord1(Sample_Syncword);
+  //LT.setMode(MODE_STDBY_RC);
+  //LT.setRegulatorMode(USE_LDO);
+  //LT.setPacketType(PACKET_TYPE_FLRC);
+  //LT.setRfFrequency(Frequency, Offset);
+  //LT.setBufferBaseAddress(0, 0);
+  //LT.setModulationParams(BandwidthBitRate, CodingRate, BT);
+  //LT.setPacketParams(PREAMBLE_LENGTH_32_BITS, FLRC_SYNC_WORD_LEN_P32S, RADIO_RX_MATCH_SYNCWORD_1, RADIO_PACKET_VARIABLE_LENGTH, 127, RADIO_CRC_3_BYTES, RADIO_WHITENING_OFF);
+  //LT.setDioIrqParams(IRQ_RADIO_ALL, (IRQ_TX_DONE + IRQ_RX_TX_TIMEOUT), 0, 0);              //set for IRQ on TX done and timeout on DIO1
+  //LT.setSyncWord1(Syncword);
   //***************************************************************************************************
-
-
+  LT.setFLRCPayloadLengthReg(127);                             //FLRC will filter packets on receive according to length, so set to longest packet
   Serial.println();
   LT.printModemSettings();                                     //reads and prints the configured modem settings, useful check
   Serial.println();
@@ -237,4 +211,3 @@ void setup()
   Serial.println(RXBUFFER_SIZE);
   Serial.println();
 }
-
