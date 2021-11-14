@@ -1716,7 +1716,7 @@ void SX128XLT::printIrqStatus()
   //0x0100
   if (_IrqStatus & IRQ_RANGING_SLAVE_REQUEST_DISCARDED)
   {
-    Serial.print(",IRQ_RANGING_SLAVE_REQUEST_DISCARDED");
+    Serial.print(F(",IRQ_RANGING_SLAVE_REQUEST_DISCARDED"));
   }
 
   //0x0200
