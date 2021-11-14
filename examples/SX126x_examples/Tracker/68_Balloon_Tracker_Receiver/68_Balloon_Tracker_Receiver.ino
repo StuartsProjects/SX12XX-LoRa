@@ -54,7 +54,7 @@ TinyGPSPlus gps;                                            //create the TinyGPS
 
 #ifdef USESOFTSERIALGPS
 //#include <NeoSWSerial.h>                                  //https://github.com/SlashDevin/NeoSWSerial
-//NeoSWSerial GPSserial(RXpin, TXpin);                      //this library is more relaible with a GPS over SoftwareSerial
+//NeoSWSerial GPSserial(RXpin, TXpin);                      //this library is more reliable with a GPS over SoftwareSerial
 #include <SoftwareSerial.h>
 SoftwareSerial GPSserial(RXpin, TXpin);
 #else
@@ -1035,4 +1035,3 @@ void setup()
   Serial.write(7);                                                      //send a BELL to serial terminal
   TXStatus = 4;                                                         //set default flag of no TX GPS fix
 }
-

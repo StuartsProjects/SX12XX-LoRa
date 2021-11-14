@@ -31,7 +31,7 @@
 #include "Settings.h"                      //LoRa settings etc.
 #include <arrayRW.h>                       //part of SX12XX-LoRa library    
 
-SX128XLT LoRa;                             //create an SX127XLT library instance called LoRa
+SX128XLT LoRa;                             //create an SX128XLT library instance called LoRa
 
 //#define SDLIB                            //define SDLIB for SD.h or SDFATLIB for SDfat.h
 #define SDFATLIB

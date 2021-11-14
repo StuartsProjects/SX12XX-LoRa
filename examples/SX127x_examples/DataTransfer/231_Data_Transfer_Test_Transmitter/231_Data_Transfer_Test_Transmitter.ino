@@ -7,7 +7,7 @@
 
 /*******************************************************************************************************
   Program Operation - This is a program that simulates the transfer of a file using data transfer (DT)
-  packet functions from the SX128X library. No SD cards are needed for the simulation. The file length
+  packet functions from the SX127X library. No SD cards are needed for the simulation. The file length
   used to simulate the transfer is defined by DTFileSize in the DTSettings.h file. Use with matching
   receiver program 232_Transfer_Simulator_Receiver.ino
 

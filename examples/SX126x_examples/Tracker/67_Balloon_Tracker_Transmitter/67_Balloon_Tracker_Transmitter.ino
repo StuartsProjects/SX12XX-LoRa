@@ -87,7 +87,7 @@ TinyGPSPlus gps;                                 //create the TinyGPS++ object
 
 #ifdef USESOFTSERIALGPS
 //#include <NeoSWSerial.h>                         //https://github.com/SlashDevin/NeoSWSerial
-//NeoSWSerial GPSserial(RXpin, TXpin);             //this library is more relaible at GPS init than software serial
+//NeoSWSerial GPSserial(RXpin, TXpin);             //this library is more reliable at GPS init than software serial
 #include <SoftwareSerial.h>
 SoftwareSerial GPSserial(RXpin, TXpin);
 #endif
@@ -741,4 +741,3 @@ void setup()
   GPS_SetCyclicMode();                           //set this regardless of whether hot fix mode is enabled
   GPS_OutputOff();
 }
-

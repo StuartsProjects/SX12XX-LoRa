@@ -7,7 +7,7 @@
 
 /*******************************************************************************************************
   Program Operation - This is a program that simulates the transfer of a file using data transfer (DT)
-  packet functions from the SX128X library. No SD cards are needed for the simulation. Use with matching
+  packet functions from the SX127X library. No SD cards are needed for the simulation. Use with matching
   receiver program 231_Transfer_Simulator_Transmitter.ino.
 
   DT packets can be used for transfering large amounts of data in a sequence of packets or segments,
@@ -26,7 +26,7 @@
   the segment sequence it was expecting.
 
   Details of the packet identifiers, header and data lengths and formats used are in the file
-  Data_transfer_packet_definitions.md in the \SX128X_examples\DataTransfer\ folder.
+  Data_transfer_packet_definitions.md in the \SX127X_examples\DataTransfer\ folder.
 
   Serial monitor baud rate is set at 115200.
 *******************************************************************************************************/

@@ -36,8 +36,8 @@
 #include <SX128XLT.h>
 #include <ProgramLT_Definitions.h>
 #include "Settings.h"                   //LoRa settings etc.
-#include <arrayRW.h>                    //part of SX127XLT library  
-SX128XLT LoRa;                          //create an SX127XLT library instance called LoRa
+#include <arrayRW.h>                    //part of SX128XLT library  
+SX128XLT LoRa;                          //create an SX128XLT library instance called LoRa
 
 #define PRINTSEGMENTNUM                 //enable this define to print segment numbers 
 //#define DEBUG                         //enable this define to print debug info for segment transfers

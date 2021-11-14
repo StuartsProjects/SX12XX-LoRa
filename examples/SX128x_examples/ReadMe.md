@@ -369,7 +369,7 @@ In this case the returned values are test values of Latitude, Longitude and Alti
 
 The original requesting node sees that the valid reply\Acknowledge is a GPS location request from station 123 and can then act on the data.
 
-Examples **219\_Reliable\_Transmitter\_Data\_RequestorIRQ** and **220\_Reliable\_Receiver\_Data\_RequestorIRQ** are versions of the above 217 and 218 examples that do not require access to the DIO0 pin on the LoRa device to detect RXdone and TXDone. These versions can be useful for situations where there are few microcontroller pins available to drive the LoRa device such as with the ESP32CAM for instance.  
+Examples **219\_Reliable\_Transmitter\_Data\_RequestorIRQ** and **220\_Reliable\_Receiver\_Data\_RequestorIRQ** are versions of the above 217 and 218 examples that do not require access to the DIO1 pin on the LoRa device to detect RXdone and TXDone. These versions can be useful for situations where there are few microcontroller pins available to drive the LoRa device such as with the ESP32CAM for instance.  
 
 
 ## Using program 221\_LoRa\_Packet\_Monitor or 222\_FLRC\_Packet\_Monitor

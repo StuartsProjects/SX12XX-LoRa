@@ -23,7 +23,7 @@
   will return a NACK packet to the transmitter requesting the segment sequence it was expecting.
 
   Details of the packet identifiers, header and data lengths and formats used are in the file;
-  'Data transfer packet definitions.md' in the \SX128X_examples\DataTransfer\ folder.
+  'Data transfer packet definitions.md' in the \SX127X_examples\DataTransfer\ folder.
 
   The transfer can be carried out using LoRa packets, max segment size (defined by DTSegmentSize) is 245 bytes
   for LoRa.

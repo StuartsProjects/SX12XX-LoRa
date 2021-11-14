@@ -16,7 +16,7 @@
 #define NRESET 9                                //reset pin on LoRa device
 #define RFBUSY 7                                //RFBUSY pin on LoRa device   
 #define LED1 8                                  //on board LED, high for on
-#define DIO1 3                                  //DIO0 pin on LoRa device, used for RX and TX done 
+#define DIO1 3                                  //DIO1 pin on LoRa device, used for RX and TX done 
 
 #define LORA_DEVICE DEVICE_SX1280               //we need to define the device we are using
 
