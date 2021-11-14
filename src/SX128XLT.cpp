@@ -5249,7 +5249,7 @@ uint8_t SX128XLT::receiveDT(uint8_t *header, uint8_t headersize, uint8_t *dataar
 
   if (_RXPacketL < 10)                                      //check received packet is 10 or more bytes long
   {
-    Serial.println(F(" {RELIABLE} _RXPacketL < 10"));
+    //Serial.println(F(" {RELIABLE} _RXPacketL < 10"));
     bitSet(_ReliableErrors, ReliableSizeError);
     return 0;
   }

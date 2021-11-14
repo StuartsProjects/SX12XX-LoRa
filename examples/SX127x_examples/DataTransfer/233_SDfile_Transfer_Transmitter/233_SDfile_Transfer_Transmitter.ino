@@ -37,7 +37,6 @@
 #include <ProgramLT_Definitions.h>
 #include "DTSettings.h"                      //LoRa settings etc.
 #include <arrayRW.h>
-
 SX127XLT LoRa;                               //create an SX127XLT library instance called LoRa
 
 #define PRINTSEGMENTNUM                      //enable this define to print segment numbers 

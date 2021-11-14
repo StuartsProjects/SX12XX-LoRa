@@ -1,37 +1,29 @@
 /*******************************************************************************************************
-  Programs for Arduino - Copyright of the author Stuart Robinson - 06/11/21
+  Programs for Arduino - Copyright of the author Stuart Robinson - 14/11/21
 
   This program is supplied as is, it is up to the user of the program to decide if the program is
   suitable for the intended purpose and free from errors.
 *******************************************************************************************************/
 
-
 #define NSS 10                                  //select pin on LoRa device
 #define NRESET 9                                //reset pin on LoRa device
-#define RFBUSY 7                                //RFBUSY pin on LoRa device
-#define DIO1 3                                  //DIO1 pin on LoRa device, used for sensing RX and TX done 
+#define DIO0 3                                  //DIO0 pin on LoRa device, used for sensing RX and TX done 
 #define LED1 8                                  //LED used to indicate transmission
-#define SDCS 30
+#define SDCS 30                                 //select for SD card   
+#define OV2640CS 22                             //select for SPI on camera
 
-#define LORA_DEVICE DEVICE_SX1280               //this is the device we are using
-
-
-const uint32_t Frequency = 2445000000;          //frequency of transmissions
-const uint32_t Offset = 0;                      //offset frequency for calibration purposes
-const int8_t  TXpower = 10;                     //LoRa transmit power
+#define LORA_DEVICE DEVICE_SX1278               //this is the LoRa device we are using
 
 //*******  Setup LoRa modem parameters here ! ***************
-const uint8_t Bandwidth = LORA_BW_1600;         //LoRa bandwidth
-const uint8_t SpreadingFactor = LORA_SF5;       //LoRa spreading factor
+const uint32_t Frequency = 434000000;           //frequency of transmissions in hertz
+const uint32_t Offset = 0;                      //offset frequency for calibration purposes
+
+const uint8_t Bandwidth = LORA_BW_500;          //LoRa bandwidth
+const uint8_t SpreadingFactor = LORA_SF7;       //LoRa spreading factor
 const uint8_t CodeRate = LORA_CR_4_5;           //LoRa coding rate
+const uint8_t Optimisation = LDRO_AUTO;         //low data rate optimisation setting, normally set to auto
 
-//*******  Setup FLRC modem parameters here ! ***************
-//const uint8_t BandwidthBitRate = FLRC_BR_1_300_BW_1_2;     //FLRC bandwidth and bit rate, 1.3Mbs
-const uint8_t BandwidthBitRate = FLRC_BR_0_260_BW_0_3;   //FLRC 260kbps
-const uint8_t CodingRate = FLRC_CR_1_0;                    //FLRC coding rate
-const uint8_t BT = RADIO_MOD_SHAPING_BT_1_0;               //FLRC BT
-const uint32_t Syncword = 0x01234567;                      //FLRC uses syncword
-
+const int8_t TXpower = 10;                      //LoRa transmit power in dBm
 
 const uint32_t TXtimeoutmS = 5000;              //mS to wait for TX to complete
 const uint32_t RXtimeoutmS = 60000;             //mS to wait for receiving a packet
@@ -50,5 +42,14 @@ const uint8_t DTfilenamesize = 32;              //size of DTfilename buffer
 const uint16_t NetworkID = 0x3210;              //a unique identifier to go out with packet
 const uint8_t DTSendAttempts = 10;              //number of attempts sending a packet before a restart
 
-//const uint8_t DTSegmentSize = 117;              //number of bytes in each segment, 117 is maximum value for FLRC
-const uint8_t DTSegmentSize = 245;            //number of bytes in each segment, 245 is maximum value for LoRa
+const uint8_t DTSegmentSize = 245;              //number of bytes in each segment, 245 is maximum value for LoRa
+
+
+/******************************************************************************
+  Setup the resolution OV2640 required, the choices are;
+
+  OV2640_160x120,OV2640_176x144,OV2640_320x240,OV2640_352x288,OV2640_640x480,
+  OV2640_800x600, OV2640_1024x768,OV2640_1280x1024,OV2640_1600x1200
+*******************************************************************************/
+
+const uint8_t OV2640resolution = OV2640_640x480;
