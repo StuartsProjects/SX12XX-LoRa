@@ -18,6 +18,8 @@
 #define DISPCS 23                               //CS for ILI9341 
 #define DISPDC 24                               //DC for ILI9341 
 #define DISPRESET 25                            //RESET for ILI9341   
+#define TOUCHCS 29                              //ILI9341 may have touch ICs, so we need to disable it, set to -1 if not fitted   
+
 
 //*******  Setup LoRa modem parameters here ! ***************
 const uint32_t Frequency = 434000000;           //frequency of transmissions in hertz

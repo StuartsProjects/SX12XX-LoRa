@@ -1,5 +1,5 @@
 /*******************************************************************************************************
-  Programs for Arduino - Copyright of the author Stuart Robinson - 12/11/21
+  Programs for Arduino - Copyright of the author Stuart Robinson - 16/11/21
 
   This program is supplied as is, it is up to the user of the program to decide if the program is
   suitable for the intended purpose and free from errors.
@@ -1551,6 +1551,17 @@ void setup()
   pinMode(LED1, OUTPUT);                       //setup pin as output for indicator LED
   led_Flash(2, 125);                           //two quick LED flashes to indicate program start
   setDTLED(LED1);                              //setup LED pin for data transfer indicator
+
+  digitalWrite(DISPCS, HIGH);
+  pinMode(DISPCS, OUTPUT);                     //disable ILI9341 for now
+  digitalWrite(NSS, HIGH);
+  pinMode(NSS, OUTPUT);                        //disable LoRa device for now
+
+  if (TOUCHCS >= 0)
+  {
+    digitalWrite(TOUCHCS, HIGH);               //disable touch IC on ILI9341
+    pinMode(TOUCHCS, OUTPUT);
+  }
 
   Serial.begin(115200);
   Serial.println(__FILE__);
