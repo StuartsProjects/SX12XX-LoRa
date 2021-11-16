@@ -1555,9 +1555,14 @@ void setup()
   led_Flash(2, 125);                           //two quick LED flashes to indicate program start
   setDTLED(LED1);                              //setup LED pin for data transfer indicator
 
+  digitalWrite(DISPCS, HIGH);
+  pinMode(DISPCS, OUTPUT);                     //disable ILI9341 for now
+  digitalWrite(NSS, HIGH);
+  pinMode(NSS, OUTPUT);                        //disable LoRa device for now
+
   if (TOUCHCS >= 0)
   {
-    digitalWrite(TOUCHCS, HIGH);                 //disable touch IC on ILI9341
+    digitalWrite(TOUCHCS, HIGH);               //disable touch IC on ILI9341
     pinMode(TOUCHCS, OUTPUT);
   }
 
