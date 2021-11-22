@@ -205,7 +205,11 @@ class SX128XLT  {
     uint8_t waitACKDT(uint8_t *header, uint8_t headersize, uint32_t acktimeout);
     uint8_t receiveDT(uint8_t *header, uint8_t headersize, uint8_t *dataarray, uint8_t datasize, uint16_t networkID, uint32_t rxtimeout, uint8_t wait );
     uint8_t sendACKDT(uint8_t *header, uint8_t headersize, int8_t txpower);
-
+    
+    uint8_t transmitDTIRQ(uint8_t *header, uint8_t headersize, uint8_t *dataarray, uint8_t datasize, uint16_t networkID, uint32_t txtimeout, int8_t txpower, uint8_t wait);
+    uint8_t waitACKDTIRQ(uint8_t *header, uint8_t headersize, uint32_t acktimeout);
+    uint8_t receiveDTIRQ(uint8_t *header, uint8_t headersize, uint8_t *dataarray, uint8_t datasize, uint16_t networkID, uint32_t rxtimeout, uint8_t wait );
+    uint8_t sendACKDTIRQ(uint8_t *header, uint8_t headersize, int8_t txpower);
 
 
   private:
