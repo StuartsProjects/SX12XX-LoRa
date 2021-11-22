@@ -44,7 +44,8 @@ SX127XLT::SX127XLT()
 /* Formats for :begin
   1 original   > begin(int8_t pinNSS, int8_t pinNRESET, int8_t pinDIO0, int8_t pinDIO1, int8_t pinDIO2, uint8_t device);
   2 Simplified > begin(int8_t pinNSS, int8_t pinNRESET, int8_t pinDIO0, uint8_t device);
-  3 Bare minimum, no NRESET or DIO0 pins > begin(int8_t pinNSS, uint8_t device);
+  3 Simplified > begin(int8_t pinNSS, int8_t pinNRESET, uint8_t device);
+  4 Bare minimum, no NRESET or DIO0 pins > begin(int8_t pinNSS, uint8_t device);
 */
 
 
@@ -163,21 +164,67 @@ bool SX127XLT::begin(int8_t pinNSS, int8_t pinNRESET, int8_t pinDIO0, uint8_t de
 }
 
 
+bool SX127XLT::begin(int8_t pinNSS, int8_t pinNRESET, uint8_t device)
+{
+  //format 3 pins, simplified, no DIO0
+#ifdef SX127XDEBUG1
+  Serial.println(F("3 begin() "));
+#endif
+
+  //assign the passed pins to the class private variabled
+  _NSS = pinNSS;
+  _NRESET = pinNRESET;
+  _DIO0 = -1;                  //pin not used
+  _DIO1 = -1;                  //pin not used
+  _DIO2 = -1;                  //pin not used
+  _Device = device;            //device type needs to be assigned before reset
+  _TXDonePin = _DIO0;          //this is default pin for sensing TX done
+  _RXDonePin = _DIO0;          //this is default pin for sensing RX done
+  _ReliableConfig = 0;         //reliable config needs to start at 0
+
+  pinMode(_NSS, OUTPUT);
+  digitalWrite(_NSS, HIGH);
+  pinMode(_NRESET, OUTPUT);
+  digitalWrite(_NRESET, HIGH);
+
+  resetDevice();
+
+#ifdef SX127XDEBUGPINS
+  Serial.println(F("3 begin() "));
+  Serial.println(F("SX127XLT constructor instantiated successfully"));
+  Serial.print(F("NSS "));
+  Serial.println(_NSS);
+  Serial.print(F("NRESET "));
+  Serial.println(_NRESET);
+  Serial.print(F("DIO0 "));
+  Serial.println(_DIO0);
+#endif
+
+  if (checkDevice())
+  {
+    return true;
+  }
+
+  return false;
+}
+
+
+
 bool SX127XLT::begin(int8_t pinNSS, uint8_t device)
 {
-  //format 3 pins, no DIO0 or NRESET
+  //format 4 pins, simplified further, no DIO0 or NRESET
 #ifdef SX127XDEBUG1
-  Serial.println(F("3 begin()"));
+  Serial.println(F("4 begin()"));
 #endif
 
   _NSS = pinNSS;
-  _NRESET = -1;
-  _DIO0 = -1;
-  _DIO1 = -1;
-  _DIO2 = -1;
+  _NRESET = -1;                //pin not used
+  _DIO0 = -1;                  //pin not used
+  _DIO1 = -1;                  //pin not used
+  _DIO2 = -1;                  //pin not used
   _Device = device;            //device type needs to be assigned before reset
-  _TXDonePin = _DIO0;          //this is defalt pin for sensing TX done
-  _RXDonePin = _DIO0;          //this is defalt pin for sensing RX done
+  _TXDonePin = _DIO0;          //this is default pin for sensing TX done
+  _RXDonePin = _DIO0;          //this is default pin for sensing RX done
   _ReliableConfig = 0;         //reliable config needs to start at 0
 
   pinMode(_NSS, OUTPUT);
@@ -185,7 +232,7 @@ bool SX127XLT::begin(int8_t pinNSS, uint8_t device)
 
 
 #ifdef SX127XDEBUGPINS
-  Serial.println(F("3 begin()"));
+  Serial.println(F("4 begin()"));
   Serial.println(F("SX127XLT constructor instantiated successfully"));
   Serial.print(F("NSS "));
   Serial.println(_NSS);
