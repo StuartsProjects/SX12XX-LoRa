@@ -428,6 +428,13 @@ const uint16_t RNG_CALIB_1600[] = { 13100,  13160,  13220,  13280,  13340,  1340
 #define NoAutoACK 0x01                    //bit number set in _ReliableConfig when ACK is not used 
 
 
+//number of bits to use to match ranging slave address
+#define bits8   0x00
+#define bits16  0x40 
+#define bits24  0x80
+#define bits32  0xC0 
+
+
 /*
   MIT license
 
