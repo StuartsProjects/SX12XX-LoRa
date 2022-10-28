@@ -1,152 +1,80 @@
 /*******************************************************************************************************
-  Programs for Arduino - Copyright of the author Stuart Robinson - 04/06/20
+  Programs for Arduino - Copyright of the author Stuart Robinson - 09/04/22
 
   This program is supplied as is, it is up to the user of the program to decide if the program is
   suitable for the intended purpose and free from errors.
 *******************************************************************************************************/
 
-
 /*******************************************************************************************************
   Program Operation - This test program has been written to check that a connected SD card adapter, Micro
-  or standard, is functional. 
+  or standard, is functional. The code was tested on an Atmel ATMega328P and ATMega1284P and running the
+  SD card in SPI mode. For this test it is assumed there are no other SPI devices on the SPI bus. 
 
-  When the program runs it will attempts to create a file that is next in sequence to Log0000.txt, thus
-  if this is the first time the program has run on the SD card it will create file Log0001.txt. If the
-  file Log0001.txt exists it will create Log0002.txt etc. This ensures that everytime the program starts
-  it creates a new file for testing.
+  The program creates a file called LOGXXXX.TXT, where XXXX is a number that increases every time the
+  program is restarted. The program opens the file and writes a line like this to the file;
 
-  Next the program checks if the Logxxxx.txt file exists and if so attempts to delete it.
+  #1 Hello World!
 
-  Then the program starts a loop. First the same file is again opened for append, it will be created if it
-  does not exist and then the line '1 Hello World' is writtent to the file. The file is closed and the
-  contents of the file are dumped to the serial monitor. The loop restarts, and this time the line
-  '2 Hello World' is appended to the file.
+  The file is closed and the file contents are written to the IDE serial monitor and a directory of the
+  SD card printed too. The process repeats with #2 Hello World! being appended to the file next. The
+  directory listing allows you to keep track of the increasing size of the logFile. Problems with reading
+  or writing to the SD card should result in an ERROR message on the IDE serial monitor.
 
-  As the program progresses the file will grow in size and after 4 iterrations of the open,write,close
-  and dump loop the file dump on serial monitor will look like this
-
-  1 Hello World
-  2 Hello World
-  3 Hello World
-  4 Hello World
-
-  This file dump will grow if you let the program run. If an error with the SD card is detected at any
-  time the LED will rapid flash continuously and the message 'X Card failed, or not present' is printed
-  to serial monitor. The number X will allow you to check the program listing for where the error occured.
-  
-  1 Card failed = SD card did not initialise
-  2 Card failed = Could nt setup logFile for new name 
-  3 Card failed = Could not open file for append
-  4 Card failed = Failure to dump file to serial monitor
-
-  Serial monitor baud rate is set at 9600
+  Serial monitor baud rate is set at 115200
 *******************************************************************************************************/
-#define Program_Version "V1.1"
 
-
-#include <SD.h>
 #include <SPI.h>
+#include <SD.h>
 
+#define SDCS 4                                 //SD card select for SPI 
 
-#define LED1 8                          //pin number for LED
-#define SDCS  4                         //pin number for device select on SD card module
+char filename[] = "/LOG0000.TXT";               //filename used as base for creating root, 0000 replaced with numbers
+uint16_t linenumber = 0;
 
 File logFile;
-
-char filename[] = "/LOG0000.TXT";       //filename used as base for creating logfile, 0000 replaced with numbers
-
-uint16_t linecount;
 
 
 void loop()
 {
+  linenumber++;
+
+  Serial.print("Write to file > ");
+  Serial.print("#");
+  Serial.print(linenumber);
+  Serial.println(" Hello World!");
+
+  logFile = SD.open(filename, FILE_WRITE);
+  logFile.print("#");
+  logFile.print(linenumber);
+  logFile.println(" Hello World!");
+  logFile.close();
+  dumpFile(filename);
   Serial.println();
-  Serial.println("Initializing SD card");
-
-  if (!SD.begin(SDCS))
-  {
-    cardFail(1);
-  }
-
-  Serial.println("Card initialized");
 
   logFile = SD.open("/");
-  Serial.println("Card directory");
-  Serial.println();
+  logFile.rewindDirectory();
   printDirectory(logFile, 0);
+
   Serial.println();
-  Serial.println();
-
-  if (!setupSDLOG(filename))                            //setup logfile name for writing
-  {
-  cardFail(2);  
-  }
-  
-  Serial.print(F("logFile name is "));
-  Serial.println(filename);
-
-  if (SD.exists(filename))
-  {
-    Serial.print(filename);
-    Serial.println(" exists - delete");
-    SD.remove(filename);
-  }
-
-  if (!SD.exists(filename))
-  {
-    Serial.print(filename);
-    Serial.println(" does not exist");
-  }
-
-  while (1)
-  {
-    logFile = SD.open(filename, FILE_WRITE);
-
-    if (!logFile)
-    {
-      cardFail(3);
-    }
-
-    linecount++;
-    logFile.print(linecount);
-    logFile.println(" Hello World");
-    logFile.close();
-
-    Serial.println();
-    Serial.print("Dump file ");
-    Serial.println(filename);
-    Serial.println();
-
-    digitalWrite(LED1, HIGH);
-
-    if (dumpFile(filename))
-    {
-      Serial.println();
-      Serial.println("Finished File Dump");
-    }
-    else
-    {
-      cardFail(4);
-    }
-
-    digitalWrite(LED1, LOW);
-    delay(2000);
-  }
+  delay(1500);
 }
 
 
 void printDirectory(File dir, int numTabs)
 {
+  Serial.println("Card directory");
+
   while (true)
   {
-
     File entry =  dir.openNextFile();
     if (! entry)
     {
-      //no more files
+      // no more files
       break;
     }
-    for (uint8_t i = 0; i < numTabs; i++) {
+
+    for (uint8_t i = 0; i < numTabs; i++)
+    {
       Serial.print('\t');
     }
     Serial.print(entry.name());
@@ -157,7 +85,7 @@ void printDirectory(File dir, int numTabs)
     }
     else
     {
-      //files have sizes, directories do not
+      // files have sizes, directories do not
       Serial.print("\t\t");
       Serial.println(entry.size(), DEC);
     }
@@ -166,22 +94,25 @@ void printDirectory(File dir, int numTabs)
 }
 
 
-bool dumpFile(char *buf)
+bool dumpFile(char *buff)
 {
-  
-  if (SD.exists(buf))
+  Serial.print("Print file ");
+
+  if (SD.exists(buff))
   {
-  Serial.print(buf);
-  Serial.println(" found");  
+    Serial.println(buff);
   }
   else
   {
-  Serial.print(filename);
-  Serial.println(" not found");
-  return false;  
+    Serial.print("ERROR ");
+    Serial.print(buff);
+    Serial.println(" not found - program halted");
+    while (1);
+    //return false;
   }
-    
-  logFile = SD.open(buf);
+
+  logFile = SD.open(buff);
+  logFile.seek(0);
 
   if (logFile)                                    //if the file is available, read from it
   {
@@ -192,76 +123,73 @@ bool dumpFile(char *buf)
     logFile.close();
     return true;
   }
-
-  return false;
+  else
+  {
+  Serial.print("ERROR ");
+  Serial.println(" dumping file ");
+  Serial.print(buff);
+  Serial.println(" - program halted");
+  while (1);
+  //return false;
+  }
 }
 
 
-uint8_t setupSDLOG(char *buf)
+uint8_t setupSDLOG(char *buff)
 {
   //creats a new filename
 
   uint16_t index;
 
-  for (index = 1; index <= 9999; index++) {
-    buf[4] = index / 1000 + '0';
-    buf[5] = ((index % 1000) / 100) + '0';
-    buf[6] = ((index % 100) / 10) + '0';
-    buf[7] = index % 10 + '0' ;
-    if (! SD.exists(filename)) {
+  File dir;
+
+  for (index = 1; index <= 9999; index++)
+  {
+    buff[4] = index / 1000 + '0';
+    buff[5] = ((index % 1000) / 100) + '0';
+    buff[6] = ((index % 100) / 10) + '0';
+    buff[7] = index % 10 + '0' ;
+
+    if (! SD.exists(filename))
+    {
       // only open a new file if it doesn't exist
-      logFile = SD.open(buf, FILE_WRITE);
+      dir = SD.open(buff, FILE_WRITE);
       break;
     }
   }
 
-  if (!logFile)
+  dir.rewindDirectory();                          //stops SD.exists() command causing issues with directory listings
+  dir.close();
+
+  if (!dir)
   {
     return 0;
   }
-
-  return index;                                   //return number of logfile created
+  return index;                                   //return number of root created
 }
 
-
-void cardFail(uint8_t num)
-{
-  while (1)
-  {
-    Serial.print(num);                                //so we can tell where card failed
-    Serial.println(" Card failed, or not present");
-    led_Flash(100, 25);
-  }
-}
-
-
-void led_Flash(unsigned int flashes, unsigned int delaymS)
-{
-  unsigned int index;
-
-  for (index = 1; index <= flashes; index++)
-  {
-    digitalWrite(LED1, HIGH);
-    delay(delaymS);
-    digitalWrite(LED1, LOW);
-    delay(delaymS);
-  }
-}
 
 
 void setup()
 {
-  pinMode(LED1, OUTPUT);                                //for PCB LED
-  led_Flash(4, 125);
+  Serial.begin(115200);
+  Serial.println();
+  Serial.println();
+  Serial.print(__FILE__);
+  Serial.println();
 
-  Serial.begin(9600);
-  Serial.println();
-  Serial.print(F(__TIME__));
-  Serial.print(F(" "));
-  Serial.println(F(__DATE__));
-  Serial.println(F(Program_Version));
-  Serial.println();
-  Serial.println(F("43_SD_Card_Test Starting"));
+  SPI.begin();
+
+  if (!SD.begin(SDCS))
+  {
+    Serial.println();
+    Serial.println("ERROR Card Mount Failed - program halted");
+    Serial.println();
+    while (1);
+  }
+
+  Serial.println("Card Mount OK");
+
+  logFile = SD.open("/");
+  setupSDLOG(filename);
 }
-
-

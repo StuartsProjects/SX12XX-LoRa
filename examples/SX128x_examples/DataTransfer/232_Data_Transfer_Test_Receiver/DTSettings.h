@@ -1,11 +1,9 @@
 /*******************************************************************************************************
-  Programs for Arduino - Copyright of the author Stuart Robinson - 09/11/21
+  Programs for Arduino - Copyright of the author Stuart Robinson - 12/03/22
 
   This program is supplied as is, it is up to the user of the program to decide if the program is
   suitable for the intended purpose and free from errors.
 *******************************************************************************************************/
-
-
 #define NSS 10                                  //select pin on LoRa device
 #define NRESET 9                                //reset pin on LoRa device
 #define RFBUSY 7                                //RFBUSY pin on LoRa device
@@ -15,14 +13,16 @@
 #define LORA_DEVICE DEVICE_SX1280               //this is the device we are using
 
 
-const uint32_t Frequency = 2445000000;          //frequency of transmissions
-const uint32_t Offset = 0;                      //offset frequency for calibration purposes
-const int8_t  TXpower = 10;                     //LoRa transmit power
+//*******  Setup LoRa Test Parameters Here ! ***************
+
+const uint32_t Frequency = 2445000000;                     //frequency of transmissions
+const uint32_t Offset = 0;                                 //offset frequency for calibration purposes
+const int8_t  TXpower = 10;                                //LoRa transmit power
 
 //*******  Setup LoRa modem parameters here ! ***************
-const uint8_t Bandwidth = LORA_BW_1600;         //LoRa bandwidth
-const uint8_t SpreadingFactor = LORA_SF5;       //LoRa spreading factor
-const uint8_t CodeRate = LORA_CR_4_5;           //LoRa coding rate
+const uint8_t Bandwidth = LORA_BW_1600;                    //LoRa bandwidth
+const uint8_t SpreadingFactor = LORA_SF5;                  //LoRa spreading factor
+const uint8_t CodeRate = LORA_CR_4_5;                      //LoRa coding rate
 
 //*******  Setup FLRC modem parameters here ! ***************
 const uint8_t BandwidthBitRate = FLRC_BR_1_300_BW_1_2;     //FLRC bandwidth and bit rate, 1.3Mbs
@@ -50,5 +50,11 @@ const uint16_t NetworkID = 0x3210;              //a unique identifier to go out 
 const uint8_t DTSendAttempts = 10;              //number of attempts sending a packet before a restart
 
 const uint32_t DTFileSize = 65535;              //size of file to simulate
-const uint8_t DTSegmentSize = 117;              //number of bytes in each segment, 117 is maximum value for FLRC
-//const uint8_t DTSegmentSize = 245;            //number of bytes in each segment, 245 is maximum value for LoRa
+
+#ifdef USELORA
+  const uint8_t DTSegmentSize = 245;            //number of bytes in each segment 245 is maximum value for LoRa
+#endif
+
+#ifdef USEFLRC
+  const uint8_t DTSegmentSize = 117;            //number of bytes in each segment 117 is maximum value for FLRC
+#endif

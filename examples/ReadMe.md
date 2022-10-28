@@ -1,9 +1,11 @@
 ## SX12XX Library Example Programs
 
 
-For the majority of the program examples you will need to define the pins used, the frequency and the LoRa settings in the Settings.h file. The default provided settings may not be optimised for long distance. See the 'What is LoRa' document for information on how LoRa settings affect range. 
+For the majority of the program examples you will need to define the pins used plus the frequency and the LoRa settings used in the Settings.h file. The default provided settings may not be optimised for long distance. See the 'What is LoRa' document for information on how LoRa settings affect range. 
 
-Some of the examples use sleep mode on the processor and LoRa device to save power. Typical sleep currents may be mentioned in the description of the program. In most all cases a 'bare bones' Arduino has been used to measure the sleep currents and you may not get even close to the quoted figures using standard Arduinos such as Pro Minis or similar. Optimising particular Arduino boards for low power sleep is outside of the scope of this library and examples.  
+Some of the examples use sleep mode on the processor and LoRa device to save power. Typical sleep currents may be mentioned in the description of the program. In most all cases a 'bare bones' Atmel based Arduino has been used to measure the sleep currents and you may not get even close to the quoted figures using standard Arduinos such as Pro Minis or similar. Optimising particular Arduino boards for low power sleep is outside of the scope of this library and examples.
+
+  
 
 
 #### 1\_LED\_Blink &emsp; &emsp; &emsp;  &emsp; &emsp; &emsp; (Basics folder)
@@ -41,8 +43,6 @@ The program checks that a lora device can be accessed by doing a test register w
 	0x50  14 00 00 10 00 00 00 0F E0 00 0C 04 06 00 5C 78 
 	0x60  00 19 0C 4B CC 0D FD 20 04 47 AF 3F F2 3F D9 0B 
 	0x70  D0 01 10 00 00 00 00 00 00 00 00 00 00 00 00 00 
-
-
 
 
 #### 3\_LoRa\_Transmitter &emsp; &emsp; &emsp;  &emsp; &emsp; &emsp; (Basics folder)

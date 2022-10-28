@@ -51,7 +51,6 @@ SX128XLT LT;                                    //create a library class instanc
 #define ACKtimeout 1000                         //Acknowledge timeout in mS                      
 #define TXtimeout 1000                          //transmit timeout in mS. If 0 return from transmit function after send.  
 
-uint8_t buff[] = "Hello World";                 //the payload to send
 uint16_t PayloadCRC;                            //CRC of the payload
 uint8_t TXPacketL;                              //length of transmitted packet
 uint8_t TXPayloadL;                             //this is the payload length sent
@@ -151,7 +150,7 @@ void setup()
     while (1);
   }
 
-  LT.setupLoRa(2445000000, 0, LORA_SF7, LORA_BW_0400, LORA_CR_4_5); //configure frequency and LoRa settings
+  LT.setupLoRa(2445000000, 0, LORA_SF5, LORA_BW_1600, LORA_CR_4_5); //configure frequency and LoRa settings
 
   Serial.println(F("Transmitter ready"));
   Serial.println();

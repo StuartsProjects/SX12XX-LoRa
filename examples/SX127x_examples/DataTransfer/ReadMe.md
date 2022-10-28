@@ -38,7 +38,7 @@ The transfer could be organised in such a way that the segment  transmissions we
 
 The overhead of the send and ack process used is not that significant,   using Arduino DUEs and LoRa settings of SF7 and bandwidth 500khz, the 63091 byte $50SATL.JPG file took 29.9 seconds to transfer.
 
-Examples **236\_SDfile\_Transfer\_TransmitterIRQ.ino** and **237\_SDfile\_Transfer\_ReceiverIRQ.ino** perform the same function as example programs 233 and 234 respectively. The difference is that examples 235 and 236 do not require the connection of micro controller IO pins to DIO0 and NRESET on the SX127x. Instead of reading DIO0 to detect TXdone or RXdone the IRQ register of the SX128x is read for the same information.
+Examples **236\_SDfile\_Transfer\_TransmitterIRQ.ino** and **237\_SDfile\_Transfer\_ReceiverIRQ.ino** perform the same function as example programs 233 and 234 respectively. The difference is that examples 235 and 236 do not require the connection of micro controller IO pins to DIO0 and NRESET on the SX127x. Instead of reading DIO0 to detect TXdone or RXdone the IRQ register of the SX127 is read for the same information.
 
 ## Transfer a memory array
 

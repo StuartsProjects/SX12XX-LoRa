@@ -1,13 +1,14 @@
 /*******************************************************************************************************
-  Programs for Arduino - Copyright of the author Stuart Robinson - 29/12/20
+  Programs for Arduino - Copyright of the author Stuart Robinson - 03/04/22
   This program is supplied as is, it is up to the user of the program to decide if the program is
   suitable for the intended purpose and free from errors.
 *******************************************************************************************************/
 
 /*******************************************************************************************************
   Program Operation - This is a LoRa tracker receiver intended to be used with the matching high altitude
-  balloon (HAB) tracker program '67_Balloon_Tracker_Transmitter'. The program receives a standard format
-  payload with LoRa that is compatible with the HABHUB online tracking system.
+  balloon (HAB) tracker program '67_Balloon_Tracker_Transmitter' or 'Balloon_Tracker_Transmitter_HAB2'.
+  The program receives a standard format payload with LoRa that is compatible with the HABHUB online
+  tracking system.
 
   The HAB payload sent by the tracker transmitter is assumed to be formatted like this;
 
@@ -23,11 +24,11 @@
   There is the option to enable an audio FSK RTTY uplaod into FLDIGI from where it can be sent to the HABHUB
   online tracking system.
 
-  The program will drive a SSD1306 or SH1106 OLED display for portable use. 
+  The program will drive a SSD1306 or SH1106 OLED display for portable use.
 
   Not that the distance and direction to the tracker is only displayed when there has been at least one location
-  fix from the remote tracker and the locally attached GPS has a fix. 
-  
+  fix from the remote tracker and the locally attached GPS has a fix.
+
   Serial monitor baud rate is set at 9600.
 
   ToDo:
@@ -54,8 +55,8 @@ TinyGPSPlus gps;                                            //create the TinyGPS
 
 #ifdef USESOFTSERIALGPS
 //#include <NeoSWSerial.h>                       //https://github.com/SlashDevin/NeoSWSerial
-//NeoSWSerial GPSserial(RXpin, TXpin);           //The NeoSWSerial library is an option to use and is more reliable 
-                                                 //at GPS init than software serial 
+//NeoSWSerial GPSserial(RXpin, TXpin);           //The NeoSWSerial library is an option to use and is more reliable
+//at GPS init than software serial
 #include <SoftwareSerial.h>
 SoftwareSerial GPSserial(RXpin, TXpin);
 #endif
@@ -64,7 +65,7 @@ SoftwareSerial GPSserial(RXpin, TXpin);
 #define GPSserial HARDWARESERIALPORT
 #endif
 
-#ifdef UPLOADHABPACKET                             
+#ifdef UPLOADHABPACKET
 #include <AFSKRTTY2.h>                            //this library supports Arduinos without tone functions                            
 #endif
 
@@ -94,7 +95,7 @@ uint32_t RXpacketCount;           //count of received packets
 uint8_t RXPacketL;                //length of received packet
 int16_t PacketRSSI;               //signal strength (RSSI) dBm of received packet
 int8_t  PacketSNR;                //signal to noise ratio (SNR) dB of received packet
-uint16_t RXerrors;                //count of packets received with errors         
+uint16_t RXerrors;                //count of packets received with errors
 uint8_t PacketType;               //for packet addressing, identifies packet type
 uint8_t Destination;              //for packet addressing, identifies the destination (receiving) node
 uint8_t Source;                   //for packet addressing, identifies the source (transmiting) node
@@ -140,7 +141,7 @@ void loop()
     RXPacketL = LT.readRXPacketL();
     PacketRSSI = LT.readPacketRSSI();
     PacketSNR = LT.readPacketSNR();
-    
+
     Serial.println();
     printElapsedTime();                           //print elapsed time to Serial Monitor
 
@@ -176,7 +177,7 @@ void readGPS()
     {
       displayscreen1();                                   //shows the received location data and packet reception on display
       displayscreen3();                                   //show receive mode on display
-      displayscreen4();                                   //put RX and TX GPS fix status on display 
+      displayscreen4();                                   //put RX and TX GPS fix status on display
     }
   }
 
@@ -187,7 +188,7 @@ void readGPS()
     RXLon = gps.location.lng();
     RXAlt = gps.altitude.meters();
     LastRXGPSfixCheck = millis();
-    displayscreen4();                                     //put RX and TX GPS fix status on display 
+    displayscreen4();                                     //put RX and TX GPS fix status on display
 
     if (FixCount == 1)                                    //update screen when FIXcoount counts down from DisplayRate to 1
     {
@@ -197,8 +198,8 @@ void readGPS()
         doDistanceDirectionCalc();
         displayscreen1();                                 //shows the received location data and packet reception on display
         displayscreen3();                                 //show receive mode on display
-        displayscreen4();                                 //put RX and TX GPS fix status on display 
-        displayscreen5();                                 //put distance and direction on display   
+        displayscreen4();                                 //put RX and TX GPS fix status on display
+        displayscreen5();                                 //put distance and direction on display
         printDistanceDirection();
       }
     }
@@ -274,7 +275,7 @@ void packet_is_OK()
     Serial.print(F("mV"));
     displayscreen2();
     displayscreen3();                                   //show receive mode on display
-    displayscreen4();                                   //put RX and TX GPS fix status on display                                                                   
+    displayscreen4();                                   //put RX and TX GPS fix status on display
     displayscreen7();                                   //display received packet count
     return;
   }
@@ -315,11 +316,11 @@ void packet_is_OK()
     Serial.println();
 
     displayscreen1();                       //shows the received location data and packet reception on display
-    displayscreen3();                       //show receive mode on display  
-    displayscreen4();                       //put RX and TX GPS fix status on display 
-    displayscreen5();                       //put distance and direction on display 
+    displayscreen3();                       //show receive mode on display
+    displayscreen4();                       //put RX and TX GPS fix status on display
+    displayscreen5();                       //put distance and direction on display
     printDistanceDirection();
-  
+
 #ifdef UPLOADHABPACKET
     if (actualCRC == includedCRC)
     {
@@ -344,7 +345,7 @@ void packet_is_OK()
     TXAlt = LT.readInt16();
     TXStatus = LT.readUint8();
     RXPacketL = LT.endReadSXBuffer();
-    
+
     Serial.write(PacketType);
     Serial.write(Destination);
     Serial.write(Source);
@@ -398,20 +399,23 @@ void packet_is_OK()
   printmorepacketDetails();
 }
 
-#ifdef UPLOADHABPACKET 
+#ifdef UPLOADHABPACKET
 void uploadHABpacket()
 {
   uint8_t index;
   uint8_t chartosend;
 
-  Serial.print(F("Dl-Fldigi Upload $"));
+  Serial.print(F("Dl-Fldigi Upload "));
   Serial.flush();
 
   startAFSKRTTY(AUDIOOUT, CHECK, LOWCYCLES, LOWPERIODUS, HIGHCYCLES, HIGHPERIODUS, ADJUSTUS, leadinmS);
   sendAFSKRTTY(13);
   sendAFSKRTTY(10);
   sendAFSKRTTY('$');
-  
+  sendAFSKRTTY('$');
+  sendAFSKRTTY('$');
+  sendAFSKRTTY('$');
+
   for (index = 0; index <= (RXPacketL - 1); index++)
   {
     chartosend = LT.getByteSXBuffer(index);
@@ -477,11 +481,11 @@ void printDistanceDirection()
 {
   if (RXGPSfix && TXLocation)                          //only display distance and direction if have received tracker packet and have local GPS fix
   {
-  Serial.print(F("Distance,"));
-  Serial.print(TXdistance, 0);
-  Serial.print(F("m,Direction,"));
-  Serial.print(TXdirection);
-  Serial.println(F("d"));
+    Serial.print(F("Distance,"));
+    Serial.print(TXdistance, 0);
+    Serial.print(F("m,Direction,"));
+    Serial.print(TXdirection);
+    Serial.println(F("d"));
   }
 }
 
@@ -922,13 +926,13 @@ void displayscreen5()
   //put distance and direction on display
   if (RXGPSfix && TXLocation)             //only display distance and direction if have received tracker packet and have local GPS fix
   {
-  disp.clearLine(7);
-  disp.setCursor(0, 7);
-  disp.print(F("D&D "));
-  disp.print(TXdistance, 0);
-  disp.print(F("m "));
-  disp.print(TXdirection);
-  disp.print(F("d"));
+    disp.clearLine(7);
+    disp.setCursor(0, 7);
+    disp.print(F("D&D "));
+    disp.print(TXdistance, 0);
+    disp.print(F("m "));
+    disp.print(TXdirection);
+    disp.print(F("d"));
   }
 }
 
@@ -961,7 +965,7 @@ void GPSTest()
   {
     if (GPSserial.available() > 0)
     {
-     Serial.write(GPSserial.read());
+      Serial.write(GPSserial.read());
     }
   }
   Serial.println();
@@ -1023,7 +1027,7 @@ void setup()
 
   GPSPowerOn(GPSPOWER, GPSONSTATE);
   GPSserial.begin(GPSBaud);
-    
+
   Serial.println();
 
   Serial.println(F("Startup GPS check"));
@@ -1036,7 +1040,7 @@ void setup()
 
   setTrackerMode();
   displayscreen3();                                                     //show receive mode on display
-  displayscreen4();                                                     //put RX and TX GPS fix status on display 
+  displayscreen4();                                                     //put RX and TX GPS fix status on display
 
   LT.printModemSettings();
   Serial.println();

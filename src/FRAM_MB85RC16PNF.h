@@ -295,7 +295,7 @@ int32_t readMemoryInt32(uint16_t addr)
 
   for (index = 0; index < 4; index++)
   {
-    val = Wire.read();          // read the uint8_t
+    val = Wire.read();
     readdata.b[index] = val;
   }
 
@@ -322,7 +322,7 @@ uint32_t readMemoryUint32(uint16_t addr)
 
   for (index = 0; index < 4; index++)
   {
-    val = Wire.read();          // read the uint8_t
+    val = Wire.read();
     readdata.b[index] = val;
   }
 
@@ -351,7 +351,7 @@ float readMemoryFloat(uint16_t addr)
 
   for (index = 0; index < 4; index++)
   {
-    val = Wire.read();          // read the uint8_t
+    val = Wire.read();
     readdata.b[index] = val;
   }
   return readdata.f;

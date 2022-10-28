@@ -9,6 +9,16 @@
 */
 
 
+/*
+****************************************************************************
+  To Do:
+
+
+****************************************************************************
+*/
+
+
+
 #ifndef SX127XLT_h
 #define SX127XLT_h
 
@@ -33,7 +43,7 @@ class SX127XLT
     bool checkDevice();
     void wake();
     void calibrateImage(uint8_t null);
-    uint16_t CRCCCITT(uint8_t *buffer, uint16_t size, uint16_t startvalue);
+    uint16_t CRCCCITT(uint8_t *buffer, uint32_t size, uint16_t startvalue);
     uint16_t CRCCCITTSX(uint8_t startadd, uint8_t endadd, uint16_t startvalue);
     void setDevice(uint8_t type);
     void printDevice();

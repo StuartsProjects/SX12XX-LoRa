@@ -29,13 +29,6 @@
 //#define SX127XDEBUGRELIABLE        //enable for debugging reliable and data transfer (DT) packets
 
 
-/***********************************************
-  Minor Changes
-  160721 Change to uint8_t readBuffer(uint8_t *rxbuffer, uint8_t size), stop overflowing buffer end
-  160721 Change to uint8_t readBuffer(uint8_t *rxbuffer, uint8_t size), stop overflowing buffer end
-************************************************/
-
-
 SX127XLT::SX127XLT()
 {
 
@@ -111,7 +104,6 @@ bool SX127XLT::begin(int8_t pinNSS, int8_t pinNRESET, int8_t pinDIO0, int8_t pin
 
   return false;
 }
-
 
 
 bool SX127XLT::begin(int8_t pinNSS, int8_t pinNRESET, int8_t pinDIO0, uint8_t device)
@@ -207,7 +199,6 @@ bool SX127XLT::begin(int8_t pinNSS, int8_t pinNRESET, uint8_t device)
 
   return false;
 }
-
 
 
 bool SX127XLT::begin(int8_t pinNSS, uint8_t device)
@@ -388,7 +379,7 @@ void SX127XLT::printRegister(uint8_t reg)
 }
 
 
-uint16_t SX127XLT::CRCCCITT(uint8_t *buffer, uint16_t size, uint16_t startvalue)
+uint16_t SX127XLT::CRCCCITT(uint8_t *buffer, uint32_t size, uint16_t startvalue)
 {
 #ifdef SX127XDEBUG1
   Serial.println(F("CRCCCITT() "));
@@ -789,7 +780,7 @@ void SX127XLT::setTxParams(int8_t txPower, uint8_t rampTime)
     boostval = PABOOSTON;
     MaxPower = MAXPOWER17dBm;
 
-    if (txPower > 20)                      //upper power limit for
+    if (txPower > 20)                      //upper power limit for SX127X
     {
       txPower = 20;
     }
@@ -2215,8 +2206,7 @@ uint8_t SX127XLT::receive(uint8_t *rxbuffer, uint8_t size, uint32_t rxtimeout, u
   regdata = readRegister(REG_FIFORXBASEADDR);                              //retrieve the RXbase address pointer
   writeRegister(REG_FIFOADDRPTR, regdata);                                 //and save in FIFO access ptr
 
-  setDioIrqParams(IRQ_RADIO_ALL, (IRQ_RX_DONE), 0, 0);  //set for IRQ on RX done
-  //setDioIrqParams(IRQ_RADIO_ALL, (IRQ_RX_DONE + IRQ_HEADER_VALID), 0, 0);  //set for IRQ on RX done
+  setDioIrqParams(IRQ_RADIO_ALL, (IRQ_RX_DONE), 0, 0);                     //set for IRQ on RX done
   setRx(0);                                                                //no actual RX timeout in this function
 
   if (!wait)
@@ -2293,8 +2283,7 @@ uint8_t SX127XLT::receiveIRQ(uint8_t *rxbuffer, uint8_t size, uint32_t rxtimeout
   regdata = readRegister(REG_FIFORXBASEADDR);                              //retrieve the RXbase address pointer
   writeRegister(REG_FIFOADDRPTR, regdata);                                 //and save in FIFO access ptr
 
-  setDioIrqParams(IRQ_RADIO_ALL, (IRQ_RX_DONE), 0, 0);  //set for IRQ on RX done
-  //setDioIrqParams(IRQ_RADIO_ALL, (IRQ_RX_DONE + IRQ_HEADER_VALID), 0, 0);  //set for IRQ on RX done
+  setDioIrqParams(IRQ_RADIO_ALL, (IRQ_RX_DONE), 0, 0);                     //set for IRQ on RX done
   setRx(0);                                                                //no actual RX timeout in this function
 
   if (!wait)
@@ -3241,7 +3230,6 @@ uint8_t SX127XLT::transmitSXBufferIRQ(uint8_t startaddr, uint8_t length, uint32_
 }
 
 
-
 void SX127XLT::printSXBufferHEX(uint8_t start, uint8_t end)
 {
 #ifdef SX127XDEBUG1
@@ -3808,7 +3796,6 @@ void SX127XLT::writeBufferChar(char *txbuffer)
 }
 
 
-
 uint8_t SX127XLT::readBuffer(uint8_t *rxbuffer)
 {
 #ifdef SX127XDEBUG1
@@ -3848,7 +3835,6 @@ uint8_t SX127XLT::readBuffer(uint8_t *rxbuffer, uint8_t size)
 
   return size;                           //return the actual size of the buffer
 }
-
 
 
 uint8_t SX127XLT::readBufferChar(char *rxbuffer)
@@ -5142,7 +5128,6 @@ uint8_t SX127XLT::waitReliableACK(uint16_t networkID, uint16_t payloadcrc, uint3
 }
 
 
-
 uint8_t SX127XLT::waitReliableACK(uint8_t *rxbuffer, uint8_t size, uint16_t networkID, uint16_t payloadcrc, uint32_t acktimeout)
 {
   //overloaded version of waitReliableACK() for use when ack contains payload data
@@ -5637,6 +5622,7 @@ uint8_t SX127XLT::transmitSXReliable(uint8_t startaddr, uint8_t length, uint16_t
   return _TXPacketL;
 }
 
+
 uint8_t SX127XLT::transmitSXReliableIRQ(uint8_t startaddr, uint8_t length, uint16_t networkID, uint32_t txtimeout, int8_t txpower, uint8_t wait)
 {
 #ifdef SX127XDEBUGRELIABLE
@@ -5944,7 +5930,6 @@ uint8_t SX127XLT::receiveSXReliableIRQ(uint8_t startaddr, uint16_t networkID, ui
 }
 
 
-
 uint8_t SX127XLT::receiveSXReliableAutoACK(uint8_t startaddr, uint16_t networkID, uint32_t ackdelay, int8_t txpower, uint32_t rxtimeout, uint8_t wait )
 {
 #ifdef SX127XDEBUGRELIABLE
@@ -6168,7 +6153,6 @@ uint8_t SX127XLT::waitSXReliableACK(uint8_t startaddr, uint16_t networkID, uint1
 }
 
 
-
 uint8_t SX127XLT::waitSXReliableACKIRQ(uint8_t startaddr, uint16_t networkID, uint16_t payloadcrc, uint32_t acktimeout)
 {
 
@@ -6213,8 +6197,6 @@ uint8_t SX127XLT::waitSXReliableACKIRQ(uint8_t startaddr, uint16_t networkID, ui
   bitSet(_ReliableErrors, ReliableACKError);
   return 0;
 }
-
-
 
 //*****************************************************************************************
 //Data Transfer functions - added September 2021 - TX and RX base addresses assumed to be 0

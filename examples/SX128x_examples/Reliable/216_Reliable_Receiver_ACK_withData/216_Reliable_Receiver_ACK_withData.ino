@@ -165,7 +165,7 @@ void setup()
     while (1);
   }
 
-  LT.setupLoRa(2445000000, 0, LORA_SF7, LORA_BW_0400, LORA_CR_4_5);      //configure frequency and LoRa settings
+  LT.setupLoRa(2445000000, 0, LORA_SF5, LORA_BW_1600, LORA_CR_4_5);      //configure frequency and LoRa settings
 
   Serial.println(F("Receiver ready"));
   Serial.println();

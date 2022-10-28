@@ -73,7 +73,7 @@ void loop()
   destinationNode = arrayReadUint16();
   outputNumber = arrayReadUint8();
   onoroff = arrayReadUint8();                    //0 for off, 1 for on
-  RXPayloadL = endarrayRW();                     //this function returns the length of the array decoded
+  RXPayloadL = endarrayRW() + 1;                 //this returns the number of array bytes read
 
   if (PacketOK > 0)
   {

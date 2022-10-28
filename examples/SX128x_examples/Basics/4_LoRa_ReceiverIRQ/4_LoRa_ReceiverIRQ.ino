@@ -10,9 +10,7 @@
   using the frequency and LoRa settings in the LT.setupLoRa() command. The pins to access the lora device
   need to be defined at the top of the program also.
 
-  This is a version of example 4_LoRa_Receiver.ino that does not require the use of the DIO1 pin to
-  check for transmit done. In addition no NRESET pin is needed either, so its a program for use with a
-  minimum pin count Arduino. Leave the DIO1 and NRESET pins on the LoRa device not connected.
+  This program does not need the DIO1 pin on the LoRa device connected.
 
   There is a printout on the Arduino IDE serial monitor of the valid packets received, the packet is assumed
   to be in ASCII printable text, if it's not ASCII text characters from 0x20 to 0x7F, expect weird things to

@@ -11,6 +11,8 @@
   "Hello World 1234567890" is sent using the frequency and LoRa settings specified in the LT.setupLoRa()
   command. The pins to access the lora device need to be defined at the top of the program also.
 
+  This program does not need the DIO1 pin on the LoRa device connected.
+
   The details of the packet sent and any errors are shown on the Arduino IDE Serial Monitor, together with
   the transmit power used and the packet length. The matching receiver program, '4_LoRa_Receiver' can be used
   to check the packets are being sent correctly, the frequency and LoRa settings (in the LT.setupLoRa()

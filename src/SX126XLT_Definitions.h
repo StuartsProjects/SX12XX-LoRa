@@ -2,12 +2,13 @@
   Copyright 2019 - Stuart Robinson
   Licensed under a MIT license displayed at the bottom of this document.
   17/12/19
+  Revised 24/03/22
 */
 
 
 #define XTAL_FREQ                                   32000000
 #define FREQ_DIV                                    33554432
-#define FREQ_STEP                                   0.95367431640625   
+#define FREQ_STEP                                   0.95367431640625
 #define FREQ_ERR                                    0.47683715820312
 #define FREQ_ERROR_CORRECTION                       1.55  //this was measured on SX1280 for bandwidth of 400khz
 
@@ -54,7 +55,7 @@
 #define BOOSTED_GAIN                                 0x96
 
 
-//radio operatine modes 
+//radio operatine modes
 #define MODE_SLEEP                                  0x07
 #define MODE_STDBY_RC                               0x00   //Device running on RC13M, set STDBY_RC mode 
 #define MODE_STDBY_XOSC                             0x01   //Device running on XTAL 32MHz, set STDBY_XOSC mode
@@ -64,20 +65,18 @@
 #define MODE_RX_DC                                  0x05   //RX duty cycle mode
 #define MODE_CAD                                    0x06   //RX CAD mode 
 
-
 //Sleep Mode Definition
 #define COLD_START 0x00
 #define WARM_START  0x04
 #define RTC_TIMEOUT_DISABLE  0x00
-#define RTC_TIMEOUT_ENABLE   0x01 
- 
+#define RTC_TIMEOUT_ENABLE   0x01
+
 #define USE_LDO                                     0x00   //default
 #define USE_DCDC                                    0x01
 
 #define    PACKET_TYPE_GFSK                         0x00
 #define    PACKET_TYPE_LORA                         0x01
 #define    PACKET_TYPE_NONE                         0x0F
-
 
 #define    RADIO_RAMP_10_US                         0x00
 #define    RADIO_RAMP_20_US                         0x01
@@ -123,7 +122,7 @@
 #define    LORA_CR_4_7                              0x03
 #define    LORA_CR_4_8                              0x04
 
-#define    WAIT_RX                                  0x01  
+#define    WAIT_RX                                  0x01
 #define    WAIT_TX                                  0x01
 #define    NO_WAIT                                  0x00
 
@@ -155,7 +154,6 @@
 #define    LORA_PACKET_FIXED_LENGTH                 0x01         //!< The packet is known on both sides no header included in the packet
 #define    LORA_PACKET_EXPLICIT                     LORA_PACKET_VARIABLE_LENGTH
 #define    LORA_PACKET_IMPLICIT                     LORA_PACKET_FIXED_LENGTH
-
 
 #define    LORA_CRC_ON                              0x01         //!< CRC activated
 #define    LORA_CRC_OFF                             0x00         //!< CRC not used
@@ -229,11 +227,9 @@
 #define    RADIO_SET_STOPRXTIMERONPREAMBLE          0x9F
 #define    RADIO_SET_LORASYMBTIMEOUT                0xA0
 
-
 //Table 13-2 SX126X Sleep modes
-#define CONFIGURATION_RETENTION 0x04 
+#define CONFIGURATION_RETENTION 0x04
 #define RTC_TIMEOUT_ENABLE 0x01
-
 
 #define  LDRO_OFF     0x00
 #define  LDRO_ON      0x01
@@ -260,15 +256,14 @@
 #define ALLDevices        0x7F                   //calibrate all devices 
 
 #define RC64K_CALIB_ERR   0x0001
-#define RC13M_CALIB_ERR   0x0002 
+#define RC13M_CALIB_ERR   0x0002
 #define PLL_CALIB_ERR     0x0004
 #define ADC_CALIB_ERR     0x0008
 #define IMG_CALIB_ERR     0x0010
 #define XOSC_START_ERR    0x0020
-#define PLL_LOCK_ERR      0x0040 
+#define PLL_LOCK_ERR      0x0040
 #define RFU               0x0080
 #define PA_RAMP_ERR       0x0100
-
 
 //SPI settings
 #define LTspeedMaximum  8000000
@@ -280,9 +275,26 @@
 #define ParityOdd 1
 #define ParityEven 2
 #define ParityZero 0xF0
-#define ParityOne  0xF1 
+#define ParityOne  0xF1
 
 #define ToneMinuS 52                     //timed constant for ATmega328P at 8Mhz with FM Tone delayus at 0, period for half loop
+
+//These are the bit numbers which when set indicate reliable errors, variable _ReliableErrors
+#define ReliableCRCError 0x00             //bit number set in _ReliableErrors when there is a reliable CRC missmatch
+#define ReliableIDError  0x01             //bit number set in _ReliableErrors when there is a NetworkID missmatch
+#define ReliableSizeError 0x02            //bit number set in _ReliableErrors when there is a size error for packet
+#define ReliableACKError 0x03             //bit number set in _ReliableErrors when there is a ACK error
+#define ReliableTimeout 0x04              //bit number set in _ReliableErrors when there is a timeout error
+#define SegmentSequenceError 0x05         //bit number set in _ReliableErrors when there is a segment sequence error
+#define FileError 0x06                    //bit number set in _ReliableErrors when there ia a file (SD) error
+
+//These are the bit numbers which when set indicate reliable status flags, variable _ReliableFlags
+#define ReliableACKSent 0x00              //bit number set in _ReliableFlags when there is a ACK sent
+#define ReliableACKReceived 0x01          //bit number set in _ReliableFlags when there is a ACK received
+
+//These are the bit numbers which when set indicate reliable configuration, variable _ReliableConfig
+#define NoReliableCRC 0x00                //bit number set in _ReliableConfig when reliable CRC is not used
+#define NoAutoACK 0x01                    //bit number set in _ReliableConfig when ACK is not used 
 
 
 /*
@@ -302,4 +314,3 @@
   CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
   DEALINGS IN THE SOFTWARE.
 */
-

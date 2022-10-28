@@ -18,7 +18,7 @@
 
   Before the actual data transmission starts you can send a series of marker pips which are short bursts 
   of up shifted carrier which will be heard as beeps in a correctly tuned receiver. These pips can aid
-  in setting the receiver decode frequemcy to match the transmission. on some LoRa devices, such as the SX127x
+  in setting the receiver decode frequency to match the transmission. On some LoRa devices, such as the SX127x
   series there can be considerable temperature induced frequency drift. This drift can be caused by outside
   temperature changes or the RF device self heating when transmit is turned on. The duration of the pips,
   the gaps between them and the period of leadin carrier before the data starts can all be set. To send no
@@ -191,4 +191,3 @@ void setup()
   Serial.print(F("Transmitter ready"));
   Serial.println();
 }
-

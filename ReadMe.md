@@ -1,25 +1,52 @@
 # SX12XX Library
 
-### Library installation
+This Arduino library supports the SX126x, SX127x and SX128x Semtech LoRa devices.
+
+Included is a wide range of functional example programs for using sensors, GPSs as trackers, displays, remote control and camera image transfer for Arducam or ESP32CAM. Other examples demonstrate transmitting FM tones, playing tunes, or sending FSK RTTY data. Link testing programs enable device performance and sensitivity to be measured. 
+
+A recent addition is the concept of 'Reliable' packets where the library functions automatically append a payload CRC and network ID to each packet. This means the receiver can be very confident that the received packet is from a known source and in the correct sequence. Additionally the transmitter can require a valid acknowledge response from the receiver before it continues.  
+
+The reliable packets are used for the data transfer examples where LoRa can be used to reliably move images, files or arrays from one Arduino to another. These image or file transfers can also be forwarded from the Arduino to a folder on a PC via a local Serial YModem transfer. 
+
+There are  examples for the distance measuring or ranging functions of the SX128X, tested up to 85km. Fast Long Range Communication (FLRC) packets are also  supported on the SX128X and these packets have an on air rate of up to  1,300,000bps.  
+
+The Semtech LoRa devices are used to manufacture a range of LoRa modules sold by companies such as Hope, Dorji, NiceRF and others. The library does not support LoRa modules with a UART based interface such as those from Ebyte and Microchip.
+
+<form action="https://www.paypal.com/donate" method="post" target="_top">
+<input type="hidden" name="hosted_button_id" value="4EMBJU5C2UGNS" />
+<input type="image" src="https://www.paypalobjects.com/en_US/GB/i/btn/btn_donateCC_LG.gif" border="0" name="submit" title="PayPal - The safer, easier way to pay online!" alt="Donate with PayPal button" />
+<img alt="" border="0" src="https://www.paypal.com/en_GB/i/scr/pixel.gif" width="1" height="1" />
+</form>
+
+
+[![paypal](https://www.paypalobjects.com/en_US/i/btn/btn_donateCC_LG.gif)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=4EMBJU5C2UGNS)
+
+
+## Supported Devices
+
+The library does support the following Semtech LoRa devices; 
+
+**SX1262,SX1262,SX1268,SX1272,SX1276,SX1277,SX1278,SX1279,SX1280,SX1281**
+
+However, its up to module manufactures to connect the Semtech LoRa devices up as they see fit. There are several options and additional control pins that a module manufacturer can add, so just because a module uses for example an SX1262 it does not mean the library code can support that particular modules combination of pins. See the section 'Considerations for pin usage' below. 
+
+## Objectives
+
+The objective of the library was to allow the same program sketches to be used across the range of UHF LoRa modules (SX126x and SX127x) as well as the 2.4Ghz SX128x modules. With this library a sketch written for the SX1278 should run with very minor changes on the SX1262 or SX1280. However, whilst the SX126x and SX128x modules use the same style of internal device programming, the SX127x internal programming is completely different. The function style used for the SX126x and SX128x devices has been emulated for the SX127x.
+
+## SX12XX Library installation
 
 To install the library select the 'Clone or download' button on the main Github page, then select 'Download Zip'. In the Arduino IDE select 'Sketch' then 'Include Library'. Next select 'Add .ZIP library' and browse to and select the ZIP file you downloaded, it's called 'SX12xx-master.zip'.
 
-
 ### Warning
-**The Semtech devices that this library supports are all 3.3V logic level devices so do not use directly with 5V logic level Arduinos, some form of logic level conversion is needed.** There are no specific logic level converters I could recommend. 
 
-<a href="https://www.buymeacoffee.com/stuartsprojects"><img src="https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png" alt="Buy Me A Coffee" style="height: auto !important;width: auto !important;" ></a>
+**The base Semtech devices that this library supports are all 3.3V logic level devices and most available modules do not include logic level conversion circuits.  So do not use modules directly with 5V logic level Arduinos unless some form of logic level conversion is implemented.** There are no specific logic level converters I could recommend. 
 
-This library supports the SX126x, SX127x and SX128x Semtech LoRa devices. There is a wide range of example programs for these devices. These Semtech devices are used to manufacture a range of LoRa modules sold by companies such as Hope, Dorji, NiceRF and others. The library does not support LoRa modules with a UART based interface such as those from Ebyte and Microchip. 
+## Direct access to LoRa device internal data buffer
 
-The objective of the library was to allow the same program sketches to be used across the range of UHF lora modules SX126x and SX127x (UHF) as well as the 2.4Ghz SX128x modules. A sketch written for the SX1278 (for example) should then run with very minor changes on the SX1262 or SX1280. However, whilst the SX126x and SX128x modules use the same style of device programming, the SX127x programming is completely different. The function style used for the SX126x and SX128x devices has been copied to create a matching style for the SX127x.
-
-A conventional lora library normally uses a buffer of data created within the Arduino sketch to contain the data that is sent as a packet. This library has those functions, see the example programs 3 and 4 in the 'Basics' folder. There are examples for sending\receiving a simple character buffer ("Hello World") and for sending\receiving a data structure which can also include a character buffer. 
-
-
-###Direct access to lora device internal data buffer
+A conventional LoRa library normally uses a buffer of data created within the Arduino sketch to contain the data that is sent as a packet. This library has those functions, see the example programs 3 and 4 in the 'Basics' folder. There are examples for sending\receiving a simple character buffer ("Hello World") and for sending\receiving a data structure which can also include a character buffer.
  
-An additional library feature has been implemented to enable variables or character data to be written direct to the lora devices internal buffer. This has the benefit of not requiring a memory buffer in the Arduino and also lends itself to a simple way of sending and receiving packets. For instance this is the routine to create a packet for transmission taken from the 'LowMemory' folder;
+An additional library feature has been implemented to enable variables or character data to be written direct to the LoRa devices internal buffer. This has the benefit of not requiring a memory buffer in the Arduino and also lends itself to a simple way of sending and receiving packets. For instance this is the routine to create a packet for transmission taken from the /LowMemory examples folder;
 
 	LT.startWriteSXBuffer(0);                         //start the write at location 0
 	LT.writeBuffer(trackerID, sizeof(trackerID));     //= 13 bytes (12 characters plus null (0) at end)
@@ -48,28 +75,31 @@ This is the matching code for the receiver;
 
 Clearly as with other methods of sending data the order in which the packet data is created in the transmitter has to match the order that it is read in the receiver.
 
+## Considerations for pin usage
 
+Pins settings and usage must be set up either at the head of a program or in the the the 'Settings.h' file that is include in some sketch folders. Program **2\_Register\_Test** is an example of a sketch that does not use a 'Settings.h' file. 
+The library supports the SPI based LoRa modules and these all require that the SPI bus pins, SCK, MOSI and MISO are connected. All modules also need a NSS (chip select pin) and NRESET (reset) pin. In theory the NRESET pin can be omitted, but the programs would loose the ability to reset the device. All SX126X and SX128X devices need the RFBUSY pin to be used also. 
 
-###Considerations for pin usage
+Of the LoRa devices DIO pins the library in standard form only uses DIO0 (SX127X) and DIO1 (SX126X and SX128X). The pin definitions for DIO1 and DIO2 (SX127x) and DIO2 and DIO3 (SX126x and SX128x) are not currently used by the library or examples so can be defined as -1 meaning they will not be configured. There are 'IRQ' library functions that do not need the use of the DIO0 (SX127X) or DIO1 (SX126X and SX128X) pins. See examples such as 3_LoRa_TransmitterIRQ.
 
-Pins settings and usage must be set up the the 'Settings.h' file that is include in each sketch folder. Program **2\_Register\_Test** does not use a 'Settings.h' file however. 
+The Dorji DRF1262 and DRF1268 modules have an SW pin which must be connected, it provides power to the antenna switch used on these modules. 
 
-The library supports the SPI based LoRa modules and these all require that the SPI bus pins, SCK, MOSI and MISO are connected. All modules also need a NSS (chip select pin) and NRESET (reset) pin. In theory the NRESET pin could be omitted, but the programs would loose the ability to reset the device. All devices need the RFBUSY pin to be used also. 
+### SX126x modules with RX or TX enable pins
 
-Of the DIO pins the library in standard form only uses DIO0 (SX127X) and DIO1 (SX126X and SX128X). The pin definitions for DIO1 and DIO2 (SX127x) and DIO2 and DIO3 (SX126x and SX128x) are not currently used by the library or examples so can be defined as -1 meaning they will not be configured. 
+Some SX126x modules may have RX or TX enable pins, Ebyte E22 modules for instance. Whilst there is code in the SX126X library that was copied across from the SX128X library there were no SX126X devices using RX and TX switching available at the time this library was published, so these functions are currently not supported by the library as they have not been tested. If a user has SX126X modules that they want tested with the library, then donations of modules will be accepted.  
 
-The Dorji DRF1262 and DRF1268 modules has a SW pin which must be configured, it provides power to the antenna switch used on these modules. 
-Some SX126x modules may have RX or TX enable pins, these are currently not supported by the library. 
+### SX128x modules with RX or TX enable pins
 
-Some of the SX128x modules do have RX or TX enable pins, such as the Ebyte modules, these are supported by the library, and you need to define the pins RX_EN and TX_EN pins used, otherwise leave unused by defining them as -1.  
+Some of the SX128x modules may also have RX or TX enable pins, such as the Ebyte E28 modules. These functions have been tested and are supported for SX128x devices. You need to define the pins RX_EN and TX_EN pins used, otherwise leave unused by defining them as -1.  
 
-### Testing
-For testing the library and the example programs I used a board of my own design, it uses a 3.3V/8Mhz Arduino Pro Mini which is soldered with a minimum amount of other components onto a board to which you can plug in a LoRa device as a Mikrobus style module. The board is small enough to be used for a GPS tracker application using the connections for a GPS and display as shown in the picture. The Pro Mini used includes a supply reverse protection diode and a fuse, so the board does not need these components. See the [**Easy Pro Mini**](https://github.com/StuartsProjects/Devices/tree/master/Easy%20Pro%20Mini) folder for details. 
+## Testing of library and examples
+
+For testing the library and the example programs I used a board of my own design, which uses a 3.3V/8Mhz Arduino Pro Mini and has a socket where you can plug in a LoRa device as a Mikrobus style module. The board is small enough to be used for a GPS tracker application using the end connections for a GPS and display. See the [**Easy Pro Mini**](https://github.com/StuartsProjects/Devices/tree/master/Easy%20Pro%20Mini) folder for details. 
 <br>
   
-All example programs were checked against version 1.8.10 of the Arduino IDE, and the latest copies of any external libraries, as of 16/12/19. The operating system was Windows 10. 
+All example programs were checked against version 1.8.13 of the Arduino IDE. The operating system was Windows 10. 
 
-### Program examples
+## Program examples
 
 The Examples folder contains a number of practical working applications. There is an example for a very low sleep current sensor transmitter and matching receiver. There are examples for remote control of outputs and servos. There is a GPS tracker transmitter and receiver application. These applications utilise LoRa for the communications so even at low powers they can operate over several kilometres. 
 
@@ -83,10 +113,11 @@ The first program to test a layout and connections would be the Example program 
 
 With an example program written and tested on this SX127x library the example should work with some minor changes with the SX126x and SX128x devices. Many of the example programs have already been tested and are working on SX126x, conversion typically takes less than a minute. 
 
-There are still some issues to attend to and changes to be made, see the section 'Changes Required to Library' at the bottom of this document. 
+### External libraries in examples
 
+Some of the example sketches, in particular the camera and file transfer sketches use additional Arduino libraries. Some of these such as the SD libraries are part of the Arduino IDE, others you have to download and install. Most of these additional libraries are reliable, but some, such as the SD libraries are not. 
 
-# Library Functions
+## Library Functions
 
 All of the library functions are public and can be accessed from users sketches. 
 
@@ -114,18 +145,38 @@ The use of SPI.beginTransaction and SPI.endTransaction can be disabled by commen
 	#define USE_SPI_TRANSACTION        
 
 
-**begin(NSS, NRESET, DIO0, DIO1, DIO2, LORA\_DEVICE)** (SX127X library)
+**begin(NSS, NRESET, DIO0, LORA\_DEVICE)** (SX127X library)
 
-**begin(NSS, NRESET, RFBUSY, DIO1, DIO2, DIO3, SW, LORA\_DEVICE)**     (SX126X library)
+**begin(NSS, NRESET, RFBUSY, DIO1, LORA\_DEVICE)**     (SX126X library)
 
-**begin(NSS, NRESET, RFBUSY, DIO1, DIO2, DIO3, RX\_EN, TX\_EN, LORA\_DEVICE)**     (SX128X library)
+**begin(NSS, NRESET, RFBUSY, DIO1, LORA\_DEVICE)**     (SX128X library)
 
-The begin function initialises the hardware pins used by the device. The begin functions are slightly different for the SX127X, SX126X and SX128X libraries due to the different pins used. NSS, NRESET and DIO0 (SX127X) or DIO1 (SX126x and SX128X) are required, other DIOs are optional and when not used define as -1. The SX126X and SX128X devices have an RFBUSY pin. To ensure compatibility with Dorji SX1262 and SX1268 devices the SW pin needs to be defined. This pin turns on\off the antenna switch on Dorji devices. Set to -1 if not used. Some of the SX128X devices for example from eByte require TX and RX enable pins, set to -1 if your not using them.
+The basic begin functions initialises the minimal hardware pins used by the device. The begin functions are slightly different for the SX127X, SX126X and SX128X libraries due to the different pins used. NSS, NRESET and DIO0 (SX127X) or DIO1 (SX126x and SX128X) are required. 
 
-The library examples for the SX128x do use the long form of the begin command (begin(NSS, NRESET, RFBUSY, DIO1, DIO2, DIO3, RX\_EN, TX\_EN, LORA\_DEVICE) but if your device does not have TX and RX enable pins you can use the short form of the begin command;
+Other LoRa device pins can be used if you choose and the full list of begin functions is;
 
-**begin(NSS, NRESET, RFBUSY, DIO1, DIO2, DIO3, LORA\_DEVICE)**     (SX128X library)
 
+	SX126X
+	bool begin(int8_t pinNSS, int8_t pinNRESET, int8_t pinRFBUSY, int8_t pinDIO1, int8_t pinDIO2, int8_t pinDIO3, int8_t pinRXEN, int8_t pinTXEN, int8_t pinSW, uint8_t device);
+    bool begin(int8_t pinNSS, int8_t pinNRESET, int8_t pinRFBUSY, int8_t pinDIO1, uint8_t device);
+    bool begin(int8_t pinNSS, int8_t pinNRESET, int8_t pinRFBUSY, int8_t pinDIO1, int8_t pinSW, uint8_t device);
+    bool begin(int8_t pinNSS, int8_t pinNRESET, int8_t pinRFBUSY, int8_t pinDIO1, int8_t pinRXEN, int8_t pinTXEN, uint8_t device);
+    bool begin(int8_t pinNSS, int8_t pinNRESET, int8_t pinRFBUSY, uint8_t device);
+
+	SX127X    
+	bool begin(int8_t pinNSS, int8_t pinNRESET, int8_t pinDIO0, int8_t pinDIO1, int8_t pinDIO2, uint8_t device);
+    bool begin(int8_t pinNSS, int8_t pinNRESET, int8_t pinDIO0, uint8_t device);
+    bool begin(int8_t pinNSS, int8_t pinNRESET, uint8_t device);
+    bool begin(int8_t pinNSS, uint8_t device);
+
+	SX128X
+	bool begin(int8_t pinNSS, int8_t pinNRESET, int8_t pinRFBUSY, int8_t pinDIO1, int8_t pinDIO2, int8_t pinDIO3, int8_t pinRXEN, int8_t pinTXEN, uint8_t device);
+    bool begin(int8_t pinNSS, int8_t pinNRESET, int8_t pinRFBUSY, int8_t pinDIO1, uint8_t device);
+    bool begin(int8_t pinNSS, int8_t pinNRESET, int8_t pinRFBUSY, int8_t pinDIO1, int8_t pinRXEN, int8_t pinTXEN, uint8_t device);
+    bool begin(int8_t pinNSS, int8_t pinNRESET, int8_t pinRFBUSY, uint8_t device);
+    bool begin(int8_t pinNSS, int8_t pinRFBUSY, uint8_t device);
+
+ Some DIOs are optional and when not used define as -1. The SX126X and SX128X devices have an RFBUSY pin. To ensure compatibility with Dorji SX1262 and SX1268 devices the SW pin needs to be defined. This pin turns on\off the antenna switch on Dorji devices. Set to -1 if not used. Some of the SX128X devices for example from eByte require TX and RX enable pins, set to -1 if your not using them.
 
 **LoRA\_DEVICE** tells the library which actual LoRa RF IC is being used and in the case of the SX127x devices how the antenna is connected. The choices are for the SX127x part of the library are;
 
@@ -146,11 +197,11 @@ The library examples for the SX128x do use the long form of the begin command (b
 	DEVICE_SX1279_RFO
 
 
-Note that in the above list for the SXX127x part of the library only and there are new device types that allow the library to differentiate between devices that have the transmit output connected to the **PA\_BOOST** pin (which is the vast majority of SX127x devices) and those that use the **RFO LF\_ANT** or **RFO HF\_ANT** pins for RF output. These RFO connected devices are in the minority and are limited to 14dBm output. There is no library support for a SX1272 using the RFO outputs as I dont have one to test.
+Note that in the above list for the SX127x part of the library only and there are new device types that allow the library to differentiate between devices that have the transmit output connected to the **PA\_BOOST** pin (which is the vast majority of SX127x devices) and those that use the **RFO LF\_ANT** or **RFO HF\_ANT** pins for RF output. These RFO connected devices are in the minority and are limited to 14dBm output. There is no library support for a SX1272 using the RFO outputs as I dont have one to test.
 
 The old device types; DEVICE\_SX1272, DEVICE\_SX1276, DEVICE\_SX1277, DEVICE\_SX1278 and DEVICE\_SX1272 are retained for compatibility with old sketches and are the same device as those with the \_PABOOST identity.
 
-Devices using the PABOOST output can be set to power levels from 2dBm to 20dBm, and operation at 20dBm is limited to a 1% duty cycle. Divices using the RFO outputs can be set to power levels from 0dBm to 14dBm.  
+Devices using the PABOOST output can be set to power levels from 2dBm to 20dBm, and operation at 20dBm is limited to a 1% duty cycle. Devices using the RFO outputs can be set to power levels from 0dBm to 14dBm.  
 
 The device types for the SX126X and SX128X part of the library are;
 
@@ -413,24 +464,20 @@ T*2
 
 Which means there is a test packet (T) its been sent as a broadcast (*) and its from node 2.
 
-### Compatibility
+## Compatibility
 
-**Fully tested on 3.3V 8Mhz ATMega328P and ATMega1284P only**.
+**Library fully tested on 3.3V 8Mhz ATMega328P and ATMega1284P only**.
  
-It was not the intention to specifically support non-Atmel platforms with the library but several programs have been tested and work on an ESP32 WROOM board and an STM32 Xnucleo board. See the Readme for ESP32 and STM32 in the ESP32 and STM32 examples folders.
+It was not the intention of this library to specifically support the large number of non-Atmel platforms. The use of platform specific hardware functions such as timers or interrupts has been avoided in the libraries, so if a hardware platform supports standard SPI and a program compiles, it should work. There are library functions that use the millis() and micros() functions. Some example programs use SoftwareSerial which is not supported on all platforms. A few programs have been tested and work on ESP32 based boards and an STM32 Xnucleo board. See the Readme for ESP32 and STM32 in the ESP32 and STM32 examples folders.
 
 
-### Support
-The examples do work, so if for you they do not, assume there is a problem with how you have wired the modules or that your modules are faulty or that your Arduino set-up or LoRa module is faulty or unsupported. You are best placed to diagnose these issues. 
+## Support
 
-If you find a bug, or other error in the SX12xx library or examples, please let me know.
+The examples do work, so if for you they do not, assume there is a problem with how you have wired the modules or that your modules are faulty or that your Arduino set-up or LoRa module is faulty or unsupported. You are best placed to diagnose these issues. It is not practical for me to provide on-going technical support for programs that are not the library examples included. This also applies to external  libraries used in examples, if you have problems with these libraries, contact the authors for support. 
+
+If you find a bug, or other error in the SX12xx library or examples, and your using the ATMega328P and ATMega1284P platforms please let me know.
 
 
-### Future Changes and Enhancements to Library
-
-Add reliable packet send\receive code.
-
-Add file transfer to and from SD card code.
 
 <br>
 
@@ -438,5 +485,5 @@ Add file transfer to and from SD card code.
 
 ### Stuart Robinson
 
-### December 2020
+### March 2022
 

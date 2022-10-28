@@ -1,5 +1,5 @@
 /*******************************************************************************************************
-  Programs for Arduino - Copyright of the author Stuart Robinson - 16/12/19
+  Programs for Arduino - Copyright of the author Stuart Robinson - 16/10/22
 
   This program is supplied as is, it is up to the user of the program to decide if the program is
   suitable for the intended purpose and free from errors.
@@ -41,7 +41,7 @@
   Serial monitor baud rate is set at 9600.
 *******************************************************************************************************/
 
-#define Program_Version "V1.0"
+#define Program_Version "V1.1"
 
 #include <SPI.h>
 #include <SX127XLT.h>
@@ -58,8 +58,21 @@ void loop()
   Serial.println(F("Start Test Sequence"));
   Serial.print(TXpower);
   Serial.print(F("dBm "));
-  Serial.print(F("Start Packet> "));
+  Serial.println(F("Start Tones"));
 
+  //send FM marker tones so you can tell remotly when the sequnce starts, listen with a FM handheld
+  LT.setupDirect(Frequency, Offset);
+  digitalWrite(LED1, HIGH);
+  LT.toneFM(1000, 500, deviation, adjustfreq, TXtonepower);
+  digitalWrite(LED1, LOW);
+  delay(250);
+  digitalWrite(LED1, HIGH);
+  LT.toneFM(1000, 500, deviation, adjustfreq, TXtonepower);
+  digitalWrite(LED1, LOW);
+  delay(250);
+
+  Serial.print(F("Start Packet> "));
+  LT.setupLoRa(Frequency, Offset, SpreadingFactor, Bandwidth, CodeRate, Optimisation);
   SendTest1ModePacket();
 
   Serial.println();
@@ -263,4 +276,3 @@ void setup()
   Serial.println();
 
 }
-

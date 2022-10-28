@@ -15,8 +15,8 @@
 #define DIO0 3                                  //DIO0 on LoRa device, used for RX and TX done 
 
 #define GPSPOWER -1                             //Pin that controls power to GPS, set to -1 if not used
-#define GPSONSTATE HIGH                         //logic level to turn GPS on via pin GPSPOWER 
-#define GPSOFFSTATE LOW                         //logic level to turn GPS off via pin GPSPOWER 
+#define GPSONSTATE LOW                          //logic level to turn GPS on via pin GPSPOWER 
+#define GPSOFFSTATE HIGH                        //logic level to turn GPS off via pin GPSPOWER 
 
 #define RXpin A3                                //pin number for GPS RX input into Arduino - TX from GPS
 #define TXpin A2                                //pin number for GPS TX output from Arduino- RX into GPS
@@ -39,14 +39,14 @@ const float ADMultiplier = 10.0;                //multiplier for supply volts ca
 const uint32_t Frequency = 434000000;           //frequency of transmissions
 const uint32_t Offset = 0;                      //offset frequency for calibration purposes
 
-const uint8_t Bandwidth = LORA_BW_062;          //LoRa bandwidth
-const uint8_t SpreadingFactor = LORA_SF12;       //LoRa spreading factor
+const uint8_t Bandwidth = LORA_BW_125;          //LoRa bandwidth
+const uint8_t SpreadingFactor = LORA_SF7;       //LoRa spreading factor
 const uint8_t CodeRate = LORA_CR_4_5;           //LoRa coding rate
 const uint8_t Optimisation = LDRO_AUTO;         //low data rate optimisation setting
 
 const int8_t TXpower = 10;                       //LoRa TX power
 
-#define ThisNode 'T'                             //a character that identifies this tracker
+#define ThisNode '1'                             //a character that identifies this tracker
 
 //**************************************************************************************************
 // GPS Settings
@@ -61,5 +61,4 @@ const int8_t TXpower = 10;                       //LoRa TX power
 
 #define WaitGPSFixSeconds 30                     //time in seconds to wait for a new GPS fix 
 #define WaitFirstGPSFixSeconds 120               //time to seconds to wait for the first GPS fix at startup
-#define Sleepsecs 15                             //seconds between transmissions, this delay is used to set overall transmission cycle time
-
+#define Sleepsecs 1                              //seconds between transmissions, this delay is used to set overall transmission cycle time

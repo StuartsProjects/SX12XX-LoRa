@@ -29,9 +29,9 @@ const int32_t Offset = 0;                        //offset frequency in hz for ca
 const uint8_t Bandwidth = LORA_BW_0800;          //LoRa bandwidth
 const uint8_t SpreadingFactor = LORA_SF8;        //LoRa spreading factor
 const uint8_t CodeRate = LORA_CR_4_5;            //LoRa coding rate
-const uint16_t Calibration = 11350;              //Manual Ranging calibrarion value
+const uint16_t Calibration = 11350;              //Manual Ranging calibration value
 
 const int8_t TXpower = 10;                       //Transmit power used
-const uint32_t RangingAddress = 16;              //must match address in recever
+const uint32_t RangingAddress = 16;              //must match address in master
 
 const uint16_t  rangingRXTimeoutmS = 0xFFFF;     //ranging RX timeout in mS

@@ -45,7 +45,7 @@ Data Transfer packet Definitions
     DTSegmentWriteACK, Header Length 6
     Header
     Byte	Purpose
-    0	0xA0
+    0	0xA1
     1	Flags
     2	Header length
     3	Data  length
@@ -56,7 +56,7 @@ Data Transfer packet Definitions
     DTSegmentWriteACK, Header Length 6
     Header
     Byte	Purpose
-    0	0xA0
+    0	0xA2
     1	Flags
     2	Header length
     3	Data  length
@@ -68,7 +68,7 @@ Data Transfer packet Definitions
     DTFileOpen, Header Length 12, Data length Max, 239
     Header
     Byte	Purpose
-    0	0xA0
+    0	0xA4
     1	Flags
     2	Header length
     3	Data  length
@@ -90,7 +90,7 @@ Data Transfer packet Definitions
     DTFileOpenACK, Header Length 12
     Header
     Byte	Purpose
-    0	0xA0
+    0	0xA5
     1	Flags
     2	Header length
     3	Data  length
@@ -107,7 +107,7 @@ Data Transfer packet Definitions
     DTFileOpenNACK, Header Length 12
     Header
     Byte	Purpose
-    0	0xA0
+    0	0xA6
     1	Flags
     2	Header length
     3	Data  length
@@ -125,7 +125,7 @@ Data Transfer packet Definitions
     DTFileClose, Header Length 12, Data length Max, 239
     Header
     Byte	Purpose
-    0	0xA0
+    0	0xA8
     1	Flags
     2	Header length
     3	Data  length
@@ -147,7 +147,7 @@ Data Transfer packet Definitions
     DTFileCloseACK, Header Length 12
     Header
     Byte	Purpose
-    0	0xA0
+    0	0xA9
     1	Flags
     2	Header length
     3	Data  length
@@ -164,7 +164,7 @@ Data Transfer packet Definitions
     DTFileCloseNACK, Header Length 12
     Header
     Byte	Purpose
-    0	0xA0
+    0	0xAA
     1	Flags
     2	Header length
     3	Data  length
@@ -181,7 +181,7 @@ Data Transfer packet Definitions
     DTDataSeek, Header Length 9, Data length Max, 242
     Header
     Byte	Purpose
-    0	0xA0
+    0	0xAC
     1	Flags
     2	Header length
     3	Data  length
@@ -200,7 +200,7 @@ Data Transfer packet Definitions
     DTDataSeekACK, Header Length 9, Data length Max, 242
     Header
     Byte	Purpose
-    0	0xA0
+    0	0xAD
     1	Flags
     2	Header length
     3	Data  length
@@ -215,7 +215,7 @@ Data Transfer packet Definitions
     DTDataSeekNACK, Header Length 9, Data length Max, 242
     Header
     Byte	Purpose
-    0	0xA0
+    0	0xAE
     1	Flags
     2	Header length
     3	Data  length
@@ -230,7 +230,7 @@ Data Transfer packet Definitions
     DTStart, Header Length 6, Data length Max, 245
     Header
     Byte	Purpose
-    0	0xA0
+    0	0xB0
     1	Flags
     2	Header length
     3	Data  length
@@ -285,7 +285,7 @@ Data Transfer packet Definitions
     DTStartACK, Header Length 6, Data length Max, 245
     Header
     Byte	Purpose
-    0	0xA0
+    0	0xB1
     1	Flags
     2	Header length
     3	Data  length
@@ -297,7 +297,7 @@ Data Transfer packet Definitions
     DTStartNACK, Header Length 6, Data length Max, 245
     Header
     Byte	Purpose
-    0	0xA0
+    0	0xB2
     1	Flags
     2	Header length
     3	Data  length
@@ -308,7 +308,7 @@ Data Transfer packet Definitions
     DTWake, Header Length 6, Data length Max, 245
     Header
     Byte	Purpose
-    0	0xA0
+    0	0xB4
     1	Flags
     2	Header length
     3	Data  length
@@ -320,7 +320,7 @@ Data Transfer packet Definitions
     DTWakeACK, Header Length 6, Data length Max, 245
     Header
     Byte	Purpose
-    0	0xA0
+    0	0xB5
     1	Flags
     2	Header length
     3	Data  length
@@ -332,7 +332,7 @@ Data Transfer packet Definitions
     DTWakeNACK, Header Length 6, Data length Max, 245
     Header
     Byte	Purpose
-    0	0xA0
+    0	0xB6
     1	Flags
     2	Header length
     3	Data  length

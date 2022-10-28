@@ -1,6 +1,6 @@
 /*******************************************************************************************************
   Based on the OV2640 Arducam programs by;
-
+  
   ArduCAM demo (C)2017 Lee
   Web: http://www.ArduCAM.com
  *******************************************************************************************************/
@@ -151,6 +151,7 @@ void myCAMSaveToSDFile2()
 void myCAMSaveToSDFile(char *ACfilename, uint8_t ACfilenamesize)
 {
   byte buf[256];
+  char ACfilename2[ACfilenamesize+1];
   static uint16_t i = 0;
   static uint16_t k = 0;
   uint8_t temp = 0, temp_last = 0;
@@ -183,8 +184,14 @@ void myCAMSaveToSDFile(char *ACfilename, uint8_t ACfilenamesize)
 
   //Construct a file name
   k = k + 1;
-  itoa(k, ACfilename, 10);
-  strcat(ACfilename, ".jpg");
+  itoa(k, ACfilename2, 10);
+  strcat(ACfilename2, ".jpg");
+
+  ACfilename[0] = '/';
+  memcpy(ACfilename+1, ACfilename2, ACfilenamesize);
+  
+  //Serial.print(F("Adjusted filename "));
+  //Serial.println(ACfilename);
 
   dataFile = SD.open(ACfilename, O_WRITE | O_CREAT | O_TRUNC);      //Open the new file
 
@@ -216,7 +223,7 @@ void myCAMSaveToSDFile(char *ACfilename, uint8_t ACfilenamesize)
       Serial.println();
       is_header = false;
       i = 0;
-
+      
     }
 
     if (is_header == true)

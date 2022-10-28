@@ -105,8 +105,7 @@ void setup()
   Serial.println(F(Program_Version));
   Serial.println();
 
-  Serial.println(F("12_ATmel_Sleep_with_Switch_Wakeup Starting"));
+  Serial.println(F("12_Atmel_Sleep_with_Switch_Wakeup Starting"));
 
 
 }
-

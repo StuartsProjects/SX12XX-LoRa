@@ -8,12 +8,11 @@
 /*******************************************************************************************************
   Program Operation - This is a program that simulates the transfer of a file using data transfer (DT)
   packet functions from the SX127X library. No SD cards are needed for the simulation. Use with matching
-  receiver program 231_Transfer_Simulator_Transmitter.ino.
+  receiver program 231_Data_Transfer_Test_Transmitter.ino.
 
   DT packets can be used for transfering large amounts of data in a sequence of packets or segments,
   in a reliable and resiliant way. The remote file open request, the segements sent and the remote file close
-  will be transmitted until a valid acknowledge comes from the receiver. Use with the matching transmitter
-  program, 233_LoRa_SDfile_Transfer_Transmitter.ino.
+  will be transmitted until a valid acknowledge comes from the receiver. 
 
   Each DT packet contains a variable length header array and a variable length data array as the payload.
   On transmission the NetworkID and CRC of the payload are appended to the end of the packet by the library
@@ -99,10 +98,6 @@ void setup()
   LoRa.printModemSettings();
   Serial.println();
 
-  Serial.print(F("Initializing SD card..."));
-
-  Serial.println();
-
 #ifdef DISABLEPAYLOADCRC
   LoRa.setReliableConfig(NoReliableCRC);
 #endif
@@ -119,6 +114,6 @@ void setup()
   DTSegmentNext = 0;
   DTFileOpened = false;
 
-  Serial.println(F("SDfile transfer receiver ready"));
+  Serial.println(F("File transfer receiver ready"));
   Serial.println();
 }

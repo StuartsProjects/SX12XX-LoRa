@@ -27,3 +27,5 @@ const uint8_t Bandwidth = LORA_BW_500;          //LoRa bandwidth
 const uint8_t SpreadingFactor = LORA_SF7;       //LoRa spreading factor
 const uint8_t CodeRate = LORA_CR_4_5;           //LoRa coding rate
 const uint8_t Optimisation = LDRO_AUTO;         //low data rate optimisation setting, normally set to auto
+
+const uint8_t BytesToPrint = 16;                //number of bytes of packet to print

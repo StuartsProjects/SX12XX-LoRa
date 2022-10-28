@@ -5,7 +5,6 @@
   suitable for the intended purpose and free from errors.
 *******************************************************************************************************/
 
-
 /*
 ******************************************************************************************************
   Definitions for packet types
@@ -58,8 +57,25 @@ const char AFC = 'a';                   //Packet sent for AFC purposes
 
 #define DTWake 0xB4                        //packet type for wake of node
 #define DTWakeACK 0xB5                     //packet type for wake of node ACK
-#define DTWakeNACK 0xB6                     //packet type for wake of node ACK
+#define DTWakeNACK 0xB6                    //packet type for wake of node ACK
 #define DTWakeHeaderL 6                    //header length for for wake of node
+
+#define DTInfo 0xB8                        //packet type for wake of node
+#define DTInfoACK 0xB9                     //packet type for wake of node ACK
+#define DTInfoNACK 0xBA                    //packet type for wake of node ACK
+#define DTInfoHeaderL 8                    //header length for for wake of node
+
+#define DTArrayStart 0xA4                  //packet type for array start
+#define DTArrayStartACK 0xA5               //packet type for array start
+#define DTArrayStartNACK 0xA6              //packet type for array start
+#define DTArrayStartHeaderL 12
+
+#define DTArrayEnd 0xA8                    //packet type for file end
+#define DTArrayEndACK 0xA9                 //packet type for file end
+#define DTArrayEndNACK 0xAA                //packet type for file end
+#define DTArrayEndHeaderL 12
+
+
 
 //GPS Tracker Status byte settings
 const uint8_t GPSFix = 0;               //flag bit set when GPS has a current fix

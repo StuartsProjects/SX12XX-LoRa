@@ -50,7 +50,6 @@ SX127XLT LT;                                    //create a library class instanc
 #define ACKtimeout 1000                         //Acknowledge timeout in mS                      
 #define TXtimeout 1000                          //transmit timeout in mS. If 0 return from transmit function after send.  
 
-uint8_t buff[] = "Hello World";                 //the payload to send
 uint16_t PayloadCRC;                            //CRC of the payload
 uint8_t TXPacketL;                              //length of transmitted packet
 uint8_t TXPayloadL;                             //this is the payload length sent

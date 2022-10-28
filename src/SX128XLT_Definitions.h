@@ -15,7 +15,7 @@
 #define LORA_SF11     0xB0
 #define LORA_SF12     0xC0
 
-//LoRa bandwidths 
+//LoRa bandwidths
 #define LORA_BW_0200  0x34               //actually 203125hz
 #define LORA_BW_0400  0x26               //actually 406250hz
 #define LORA_BW_0800  0x18               //actually 812500hz
@@ -43,12 +43,12 @@
 #define LORA_CAD_16_SYMBOL                0x80
 
 //LoRa Header Types
-#define LORA_PACKET_VARIABLE_LENGTH       0x00    
-#define LORA_PACKET_FIXED_LENGTH          0x80    
+#define LORA_PACKET_VARIABLE_LENGTH       0x00
+#define LORA_PACKET_FIXED_LENGTH          0x80
 #define LORA_PACKET_EXPLICIT              LORA_PACKET_VARIABLE_LENGTH
 #define LORA_PACKET_IMPLICIT              LORA_PACKET_FIXED_LENGTH
 
-//LoRa packet CRC settings 
+//LoRa packet CRC settings
 #define LORA_CRC_ON                       0x20
 #define LORA_CRC_OFF                      0x00
 
@@ -189,14 +189,14 @@
 #define PERIODBASE_01_MS                   0x02
 #define PERIODBASE_04_MS                   0x03
 
-//TX ramp periods 
+//TX ramp periods
 #define RADIO_RAMP_02_US                  0x00
 #define RADIO_RAMP_04_US                  0x20
 #define RADIO_RAMP_06_US                  0x40
 #define RADIO_RAMP_08_US                  0x60
 #define RADIO_RAMP_10_US                  0x80
 #define RADIO_RAMP_12_US                  0xA0
-#define RADIO_RAMP_16_US                  0xC0 
+#define RADIO_RAMP_16_US                  0xC0
 #define RADIO_RAMP_20_US                  0xE0
 
 //SX1280 Power settings
@@ -362,7 +362,7 @@
 
 
 //Table 11-15 Sleep modes
-#define RETAIN_INSTRUCTION_RAM   0x04 
+#define RETAIN_INSTRUCTION_RAM   0x04
 #define RETAIN_DATABUFFER        0x02
 #define RETAIN_DATA_RAM          0x01
 #define CONFIGURATION_RETENTION  0x01         //included for libray compatibility
@@ -395,11 +395,9 @@
 #define LTdataOrder     MSBFIRST
 #define LTdataMode      SPI_MODE0
 
-#define    WAIT_RX_NOACK                            0x05  
-#define    WAIT_TX_NOACK                            0x04
 #define    RANGING_VALID                            0x03
-#define    RANGING_TIMEOUT                          0x02 
-#define    WAIT_RX                                  0x01  
+#define    RANGING_TIMEOUT                          0x02
+#define    WAIT_RX                                  0x01
 #define    WAIT_TX                                  0x01
 #define    NO_WAIT                                  0x00
 

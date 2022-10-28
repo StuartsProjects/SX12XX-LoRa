@@ -1,5 +1,5 @@
 /*******************************************************************************************************
-  Programs for Arduino - Copyright of the author Stuart Robinson - 28/12/20
+  Programs for Arduino - Copyright of the author Stuart Robinson - 12/04/22
 
   This program is supplied as is, it is up to the user of the program to decide if the program is
   suitable for the intended purpose and free from errors.
@@ -101,6 +101,7 @@ bool gpsWaitFix(uint32_t waitSecs)
   Serial.print(F("Wait GPS Fix "));
   Serial.print(waitSecs);
   Serial.println(F("s"));
+  Serial.flush();                                        //so there are no Serial out interrupts to interfere with software serial 
 
   waitmS = waitSecs * 1000;                              //convert seconds wait into mS
   startmS = millis();
@@ -111,13 +112,12 @@ bool gpsWaitFix(uint32_t waitSecs)
     {
       GPSchar = GPSserial.read();
       gps.encode(GPSchar);
-      Serial.write(GPSchar);
+      //Serial.write(GPSchar);                           //dont print GPS chars here if using software serial for GPS 
     }
 
-    if (gps.location.isUpdated() && gps.altitude.isUpdated() && gps.date.isUpdated())
+    if (gps.location.isUpdated() && gps.altitude.isUpdated())
     {
       GPSfix = true;
-      Serial.println();
       Serial.print(F("Have GPS Fix "));
       TXGPSFixTime = millis() - GPSonTime;
       Serial.print(TXGPSFixTime);
@@ -204,7 +204,7 @@ void sendLocation(float Lat, float Lon, float Alt, uint32_t Hdop, uint32_t fixti
   }
   else
   {
-    //if here there was an error transmitting packet
+    //if here there was an error transmitting packet, will need to reset LoRa device
     TXErrorsCount++;
     IRQStatus = LT.readIrqStatus();                  //read the the interrupt register
     Serial.print(F(" SendError,"));
@@ -214,6 +214,9 @@ void sendLocation(float Lat, float Lon, float Alt, uint32_t Hdop, uint32_t fixti
     Serial.print(IRQStatus, HEX);                    //print IRQ status
     LT.printIrqStatus();                             //prints the text of which IRQs set
     Serial.println();
+    LT.resetDevice();
+    LT.setupLoRa(Frequency, Offset, SpreadingFactor, Bandwidth, CodeRate, Optimisation);
+    setStatusByte(LORAError,1);
   }
 }
 

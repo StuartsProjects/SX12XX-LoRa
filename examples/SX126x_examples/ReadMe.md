@@ -2,13 +2,13 @@
 <cr>
 
 
-This part of the SX12XX library supports the SX1261, SX1262 and SX1268 (all UHF) LoRa devices.. 
+This part of the SX12XX library supports the SX1261, SX1262 and SX1268 UHF LoRa devices.. 
 
-The objective of the library is to allow the same program sketches to be used across the range of UHF lora modules SX126x and SX127x (UHF) as well as the 2.4Ghz SX128x modules.
+The objective of the SX12XX library is to allow the same program sketches to be used across the range of UHF lora modules such as SX126x and SX127x as well as the 2.4Ghz SX128x modules.
 
-The library was tested on both NiceRF and Dorji modules. 
+The SX126X part of the library was tested on both NiceRF and Dorji modules. 
 
-The Library has not been tested on the Semtech SX1261MB2BAS or similar development boards, so consider them unsupported. These development modules are not low cost and are not in a form (and too big) to be of practical use to the author of the library. 
+The Library **has not** been tested on the Semtech SX1261MB2BAS or similar development boards, so consider them unsupported. These development modules are not low cost and are not in a form (and too big) to be of practical use to the author of this library. 
 
 
 ###Considerations for pin usage
@@ -17,7 +17,11 @@ There is a range of SX126X modules available and they have slightly different pi
 
 The library only supports the SPI based LoRa modules and these all require that the SPI bus pins, SCK, MOSI and MISO are connected. All modules also need a NSS (chip select pin) and NRESET (reset) pin. All devices need the RFBUSY pin to be used also. 
 
-Of the LoRa devices DIO pins the SX126X library in standard form only uses DIO1. The Dorji DRF1262 and DRF1268 modules have an additional SW pin which must be configured and used since it provides power to the antenna switch on these modules. Some SX126x modules have RX and TX enable pins that need to be appropiatly activated when receiving or transmitting.
+Of the LoRa devices DIO pins the SX126X library in standard form only uses DIO1. The Dorji DRF1262 and DRF1268 modules have an additional SW pin which must be configured and used since it provides power to the antenna switch on these modules. 
+
+####RX and TX enable pins
+
+Some SX126x modules with RF power amplifiers may have RX and TX enable pins. Whilst the SX126X library code contains functions that should switch RX and TX enable pins that are defined appropriately, this code has never been fully tested since at the time of writing I had no such SX126x modules available. Donations of suitable modules for testing will be accepted. 
 
 Thus a begin function that initialised all possible permutations of pins would look like this;
 

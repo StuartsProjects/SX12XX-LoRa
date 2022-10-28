@@ -1,14 +1,13 @@
 /*******************************************************************************************************
-  Programs for Arduino - Copyright of the author Stuart Robinson - 18/09/21
+  Programs for Arduino - Copyright of the author Stuart Robinson - 17/04/22
 
   This program is supplied as is, it is up to the user of the program to decide if the program is
   suitable for the intended purpose and free from errors.
 *******************************************************************************************************/
 
 /*******************************************************************************************************
-  Program Operation - This is a demonstration of using reliable packets to request data from a remote
-  station. Each stations needs a number defined in 'ThisStation' and are numbered 0 to 255.
-
+  Program Operation - This is a demonstration of the transmission and acknowledgement of 'Reliable'
+  packets to request information or operations from a remote receiver.
 
   A reliable packet has 4 bytes automatically appended to the end of the buffer\array that is the data
   payload. The first two bytes appended are a 16bit 'NetworkID'. The receiver needs to have the same
@@ -17,104 +16,156 @@
   the payload. The receiver will carry out its own CRC check on the received payload and can then verify
   this against the CRC appended in the packet. The receiver is thus able to check if the payload is valid.
 
-  The transmitter sends a payload to the receiver which is a request for the receiver to return some data.
-  The payload request is just 2 bytes, the request type and the station the request is directed to.
+  The transmitter sends a request for the receiver which will respond with an acknowledge whach can include
+  any data requested. The transmitted request is a total of 6 or more bytes, with one byte for the payload
+  type and another byte for station the request is directed to.
 
-  If the received packet is valid then a data payload together with the networkID and payload CRC are
-  returned in a packet as an acknowledgement that the transmitter listens for. If the transmitter does not
-  receive the acknowledgement within the ACKtimeout period, the original packet is re-transmitted until a
-  valid acknowledgement is received.
+  The request is for the receiver to return a set of GPS co-ordinates. This information is included in the
+  acknowledge the receiver sends if there is a match for request type and station number. The orginal network
+  ID and payload CRC are also returned with the acknowledge so the transmitter can verify if the packet it
+  receives in reply is geniune.
 
-  With this example and the matching transmitter program, 219_Reliable_Transmitter_Data_RequestorIRQ, the
-  generation of the acknowledge by the receiver is manual and also returns data to the transmitter. This
-  allows the transmitter to send a request to the receiver for it to return data. Since the acknowledge
-  returns the networkID and payload CRC used in the original transmitted request, when the transmitter
-  receives the acknowledge it can be very confident the data is geniune.
+  No DIO0 pin needs to be connected to the LoRa device for this program.
 
-  This is a version of example 218_Reliable_Receiver_Data_Requestor.ino that does not require the use of
-  the DIO0 pin to check for transmit done. In addition no NRESET pin is needed either, so its a program
-  for use with a minimum pin count Arduino. Leave the DIO0 and NRESET pins on the LoRa device not
-  connected.
-
+  The matching transmitter program is 219_Reliable_Transmitter_Data_RequestorIRQ.
   Serial monitor baud rate should be set at 115200.
 *******************************************************************************************************/
 
+
 #include <SPI.h>                                //the LoRa device is SPI based so load the SPI library
 #include <SX127XLT.h>                           //include the appropriate library   
+#include "Settings.h"
 
 SX127XLT LT;                                    //create a library class instance called LT
 
-#define NSS 10                                  //select pin on LoRa device
-#define LORA_DEVICE DEVICE_SX1278               //we need to define the device we are using
-
-#define ACKdelay 200                            //delay in mS before sending reply                      
-#define RXtimeout 60000                         //receive timeout in mS.  
-#define TXpower 2                               //dBm power to use for ACK   
-
-const uint8_t RXBUFFER_SIZE = 251;              //RX buffer size, set to max payload length of 251, or maximum expected length
-uint8_t RXBUFFER[RXBUFFER_SIZE];                //create the buffer that received packets are copied into
-
+uint8_t RXBUFFER[251];                          //create the buffer that received packets are copied into
 uint8_t RXPacketL;                              //stores length of packet received
 uint8_t RXPayloadL;                             //stores length of payload received
 uint8_t TXPayloadL;                             //stores length of payload sent
-int16_t PacketRSSI;                             //stores RSSI of received packet
-uint16_t LocalPayloadCRC;                       //locally calculated CRC of payload
-uint16_t RXPayloadCRC;                          //CRC of payload received in packet
 uint16_t TransmitterNetworkID;                  //the NetworkID from the transmitted and received packet
 uint16_t StationNumber;
 uint8_t RequestType;
 
-const uint16_t NetworkID = 0x3210;              //NetworkID identifies this connection, needs to match value in transmitter
-const uint8_t ThisStation = 123;                //the number of this station
-const uint8_t RequestGPSLocation = 1;           //request type for GPS location
-
-//GPS co-ordinates to use for the GPS location request
-const float TestLatitude  = 51.48230;           //GPS co-ordinates to use for test
-const float TestLongitude  = -3.18136;          //Cardiff castle keep, used for testing purposes
-const float TestAltitude = 25.5;
-
-uint8_t startaddr = 0;                          //address in SX buffer to start packet
+//#define DEBUG
 
 
 void loop()
 {
+  uint8_t requesttype;
 
-  if (LT.receiveSXReliableIRQ(startaddr, NetworkID, RXtimeout, WAIT_RX))
+  requesttype = waitRequest(ThisStation, 5000);                        //listen for 5000mS, will return 0 if there is no request
+
+  switch (requesttype)
   {
+    case 0:
+      break;
+
+    case RequestGPSLocation:
+      actionRequestGPSLocation();
+      break;
+
+    default:
+      Serial.println(F("Request not recognised"));
+      break;
+  }
+  Serial.println();
+}
+
+
+uint8_t waitRequest(uint8_t station, uint32_t timeout)
+{
+  //wait for an incoming request, returns 0 if no request in timeout period
+
+  Serial.println(F("Wait request"));
+
+  RXPacketL = LT.receiveSXReliableIRQ(0, NetworkID, timeout, WAIT_RX);
+
+  if (RXPacketL)
+  {
+#ifdef DEBUG
     Serial.print(F("Reliable packet received > "));
-    LT.startReadSXBuffer(startaddr);               //start buffer read at location startaddr
-    RequestType = LT.readUint8();                  //get the request type
-    StationNumber = LT.readUint8();                //get the station number for the request
-    RXPayloadL = LT.endReadSXBuffer();             //this function returns the length of the array read
+    packet_is_OK();
+#endif
+    RequestType = LT.getByteSXBuffer(0);
+    StationNumber = LT.getByteSXBuffer(1);
 
-    RXPacketL = LT.readRXPacketL();                //get the received packet length
-    RXPayloadL = RXPacketL - 4;                    //payload length is always 4 bytes less than packet length
-    PacketRSSI = LT.readPacketRSSI();              //read the received packets RSSI value
-
-    Serial.print(F("Request "));
-    Serial.print(RequestType);
+    Serial.print(F("Received "));
+    printRequestType(RequestType);
     Serial.print(F(" for station "));
     Serial.println(StationNumber);
 
-    packet_is_OK();
-
-    if (StationNumber == ThisStation)
+    if (StationNumber == station)
     {
-      actionRequest();
+      return RequestType;
     }
     else
     {
-      Serial.print(F("Request not for this station "));
-      Serial.println(StationNumber);
+      Serial.println(F("ERROR Request not for this station"));
     }
-
   }
   else
   {
-    packet_is_Error();
+    if (LT.readIrqStatus() & IRQ_RX_TIMEOUT)
+    {
+      Serial.println(F("ERROR Timeout waiting for valid request"));
+    }
+    else
+    {
+      packet_is_Error();
+    }
   }
+  return 0;
+}
 
+
+bool actionRequestGPSLocation()
+{
+  uint16_t RXPayloadCRC;
+
+  RXPayloadCRC = LT.getRXPayloadCRC(RXPacketL);       //fetch received payload crc to return with ack
+
+  LT.startWriteSXBuffer(0);                   //initialise SX buffer write at address 0
+  LT.writeUint8(RequestGPSLocation);          //identify type of request
+  LT.writeUint8(ThisStation);                 //who is the request reply from
+  LT.writeFloat(TestLatitude);                //add latitude
+  LT.writeFloat(TestLongitude);               //add longitude
+  LT.writeFloat(TestAltitude);                //add altitude
+  LT.writeUint8(TrackerStatus);               //add status byte
+  TXPayloadL = LT.endWriteSXBuffer();         //close SX buffer write
+
+  delay(ACKdelay);
+
+  digitalWrite(LED1, HIGH);
+  LT.sendSXReliableACKIRQ(0, TXPayloadL, NetworkID, RXPayloadCRC, TXpower);
+  Serial.print(F("RequestGPSLocation Replied > "));
+  Serial.print(ThisStation);
+  Serial.print(F(","));
+  Serial.print(TestLatitude, 6);
+  Serial.print(F(","));
+  Serial.print(TestLongitude, 6);
+  Serial.print(F(","));
+  Serial.print(TestAltitude, 1);
+  Serial.print(F(","));
+  Serial.print(TrackerStatus);
   Serial.println();
+  Serial.flush();
+  digitalWrite(LED1, LOW);
+  return true;
+}
+
+
+void printRequestType(uint8_t type)
+{
+  switch (type)
+  {
+    case RequestGPSLocation:
+      Serial.print(F(" RequestGPSLocation"));
+      break;
+
+    default:
+      Serial.print(F(" Request type not recognised"));
+      break;
+  }
 }
 
 
@@ -145,64 +196,57 @@ void packet_is_Error()
 
 void printPacketDetails()
 {
-  LocalPayloadCRC = LT.CRCCCITT(RXBUFFER, RXPayloadL, 0xFFFF);  //calculate payload crc from the received RXBUFFER
-  TransmitterNetworkID = LT.getRXNetworkID(RXPacketL);
-  RXPayloadCRC = LT.getRXPayloadCRC(RXPacketL);
-
   Serial.print(F("LocalNetworkID,0x"));
   Serial.print(NetworkID, HEX);
   Serial.print(F(",TransmitterNetworkID,0x"));
-  Serial.print(TransmitterNetworkID, HEX);
-  Serial.print(F(",LocalPayloadCRC,0x"));
-  Serial.print(LocalPayloadCRC, HEX);
+  Serial.print(LT.getRXNetworkID(RXPacketL), HEX);
   Serial.print(F(",RXPayloadCRC,0x"));
-  Serial.print(RXPayloadCRC, HEX);
+  Serial.print(LT.getRXPayloadCRC(RXPacketL), HEX);
   LT.printReliableStatus();
 }
 
 
-void actionRequest()
+void led_Flash(uint16_t flashes, uint16_t delaymS)
 {
-  LocalPayloadCRC = LT.getRXPayloadCRC(RXPacketL);       //fetch received payload crc
-
-  if (RequestType == RequestGPSLocation)
+  uint16_t index;
+  for (index = 1; index <= flashes; index++)
   {
-    LT.startWriteSXBuffer(startaddr);           //initialise SX buffer write at address 0
-    LT.writeUint8(RequestGPSLocation);          //identify type of request
-    LT.writeUint8(ThisStation);                 //who is the request reply from
-    LT.writeFloat(TestLatitude);                //add latitude
-    LT.writeFloat(TestLongitude);               //add longitude
-    LT.writeFloat(TestAltitude);                //add altitude
-    TXPayloadL = LT.endWriteSXBuffer();         //close SX buffer write
-
-    delay(ACKdelay);
-    LT.sendSXReliableACKIRQ(startaddr, TXPayloadL, NetworkID, LocalPayloadCRC, TXpower);
-    Serial.println(F("Request replied"));
+    digitalWrite(LED1, HIGH);
+    delay(delaymS);
+    digitalWrite(LED1, LOW);
+    delay(delaymS);
   }
-
 }
 
 
 void setup()
 {
+  pinMode(LED1, OUTPUT);
+  led_Flash(2, 125);                                       //two quick LED flashes to indicate program start
+
   Serial.begin(115200);
   Serial.println();
-  Serial.println(F("220_Reliable_Receiver_Data_RequestorIRQ Starting"));
+  Serial.println();
+  Serial.println(__FILE__);
+  Serial.println();
 
   SPI.begin();
 
-  if (LT.begin(NSS, LORA_DEVICE))
+  if (LT.begin(NSS, NRESET, LORA_DEVICE))
   {
     Serial.println(F("LoRa Device found"));
-    delay(1000);
+    led_Flash(2, 125);                                   //two further quick LED flashes to indicate device found
   }
   else
   {
-    Serial.println(F("No LoRa device responding"));
-    while (1);
+    Serial.println(F("ERROR No LoRa device responding"));
+    while (1)
+    {
+      led_Flash(50, 50);                                 //long fast speed LED flash indicates device error
+    }
   }
 
-  LT.setupLoRa(434000000, 0, LORA_SF7, LORA_BW_125, LORA_CR_4_5, LDRO_AUTO);   //configure frequency and LoRa settings
+  LT.setupLoRa(Frequency, Offset, SpreadingFactor, Bandwidth, CodeRate, Optimisation);   //need to be in LoRa mode to receive requests
 
   Serial.println(F("Receiver ready"));
   Serial.println();

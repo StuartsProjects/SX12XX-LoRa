@@ -1,5 +1,5 @@
 /*******************************************************************************************************
-  Programs for Arduino - Copyright of the author Stuart Robinson - 09/11/21
+  Programs for Arduino - Copyright of the author Stuart Robinson - 09/02/22
 
   This program is supplied as is, it is up to the user of the program to decide if the program is
   suitable for the intended purpose and free from errors.
@@ -9,6 +9,9 @@
   Program Operation - This is a program that transfers a file using data transfer (DT) packet functions
   from the SX127X library to send a file from the SD card on one Arduino to the SD card on another Arduino.
   Arduino DUEs were used for the test and this example transfers an JPG image.
+
+  This program uses routines that do not need to use the DIO0 pin on the LoRa device which is usually used
+  to indicate RXDONE or TXDONE.
 
   DT packets can be used for transfering large amounts of data in a sequence of packets or segments,
   in a reliable and resiliant way. The file open requests to the remote receiver, each segement sent and
@@ -36,121 +39,52 @@
 #include <SX127XLT.h>
 #include <ProgramLT_Definitions.h>
 #include "DTSettings.h"                      //LoRa settings etc.
-#include <arrayRW.h>
 
-SX127XLT LoRa;                               //create an SX127XLT library instance called LoRa
+SX127XLT LoRa;                               //create an SX127XLT library instance called LoRa, required by SDtransfer.h
 
+#define ENABLEMONITOR                        //enable monitor prints
 #define PRINTSEGMENTNUM                      //enable this define to print segment numbers 
-//#define DEBUG                              //enable this define to print debug info for segment transfers
-//#define DEBUGSD                            //enable this defien to print SD file debug info
-//#define ENABLEFILECRC                      //enable this define to uses and show file CRCs
+#define ENABLEFILECRC                        //enable this define to uses and show file CRCs
 //#define DISABLEPAYLOADCRC                  //enable this define if you want to disable payload CRC checking
 
 //#define SDLIB                              //define SDLIB for SD.h or SDFATLIB for SDfat.h
 #define SDFATLIB
 
-#include "DTSDlibrary.h"
-#include "DTLibraryIRQ.h"
+#include <DTSDlibrary.h>                     //library of SD functions
+#include <SDtransferIRQ.h>                   //library of data transfer functions
 
 //choice of files to send
-char DTFileName[] = "/$50SATL.JPG";          //file length 63091 bytes, file CRC 0x59CE
-//char DTFileName[] = "/$50SATS.JPG";        //file length 6880 bytes, file CRC 0x0281
-//char DTFileName[] = "/$50SATT.JPG";        //file length 1068 bytes, file CRC 0x6A02
+//char FileName[] = "/$50SATL.JPG";          //file length 63091 bytes, file CRC 0x59CE
+char FileName[] = "/$50SATS.JPG";            //file length 6880 bytes, file CRC 0x0281
+//char FileName[] = "/$50SATT.JPG";          //file length 1068 bytes, file CRC 0x6A02
 
 
 void loop()
 {
-  Serial.println(("Transfer started"));
+  uint32_t filelength;
 
-  do
-  {
-    DTStartmS = millis();
-
-    //opens the local file to send and sets up transfer parameters
-    if (startFileTransfer(DTFileName, sizeof(DTFileName), DTSendAttempts))
-    {
-      Serial.print(DTFileName);
-      Serial.println(F(" opened OK on remote"));
-      printLocalFileDetails();
-      Serial.println();
-      NoAckCount = 0;
-    }
-    else
-    {
-      Serial.print(DTFileName);
-      Serial.println(F("  Error opening remote file - restart transfer"));
-      DTFileTransferComplete = false;
-      continue;
-    }
-
-    delay(packetdelaymS);
-
-    if (!sendSegments())
-    {
-      Serial.println();
-      Serial.println(F("**********************************************************"));
-      Serial.println(F("Error - Segment write with no file open - Restart received"));
-      Serial.println(F("**********************************************************"));
-      Serial.println();
-      continue;
-    }
-
-    if (endFileTransfer(DTFileName, sizeof(DTFileName)))         //send command to close remote file
-    {
-      DTSendmS = millis() - DTStartmS;                  //record time taken for transfer
-      Serial.print(DTFileName);
-      Serial.println(F(" closed OK on remote"));
-      beginarrayRW(DTheader, 4);
-      DTDestinationFileLength = arrayReadUint32();
-      Serial.print(F("Acknowledged remote destination file length "));
-      Serial.println(DTDestinationFileLength);
-      if (DTDestinationFileLength != DTSourceFileLength)
-      {
-        Serial.println(F("ERROR - file lengths do not match"));
-      }
-      else
-      {
-        Serial.println(F("File lengths match"));
-      }
-#ifdef ENABLEFILECRC
-      DTDestinationFileCRC = arrayReadUint16();
-      Serial.print(F("Acknowledged remote destination file CRC 0x"));
-      Serial.println(DTDestinationFileCRC, HEX);
-      if (DTDestinationFileCRC != DTSourceFileCRC)
-      {
-        Serial.println(F("ERROR - file CRCs do not match"));
-      }
-      else
-      {
-        Serial.println(F("File CRCs match"));
-      }
+#ifdef ENABLEMONITOR
+  Monitorport.println(F("Transfer started"));
 #endif
-      DTFileTransferComplete = true;
-    }
-    else
-    {
-      DTFileTransferComplete = false;
-      Serial.println(F("ERROR send close remote destination file failed - program halted"));
-    }
+
+  filelength = SDsendFile(FileName, sizeof(FileName));
+
+  if (filelength)
+  {
+#ifdef ENABLEMONITOR
+    Monitorport.println(F("Transfer finished"));
+#endif
   }
-  while (!DTFileTransferComplete);
+  else
+  {
+#ifdef ENABLEMONITOR
+    Monitorport.println(F("Transfer failed"));
+    Monitorport.println();
+#endif
+  }
 
+  delay(15000);
 
-  Serial.print(F("NoAckCount "));
-  Serial.println( NoAckCount);
-  Serial.println();
-
-  DTsendSecs = (float) DTSendmS / 1000;
-  Serial.print(F("Transmit time "));
-  Serial.print(DTsendSecs, 3);
-  Serial.println(F("secs"));
-  Serial.print(F("Transmit rate "));
-  Serial.print( (DTDestinationFileLength * 8) / (DTsendSecs), 0 );
-  Serial.println(F("bps"));
-  Serial.println(("Transfer finished"));
-
-  Serial.println(("Program halted"));
-  while (1);
 }
 
 
@@ -171,22 +105,26 @@ void setup()
 {
   pinMode(LED1, OUTPUT);                          //setup pin as output for indicator LED
   led_Flash(2, 125);                              //two quick LED flashes to indicate program start
-  setDTLED(LED1);                                 //setup LED pin for data transfer indicator
+  SDsetLED(LED1);                                 //setup LED pin for data transfer indicator
 
-  Serial.begin(115200);
-  Serial.println();
-  Serial.println(F(__FILE__));
-  Serial.flush();
+#ifdef ENABLEMONITOR
+  Monitorport.begin(115200);
+  Monitorport.println();
+  Monitorport.println(F(__FILE__));
+  Monitorport.flush();
+#endif
 
   SPI.begin();
 
-  if (LoRa.begin(NSS, LORA_DEVICE))
+  if (LoRa.begin(NSS, NRESET, LORA_DEVICE))
   {
     led_Flash(2, 125);
   }
   else
   {
-    Serial.println(F("LoRa device error"));
+#ifdef ENABLEMONITOR
+    Monitorport.println(F("LoRa device error"));
+#endif
     while (1)
     {
       led_Flash(50, 50);                          //long fast speed flash indicates device error
@@ -194,26 +132,27 @@ void setup()
   }
 
   LoRa.setupLoRa(Frequency, Offset, SpreadingFactor, Bandwidth, CodeRate, Optimisation);
-  LoRa.printOperatingSettings();
-  Serial.println();
-  LoRa.printModemSettings();
-  Serial.println();
 
-  Serial.print(F("Initializing SD card..."));
+#ifdef ENABLEMONITOR
+  Monitorport.println();
+  Monitorport.print(F("Initializing SD card..."));
+#endif
 
   if (DTSD_initSD(SDCS))
   {
-    Serial.println(F("SD Card initialized."));
+#ifdef ENABLEMONITOR
+    Monitorport.println(F("SD Card initialized."));
+#endif
   }
   else
   {
-    Serial.println(F("SD Card failed, or not present."));
+    Monitorport.println(F("SD Card failed, or not present."));
     while (1) led_Flash(100, 25);
   }
 
-  Serial.println();
-  DTSD_printDirectory();
-  Serial.println();
+#ifdef ENABLEMONITOR
+  Monitorport.println();
+#endif
 
 #ifdef DISABLEPAYLOADCRC
   LoRa.setReliableConfig(NoReliableCRC);
@@ -221,15 +160,21 @@ void setup()
 
   if (LoRa.getReliableConfig(NoReliableCRC))
   {
-    Serial.println(F("Payload CRC disabled"));
+#ifdef ENABLEMONITOR
+    Monitorport.println(F("Payload CRC disabled"));
+#endif
   }
   else
   {
-    Serial.println(F("Payload CRC enabled"));
+#ifdef ENABLEMONITOR
+    Monitorport.println(F("Payload CRC enabled"));
+#endif
   }
 
-  DTFileTransferComplete = false;
+  SDDTFileTransferComplete = false;
 
-  Serial.println(F("SDfile transfer ready"));
-  Serial.println();
+#ifdef ENABLEMONITOR
+  Monitorport.println(F("SDfile transfer ready"));
+  Monitorport.println();
+#endif
 }

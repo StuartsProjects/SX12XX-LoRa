@@ -21,15 +21,6 @@
   of certainty. The receiver will not accept packets that dont have the appropriate NetworkID or payload CRC
   at the end of the packet.
 
-  This is a version of 233_SDfile_Transfer_Transmitter.ino that demonstrates sending a memory array (DTsendarray)
-  to a receiver that then stores the received array into a file on an SD card. The DTsendarray is first populated
-  with data from a file /$50SATS.JPG or /$50SATT.JPG in this example and the array is then sent as a sequence of
-  segments, similar to the way a file would be read from SD and sent.
-
-  The transmitter sends a sequence of segments in order and the receiver keeps track of the sequence. If
-  the sequence fails for some reason, the receiver will return a NACK packet to the transmitter requesting
-  the segment sequence it was expecting.
-
   Details of the packet identifiers, header and data lengths and formats used are in the file
   Data_transfer_packet_definitions.md in the \SX127X_examples\DataTransfer\ folder.
 
@@ -111,7 +102,8 @@ void led_Flash(uint16_t flashes, uint16_t delaymS)
 bool doArrayTransfer(uint8_t *ptrarray)
 {
   ptrDTsendarray = ptrarray;                                                 //set the global ptr for the  the array to send
-
+  DTLocalArrayCRC = LoRa.CRCCCITT(ptrDTsendarray, DTLocalArrayLength, 0xFFFF);
+  
   DTStartmS = millis();
   do
   {
@@ -119,7 +111,7 @@ bool doArrayTransfer(uint8_t *ptrarray)
     {
       Serial.print(DTfilenamebuff);
       Serial.println(" opened OK on remote");
-      DTLocalArrayCRC = LoRa.CRCCCITT(ptrDTsendarray, DTLocalArrayLength, 0xFFFF);
+      
       DTNumberSegments = getNumberSegments(DTLocalArrayLength, DTSegmentSize);
       DTLastSegmentSize = getLastSegmentSize(DTLocalArrayLength, DTSegmentSize);
       printLocalFileDetails();
@@ -629,8 +621,8 @@ uint32_t moveFileArray(char *filenamebuff, uint8_t *buff, uint32_t buffsize)
   Serial.print(DTLocalFileLength);
   Serial.println(F(" bytes"));
   DTLocalFileCRC = DTSD_fileCRCCCITT(DTLocalFileLength);                   //get file CRC from position 0 to end
-  Serial.print(F("DTLocalFileCRC "));
-  Serial.println(DTLocalFileCRC);
+  Serial.print(F("DTLocalFileCRC 0x"));
+  Serial.println(DTLocalFileCRC,HEX);
 
   //now tranfer SD file to global array
   dataFile.seek(0);                                                        //ensure at first position in file

@@ -1,5 +1,5 @@
 /*******************************************************************************************************
-  Programs for Arduino - Copyright of the author Stuart Robinson - - 09/11/21
+  Programs for Arduino - Copyright of the author Stuart Robinson - - 12/03/22
 
   This program is supplied as is, it is up to the user of the program to decide if the program is
   suitable for the intended purpose and free from errors.
@@ -173,10 +173,12 @@ bool sendFileSegment(uint16_t segnum, uint8_t segmentsize)
 
   build_DTSegmentHeader(DTheader, DTSegmentWriteHeaderL, segmentsize, segnum);
 
+#ifdef PRINTSEGMENTNUM
+  //Serial.print(F("Segment,"));
+  Serial.println(segnum);
+#endif
+
 #ifdef DEBUG
-  Serial.print(F("Segment,"));
-  Serial.print(segnum);
-  Serial.print(F(" "));
   printheader(DTheader, DTSegmentWriteHeaderL);
   Serial.print(F(" "));
   printdata(DTdata, segmentsize);                         //print segment size of data array only
@@ -530,7 +532,7 @@ void printSeconds()
 {
   float secs;
   secs = ( (float) millis() / 1000);
-  Serial.print(secs, 3);
+  Serial.print(secs, 2);
   Serial.print(F(" "));
 }
 
@@ -788,9 +790,12 @@ bool processSegmentWrite()
   if (DTSegment == DTSegmentNext)
   {
 
+#ifdef PRINTSEGMENTNUM
+    //Serial.print(F("Segment,"));
+    Serial.println(DTSegment);
+#endif
+
 #ifdef DEBUG
-    Serial.print(F("Segment,"));
-    Serial.print(DTSegment);
     Serial.print(F(",Bytes,"));
     Serial.print(RXDataarrayL);
     //printPacketDetails();

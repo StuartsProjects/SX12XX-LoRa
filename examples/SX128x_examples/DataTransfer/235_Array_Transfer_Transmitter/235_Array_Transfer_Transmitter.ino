@@ -1,5 +1,5 @@
 /*******************************************************************************************************
-  Programs for Arduino - Copyright of the author Stuart Robinson - 06/11/21
+  Programs for Arduino - Copyright of the author Stuart Robinson - 12/03/22
 
   This program is supplied as is, it is up to the user of the program to decide if the program is
   suitable for the intended purpose and free from errors.
@@ -21,15 +21,6 @@
   of certainty. The receiver will not accept packets that dont have the appropriate NetworkID or payload CRC
   at the end of the packet.
 
-  This is a version of 233_SDfile_Transfer_Transmitter.ino that demonstrates sending a memory array (DTsendarray)
-  to a receiver that then stores the received array into a file on an SD card. The DTsendarray is first populated
-  with data from a file /$50SATS.JPG or /$50SATT.JPG in this example and the array is then sent as a sequence of
-  segments, similar to the way a file would be read from SD and sent.
-
-  The transmitter sends a sequence of segments in order and the receiver keeps track of the sequence. If
-  the sequence fails for some reason, the receiver will return a NACK packet to the transmitter requesting
-  the segment sequence it was expecting.
-
   Details of the packet identifiers, header and data lengths and formats used are in the file
   Data_transfer_packet_definitions.md in the \SX128X_examples\DataTransfer\ folder.
 
@@ -46,6 +37,10 @@
 
 SX128XLT LoRa;                                   //create an SX128XLT library instance called LoRa
 
+
+#define USELORA                                 //enable this define to use LoRa packets
+//#define USEFLRC                               //enable this define to use FLRC packets
+
 #include <SdFat.h>
 SdFat SD;
 File dataFile;                                   //name the file instance needed for SD library routines
@@ -59,8 +54,6 @@ uint8_t *ptrDTsendarray;                         //create a global pointer to th
 char DTfilenamebuff[] = "/$50SATS.JPG";      //file length 6880 bytes, file CRC 0x0281
 //char DTfilenamebuff[] = "/$50SATT.JPG";    //file length 1068 bytes, file CRC 0x6A02
 
-//#define USELORA                            //enable this define to use LoRa packets
-#define USEFLRC                              //enable this define to use FLRC packets
 
 //#define DEBUG                              //enable define to see more detail for data transfer operation
 //#define DEBUGSDLIB                         //enable define to see more detail for SD operation
@@ -113,6 +106,7 @@ void led_Flash(uint16_t flashes, uint16_t delaymS)
 bool doArrayTransfer(uint8_t *ptrarray)
 {
   ptrDTsendarray = ptrarray;                                                 //set the global ptr for the  the array to send
+  DTLocalArrayCRC = LoRa.CRCCCITT(ptrDTsendarray, DTLocalArrayLength, 0xFFFF);
 
   DTStartmS = millis();
   do
@@ -121,7 +115,6 @@ bool doArrayTransfer(uint8_t *ptrarray)
     {
       Serial.print(DTfilenamebuff);
       Serial.println(" opened OK on remote");
-      DTLocalArrayCRC = LoRa.CRCCCITT(ptrDTsendarray, DTLocalArrayLength, 0xFFFF);
       DTNumberSegments = getNumberSegments(DTLocalArrayLength, DTSegmentSize);
       DTLastSegmentSize = getLastSegmentSize(DTLocalArrayLength, DTSegmentSize);
       printLocalFileDetails();
@@ -631,8 +624,8 @@ uint32_t moveFileArray(char *filenamebuff, uint8_t *buff, uint32_t buffsize)
   Serial.print(DTLocalFileLength);
   Serial.println(F(" bytes"));
   DTLocalFileCRC = DTSD_fileCRCCCITT(DTLocalFileLength);                   //get file CRC from position 0 to end
-  Serial.print(F("DTLocalFileCRC "));
-  Serial.println(DTLocalFileCRC);
+  Serial.print(F("DTLocalFileCRC 0x"));
+  Serial.println(DTLocalFileCRC, HEX);
 
   //now tranfer SD file to global array
   dataFile.seek(0);                                                        //ensure at first position in file

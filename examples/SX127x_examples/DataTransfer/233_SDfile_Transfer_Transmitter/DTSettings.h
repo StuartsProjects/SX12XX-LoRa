@@ -1,5 +1,5 @@
 /*******************************************************************************************************
-  Programs for Arduino - Copyright of the author Stuart Robinson - 06/11/21
+  Programs for Arduino - Copyright of the author Stuart Robinson - 13/01/22
 
   This program is supplied as is, it is up to the user of the program to decide if the program is
   suitable for the intended purpose and free from errors.
@@ -10,6 +10,8 @@
 #define DIO0 3                                  //DIO0 pin on LoRa device, used for sensing RX and TX done 
 #define LED1 8                                  //LED used to indicate transmission
 #define SDCS 30
+
+#define Monitorport Serial                      //Port where serial prints go
 
 #define LORA_DEVICE DEVICE_SX1278               //this is the device we are using
 
@@ -31,14 +33,17 @@ const uint32_t ACKsegtimeoutmS = 75;            //mS to wait for receiving an AC
 const uint32_t ACKopentimeoutmS = 250;          //mS to wait for receiving an ACK before re-trying transmit file open
 const uint32_t ACKclosetimeoutmS = 250;         //mS to wait for receiving an ACK before re-trying transmit file close
 const uint32_t DuplicatedelaymS = 10;           //ms delay if there has been an duplicate segment or command receipt
+const uint32_t FunctionDelaymS = 0;             //delay between functions such as open file, send segments etc
+const uint32_t PacketDelaymS = 1000;            //mS delay between transmitted packets such as DTInfo etc
+
+const uint8_t StartAttempts = 2;                //number of attempts to start transfer before a fail
+const uint8_t SendAttempts = 5;                 //number of attempts carrying out a process before a restart
 const uint32_t NoAckCountLimit = 250;           //if no NoAckCount exceeds this value - restart transfer
-const uint32_t packetdelaymS = 0;               //mS delay between transmitted packets
 
 const uint8_t HeaderSizeMax = 12;               //max size of header in bytes, minimum size is 7 bytes
 const uint8_t DataSizeMax = 245;                //max size of data array in bytes
-const uint8_t DTfilenamesize = 32;              //size of DTfilename buffer
+const uint8_t Maxfilenamesize = 32;             //size of DTfilename buffer
 
 const uint16_t NetworkID = 0x3210;              //a unique identifier to go out with packet
-const uint8_t DTSendAttempts = 10;              //number of attempts sending a packet before a restart
 
-const uint8_t DTSegmentSize = 245;              //number of bytes in each segment, 245 is maximum value for LoRa
+const uint8_t SegmentSize = 245;                //number of bytes in each segment, 245 is maximum value for LoRa

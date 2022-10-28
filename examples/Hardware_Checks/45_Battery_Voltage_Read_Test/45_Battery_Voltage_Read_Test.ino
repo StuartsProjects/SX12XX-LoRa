@@ -25,7 +25,7 @@
 */
 
 #define ADMultiplier 6.36                      //adjustment to convert AD value read into mV of battery voltage 
-#define BATVREADON 8                           //used to turn on the resistor divider to measure voltage,                              //this pin turns on the MOSFET that switches in the resistor divider
+#define BATVREADON 8                           //used to turn on the resistor divider to measure voltage
 #define LED1 8                                 //pin for PCB LED  
 #define SupplyAD A0                            //Resitor divider for battery connected here 
 

@@ -1,5 +1,5 @@
-/****************************************************************************************************** 
-  Programs for Arduino - Copyright of the author Stuart Robinson - 28/12/20
+/*******************************************************************************************************
+  Programs for Arduino - Copyright of the author Stuart Robinson - 03/04/22
 
   This program is supplied as is, it is up to the user of the program to decide if the program is
   suitable for the intended purpose and free from errors.
@@ -41,18 +41,15 @@
   240420 - Change to work with Easy Pro Mini style modules
   300420 - Improve error detection for UBLOX GPS library
 
-  ToDo:
+  ToDo:  - Add TC74 temperature sensor
 
   Serial monitor baud rate is set at 115200
 *******************************************************************************************************/
 
-#define Program_Version "V1.1"
-
 #include <Arduino.h>
+#include <SX127XLT.h>                           //get library here >https://github.com/StuartsProjects/SX12XX-LoRa  
 
-#include <SX127XLT.h>                            //include the appropriate library  
-
-SX127XLT LT;                                     //create a library class instance called LT
+SX127XLT LT;                                    //create a library class instance called LT
 
 #include "Settings.h"
 #include "ProgramLT_Definitions.h"
@@ -86,31 +83,20 @@ uint8_t  TXBUFFER[TXBUFFER_SIZE];                //buffer for packet to send
 #include <TinyGPS++.h>                           //http://arduiniana.org/libraries/tinygpsplus/
 TinyGPSPlus gps;                                 //create the TinyGPS++ object
 
-#ifdef USESOFTSERIALGPS
 //#include <NeoSWSerial.h>                       //https://github.com/SlashDevin/NeoSWSerial
-//NeoSWSerial GPSserial(RXpin, TXpin);           //The NeoSWSerial library is an option to use and is more reliable 
-                                                 //at GPS init than software serial 
+//NeoSWSerial GPSserial(RXpin, TXpin);           //alternative - this library is more relaible at GPS init than software serial
+
 #include <SoftwareSerial.h>
 SoftwareSerial GPSserial(RXpin, TXpin);
-#endif
-
-#ifdef USEHARDWARESERIALGPS
-#define GPSserial HARDWARESERIALPORT
-#endif
-
-#ifdef USEI2CGPS
-#include <Wire.h>
-#endif
 
 
 #include GPS_Library                             //include previously defined GPS Library 
 
-#include <OneWire.h>                             //get library here > https://github.com/PaulStoffregen/OneWire  
-OneWire oneWire(ONE_WIRE_BUS);                   //create instance of OneWire library
-#include <DallasTemperature.h>                   //get library here > https://github.com/milesburton/Arduino-TXTemperature-Control-Library
-DallasTemperature sensor(&oneWire);              //create instance of dallas library
-
 uint32_t GPSstartms;                             //start time waiting for GPS to get a fix
+
+#include <Wire.h>
+
+uint8_t temperature = 0;
 
 
 void loop()
@@ -185,7 +171,7 @@ void do_Transmissions()
 
   delay(1000);                                        //gap between transmissions
 
-  if (readConfigByte(FSKRTTYEnable))                  //FSKRTTY is sent last, so that receiver has time to use AFSK upload
+  if (readConfigByte(FSKRTTYEnable))
   {
     LT.setupDirect(TrackerFrequency, Offset);
     LT.startFSKRTTY(FrequencyShift, NumberofPips, PipPeriodmS, PipDelaymS, LeadinmS);
@@ -259,13 +245,10 @@ uint8_t buildHABPacket()
   uint8_t Count, len;
   char LatArray[12], LonArray[12];
 
-  TXSequence = readMemoryUint32(addr_SequenceNum);              //Sequence number is kept in non-volatile memory so it survives TXResets
-  TXResets =  readMemoryUint16(addr_ResetCount);                //reset count is kept in non-volatile memory so it survives TXResets
+  TXSequence = readMemoryUint32(addr_SequenceNum);               //Sequence number is kept in non-volatile memory so it survives TXResets
+  TXResets =  readMemoryUint16(addr_ResetCount);                 //reset count is kept in non-volatile memory so it survives TXResets
   TXVolts = readSupplyVoltage();
-  Serial.print(F("TXVolts "));
-  Serial.print(TXVolts);
-  Serial.println(F("mV"));
-  TXTemperature = (int8_t) readTempDS18B20();
+  TXTemperature = readTempTC74(TC74_ADDRESS);
   TXErrors = readMemoryUint16(addr_TXErrors);
 
   dtostrf(TXLat, 7, 5, LatArray);                                //format is dtostrf(FLOAT,WIDTH,PRECISION,BUFFER);
@@ -453,25 +436,6 @@ void clearAllMemory()
 }
 
 
-float readTempDS18B20()
-{
-  float DS18B20TXTemperature;
-  sensor.requestTemperatures();
-  DS18B20TXTemperature = sensor.getTempCByIndex(0);
-  return DS18B20TXTemperature;
-}
-
-
-void printTempDS18B20()
-{
-  float DS18B20TXTemperature;
-  DS18B20TXTemperature = readTempDS18B20();
-  Serial.print(F("Temperature "));
-  Serial.print(DS18B20TXTemperature, 1);
-  Serial.println(F("c"));
-}
-
-
 void printSupplyVoltage()
 {
   //get and display supply volts on terminal or monitor
@@ -483,32 +447,21 @@ void printSupplyVoltage()
 
 uint16_t readSupplyVoltage()
 {
-  //relies on internal reference and 91K & 11K resistor divider
+  //relies on internal 1v1 reference and 91K & 11K resistor divider
   //returns supply in mV @ 10mV per AD bit read
   uint16_t temp;
   uint16_t volts = 0;
   uint8_t index;
 
-  if (BATVREADON >= 0)
-  {
-    digitalWrite(BATVREADON, HIGH);           //turn MOSFET connection resitor divider in circuit
-  }
-
   analogReference(INTERNAL);
   temp = analogRead(SupplyAD);
 
-  for (index = 0; index <= 9; index++)        //sample AD 10 times
+  for (index = 0; index <= 4; index++)        //sample AD 5 times
   {
     temp = analogRead(SupplyAD);
     volts = volts + temp;
-    delay(10);
   }
-  volts = ( (float) (volts / 10) * ADMultiplier);
-
-  if (BATVREADON >= 0)
-  {
-    digitalWrite(BATVREADON, LOW);            //turn MOSFET connection resitor divider in circuit
-  }
+  volts = ((volts / 5) * ADMultiplier);
 
   return volts;
 }
@@ -520,17 +473,14 @@ uint16_t readSupplyVoltage()
 
 void GPSTest()
 {
-  uint8_t GPSchar;
-  uint32_t startmS;
-  startmS = millis();
+  uint32_t endmS;
 
-  while ( (uint32_t) (millis() - startmS) < 2000)       //allows for millis() overflow
+  endmS = millis() + 2000;                     //run GPS echo for 2000mS
+
+  while (millis() < endmS)
   {
-    GPSchar = GPS_GetByte();
-    if (GPSchar != 0xFF)
-    {
-      Serial.write(GPSchar);
-    }
+    while (GPSserial.available() > 0)
+      Serial.write(GPSserial.read());
   }
   Serial.println();
   Serial.println();
@@ -542,36 +492,35 @@ bool gpsWaitFix(uint16_t waitSecs)
 {
   //waits a specified number of seconds for a fix, returns true for good fix
 
-  uint32_t startmS, waitmS;
+  uint32_t endwaitmS, millistowait, currentmillis;
   uint8_t GPSchar;
 
   Serial.flush();
 
   Serial.print(F("Wait GPS Fix "));
   Serial.print(waitSecs);
-  Serial.println(F("s "));
+  Serial.print(F("s "));
   Serial.flush();
 
   GPS_OutputOn();
-  
-  waitmS = waitSecs * 1000;
-  startmS = millis();
+  Serial.flush();
 
-  while ( (uint32_t) (millis() - startmS) < waitmS)       //allows for millis() overflow
+  currentmillis = millis();
+  millistowait = waitSecs * 1000;
+  endwaitmS = currentmillis + millistowait;
+
+  while (GPSserial.read() >= 0);                  //clear the GPS serial input buffer
+
+  while (millis() < endwaitmS)
   {
 
-    do
+    if (GPSserial.available() > 0)
     {
-      GPSchar = GPS_GetByte();
-      if (GPSchar != 0xFF)
-      {
-        gps.encode(GPSchar);
-        Serial.write(GPSchar);
-      }
+      GPSchar = GPSserial.read();
+      gps.encode(GPSchar);
     }
-    while (GPSchar != 0xFF);
 
-    if (gps.location.isUpdated() && gps.altitude.isUpdated() && gps.date.isUpdated())
+    if (gps.location.isUpdated() && gps.altitude.isUpdated())
     {
       TXLat = gps.location.lat();
       TXLon = gps.location.lng();
@@ -594,15 +543,11 @@ bool gpsWaitFix(uint16_t waitSecs)
       setStatusByte(GPSFix, 1);
 
       TXGPSfixms = millis() - GPSstartms;
-      
-      Serial.flush();
+
       Serial.print(F("Have GPS Fix "));
       Serial.print(TXGPSfixms);
       Serial.print(F("mS"));
       Serial.println();
-      GPSprintTime();
-      GPSprintDate();
-      Serial.flush();
 
       return true;
     }
@@ -617,50 +562,44 @@ bool gpsWaitFix(uint16_t waitSecs)
   return false;
 }
 
-void GPSprintTime()
-{
-    uint8_t hours, mins, secs;
-    hours = gps.time.hour();
-    mins = gps.time.minute();
-    secs = gps.time.second();
-        
-    Serial.print(F("Time "));
-    
-    if (hours < 10)
-    {
-    Serial.print(F("0"));  
-    }
-    Serial.print(hours);
-    Serial.print(F(":"));
-
-    if (mins < 10)
-    {
-    Serial.print(F("0"));  
-    }
-    Serial.print(mins);
-    Serial.print(F(":"));
-    
-    if (secs < 10)
-    {
-    Serial.print(F("0"));  
-    }
-    Serial.println(secs);
-}
-
-
-void GPSprintDate()
-{
-    Serial.print(F("Date "));
-    Serial.print(gps.date.day());
-    Serial.print(F("/"));
-    Serial.print(gps.date.month());
-    Serial.print(F("/"));
-    Serial.println(gps.date.year());
-}
-
 //***********************************************************
 // End GPS Functions
 //***********************************************************
+
+void printTempTC74()
+{
+  int8_t TC74TXTemperature;
+  TC74TXTemperature = readTempTC74(TC74_ADDRESS);
+  Serial.print(F("Temperature "));
+  Serial.print(TC74TXTemperature);
+  Serial.println(F("c"));
+}
+
+
+int8_t readTempTC74(uint8_t addr)
+{
+  int8_t regdata = 128;                      //max temperature is 127 degrees, so 128 returned indicates a read error.
+
+  Wire.beginTransmission(addr);
+  Wire.write(0x00);
+  Wire.endTransmission();
+
+  Wire.requestFrom((int8_t) addr, 1);
+
+  if (Wire.available())
+  {
+    regdata = Wire.read();
+    if (regdata & 0x80)
+    {
+      regdata = -1 * ((regdata ^ 0xFF ) + 1);
+    }
+    return regdata + TC74_Calibration;
+  }
+  else
+  {
+    return 128;
+  }
+}
 
 
 void setup()
@@ -671,7 +610,7 @@ void setup()
   Serial.begin(115200);                     //Setup Serial console ouput
   Serial.println();
   Serial.println();
-  Serial.println(F("67_HAB_Balloon_Tracker_Transmitter Starting"));
+  Serial.println(F(__FILE__));
 
   memoryStart(Memory_Address);              //setup the memory
   j = readMemoryUint16(addr_ResetCount);
@@ -681,17 +620,6 @@ void setup()
 
   Serial.print(F("TXResets "));
   Serial.println(j);
-
-  if (GPSPOWER >= 0)                        //if GPS needs power switching, turn it on
-  {
-    pinMode(GPSPOWER, OUTPUT);
-    digitalWrite(GPSPOWER, GPSONSTATE);
-  }
-
-  if (BATVREADON >= 0)
-  {
-    pinMode(BATVREADON, OUTPUT);            //for MOSFET controlling battery volts resistor divider
-  }
 
 #ifdef QUECTELINUSE
   Serial.println(F("Quectel GPS library"));
@@ -740,7 +668,7 @@ void setup()
 
   Serial.println();
   printSupplyVoltage();
-  printTempDS18B20();
+  printTempTC74();
   Serial.println();
 
   TXStatus = 0;                               //clear all TX status bits
@@ -748,23 +676,19 @@ void setup()
   sendCommand(PowerUp);                       //send power up command, includes supply mV and config, on tracker settings
 
   GPS_OutputOn();
-  Serial.println();
-  Serial.println(F("GPS output test"));
-  Serial.flush();
-  GPSTest();                                  //copy GPS output to serial monitor as a test
+  GPSTest();
   GPS_Setup();                                //GPS should have had plenty of time to initialise by now
-  GPS_SetBalloonMode();
 
   delay(2000);
 
-  if (GPS_CheckBalloonMode())                 //Check that GPS is configured for high altitude balloon mode
+  if (GPS_CheckBalloonMode())                 //Check that GPS is configured for high altitude mode
   {
     Serial.println();
     GPS_OutputOff();                          //GPS interrupts cause problems with lora device, so turn off for now
     setStatusByte(GPSError, 0);
     setStatusByte(GPSConfigError, 0);
 
-    //Alert user to GPS OK, turn LED on and send a FM tone
+    //Alert user to GPS OK, turn LED on and send a FM tone.
     digitalWrite(LED1, HIGH);
     Serial.println(F("GPS Config OK"));        //check tone indicates navigation model 6 set
     Serial.println();

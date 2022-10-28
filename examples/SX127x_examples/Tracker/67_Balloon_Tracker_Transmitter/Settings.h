@@ -1,5 +1,5 @@
                              /*******************************************************************************************************
-  Programs for Arduino - Copyright of the author Stuart Robinson - 29/12/20
+  Programs for Arduino - Copyright of the author Stuart Robinson - 03/04/22
 
   This program is supplied as is, it is up to the user of the program to decide if the program is
   suitable for the intended purpose and free from errors.
@@ -14,19 +14,13 @@
 
 #define NSS 10                                  //select on LoRa device
 #define NRESET 9                                //reset on LoRa device
-#define DIO0 3                                  //DIO0 on LoRa device, used for RX and TX done 
+#define DIO0 2                                  //DIO0 on LoRa device, used for RX and TX done 
 #define LED1 8                                  //On board LED, high for on
-#define BATVREADON 8                            //Pin that turns on the resistor divider to read battery volts
-#define ONE_WIRE_BUS 4                          //for DS18B20 temperature sensor 
-#define ADMultiplier 5.25                       //adjustment to convert into mV of battery voltage. for 100K\10K divider 
+#define ADMultiplier 10.6                       //adjustment to convert into mV of battery voltage. for 11K\91K divider 
 #define SupplyAD A0                             //Resistor divider for battery connected here 
 
 #define RXpin A3                                //pin number for GPS RX input into Arduino - TX from GPS
 #define TXpin A2                                //pin number for GPS TX output from Arduino- RX into GPS
-
-#define GPSPOWER -1                             //Pin that powers GPS on\off, set to -1 if not used
-#define GPSONSTATE HIGH                         //logic level to turn GPS on via pin GPSPOWER 
-#define GPSOFFSTATE LOW                         //logic level to turn GPS off via pin GPSPOWER 
 
 #define LORA_DEVICE DEVICE_SX1278               //this is the device we are using
 
@@ -71,18 +65,11 @@ const uint8_t TXBUFFER_SIZE = 128;               //defines the maximum size of t
 
 #define GPSBaud 9600                              //GPS Baud rate
 
-//#define USEI2CGPS                                 //enable this define if your using a Ublox over the I2C interface 
-//#define GPS_Library <UBLOXI2CGPS.h>               //and define this library file for the UBLOX GPS over I2C
+#define USESOFTSERIALGPS                          //need to include this if using softserial for GPS, otherwise hardware serial assumed      
 
-#define USESOFTSERIALGPS                          //if your using software serial for the GPS, enable this define      
+const uint16_t WaitGPSFixSeconds = 60;            //when in flight the time to wait for a new GPS fix 
 
-//#define USEHARDWARESERIALGPS                    //if your using hardware serial for the GPS, enable this define
-#define HARDWARESERIALPORT Serial1                //if your using hardware serial for the GPS, define the port here  
-
-//#define GPS_Library <UBLOXSerialGPS.h>          //use library file for UBLOX GPS                    
-#define GPS_Library <QuectelSerialGPS.h>          //use library file for Quectel GPS
-
-const uint16_t WaitGPSFixSeconds = 60;            //when in flight the time to wait for a new GPS fix
+#define GPS_Library <UBLOXSerialGPS.h>            //use library file for UBLOX GPS                    
 
 //**************************************************************************************************
 // 5) FSK RTTY Settings
@@ -134,10 +121,17 @@ int16_t Memory_Address = 0x50;                     //default I2C address of MB85
 // 8) HAB Flight Settings
 //**************************************************************************************************
 
-char FlightID[] = "Flight1";                       //flight ID for HAB packet
+char FlightID[] = "Flight1";                     //flight ID for HAB packet
 
-const uint16_t SleepTimesecs = 13;             //sleep time in seconds after each TX loop
+const uint16_t SleepTimesecs = 13;               //sleep time in seconds after each TX loop
 
-const char ThisNode = '1';                         //tracker number for search packet
+const char ThisNode = '1';                       //tracker number for search packet
 
 
+//**************************************************************************************************
+// 9) TC74 temeperature sensor settings
+//**************************************************************************************************
+
+
+const uint8_t TC74_ADDRESS = 0x4C;           //I2C bus address of TC74
+const int8_t  TC74_Calibration = 0;          //calibration value +\- used to correct TC74 reading

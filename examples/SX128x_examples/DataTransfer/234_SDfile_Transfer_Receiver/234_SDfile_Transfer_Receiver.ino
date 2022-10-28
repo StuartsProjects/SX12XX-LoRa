@@ -1,5 +1,5 @@
 /*******************************************************************************************************
-  Programs for Arduino - Copyright of the author Stuart Robinson - 06/11/21
+  Programs for Arduino - Copyright of the author Stuart Robinson - 10/03/22
 
   This program is supplied as is, it is up to the user of the program to decide if the program is
   suitable for the intended purpose and free from errors.
@@ -27,42 +27,36 @@
   Details of the packet identifiers, header and data lengths and formats used are in the file
   Data_transfer_packet_definitions.md in the \SX128X_examples\DataTransfer\ folder.
 
-  Comment out one of the two following lines at the head of the program to select LoRa or FLRC;
-
-  #define USELORA                              //enable this define to use LoRa packets
-  #define USEFLRC                              //enable this define to use FLRC packets
-
   Serial monitor baud rate is set at 115200.
 *******************************************************************************************************/
+#define USELORA                             //enable this define to use LoRa packets
+//#define USEFLRC                           //enable this define to use FLRC packets
 
 #include <SPI.h>
 
 #include <SX128XLT.h>
 #include <ProgramLT_Definitions.h>
 #include "DTSettings.h"                     //LoRa settings etc.
-#include <arrayRW.h>
 
-SX128XLT LoRa;                              //create an SX128XLT library instance called LoRa
+SX128XLT LoRa;                              //create an SX128XLT library instance called LoRa, required by SDtransfer.h
 
 //#define SDLIB                             //define SDLIB for SD.h or SDFATLIB for SDfat.h
 #define SDFATLIB
 
-#define USELORA                           //enable this define to use LoRa packets
-//#define USEFLRC                             //enable this define to use FLRC packets
-
+#define ENABLEMONITOR                       //enable monitor prints
 #define PRINTSEGMENTNUM
-//#define DEBUG
-//#define DEBUGSD
-//#define ENABLEFILECRC                      //enable this define to uses and show file CRCs
-//#define DISABLEPAYLOADCRC                  //enable this define if you want to disable payload CRC checking
+#define ENABLEFILECRC                       //enable this define to uses and show file CRCs
+//#define DISABLEPAYLOADCRC                 //enable this define if you want to disable payload CRC checking
+//#define DEBUG                             //see additional debug info 
 
-#include "DTSDlibrary.h"
-#include "DTLibrary.h"
+#include <DTSDlibrary.h>                    //library of SD functions
+#include <SDtransfer.h>                     //library of data transfer functions
+
 
 
 void loop()
 {
-  receiveaPacketDT();
+  SDreceiveaPacketDT();
 }
 
 
@@ -83,11 +77,13 @@ void setup()
 {
   pinMode(LED1, OUTPUT);                       //setup pin as output for indicator LED
   led_Flash(2, 125);                           //two quick LED flashes to indicate program start
-  setDTLED(LED1);                              //setup LED pin for data transfer indicator
+  SDsetLED(LED1);                              //setup LED pin for data transfer indicator
 
-  Serial.begin(115200);
-  Serial.println();
-  Serial.println(F(__FILE__));
+#ifdef ENABLEMONITOR
+  Monitorport.begin(115200);
+  Monitorport.println();
+  Monitorport.println(F(__FILE__));
+#endif
 
   SPI.begin();
 
@@ -97,7 +93,9 @@ void setup()
   }
   else
   {
-    Serial.println(F("LoRa device error"));
+#ifdef ENABLEMONITOR
+    Monitorport.println(F("LoRa device error"));
+#endif
     while (1)
     {
       led_Flash(50, 50);                          //long fast speed flash indicates device error
@@ -114,26 +112,26 @@ void setup()
   Serial.println(F("Using FLRC packets"));
 #endif
 
-  LoRa.printOperatingSettings();
-  Serial.println();
-  LoRa.printModemSettings();
-  Serial.println();
-
-  Serial.print(F("Initializing SD card..."));
+#ifdef ENABLEMONITOR
+  Monitorport.println();
+  Monitorport.print(F("Initializing SD card..."));
+#endif
 
   if (DTSD_initSD(SDCS))
   {
-    Serial.println(F("SD Card initialized."));
+    Monitorport.println(F("SD Card initialized."));
   }
   else
   {
-    Serial.println(F("SD Card failed, or not present."));
+#ifdef ENABLEMONITOR
+    Monitorport.println(F("SD Card failed, or not present."));
+#endif
     while (1) led_Flash(100, 50);
   }
 
-  Serial.println();
-  DTSD_printDirectory();
-  Serial.println();
+#ifdef ENABLEMONITOR
+  Monitorport.println();
+#endif
 
 #ifdef DISABLEPAYLOADCRC
   LoRa.setReliableConfig(NoReliableCRC);
@@ -141,18 +139,23 @@ void setup()
 
   if (LoRa.getReliableConfig(NoReliableCRC))
   {
-    Serial.println(F("Payload CRC disabled"));
+    Monitorport.println(F("Payload CRC disabled"));
   }
   else
   {
-    Serial.println(F("Payload CRC enabled"));
+#ifdef ENABLEMONITOR
+    Monitorport.println(F("Payload CRC enabled"));
+#endif
   }
 
-  DTSegmentNext = 0;
-  DTFileOpened = false;
 
-  Serial.println(F("SDfile transfer receiver ready"));
-  Serial.println();
+  SDDTSegmentNext = 0;
+  SDDTFileOpened = false;
+
+#ifdef ENABLEMONITOR
+  Monitorport.println(F("SDfile transfer receiver ready"));
+  Monitorport.println();
+#endif
 
 
 }

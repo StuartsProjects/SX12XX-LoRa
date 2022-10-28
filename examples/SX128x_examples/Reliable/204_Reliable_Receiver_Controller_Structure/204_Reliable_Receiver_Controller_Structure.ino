@@ -7,7 +7,7 @@
 
 /*******************************************************************************************************
   Program Operation - This is a basic demonstration of the receive of a 'Reliable' packet used to control
-  outputs the receiver.
+  outputs on the receiver.
 
   A reliable packet has 4 bytes automatically appended to the end of the buffer\array that is the data
   payload. The first two bytes appended are a 16bit 'NetworkID'. This receiver needs to have the same

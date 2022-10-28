@@ -34,13 +34,14 @@ const uint8_t SpreadingFactor = LORA_SF7;       //LoRa spreading factor
 const uint8_t CodeRate = LORA_CR_4_5;           //LoRa coding rate
 const uint8_t Optimisation = LDRO_AUTO;         //low data rate optimisation setting
 
-const int8_t TXpower = 17;                      //Transmit power used when sending packet starting test sequence
-const int8_t start_power = 17;                  //link test starts at this transmit power  
+const int8_t TXpower = 20;                      //Transmit power used when sending packet starting test sequence
+const int8_t TXtonepower = 20;                  //Transmit power used when sending start sequnce FM tones
+const int8_t start_power = 20;                  //link test starts at this transmit power  
 const int8_t end_power = 2;                     //and ends at this power
+const uint16_t deviation = 10000;               //FM tone deviation, total frequency shift low to high
+const float adjustfreq = 0.9;                   //adjustment to tone frequency 
 const uint8_t ThisNode = 'T';                   //this identifies the node in transmissions 
 
 
 #define packet_delay 1000                       //mS delay between packets
 #define mode_delaymS 2000                       //mS delay after sending start test sequence  
-
-

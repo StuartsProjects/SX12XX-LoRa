@@ -63,7 +63,7 @@ void loop()
   arrayWriteUint16(destinationNode);
   arrayWriteUint8(outputNumber);
   arrayWriteUint8(onoroff);                     //0 for off, 1 for on
-  controlarraysize = endarrayRW();              //this function returns the length of the array to send, i.e. the packet payload
+  controlarraysize = endarrayRW() + 1;          //this function returns the length of the array to send, i.e. the packet payload
 
   Serial.print(F("Transmit Array > "));
   LT.printHEXPacket(controlarray, controlarraysize);    //print the sent array as HEX

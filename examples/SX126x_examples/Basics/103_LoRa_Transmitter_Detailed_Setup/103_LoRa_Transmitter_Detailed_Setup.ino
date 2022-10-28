@@ -178,11 +178,10 @@ void setup()
   LT.printOperatingSettings();                           //reads and prints the configured operating settings, useful check
   Serial.println();
   Serial.println();
-  LT.printRegisters(0x00, 0x4F);                         //print contents of device registers, normally 0x00 to 0x4F
+  LT.printRegisters(0x800, 0x9FF);                       //print contents of device registers
   Serial.println();
   Serial.println();
 
   Serial.print(F("Transmitter ready"));
   Serial.println();
 }
-

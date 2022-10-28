@@ -148,8 +148,6 @@
 #define READ_RANGEMODE_AND_2                        0x80  //register 0x01
 #define READ_RANGEMODE_AND_X                        0x80  //register 0x01
 
-
-
 #define    LORA_PACKET_VARIABLE_LENGTH              0x00
 #define    LORA_PACKET_FIXED_LENGTH                 0x01
 #define    LORA_PACKET_EXPLICIT                     LORA_PACKET_VARIABLE_LENGTH
@@ -161,7 +159,6 @@
 
 #define    LORA_IQ_NORMAL                           0x00
 #define    LORA_IQ_INVERTED                         0x40
-
 
 //For SX127x - mapping of these IRQs to the SX126x and SX128x style is not easy
 //the values have been fixed to these following DIOs. For instance IRQ_RX_DONE,
@@ -249,7 +246,6 @@ const uint8_t REG_VERSION = 0x42;
 const uint8_t REG_PLLHOP = 0x44;
 const uint8_t REG_PADAC = 0x4D;
 
-
 #define PRINT_LOW_REGISTER   0x00
 #define PRINT_HIGH_REGISTER  0x4F
 
@@ -281,7 +277,6 @@ const uint8_t REG_PADAC = 0x4D;
 #define PABOOSTOFF      0x00
 
 
-
 //SPI settings
 #define LTspeedMaximum  8000000
 #define LTdataOrder     MSBFIRST
@@ -289,14 +284,12 @@ const uint8_t REG_PADAC = 0x4D;
 
 #define Deviation5khz   0x52
 
-
 //FSKRTTY Settings
 #define ParityNone 0
 #define ParityOdd 1
 #define ParityEven 2
 #define ParityZero 0xF0
 #define ParityOne  0xF1
-
 
 //These are the bit numbers which when set indicate reliable errors, variable _ReliableErrors
 #define ReliableCRCError 0x00             //bit number set in _ReliableErrors when there is a reliable CRC missmatch
@@ -314,8 +307,6 @@ const uint8_t REG_PADAC = 0x4D;
 //These are the bit numbers which when set indicate reliable configuration, variable _ReliableConfig
 #define NoReliableCRC 0x00                //bit number set in _ReliableConfig when reliable CRC is not used
 #define NoAutoACK 0x01                    //bit number set in _ReliableConfig when ACK is not used 
-
-
 
 
 /*

@@ -13,7 +13,11 @@
   are displayed on the serial monitor and analysed to extract the packet data which indicates the power
   used to send the packet. A count is kept of the numbers of each power setting received. When the transmitter
   sends the test mode packet at the beginning of the sequence (displayed as 999) the running totals of the
-  powers received are printed. Thus you can quickly see at what transmit power levels the reception fails. 
+  powers received are printed. Thus you can quickly see at what transmit power levels the reception fails.
+
+  There is soem notes on using the program here;
+
+  https://stuartsprojects.github.io/2016/04/01/testing-and-comparing-transmitters-receivers-and-antennas.html
 
   Serial monitor baud rate is set at 9600.
 *******************************************************************************************************/
@@ -45,8 +49,6 @@ void loop()
 {
   RXPacketL = LT.receiveAddressed(RXBUFFER, RXBUFFER_SIZE, 15000, WAIT_RX); //wait for a packet to arrive with 15seconds (15000mS) timeout
 
-  digitalWrite(LED1, HIGH);                      //something has happened
-
   PacketRSSI = LT.readPacketRSSI();              //read the recived RSSI value
   PacketSNR = LT.readPacketSNR();                //read the received SNR value
 
@@ -56,6 +58,11 @@ void loop()
   }
   else
   {
+    digitalWrite(LED1, HIGH);                    //only want a LED flash if the packet is good
+    if (BUZZER > 0)
+    {
+      digitalWrite(BUZZER, HIGH);                //buzzer on if packet good
+    }
     packet_is_OK();
   }
 
@@ -64,7 +71,6 @@ void loop()
     delay(25);                                   //gives a slightly longer beep
     digitalWrite(BUZZER, LOW);                   //buzzer off
   }
-
   digitalWrite(LED1, LOW);                       //LED off
 
   Serial.println();
@@ -134,10 +140,19 @@ void processPacket()
     updateCounts = true;
     Serial.println();
     Serial.println(F("End test sequence"));
-
+    if (BUZZER > 0)
+    {
+      digitalWrite(BUZZER, HIGH);                //buzzer off
+    }
+    led_Flash(8, 25);
     if (Mode1_Cycles > 0)
     {
       print_Test1Count();
+    }
+
+    if (BUZZER > 0)
+    {
+      digitalWrite(BUZZER, LOW);                //buzzer off
     }
 
     Serial.println();
@@ -266,7 +281,7 @@ void setup()
   //SPI.beginTransaction(SPISettings(8000000, MSBFIRST, SPI_MODE0));
 
   //setup hardware pins used by device, then check if device is found
-  if (LT.begin(NSS, NRESET, DIO0, DIO1, DIO2, LORA_DEVICE))
+  if (LT.begin(NSS, NRESET, DIO0, LORA_DEVICE))
   {
     Serial.println(F("LoRa Device found"));
     led_Flash(2, 125);
@@ -283,7 +298,7 @@ void setup()
 
   //this function call sets up the device for LoRa using the settings from settings.h
   LT.setupLoRa(Frequency, Offset, SpreadingFactor, Bandwidth, CodeRate, Optimisation);
-  
+
   Serial.println();
   LT.printModemSettings();                                     //reads and prints the configured LoRa settings, useful check
   Serial.println();
@@ -295,4 +310,3 @@ void setup()
   Serial.println(RXBUFFER_SIZE);
   Serial.println();
 }
-

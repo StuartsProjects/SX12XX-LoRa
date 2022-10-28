@@ -6,7 +6,7 @@
 *******************************************************************************************************/
 
 /*******************************************************************************************************
-  Program Operation - This program is an basic receiver for the '23_Simple_GPS_Tracker_Transmitter' program.
+  Program Operation - This program is an basic receiver for the '23_GPS_Tracker_Transmitter' program.
   The program reads the received packet from the tracker transmitter and displays the results on
   the serial monitor. The LoRa and frequency settings provided in the Settings.h file must
   match those used by the transmitter.
@@ -318,6 +318,3 @@ void setup()
   Serial.println(F("Receiver ready"));
   Serial.println();
 }
-
-
-

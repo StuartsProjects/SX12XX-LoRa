@@ -5,6 +5,8 @@
 #include <SX128XLT_Definitions.h>
 
 
+//check if (size > 251 ) for receive reliable
+
 class SX128XLT  {
 
   public:
@@ -19,6 +21,7 @@ class SX128XLT  {
 
     void rxEnable();
     void txEnable();
+
 
     void checkBusy();
     bool config();
@@ -61,7 +64,7 @@ class SX128XLT  {
     void clearIrqStatus( uint16_t irq );
     uint16_t readIrqStatus();
     void printIrqStatus();
-    uint16_t CRCCCITT(uint8_t *buffer, uint8_t size, uint16_t start);
+    uint16_t CRCCCITT(uint8_t *buffer, uint32_t size, uint16_t start);
     uint8_t receive(uint8_t *rxbuffer, uint8_t size, uint16_t timeout, uint8_t wait);
     uint8_t receiveIRQ(uint8_t *rxbuffer, uint8_t size, uint16_t timeout, uint8_t wait);
     int16_t readPacketRSSI2();
@@ -120,9 +123,11 @@ class SX128XLT  {
     uint8_t transmitSXBuffer(uint8_t startaddr, uint8_t length, uint16_t timeout, int8_t txpower, uint8_t wait);
     uint8_t transmitSXBufferIRQ(uint8_t startaddr, uint8_t length, uint16_t timeout, int8_t txpower, uint8_t wait);
     void writeBuffer(uint8_t *txbuffer, uint8_t size);
+    //void writeBuffer(uint8_t *txbuffer, uint8_t startaddr, uint8_t size);
     uint8_t receiveSXBuffer(uint8_t startaddr, uint16_t timeout, uint8_t wait);
     uint8_t receiveSXBufferIRQ(uint8_t startaddr, uint16_t timeout, uint8_t wait );
     uint8_t readBuffer(uint8_t *rxbuffer);
+    //uint8_t readBuffer(uint8_t *rxbuffer, uint8_t startaddr, uint8_t len);
     void printSXBufferHEX(uint8_t start, uint8_t end);
     void writeBufferChar(char *txbuffer, uint8_t size);
     uint8_t readBufferChar(char *rxbuffer);
@@ -176,6 +181,7 @@ class SX128XLT  {
     void printArrayHEX(uint8_t *buffer, uint8_t size);
     void printArrayHEX(char *buffer, uint8_t size);
     void setReliableConfig(uint8_t bitset);
+    void clearReliableConfig(uint8_t bitset);
 
     uint8_t getPacketType();
     void setReliableRX(uint16_t timeout);
@@ -196,7 +202,8 @@ class SX128XLT  {
     uint8_t waitSXReliableACKIRQ(uint8_t startaddr, uint16_t networkID, uint16_t payloadcrc, uint32_t acktimeout);
     uint8_t sendSXReliableACK(uint8_t startaddr, uint8_t length, uint16_t networkID, uint16_t payloadcrc, int8_t txpower);
     uint8_t sendSXReliableACKIRQ(uint8_t startaddr, uint8_t length, uint16_t networkID, uint16_t payloadcrc, int8_t txpower);
-
+    uint8_t readReliableErrors();
+    uint8_t readReliableFlags();
 
     //*******************************************************************************
     //Data Transfer functions
@@ -205,7 +212,7 @@ class SX128XLT  {
     uint8_t waitACKDT(uint8_t *header, uint8_t headersize, uint32_t acktimeout);
     uint8_t receiveDT(uint8_t *header, uint8_t headersize, uint8_t *dataarray, uint8_t datasize, uint16_t networkID, uint32_t rxtimeout, uint8_t wait );
     uint8_t sendACKDT(uint8_t *header, uint8_t headersize, int8_t txpower);
-    
+
     uint8_t transmitDTIRQ(uint8_t *header, uint8_t headersize, uint8_t *dataarray, uint8_t datasize, uint16_t networkID, uint32_t txtimeout, int8_t txpower, uint8_t wait);
     uint8_t waitACKDTIRQ(uint8_t *header, uint8_t headersize, uint32_t acktimeout);
     uint8_t receiveDTIRQ(uint8_t *header, uint8_t headersize, uint8_t *dataarray, uint8_t datasize, uint16_t networkID, uint32_t rxtimeout, uint8_t wait );

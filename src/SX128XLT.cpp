@@ -1763,7 +1763,7 @@ void SX128XLT::printIrqStatus()
 }
 
 
-uint16_t SX128XLT::CRCCCITT(uint8_t *buffer, uint8_t size, uint16_t start)
+uint16_t SX128XLT::CRCCCITT(uint8_t *buffer, uint32_t size, uint16_t start)
 {
 #ifdef SX128XDEBUG
   Serial.println(F("CRCCCITT()"));
@@ -3057,7 +3057,9 @@ void SX128XLT::printSXBufferHEX(uint8_t start, uint8_t end)
 
   uint8_t index, regdata;
 
+
   setMode(MODE_STDBY_RC);
+
   checkBusy();
 
 #ifdef USE_SPI_TRANSACTION                       //to use SPI_TRANSACTION enable define at beginning of CPP file 
@@ -3109,7 +3111,7 @@ void SX128XLT::writeBufferChar(char *txbuffer, uint8_t size)
 uint8_t SX128XLT::readBufferChar(char *rxbuffer)
 {
 #ifdef SX128XDEBUG1
-  Serial.println(F("readBuffer()"));
+  Serial.println(F("readBufferChar()"));
 #endif
 
   uint8_t index = 0, regdata;
@@ -3710,6 +3712,10 @@ uint16_t SX128XLT::readUint16SXBuffer(uint8_t addr)
   return (regdatalow + (regdatahigh << 8));
 }
 
+//******************************************************************************************
+// Reliable packet routines - added November 2021
+//******************************************************************************************
+
 
 uint8_t SX128XLT::receiveReliable(uint8_t *rxbuffer, uint8_t size, uint16_t networkID, uint32_t rxtimeout, uint8_t wait )
 {
@@ -3758,6 +3764,7 @@ uint8_t SX128XLT::receiveReliable(uint8_t *rxbuffer, uint8_t size, uint16_t netw
 
   readCommand(RADIO_GET_RXBUFFERSTATUS, buffer, 2);
   _RXPacketL = buffer[0];
+
 
   if (_RXPacketL < 4)                                  //check received packet is 4 or more bytes long
   {
@@ -3923,14 +3930,11 @@ uint8_t SX128XLT::transmitReliableAutoACK(uint8_t *txbuffer, uint8_t size, uint1
     return 0;
   }
 
-  if (wait != WAIT_TX_NOACK)
-  {
-    RXPacketL = waitReliableACK(networkID, payloadcrc, acktimeout);
+  RXPacketL = waitReliableACK(networkID, payloadcrc, acktimeout);
 
-    if (RXPacketL != 4)
-    {
-      return 0;
-    }
+  if (RXPacketL != 4)
+  {
+    return 0;
   }
 
   return _TXPacketL;
@@ -3963,10 +3967,8 @@ uint8_t SX128XLT::waitReliableACK(uint16_t networkID, uint16_t payloadcrc, uint3
 
       readCommand(RADIO_GET_RXBUFFERSTATUS, buffer, 2);
       _RXPacketL = buffer[0];
-
       RXnetworkID = readUint16SXBuffer(_RXPacketL - 4);
       RXcrc = readUint16SXBuffer(_RXPacketL - 2);
-      //RXcrc = readUint16SXBuffer(_RXPacketL - 2) + 1;
 
       if ( (RXnetworkID == networkID) && (RXcrc == payloadcrc))
       {
@@ -3999,7 +4001,6 @@ uint8_t SX128XLT::waitReliableACK(uint8_t *rxbuffer, uint8_t size, uint16_t netw
   uint8_t buffer[2];
   uint8_t regdata, index;
 
-  //payloadcrc++;
 
   if (size > 251 )
   {
@@ -4185,14 +4186,12 @@ uint8_t SX128XLT::receiveReliableAutoACK(uint8_t *rxbuffer, uint8_t size, uint16
     return 0;
   }
 
-  if (wait != WAIT_RX_NOACK)
+  delay(ackdelay);
+  _TXPacketL = sendReliableACK(RXnetworkID, payloadcrc, txpower);
+
+  if (_TXPacketL != 4)
   {
-    delay(ackdelay);
-    _TXPacketL = sendReliableACK(RXnetworkID, payloadcrc, txpower);
-    if (_TXPacketL != 4)
-    {
-      return 0;
-    }
+    return 0;
   }
 
   return _RXPacketL;                                        //return and indicate RX OK.
@@ -4362,6 +4361,39 @@ void SX128XLT::setReliableConfig(uint8_t bitset)
   bitSet(_ReliableConfig, bitset);
   return;
 }
+
+
+void SX128XLT::clearReliableConfig(uint8_t bitset)
+{
+#ifdef SX128XDEBUGRELIABLE
+  Serial.print(F(" {RELIABLE} clearReliableConfig() bit "));
+  Serial.println(bitset);
+#endif
+
+  bitClear(_ReliableConfig, bitset);
+  return;
+}
+
+
+
+uint8_t SX128XLT::readReliableErrors()
+{
+#ifdef SX128XDEBUGRELIABLE
+  Serial.println(F(" {RELIABLE} readReliableErrors()"));
+#endif
+
+  return _ReliableErrors;
+}
+
+uint8_t SX128XLT::readReliableFlags()
+{
+#ifdef SX128XDEBUGRELIABLE
+  Serial.println(F(" {RELIABLE} readReliableFlags()"));
+#endif
+
+  return _ReliableFlags;
+}
+
 
 //******************************************************************************************
 // Reliable SX packet routines - added November 2021
@@ -5609,7 +5641,6 @@ uint8_t SX128XLT::waitACKDTIRQ(uint8_t *header, uint8_t headersize, uint32_t ack
 
   bitSet(_ReliableErrors, ReliableACKError);
   bitSet(_ReliableErrors, ReliableTimeout);
-
   return 0;
 }
 
@@ -5642,9 +5673,8 @@ uint8_t SX128XLT::receiveDTIRQ(uint8_t *header, uint8_t headersize, uint8_t *dat
     return 0;                                            //not wait requested so no packet length to pass
   }
 
-  //while (!digitalRead(_RXDonePin));                      //Wait for DIO1 to go high, no timeout, RX DONE
   //0x4022   = IRQ_RX_DONE + IRQ_RX_TX_TIMEOUT + IRQ_HEADER_ERROR
-  while (!(readIrqStatus() & 0x4022 ));   //wait for IRQs going active
+  while (!(readIrqStatus() & 0x4022 ));                  //wait for IRQs going active
 
   setMode(MODE_STDBY_RC);                                //ensure to stop further packet reception
 
@@ -5850,7 +5880,6 @@ uint8_t SX128XLT::sendACKDTIRQ(uint8_t *header, uint8_t headersize, int8_t txpow
   setDioIrqParams(IRQ_RADIO_ALL, (IRQ_TX_DONE + IRQ_RX_TX_TIMEOUT), 0, 0);   //set for IRQ on TX done and timeout on DIO1
   setTx(txtimeout);
 
-  //while (!digitalRead(_TXDonePin));                                          //Wait for DIO1 to go high
   //0x4001   = IRQ_TX_DONE + IRQ_RX_TX_TIMEOUT
   while (!(readIrqStatus() & 0x4001 ));                         //wait for IRQs going active
 
@@ -5865,6 +5894,8 @@ uint8_t SX128XLT::sendACKDTIRQ(uint8_t *header, uint8_t headersize, int8_t txpow
   bitSet(_ReliableFlags, ReliableACKSent);
   return _TXPacketL;                                                         //TX OK so return TXpacket length
 }
+
+
 
 
 /*

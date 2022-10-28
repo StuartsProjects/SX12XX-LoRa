@@ -1,5 +1,5 @@
 /*******************************************************************************************************
-  Programs for Arduino - Copyright of the author Stuart Robinson - 29/12/20
+  Programs for Arduino - Copyright of the author Stuart Robinson - 03/04/22
 
   This program is supplied as is, it is up to the user of the program to decide if the program is
   suitable for the intended purpose and free from errors.
@@ -99,5 +99,3 @@ const uint8_t LOWCYCLES = 5;         //cycles of low frequency tone for 200baud
 const uint16_t HIGHPERIODUS = 714;   //actual high period in uS to give a 200baud
 const uint8_t HIGHCYCLES = 7;        //cycles of high frequency tone for 200baud
 const int8_t ADJUSTUS = 0;           //uS to subtract from tone generation loop to match frequency
-
-

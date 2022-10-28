@@ -1,5 +1,5 @@
 /*******************************************************************************************************
-  Programs for Arduino - Copyright of the author Stuart Robinson - 21/11/21
+  Programs for Arduino - Copyright of the author Stuart Robinson - 19/03/22
 
   This program is supplied as is, it is up to the user of the program to decide if the program is
   suitable for the intended purpose and free from errors.
@@ -23,84 +23,232 @@
 
 
 /*******************************************************************************************************
-  Program Operation - This is a beta version program using the ESP32CAM to take pictures and transfer
-  the picture via LoRa radio to the SD card on another Arduino. The recever Arduino should be running
-  example program; 234_SDfile_Transfer_Receiver.ino or 239_StuartCAM_LoRa_Receiver. No SD card is needed
-  on the ESP32CAM
+  Program Operation - This is a program using the ESP32CAM to take pictures and transmit those pictures via
+  LoRa radio to another remote Arduino.
 
-  The program wakes up, takes a picture and starts the transfer of the picture array via LoRa, more details
-  of the file transfer process will be found here;
+  This program is for an ESP32CAM board that has an SPI LoRa module set up on the following pins; NSS 12,
+  NRESET 14, SCK 4, MISO 13, MOSI 2, RFBUSY 15, 3.3V VCC and GND. All other pins on the SX128X are not
+  connected.
+
+  Note that the white LED on pin 4 or the transistor controlling it need to be removed so that the LoRa
+  device can properly use pin 4.
+
+  The program wakes up, takes a picture and starts the transfer of the picture (from its memory array in
+  PSRAM) with LoRa, more details of the file transfer process will be found here;
 
   https://stuartsprojects.github.io/2021/09/20/Large-Data-Transfers-with-LoRa-Part3.html
+
+  Note that if the camera fails then the program will attempt to send, and wait for the acknowledge, for a
+  DTinfo packet reporting the fail.
 
   Serial monitor baud rate is set at 115200
 *******************************************************************************************************/
 
-//#define USELORA                         //enable this define to use LoRa packets
-#define USEFLRC                           //enable this define to use FLRC packets
+#define USELORA                                  //enable this define to use LoRa packets
+//#define USEFLRC                                //enable this define to use FLRC packets
 
 #include <Arduino.h>
+#include "FS.h"                                  //SD Card ESP32
+#include "SD_MMC.h"                              //SD Card ESP32
 #include "soc/soc.h"                             //disable brownout problems
 #include "soc/rtc_cntl_reg.h"                    //disable brownout problems
 #include "driver/rtc_io.h"
 
 #include <SPI.h>
-#include <SX128XLT.h>                            //include the appropriate library  
+#include <SX128XLT.h>                            //get library here > https://github.com/StuartsProjects/SX12XX-LoRa  
 #include <ProgramLT_Definitions.h>
-SX128XLT LoRa;                                   //create a library class instance called LoRa
+#include "Settings.h"                            //LoRa and program settings 
+SX128XLT LoRa;                                   //create a library class instance called LoRa, needed for ARtransferIRQ.h
 
-#include <Wire.h>
-
-#include "Settings.h"                            //LoRa and program settings  
-#include <arrayRW.h>                             //part of SX12XX library
-#include <ATLibraryIRQ.h>                        //part of SX12XX library
-#include "esp_camera.h"
+#define ENABLEMONITOR                            //enable define to see progress messages in ARtransferIRQ.h
+#define PRINTSEGMENTNUM                          //enable to print segment numbers as transfer progresses  
+#define ENABLEARRAYCRC                           //enable this define to use and show CRCs
+//#define DISABLEPAYLOADCRC                      //enable this define if you want to not use packet payload CRC checking
+//#define DEBUG                                  //enable this define to show data transfer debug info
 
 RTC_DATA_ATTR int16_t bootCount = 0;             //variables to save in RTC ram
 RTC_DATA_ATTR uint16_t sleepcount = 0;
-
 RTC_DATA_ATTR uint16_t pictureNumber = 0;        //number of picture taken, set to 0 on reset
 
-camera_config_t config;                          //stores the camera configuration parameters
+#include "esp_camera.h"
+camera_config_t config;                         //stores the camera configuration parameters
+#include <ARtransferIRQ.h>                      //library of array transfer functions
 
-uint8_t buff[] = "ESP32CAM Awake";               //the message to send
-
-//#define PRINTSEGMENTNUM
-//#define DEBUG                                  //enable this define to show data transfer debug info
-//#define ENABLEARRAY                            //enable this define to uses and show file CRCs
-//#define DISABLEPAYLOADCRC                      //enable this define if you want to disable payload CRC checking
+bool SDOK;
 
 
 void loop()
 {
-  Serial.println(F("Send Awake Packet"));
-  Serial.flush();
+  SDOK = false;
+  ARDTflags = 0;
 
-  digitalWrite(REDLED, LOW);
-  TXPacketL = LoRa.transmitIRQ(buff, sizeof(buff), 10000, TXpower, WAIT_TX);   //will return packet length sent if OK, otherwise 0 if transmit error
-  digitalWrite(REDLED, HIGH);
+  if (initMicroSDCard())                     //need to setup SD card before camera
+  {
+    Serial.println(F("SD Card OK"));
+    SDOK = true;
+  }
+  else
+  {
+    Serial.println(F("****************************"));
+    Serial.println(F("ERROR - SD Card Mount Failed"));
+    Serial.println(F("****************************"));
+    bitSet(ARDTflags, ARNoFileSave);
+  }
 
-  configInitCamera();
+  if (!configInitCamera())
+  {
+    bitSet(ARDTflags, ARNoCamera);             //set flag bit for no camera working
+    Serial.println(F("Camera config failed"));
+    Serial.println(F("Sending DTInfo packet"));
+    setupLoRaDevice();
+    ARsendDTInfo();
+    startSleep();
+  }
+  else
+  {
+    if (takePhotoSend(PicturesToTake, PictureDelaymS))
+    {
+      //picture taken OK
+      startSleep();
+    }
+    else
+    {
+      //picture take failed
+      Serial.println("********************************");
+      Serial.println("ERROR - Take picture send failed");
+      Serial.println("********************************");
+      Serial.println();
+      Serial.println("Sending DTInfo packet");
+      Serial.flush();
+      bitSet(ARDTflags, ARNoCamera);             //set flag bit for no camera working
+      setupLoRaDevice();
+      ARsendDTInfo();
+      startSleep();
+    }
+  }
+  startSleep();
+}
 
-  takePhotoSend(PicturesToTake, PictureDelaymS);
-
+void startSleep()
+{
   LoRa.setSleep(CONFIGURATION_RETENTION);
-
-  digitalWrite(NSS, HIGH);                                                      //make sure NSS is high
-
-  rtc_gpio_init(GPIO_NUM_13);
-  rtc_gpio_set_direction(GPIO_NUM_13, RTC_GPIO_MODE_INPUT_ONLY);
-  rtc_gpio_set_level(GPIO_NUM_13, 1);
-
+  rtc_gpio_hold_en(GPIO_NUM_4);
+  rtc_gpio_hold_en(GPIO_NUM_12);              //hold LoRa device off in sleep
   esp_sleep_enable_timer_wakeup(SleepTimesecs * uS_TO_S_FACTOR);
   Serial.print(F("Start Sleep "));
   Serial.print(SleepTimesecs);
   Serial.println(F("s"));
   Serial.flush();
-
   sleepcount++;
   esp_deep_sleep_start();
   Serial.println("This should never be printed !!!");
+}
+
+
+
+bool initMicroSDCard()
+{
+  if (!SD_MMC.begin("/sdcard", true))               //use this line for 1 bit mode, pin 2 only, 4,12,13 not used
+  {
+    return false;
+  }
+
+  uint8_t cardType = SD_MMC.cardType();
+
+  if (cardType == CARD_NONE)
+  {
+    Serial.println(F("Unknown SD card type"));
+    return false;
+  }
+
+  return true;
+}
+
+
+void redFlash(uint16_t flashes, uint16_t ondelaymS, uint16_t offdelaymS)
+{
+  uint16_t index;
+
+  pinMode(REDLED, OUTPUT);                    //setup pin as output
+
+  for (index = 1; index <= flashes; index++)
+  {
+    digitalWrite(REDLED, LOW);
+    delay(ondelaymS);
+    digitalWrite(REDLED, HIGH);
+    delay(offdelaymS);
+  }
+  pinMode(REDLED, INPUT);                     //setup pin as input
+}
+
+bool setupLoRaDevice()
+{
+  SPI.begin(SCK, MISO, MOSI, NSS);
+
+  if (LoRa.begin(NSS, NRESET, RFBUSY, LORA_DEVICE))
+  {
+    Serial.println(F("LoRa device found"));
+  }
+  else
+  {
+    Serial.println(F("LoRa Device error"));
+    return false;
+  }
+
+#ifdef USELORA
+  LoRa.setupLoRa(Frequency, Offset, SpreadingFactor, Bandwidth, CodeRate);
+  Monitorport.println(F("Using LoRa packets"));
+#endif
+
+#ifdef USEFLRC
+  LoRa.setupFLRC(Frequency, Offset, BandwidthBitRate, CodingRate, BT, Syncword);
+  Monitorport.println(F("Using FLRC packets"));
+#endif
+
+  Serial.println();
+  return true;
+}
+
+
+void setup()
+{
+  redFlash(4, 125, 125);
+
+  //WRITE_PERI_REG(RTC_CNTL_BROWN_OUT_REG, 0);  //disable brownout detector
+  rtc_gpio_hold_dis(GPIO_NUM_4);
+  rtc_gpio_hold_dis(GPIO_NUM_12);             //LoRa NSS back to normal control after sleep
+
+  pinMode(2, INPUT_PULLUP);
+  digitalWrite(NSS, HIGH);
+  pinMode(NSS, OUTPUT);
+
+  Serial.begin(115200);
+  Serial.println();
+  Serial.println(F(__FILE__));
+
+  if (bootCount == 0)                         //run this only the first time after programming or power up
+  {
+    bootCount = bootCount + 1;
+  }
+
+  Serial.println(F("Awake !"));
+  Serial.print(F("Bootcount "));
+  Serial.println(bootCount);
+  Serial.print(F("Sleepcount "));
+  Serial.println(sleepcount);
+
+#ifdef DISABLEPAYLOADCRC
+  LoRa.setReliableConfig(NoReliableCRC);
+#endif
+
+  if (LoRa.getReliableConfig(NoReliableCRC))
+  {
+    Serial.println(F("Payload CRC disabled"));
+  }
+  else
+  {
+    Serial.println(F("Payload CRC enabled"));
+  }
 }
 
 
@@ -110,7 +258,7 @@ void loop()
 
 bool configInitCamera()
 {
-  Serial.println("Initialising the camera module ");
+  Serial.println(F("Initialising the camera module "));
 
   config.ledc_channel = LEDC_CHANNEL_0;
   config.ledc_timer = LEDC_TIMER_0;
@@ -131,26 +279,19 @@ bool configInitCamera()
   config.pin_pwdn = PWDN_GPIO_NUM;
   config.pin_reset = RESET_GPIO_NUM;
   config.xclk_freq_hz = 20000000;
-  config.pixel_format = PIXFORMAT_JPEG;   //YUV422,GRAYSCALE,RGB565,JPEG
+  config.pixel_format = PIXFORMAT_JPEG;      //YUV422,GRAYSCALE,RGB565,JPEG
 
-  //FRAMESIZE_UXGA (1600 x 1200)
-  //FRAMESIZE_QVGA (320 x 240)
-  //FRAMESIZE_CIF (352 x 288)
-  //FRAMESIZE_VGA (640 x 480)
-  //FRAMESIZE_SVGA (800 x 600)
-  //FRAMESIZE_XGA (1024 x 768)
-  //FRAMESIZE_SXGA (1280 x 1024)
-
-  //Select FRAMESIZE_SVGA or lower framesize if the ESp32 doesn't support PSRAM
+  //Select lower framesize if the camera doesn't support PSRAM
   if (psramFound())
   {
-    Serial.println("PSRAM found");
-    config.frame_size = FRAMESIZE_SVGA;   //FRAMESIZE_ + QVGA|CIF|VGA|SVGA|XGA|SXGA|UXGA, XUGA == 100K+, SVGA = 25K+
-    config.jpeg_quality = 10;             //10-63 lower number means higher quality
+    Serial.println(F("PSRAM found"));
+    config.frame_size = FRAMESIZE_SVGA;      //FRAMESIZE_ + QVGA|CIF|VGA|SVGA|XGA|SXGA|UXGA, XUGA == 100K+, SVGA = 25K+
+    config.jpeg_quality = 10;                //10-63 lower number means higher quality
     config.fb_count = 2;
-  } else
+  }
+  else
   {
-    Serial.println("No PSRAM");
+    Serial.println(F("No PSRAM"));
     config.frame_size = FRAMESIZE_XGA;
     config.jpeg_quality = 12;
     config.fb_count = 1;
@@ -171,7 +312,7 @@ bool configInitCamera()
   s->set_special_effect(s, 0); // 0 to 6 (0 - No Effect, 1 - Negative, 2 - Grayscale, 3 - Red Tint, 4 - Green Tint, 5 - Blue Tint, 6 - Sepia)
   s->set_whitebal(s, 1);       // 0 = disable , 1 = enable
   s->set_awb_gain(s, 1);       // 0 = disable , 1 = enable
-  s->set_wb_mode(s, 2);        // 0 to 4 - if awb_gain enabled (0 - Auto, 1 - Sunny, 2 - Cloudy, 3 - Office, 4 - Home)
+  s->set_wb_mode(s, 1);        // 0 to 4 - if awb_gain enabled (0 - Auto, 1 - Sunny, 2 - Cloudy, 3 - Office, 4 - Home)
   s->set_exposure_ctrl(s, 1);  // 0 = disable , 1 = enable
   s->set_aec2(s, 1);           // 0 = disable , 1 = enable
   s->set_ae_level(s, 0);       // -2 to 2
@@ -191,236 +332,116 @@ bool configInitCamera()
 }
 
 
-uint16_t takePhotoSend(uint8_t num, uint32_t gapmS)
+uint16_t  takePhotoSend(uint8_t num, uint32_t gapmS)
 {
   uint8_t index = 1;
-  uint32_t payloadlength;
   char filenamearray[32];
+  bool sentOK = false;
+  String path;
+  camera_fb_t  * fb = esp_camera_fb_get();
 
-  for (index = 1; index <= num; index++)            //take a number of pictures, send last
+  for (index = 1; index <= num; index++)                     //take a number of pictures, send last
   {
     pictureNumber++;
-    String path = "/pic" + String(pictureNumber) + ".jpg";
-    Serial.printf("Picture file name %s\n", path.c_str());
-
-    camera_fb_t  * fb = esp_camera_fb_get();
+    path = "/pic" + String(pictureNumber) + ".jpg";
+    Serial.print("Next picture file name ");
+    Serial.println(path.c_str());
 
     if (!fb)
     {
-      Serial.println("ERROR - Camera capture failed");
+      Serial.println(F("*****************************"));
+      Serial.println(F("ERROR - Camera capture failed"));
+      Serial.println(F("*****************************"));
       delay(1000);
-      pictureNumber--;                              //restore picture number
-      return 0;                                     //a return of 0 means no picture
+      pictureNumber--;                                       //restore picture number
+      bitSet(ARDTflags, ARNoFileSave);
     }
 
     Serial.println(F("Camera capture success"));
-    Serial.print(F("Picture name length "));
-    Serial.println(sizeof(path));
 
-    payloadlength = fb->len;
-    Serial.print(F("Picture payload length "));
-    Serial.println(payloadlength);
 #ifdef DEBUG
     Serial.print(F("First 8 bytes "));
     printarrayHEX(fb->buf, 0, 8);
     Serial.println();
     Serial.print(F("Last 8 bytes "));
-    printarrayHEX(fb->buf, (payloadlength - 8), 8);
-#endif
+    printarrayHEX(fb->buf, (fb->len - 8), 8);
     Serial.println();
+#endif
 
-    if (index == num)                                          //transfer by LoRa last the last picture in sequence
+    if (SDOK)
     {
-      Serial.println("Send with LoRa");
-      uint8_t tempsize = path.length();
-      path.toCharArray(filenamearray, tempsize + 1);           //copy file name to the local filenamearray
-      filenamearray[tempsize + 1] = 0;                         //ensure there is a null at end of filename in filenamearray
-      sendArray(fb->buf, fb->len, filenamearray, tempsize + 1); //pass array pointer and length across to LoRa send function
+      Serial.println(F("Save picture to SD card"));
+      fs::FS &fs = SD_MMC;                            //save picture to microSD card
+      File file = fs.open(path.c_str(), FILE_WRITE);
+      if (!file)
+      {
+        Serial.println(F("*********************************************"));
+        Serial.println(F("ERROR Failed to open SD file in writing mode"));
+        Serial.println(F("*********************************************"));
+        bitSet(ARDTflags, ARNoFileSave);
+      }
+      else
+      {
+        file.write(fb->buf, fb->len); // payload (image), payload length
+        Serial.printf("Saved file to path: %s\r\n", path.c_str());
+      }
+      file.close();
     }
-
-    esp_camera_fb_return(fb);                                  //return the frame buffer back to the driver for reuse
-
-    delay(gapmS);
+    else
+    {
+      Serial.println(F("***************"));
+      Serial.println(F("No SD available"));
+      Serial.println(F("***************"));
+    }
   }
-  return pictureNumber;
-}
 
-
-//***********************************************************************************************
-// End camera Code
-//***********************************************************************************************
-
-bool setupLoRaDevice()
-{
-  SPI.begin(SCK, MISO, MOSI, NSS);
-
-  if (LoRa.begin(NSS, RFBUSY, LORA_DEVICE))
+  SD_MMC.end();
+  if (setupLoRaDevice())
   {
-    Serial.println(F("LoRa device found"));
+    Serial.print(F("Send with LoRa "));
+    Serial.println(path.c_str());
+    uint8_t tempsize = path.length();
+    path.toCharArray(filenamearray, tempsize + 1);             //copy file name to the local filenamearray
+    filenamearray[tempsize + 1] = 0;                           //ensure there is a null at end of filename in filenamearray
+    sentOK = ARsendArray(fb->buf, fb->len, filenamearray, tempsize + 1); //pass array pointer and length across to LoRa send function
   }
   else
   {
-    Serial.println(F("LoRa Device error"));
+    Serial.println(F("LoRa device not available"));
   }
 
-#ifdef USELORA
-  LoRa.setupLoRa(Frequency, Offset, SpreadingFactor, Bandwidth, CodeRate);
-  Serial.println(F("Using LoRa packets"));
-#endif
+  esp_camera_fb_return(fb);                                    //return the frame buffer back to the driver for reuse
 
-#ifdef USEFLRC
-  LoRa.setupFLRC(Frequency, Offset, BandwidthBitRate, CodingRate, BT, Syncword);
-  Serial.println(F("Using FLRC packets"));
-#endif
+  delay(gapmS);
 
-  Serial.println();
-  LoRa.printModemSettings();
-  Serial.println();
-  LoRa.printOperatingSettings();
-  Serial.println();
-  Serial.println();
-  return true;
-}
-
-
-void redFlash(uint16_t flashes, uint16_t ondelaymS, uint16_t offdelaymS)
-{
-  uint16_t index;
-
-  pinMode(REDLED, OUTPUT);                        //setup pin as output
-
-  for (index = 1; index <= flashes; index++)
+  if (sentOK)
   {
-    digitalWrite(REDLED, LOW);
-    delay(ondelaymS);
-    digitalWrite(REDLED, HIGH);
-    delay(offdelaymS);
-  }
-  pinMode(REDLED, INPUT);                     //setup pin as input
-}
-
-//***********************************************************************************************
-// Start PCA9536 Code
-//***********************************************************************************************
-
-void PCA9536ConfigIO(uint8_t pins)
-{
-  Wire.beginTransmission(PCA9536Addr);
-  Wire.write(0x03);
-  Wire.write(pins);
-  Wire.endTransmission();
-}
-
-
-uint8_t PCA9536ReadConfigIO()
-{
-  uint8_t regdata;
-  Wire.beginTransmission(PCA9536Addr);
-  Wire.write(0x03);
-  Wire.endTransmission();
-  Wire.requestFrom(PCA9536Addr, 0x01);
-  regdata = Wire.read();
-  return regdata;
-}
-
-
-void PCA9536SetIO(uint8_t pins)
-{
-  Wire.beginTransmission(PCA9536Addr);
-  Wire.write(0x01);
-  Wire.write(pins);
-  Wire.endTransmission();
-}
-
-
-uint8_t PCA9536ReadIO()
-{
-  uint8_t regdata;
-  Wire.beginTransmission(PCA9536Addr);
-  Wire.write(0x01);
-  Wire.endTransmission();
-  Wire.requestFrom(PCA9536Addr, 1);
-  regdata = Wire.read();
-  return regdata;
-}
-
-
-void PCA9536ledFlash(uint16_t flashes, uint16_t delaymS)
-{
-  //general purpose routine for flashing LED as indicator on IO port 1
-  uint16_t index;
-  uint8_t currentIO;
-
-  currentIO = PCA9536ReadIO();
-
-  for (index = 1; index <= flashes; index++)
-  {
-    bitSet(currentIO, 1);
-    PCA9536SetIO(currentIO);
-    delay(delaymS);
-    bitClear(currentIO, 1);
-    PCA9536SetIO(currentIO);
-    delay(delaymS);
-  }
-}
-
-
-void setup()
-{
-  digitalWrite(NSS, HIGH);
-  pinMode(NSS, OUTPUT);
-
-  WRITE_PERI_REG(RTC_CNTL_BROWN_OUT_REG, 0);    //disable brownout detector
-  rtc_gpio_hold_dis(GPIO_NUM_13);               //LoRa NSS back to normal control after sleep
-
-  pinMode(SCK, INPUT);
-  pinMode(MOSI, INPUT);
-  pinMode(MISO, INPUT);
-
-  Wire.begin(SDApin, SCLpin);
-  PCA9536ConfigIO(0x0C);
-
-  PCA9536ledFlash(4, 125);
-
-  PCA9536SetIO(0x01);                           //NRESET to high
-  delay(10);
-  PCA9536SetIO(0x00);                           //NRESET to low
-  delay(25);
-  PCA9536SetIO(0x01);                          //NRESET to high
-  delay(25);
-
-  PCA9536SetIO(0x03);                          //leave LED on NRESET high to see if Serial activity affects I2C
-
-  Serial.begin(115200);
-  Serial.println();
-  Serial.println("240_StuartCAM_ESP32CAM starting");
-
-  if (bootCount == 0)                        //run this only the first time after programming or power up
-  {
-    bootCount = bootCount + 1;
-  }
-
-#ifdef DISABLEPAYLOADCRC
-  LoRa.setReliableConfig(NoReliableCRC);
-#endif
-
-  if (LoRa.getReliableConfig(NoReliableCRC))
-  {
-    Serial.println(F("Payload CRC disabled"));
+    Serial.print(filenamearray);
+    Serial.println(F(" Sent OK"));
+    return pictureNumber;
   }
   else
   {
-    Serial.println(F("Payload CRC enabled"));
+    Serial.print(filenamearray);
+    Serial.println(F(" Send picture failed"));
   }
+  return 0;
+}
 
-  Serial.println(F("Awake !"));
-  Serial.print(F("Bootcount "));
-  Serial.println(bootCount);
-  Serial.print(F("Sleepcount "));
-  Serial.println(sleepcount);
-  Serial.flush();
 
-  delay(1000);                                     //short delay needed before setting up LoRa device
+void printarrayHEX(uint8_t *buff, uint32_t startaddr, uint32_t len)
+{
+  uint32_t index;
+  uint8_t buffdata;
 
-  setupLoRaDevice();                               //setup the LoRa device
+  for (index = startaddr; index < (startaddr + len); index++)
+  {
+    buffdata = buff[index];
+    if (buffdata < 16)
+    {
+      Serial.print(F("0"));
+    }
+    Serial.print(buffdata, HEX);
+    Serial.print(F(" "));
+  }
 }

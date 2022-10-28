@@ -12,7 +12,7 @@
 
 #define NSS 10                                  //select on LoRa device
 #define NRESET 9                                //reset on LoRa device
-#define RFBUSY 7                                //SX126X busy pin 
+#define RFBUSY 7                                //SX128X busy pin 
 #define DIO1 3                                  //DIO1 on LoRa device, used for RX and TX done
 #define RX_EN -1                                //pin for RX enable, used on some SX1280 devices, set to -1 if not used
 #define TX_EN -1                                //pin for TX enable, used on some SX1280 devices, set to -1 if not used 
@@ -63,5 +63,3 @@ const int8_t TXpower = 10;                       //Power for transmissions in dB
 #define Sleepsecs 5                              //seconds between transmissions, this delay is used to set overall transmission cycle time
 
 #define echomS 2000                              //number of mS to run GPS echo at startup    
-
-

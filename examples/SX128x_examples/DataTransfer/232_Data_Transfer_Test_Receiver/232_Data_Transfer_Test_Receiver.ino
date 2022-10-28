@@ -1,5 +1,5 @@
 /*******************************************************************************************************
-  Programs for Arduino - Copyright of the author Stuart Robinson - 09/11/21
+  Programs for Arduino - Copyright of the author Stuart Robinson - 12/03/22
 
   This program is supplied as is, it is up to the user of the program to decide if the program is
   suitable for the intended purpose and free from errors.
@@ -8,12 +8,11 @@
 /*******************************************************************************************************
   Program Operation - This is a program that simulates the transfer of a file using data transfer (DT)
   packet functions from the SX128X library. No SD cards are needed for the simulation. Use with matching
-  receiver program 231_Transfer_Simulator_Transmitter.ino.
+  receiver program 231_Data_Transfer_Test_Transmitter.ino.
 
   DT packets can be used for transfering large amounts of data in a sequence of packets or segments,
   in a reliable and resiliant way. The remote file open request, the segements sent and the remote file close
-  will be transmitted until a valid acknowledge comes from the receiver. Use with the matching transmitter
-  program, 233_LoRa_SDfile_Transfer_Transmitter.ino.
+  will be transmitted until a valid acknowledge comes from the receiver. 
 
   Each DT packet contains a variable length header array and a variable length data array as the payload.
   On transmission the NetworkID and CRC of the payload are appended to the end of the packet by the library
@@ -28,8 +27,13 @@
   Details of the packet identifiers, header and data lengths and formats used are in the file
   Data_transfer_packet_definitions.md in the \SX128X_examples\DataTransfer\ folder.
 
+  The transfer can be carried out using LoRa packets, max segment size (defined by DTSegmentSize) is 245 bytes
+  for LoRa, 117 is maximum value for FLRC.
+
   Serial monitor baud rate is set at 115200.
 *******************************************************************************************************/
+#define USELORA                               //enable this define to use LoRa packets
+//#define USEFLRC                             //enable this define to use FLRC packets
 
 #include <SPI.h>
 
@@ -40,13 +44,12 @@
 
 SX128XLT LoRa;                                //create an SX128XLT library instance called LoRa
 
-#include "DTLibrarySIM.h"
-
-//#define USELORA                             //enable this define to use LoRa packets
-#define USEFLRC                               //enable this define to use FLRC packets
+#define PRINTSEGMENTNUM                       //enable this define to print segment numbers
 
 //#define DEBUG
 //#define DISABLEPAYLOADCRC                   //enable this define if you want to disable payload CRC checking
+
+#include "DTLibrarySIM.h"
 
 
 void loop()
@@ -103,13 +106,10 @@ void setup()
   Serial.println(F("Using FLRC packets"));
 #endif
 
+
   LoRa.printOperatingSettings();
   Serial.println();
   LoRa.printModemSettings();
-  Serial.println();
-
-  Serial.print(F("Initializing SD card..."));
-
   Serial.println();
 
 #ifdef DISABLEPAYLOADCRC
@@ -128,6 +128,6 @@ void setup()
   DTSegmentNext = 0;
   DTFileOpened = false;
 
-  Serial.println(F("SDfile transfer receiver ready"));
+  Serial.println(F("File transfer receiver ready"));
   Serial.println();
 }

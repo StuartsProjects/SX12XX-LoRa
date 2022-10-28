@@ -23,8 +23,8 @@
 #define TXpin A2                                //pin number for GPS TX output from Arduino- RX into GPS
 
 #define GPSPOWER 4                              //Pin that controls power to GPS, set to -1 if not used
-#define GPSONSTATE HIGH                         //logic level to turn GPS on via pin GPSPOWER 
-#define GPSOFFSTATE LOW                         //logic level to turn GPS off via pin GPSPOWER
+#define GPSONSTATE LOW                          //logic level to turn GPS on via pin GPSPOWER 
+#define GPSOFFSTATE HIGH                        //logic level to turn GPS off via pin GPSPOWER
 
 #define LORA_DEVICE DEVICE_SX1278               //this is the device we are using
 
@@ -34,8 +34,8 @@
 const uint32_t Frequency = 434000000;           //frequency of transmissions
 const uint32_t Offset = 0;                      //offset frequency for calibration purposes
 
-const uint8_t Bandwidth = LORA_BW_062;          //LoRa bandwidth
-const uint8_t SpreadingFactor = LORA_SF12;      //LoRa spreading factor
+const uint8_t Bandwidth = LORA_BW_125;          //LoRa bandwidth
+const uint8_t SpreadingFactor = LORA_SF7;       //LoRa spreading factor
 const uint8_t CodeRate = LORA_CR_4_5;           //LoRa coding rate
 const uint8_t Optimisation = LDRO_AUTO;         //low data rate optimisation setting
 
@@ -55,5 +55,3 @@ const int8_t TXpower = 10;                      //LoRa transmit power in dBm
 #define NoRXGPSfixms 15000                       //max number of mS to allow before no local GPS fix flagged 
 #define DisplayRate 7                            //when working OK the GPS will get a new fix every second or so
                                                  //this rate defines how often the display should be updated
-
-

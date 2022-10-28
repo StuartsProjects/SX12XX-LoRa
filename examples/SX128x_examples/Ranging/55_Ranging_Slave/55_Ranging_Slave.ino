@@ -124,6 +124,7 @@ void setup()
   //***************************************************************************************************
   //Setup LoRa device for Ranging Slave
   //***************************************************************************************************
+  /*
   LT.setMode(MODE_STDBY_RC);
   LT.setPacketType(PACKET_TYPE_RANGING);
   LT.setModulationParams(SpreadingFactor, Bandwidth, CodeRate);
@@ -136,6 +137,7 @@ void setup()
   LT.setRangingRole(RANGING_SLAVE);
   LT.writeRegister(REG_RANGING_FILTER_WINDOW_SIZE, 8); //set up window size for ranging averaging
   LT.setHighSensitivity();
+  */
   //***************************************************************************************************
 
   LT.setRangingCalibration(11300);               //override automatic lookup of calibration value from library table

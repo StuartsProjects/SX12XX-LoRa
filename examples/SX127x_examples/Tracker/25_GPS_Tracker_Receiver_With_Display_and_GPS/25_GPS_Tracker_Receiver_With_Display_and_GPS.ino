@@ -63,8 +63,8 @@ SX127XLT LT;
 #include <ProgramLT_Definitions.h>
 
 #include <U8x8lib.h>                                        //https://github.com/olikraus/u8g2 
-//U8X8_SSD1306_128X64_NONAME_HW_I2C disp(U8X8_PIN_NONE);    //standard 0.96" SSD1306
-U8X8_SH1106_128X64_NONAME_HW_I2C disp(U8X8_PIN_NONE);       //1.3" OLED often sold as 1.3" SSD1306
+U8X8_SSD1306_128X64_NONAME_HW_I2C disp(U8X8_PIN_NONE);      //standard 0.96" SSD1306
+//U8X8_SH1106_128X64_NONAME_HW_I2C disp(U8X8_PIN_NONE);     //1.3" OLED often sold as 1.3" SSD1306
 
 
 #include <TinyGPS++.h>                                      //http://arduiniana.org/libraries/tinygpsplus/
@@ -167,7 +167,7 @@ void readGPS()
     dispscreen1();
   }
 
-  if (gps.location.isUpdated() && gps.altitude.isUpdated() && gps.date.isUpdated())
+  if (gps.location.isUpdated() && gps.altitude.isUpdated())
   {
     RXGPSfix = true;
     RXLat = gps.location.lat();
@@ -273,9 +273,9 @@ void packet_is_OK()
     Serial.write(Destination);
     Serial.write(Source);
     Serial.print(F(","));
-    Serial.print(TXLat, 5);
+    Serial.print(TXLat, 6);
     Serial.print(F(","));
-    Serial.print(TXLon, 5);
+    Serial.print(TXLon, 6);
     Serial.print(F(","));
     Serial.print(TXAlt, 1);
     Serial.print(F(","));
@@ -336,9 +336,9 @@ void packet_is_OK()
     Serial.write(Destination);
     Serial.write(Source);
     Serial.print(F(","));
-    Serial.print(TXLat, 5);
+    Serial.print(TXLat, 6);
     Serial.print(F(","));
-    Serial.print(TXLon, 5);
+    Serial.print(TXLon, 6);
     Serial.print(F(","));
     Serial.print(TXAlt, 0);
     Serial.print(F("m,"));
@@ -351,6 +351,11 @@ void packet_is_OK()
     printpacketDetails();
     dispscreen1();
     return;
+  }
+
+  if (PacketType == NoFix)
+  {
+    Serial.print(F("No tracker GPS fix"));
   }
 }
 
@@ -428,10 +433,34 @@ void dispscreen1()
   float tempfloat;
   disp.clearLine(0);
   disp.setCursor(0, 0);
-  disp.print(TXLat, 5);
+  disp.print(TXLat, 6);
+
+  disp.setCursor(14, 0);
+  
+  if (readTXStatus(GPSFix))
+  {
+   disp.print(F("T"));
+   disp.write(Source);
+  }
+  else
+  {
+   disp.print(F("T?"));  
+  }
+  
   disp.clearLine(1);
   disp.setCursor(0, 1);
-  disp.print(TXLon, 5);
+  disp.print(TXLon, 6);
+
+  disp.setCursor(14, 1);
+  if (RXGPSfix)
+  {
+   disp.print(F("RG"));
+  }
+  else
+  {
+   disp.print(F("R?"));  
+  }
+  
   disp.clearLine(2);
   disp.setCursor(0, 2);
   disp.print(TXAlt,0);
@@ -481,19 +510,6 @@ void dispscreen1()
 
   disp.clearLine(7);
 
-  if (RXGPSfix)
-  {
-    disp.setCursor(15, 1);
-    disp.print(F("R"));
-  }
-  else
-  {
-    disp.setCursor(15, 1);
-    disp.print(F(" "));
-    disp.setCursor(0, 7);
-    disp.print(F("No Local Fix"));
-  }
-
   if (RXGPSfix && TXLocation)           //only display distance and direction if have received tracker packet and have local GPS fix
   {
     disp.clearLine(7);
@@ -503,13 +519,6 @@ void dispscreen1()
     disp.print(TXdirection);
     disp.print(F("d"));
   }
-
-  if (readTXStatus(GPSFix))
-  {
-    disp.setCursor(15, 0);
-    disp.write(Source);
-  }
-
 }
 
 
@@ -525,24 +534,6 @@ void dispscreen2()
   tempfloat = ((float) TXVolts / 1000);
   disp.print(tempfloat, 2);
   disp.print(F("v"));
-}
-
-
-void GPSON()
-{
-  if (GPSPOWER >= 0)
-  {
-    digitalWrite(GPSPOWER, GPSONSTATE);                         //power up GPS
-  }
-}
-
-
-void GPSOFF()
-{
-  if (GPSPOWER >= 0)
-  {
-    digitalWrite(GPSPOWER, GPSOFFSTATE);                        //power off GPS
-  }
 }
 
 
@@ -617,9 +608,9 @@ void setup()
   if (GPSPOWER >= 0)
   {
     pinMode(GPSPOWER, OUTPUT);
+    digitalWrite(GPSPOWER, GPSONSTATE);                         //power up GPS
   }
 
-  GPSON();
   GPSserial.begin(GPSBaud);
   GPSTest();
   
@@ -629,6 +620,3 @@ void setup()
   Serial.println(F("Receiver ready"));
   Serial.println();
 }
-
-
-
