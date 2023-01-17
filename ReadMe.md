@@ -1,14 +1,34 @@
+
 # SX12XX Library
 
-This Arduino library supports the SX126x, SX127x and SX128x Semtech LoRa devices.
+This Arduino LoRa library is I hope different to other libraries, this LoRa library has a specific emphasis on providing a large range of working examples for common applications.
 
-Included is a wide range of functional example programs for using sensors, GPSs as trackers, displays, remote control and camera image transfer for Arducam or ESP32CAM. Other examples demonstrate transmitting FM tones, playing tunes, or sending FSK RTTY data. Link testing programs enable device performance and sensitivity to be measured. 
+There are the normal basic transmit and receive examples, but there are many additional real world examples for;
 
-A recent addition is the concept of 'Reliable' packets where the library functions automatically append a payload CRC and network ID to each packet. This means the receiver can be very confident that the received packet is from a known source and in the correct sequence. Additionally the transmitter can require a valid acknowledge response from the receiver before it continues.  
+- Sending and receiving sensor data.
+- Remote control of devices, turning LEDs on\off etc.
+- GPS tracker transmitters and receivers with displays.
+- Using joysticks and servos for remote control.
+- Examples using sleep modes for low power consumption.
+- High altitude balloon trackers.
+- Transferring large data arrays or files.
+- Sending and receiving images from ESP32CAMs.
+- Sending and receiving packets where an acknowledge is required.
+- Sending requests to remote nodes for the return of specific data.
+- Link test programs to test LoRa devices and antennas.
+- Packet loggers with displays.
+- Transmitting data with FSK RTTY.
+- Transmitting FM tones and playing tunes (Star Wars).
+
+The coding style of the library functions is (I hope) kept simple so that its easy to understand and modify for custom applications.
+
+There are the standard examples showing how to send and receive arrays of data and very easy to use examples that write and read data and variables direct into and from the LoRa devices internal buffer. Examples for sending and receiving structures too.
+
+The library includes the concept of 'Reliable' packets where the library functions automatically append a payload CRC and network ID to each packet. This means the receiver can be very confident that the received packet is from a known source and in the correct sequence. Additionally the transmitter can require a valid acknowledge response from the receiver before it continues.  
 
 The reliable packets are used for the data transfer examples where LoRa can be used to reliably move images, files or arrays from one Arduino to another. These image or file transfers can also be forwarded from the Arduino to a folder on a PC via a local Serial YModem transfer. 
 
-There are  examples for the distance measuring or ranging functions of the SX128X, tested up to 85km. Fast Long Range Communication (FLRC) packets are also  supported on the SX128X and these packets have an on air rate of up to  1,300,000bps.  
+There are  examples for the distance measuring or ranging functions of the SX128X, tested up to 85km. Fast Long Range Communication (FLRC) packets are also  supported on the SX128X and these packets have an on air rate of up to 1,300,000bps.  
 
 The Semtech LoRa devices are used to manufacture a range of LoRa modules sold by companies such as Hope, Dorji, NiceRF and others. The library does not support LoRa modules with a UART based interface such as those from Ebyte and Microchip.
 
@@ -30,23 +50,21 @@ The library does support the following Semtech LoRa devices;
 
 However, its up to module manufactures to connect the Semtech LoRa devices up as they see fit. There are several options and additional control pins that a module manufacturer can add, so just because a module uses for example an SX1262 it does not mean the library code can support that particular modules combination of pins. See the section 'Considerations for pin usage' below. 
 
-## Objectives
-
-The objective of the library was to allow the same program sketches to be used across the range of UHF LoRa modules (SX126x and SX127x) as well as the 2.4Ghz SX128x modules. With this library a sketch written for the SX1278 should run with very minor changes on the SX1262 or SX1280. However, whilst the SX126x and SX128x modules use the same style of internal device programming, the SX127x internal programming is completely different. The function style used for the SX126x and SX128x devices has been emulated for the SX127x.
-
-## SX12XX Library installation
-
-To install the library select the 'Clone or download' button on the main Github page, then select 'Download Zip'. In the Arduino IDE select 'Sketch' then 'Include Library'. Next select 'Add .ZIP library' and browse to and select the ZIP file you downloaded, it's called 'SX12xx-master.zip'.
+A prime objective of the library was to allow the same program sketches to be used across the range of UHF LoRa modules (SX126x and SX127x) as well as the 2.4Ghz SX128x modules. With this library a sketch written for the SX1278 should run with very minor changes on the SX1262 or SX1280. However, whilst the SX126x and SX128x modules use the same style of internal device programming, the SX127x internal programming is completely different. The function style used for the SX126x and SX128x devices has been emulated for the SX127x.
 
 ### Warning
 
 **The base Semtech devices that this library supports are all 3.3V logic level devices and most available modules do not include logic level conversion circuits.  So do not use modules directly with 5V logic level Arduinos unless some form of logic level conversion is implemented.** There are no specific logic level converters I could recommend. 
 
+## SX12XX Library installation
+
+To install the library select the 'Clone or download' button on the main Git hub page, then select 'Download Zip'. In the Arduino IDE select 'Sketch' then 'Include Library'. Next select 'Add .ZIP library' and browse to and select the ZIP file you downloaded, it's called 'SX12xx-master.zip'.
+
 ## Direct access to LoRa device internal data buffer
 
-A conventional LoRa library normally uses a buffer of data created within the Arduino sketch to contain the data that is sent as a packet. This library has those functions, see the example programs 3 and 4 in the 'Basics' folder. There are examples for sending\receiving a simple character buffer ("Hello World") and for sending\receiving a data structure which can also include a character buffer.
+A conventional LoRa library normally uses a buffer of data created within the Arduino sketch to contain the data that is sent as a packet. This library has those basic functions, see the example programs 3 and 4 in the 'Basics' folder. There are examples for sending\receiving a simple character buffer ("Hello World") and for sending\receiving a data structure which can also include a character buffer.
  
-An additional library feature has been implemented to enable variables or character data to be written direct to the LoRa devices internal buffer. This has the benefit of not requiring a memory buffer in the Arduino and also lends itself to a simple way of sending and receiving packets. For instance this is the routine to create a packet for transmission taken from the /LowMemory examples folder;
+An additional feature has been implemented for this library to enable variables or character data to be written direct to the LoRa devices internal buffer. This has the benefit of not requiring a memory buffer in the Arduino and also lends itself to a simple easy to understand way of sending and receiving packets. For instance this is the routine to create a packet for transmission taken from the /LowMemory examples folder;
 
 	LT.startWriteSXBuffer(0);                         //start the write at location 0
 	LT.writeBuffer(trackerID, sizeof(trackerID));     //= 13 bytes (12 characters plus null (0) at end)
@@ -78,9 +96,13 @@ Clearly as with other methods of sending data the order in which the packet data
 ## Considerations for pin usage
 
 Pins settings and usage must be set up either at the head of a program or in the the the 'Settings.h' file that is include in some sketch folders. Program **2\_Register\_Test** is an example of a sketch that does not use a 'Settings.h' file. 
-The library supports the SPI based LoRa modules and these all require that the SPI bus pins, SCK, MOSI and MISO are connected. All modules also need a NSS (chip select pin) and NRESET (reset) pin. In theory the NRESET pin can be omitted, but the programs would loose the ability to reset the device. All SX126X and SX128X devices need the RFBUSY pin to be used also. 
+The library supports the SPI based LoRa modules and these all require that the SPI bus pins, SCK, MOSI and MISO are connected. All modules also need a NSS (chip select pin) and NRESET (reset) pin. All SX126X and SX128X devices need the RFBUSY pin to be used also. 
 
-Of the LoRa devices DIO pins the library in standard form only uses DIO0 (SX127X) and DIO1 (SX126X and SX128X). The pin definitions for DIO1 and DIO2 (SX127x) and DIO2 and DIO3 (SX126x and SX128x) are not currently used by the library or examples so can be defined as -1 meaning they will not be configured. There are 'IRQ' library functions that do not need the use of the DIO0 (SX127X) or DIO1 (SX126X and SX128X) pins. See examples such as 3_LoRa_TransmitterIRQ.
+Of the LoRa devices DIO pins the library in standard form only uses DIO0 (SX127X) and DIO1 (SX126X and SX128X). The pin definitions for DIO1 and DIO2 (SX127x) and DIO2 and DIO3 (SX126x and SX128x) are not currently used by the library or examples so can be defined as -1 meaning they will not be configured. 
+
+### Reduced pin usage
+
+There are 'IRQ' library functions that do not need the use of the DIO0 (SX127X) or DIO1 (SX126X and SX128X) pins. These functions read the LoRa devices IRQ registers to check for transmit or receive completion. See examples such as **3\_LoRa\_TransmitterIRQ**. On the SX127x devices you can normally leave the NRESET pin floating, the device clears itself at power on. This can save another IO pin. There are begin() methods for these combinations.
 
 The Dorji DRF1262 and DRF1268 modules have an SW pin which must be connected, it provides power to the antenna switch used on these modules. 
 
@@ -90,32 +112,25 @@ Some SX126x modules may have RX or TX enable pins, Ebyte E22 modules for instanc
 
 ### SX128x modules with RX or TX enable pins
 
-Some of the SX128x modules may also have RX or TX enable pins, such as the Ebyte E28 modules. These functions have been tested and are supported for SX128x devices. You need to define the pins RX_EN and TX_EN pins used, otherwise leave unused by defining them as -1.  
+Some of the SX128x modules may also have RX or TX enable pins, such as the Ebyte E28 modules. These functions have been tested and are supported for SX128x devices. You need to define the pins RX\_EN and TX\_EN pins used, otherwise leave unused by defining them as -1.  
 
 ## Testing of library and examples
 
 For testing the library and the example programs I used a board of my own design, which uses a 3.3V/8Mhz Arduino Pro Mini and has a socket where you can plug in a LoRa device as a Mikrobus style module. The board is small enough to be used for a GPS tracker application using the end connections for a GPS and display. See the [**Easy Pro Mini**](https://github.com/StuartsProjects/Devices/tree/master/Easy%20Pro%20Mini) folder for details. 
 <br>
   
-All example programs were checked against version 1.8.13 of the Arduino IDE. The operating system was Windows 10. 
 
-## Program examples
+## Testing a new setup
 
-The Examples folder contains a number of practical working applications. There is an example for a very low sleep current sensor transmitter and matching receiver. There are examples for remote control of outputs and servos. There is a GPS tracker transmitter and receiver application. These applications utilise LoRa for the communications so even at low powers they can operate over several kilometres. 
-
-There are demonstrations on how to send data as a plain character array, as a structure and by writing variables direct to the LoRa devices internal buffer.  
-
-There are additional program examples for testing devices, antennas and long distance links.
-
-The Settings.h file contains the settings for the LoRa device such as frequency, spreading factor, bandwidth and coding rate.  The example programs use a frequency of 434.000Mhz or 2.445Ghz for the SX128x, you will need to check if that frequency is permitted in your part of the World. The radio frequency spectrum is not a free for all, which frequencies, transmitter powers and duty cycles you are permitted to use varies by region and country. By default CRC checking is added to transmitted packets and used to check for errors on reception.
-
-The first program to test a layout and connections would be the Example program in the Basics folder **2\_Register_Test**, this just does a simple register print of the LoRa device. If this program does not work, then the rest of the example programs wont either. This program is self contained, it does not need the library installed to operate. 
+A good first example program to test a layout and connections would be the example program in the Basics folder **2\_Register_Test**, this just does a simple register print of the LoRa device. If this program does not work, then the rest of the example programs wont either. This program is self contained, it does not need the library installed to operate. 
 
 With an example program written and tested on this SX127x library the example should work with some minor changes with the SX126x and SX128x devices. Many of the example programs have already been tested and are working on SX126x, conversion typically takes less than a minute. 
 
+The Settings.h file in some examples contains the settings for the LoRa device such as frequency, spreading factor, bandwidth and coding rate.  The example programs use a frequency of 434.000Mhz or 2.445Ghz for the SX128x, you will need to check if that frequency is permitted in your part of the World. The radio frequency spectrum is not a free for all, which frequencies, transmitter powers and duty cycles you are permitted to use varies by region and country. By default CRC checking is added to transmitted packets and used to check for errors on reception.
+
 ### External libraries in examples
 
-Some of the example sketches, in particular the camera and file transfer sketches use additional Arduino libraries. Some of these such as the SD libraries are part of the Arduino IDE, others you have to download and install. Most of these additional libraries are reliable, but some, such as the SD libraries are not. 
+Some of the example sketches, in particular the camera and file transfer sketches use additional Arduino libraries. Some of these such as the SD libraries are part of the Arduino IDE, others you have to download and install. Most of these additional libraries are reliable, but some, such as the SD libraries may not be with some combinations of hardware. 
 
 ## Library Functions
 
@@ -197,7 +212,7 @@ Other LoRa device pins can be used if you choose and the full list of begin func
 	DEVICE_SX1279_RFO
 
 
-Note that in the above list for the SX127x part of the library only and there are new device types that allow the library to differentiate between devices that have the transmit output connected to the **PA\_BOOST** pin (which is the vast majority of SX127x devices) and those that use the **RFO LF\_ANT** or **RFO HF\_ANT** pins for RF output. These RFO connected devices are in the minority and are limited to 14dBm output. There is no library support for a SX1272 using the RFO outputs as I dont have one to test.
+Note that in the above list for the SX127x part of the library only and there are new device types that allow the library to differentiate between devices that have the transmit output connected to the **PA\_BOOST** pin (which is the vast majority of SX127x devices) and those that use the **RFO LF\_ANT** or **RFO HF\_ANT** pins for RF output. These RFO connected devices are in the minority and are limited to 14dBm output. There is no library support for a SX1272 using the RFO outputs as I don't have one to test.
 
 The old device types; DEVICE\_SX1272, DEVICE\_SX1276, DEVICE\_SX1277, DEVICE\_SX1278 and DEVICE\_SX1272 are retained for compatibility with old sketches and are the same device as those with the \_PABOOST identity.
 
@@ -293,7 +308,7 @@ Set the packet parameters. PreAmblelength is normally 8. There is a choice of LO
 
 **setSyncWord(LORA\_MAC\_PRIVATE\_SYNCWORD)**
 
-You can define the syncword here, either a 8 bit value of your own choice or the standard values of LORA\_MAC\_PRIVATE\_SYNCWORD (0x12) or LORA\_MAC\_PUBLIC\_SYNCWORD (0x34). Take care with setting your own syncwords, some values may not be compatible with other LoRa devices or can give reduced sensitivity. There is no configurable syncword for SX128x devices.
+You can define the syncword here, either a 8 bit value of your own choice or the standard values of LORA\_MAC\_PRIVATE\_SYNCWORD (0x12) or LORA\_MAC\_PUBLIC\_SYNCWORD (0x34). Take great care with setting your own syncwords, some values will not work and may not be compatible with other LoRa devices or can give reduced sensitivity. Best to stick to the standard PUBLIC and PRIVATE ones. There is no configurable syncword for SX128x devices.
 
 **setHighSensitivity()**
 
@@ -404,9 +419,9 @@ Print as ASCII characters to the serial monitor the contents of the buffer name 
 
 **transmit(buff, TXPacketL, timeout, TXpower, WAIT_TX)**
 
-Transmit the contents of the buffer name given, for the given length. With a timeout in mS, with a TXpower in dBm and wait for the transmit to complete (a blocking command). To have the LoRa device start transmitting and continue as a no blocking command use NO_WAIT. 
+Transmit the contents of the buffer name given, for the given length. With a timeout in mS, with a TXpower in dBm and wait for the transmit to complete (a blocking command). To have the LoRa device start transmitting and continue as a no blocking command use NO\_WAIT. 
 
-With **transmit** and WAIT\_TX the function returns the packet length if transmit detected no errors and 0 if errors were detected. If NO_WAIT is used you will need to check when pin DIO0 (SX127X) or DIO1 (SX126X and SX128X) goes high indicating transmission is completed.    
+With **transmit** and WAIT\_TX the function returns the packet length if transmit detected no errors and 0 if errors were detected. If NO\_WAIT is used you will need to check when pin DIO0 (SX127X) or DIO1 (SX126X and SX128X) goes high indicating transmission is completed.    
 
 **CRCCCITT(buff, TXPacketL, 0xFFFF)**
 
@@ -444,11 +459,11 @@ Prints to the serial monitor the interrupt flags set.
 
 LoRa is a two way technology, each device is a transceiver. Most often on a particular frequency there will be one transmitter and one receiver. However, this may not always be the case and there could be several nodes in use on the same frequency. 
 
-In order to keep the software simple and allow for the receipt of signals from multiple receivers or directed commands to a particular node, a basic addressing scheme can be used and is implemented by some example programs, see '17_Sensor_Transmitter' for an example. There are library routines to send and receive packets in addressed and non-addressed format so you choose which to send. When using addressed mode regardless of the data content of the actual payload each packet sent has 3 control bytes at the beginning of the packet. In the case of the sensor example mentioned above, the use of the addressing allows the receiver to know from which sensor transmitter the packet came. 
+In order to keep the software simple and allow for the receipt of signals from multiple receivers or directed commands to a particular node, a basic addressing scheme can be used and is implemented by some example programs, see **17\_Sensor\_Transmitter** for an example. There are library routines to send and receive packets in addressed and non-addressed format so you choose which to send. When using addressed mode regardless of the data content of the actual payload each packet sent has 3 control bytes at the beginning of the packet. In the case of the sensor example mentioned above, the use of the addressing allows the receiver to know from which sensor transmitter the packet came. 
 
 In general the control bytes have been restricted to ASCII printable characters so that they can be shown directly on a terminal monitor. The 3 bytes are;
 
-**Packet type**. This either describes the content of the packet, which could be a GPS location payload or is a command to do something and there is no payload. Details of the packet types defined are in the library file 'ProgramLT_Definitions.h'
+**Packet type**. This either describes the content of the packet, which could be a GPS location payload or is a command to do something and there is no payload. Details of the packet types defined are in the library file **ProgramLT\_Definitions.h**
 
 **Packet Destination**. The node number that the packet is destined for.
 
@@ -473,7 +488,7 @@ It was not the intention of this library to specifically support the large numbe
 
 ## Support
 
-The examples do work, so if for you they do not, assume there is a problem with how you have wired the modules or that your modules are faulty or that your Arduino set-up or LoRa module is faulty or unsupported. You are best placed to diagnose these issues. It is not practical for me to provide on-going technical support for programs that are not the library examples included. This also applies to external  libraries used in examples, if you have problems with these libraries, contact the authors for support. 
+The examples do work, so if for you they do not, assume there is a problem with how you have wired the modules or that your modules are faulty or that your Arduino set-up or LoRa module is faulty or unsupported. You are best placed to diagnose these issues. **It is not practical for me to provide on-going technical support for programs that are not the library examples included.** This also applies to external  libraries used in examples, if you have problems with these libraries, contact the authors for support. 
 
 If you find a bug, or other error in the SX12xx library or examples, and your using the ATMega328P and ATMega1284P platforms please let me know.
 
@@ -485,5 +500,5 @@ If you find a bug, or other error in the SX12xx library or examples, and your us
 
 ### Stuart Robinson
 
-### March 2022
+### January 2023
 
