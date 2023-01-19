@@ -14,7 +14,7 @@ There are the normal basic transmit and receive examples, but there are many add
 - Transferring large data arrays or files.
 - Sending and receiving images from ESP32CAMs.
 - Sending and receiving packets where an acknowledge is required.
-- Sending requests to remote nodes for the return of specific data.
+- Sending polling requests to remote nodes for the return of specific data.
 - Link test programs to test LoRa devices and antennas.
 - Packet loggers with displays.
 - Transmitting data with FSK RTTY.
@@ -24,7 +24,7 @@ The coding style of the library functions is (I hope) kept simple so that its ea
 
 There are the standard examples showing how to send and receive arrays of data and very easy to use examples that write and read data and variables direct into and from the LoRa devices internal buffer. Examples for sending and receiving structures too.
 
-The library includes the concept of 'Reliable' packets where the library functions automatically append a payload CRC and network ID to each packet. This means the receiver can be very confident that the received packet is from a known source and in the correct sequence. Additionally the transmitter can require a valid acknowledge response from the receiver before it continues.  
+The library includes the concept of 'Reliable' packets where the library functions automatically append a payload CRC and network ID to each packet. This means the receiver can be very confident that the received packet is from a known source and in the correct sequence. Additionally the transmitter can require a valid acknowledge response from the receiver before it continues. A transmitter can send 'Reliable' poll messages so that only a specific node will respond. 
 
 The reliable packets are used for the data transfer examples where LoRa can be used to reliably move images, files or arrays from one Arduino to another. These image or file transfers can also be forwarded from the Arduino to a folder on a PC via a local Serial YModem transfer. 
 
