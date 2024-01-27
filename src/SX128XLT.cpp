@@ -1769,7 +1769,8 @@ uint16_t SX128XLT::CRCCCITT(uint8_t *buffer, uint32_t size, uint16_t start)
   Serial.println(F("CRCCCITT()"));
 #endif
 
-  uint16_t index, libraryCRC;
+  uint32_t index;
+  uint16_t libraryCRC;
   uint8_t j;
 
   libraryCRC = start;                                  //start value for CRC16

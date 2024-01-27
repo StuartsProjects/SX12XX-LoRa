@@ -60,6 +60,8 @@ A prime objective of the library was to allow the same program sketches to be us
 
 To install the library select the 'Clone or download' button on the main Git hub page, then select 'Download Zip'. In the Arduino IDE select 'Sketch' then 'Include Library'. Next select 'Add .ZIP library' and browse to and select the ZIP file you downloaded, it's called 'SX12xx-master.zip'.
 
+This library should work on versions 1.8.xx of the Arduino IDE. It has not been tested on versions 2.x.x of the Arduino IDE
+
 ## Direct access to LoRa device internal data buffer
 
 A conventional LoRa library normally uses a buffer of data created within the Arduino sketch to contain the data that is sent as a packet. This library has those basic functions, see the example programs 3 and 4 in the 'Basics' folder. There are examples for sending\receiving a simple character buffer ("Hello World") and for sending\receiving a data structure which can also include a character buffer.
@@ -226,6 +228,16 @@ The device types for the SX126X and SX128X part of the library are;
     DEVICE_SX1280              //SX128X library
     DEVICE_SX1281              //SX128X library
 
+
+The next library function called is normally;
+
+**setupLoRa(Frequency, Offset, SpreadingFactor, Bandwidth, CodeRate)** 
+
+This function does the detailed set-up of the LoRa device by calling a number of separate library functions, the functions called are listed bellow. For a an example sketch of using the functions individually, see example 
+**103_Lora_Transmitter_Detailed_Setup**. 
+
+The functions within setupLoRa() are;
+
 **setMode(MODE\_STDBY\_RC)**
 
 Sets the operation mode of the LoRa device. Choices are;
@@ -380,9 +392,11 @@ And the SX128X has this one;
 	IRQ_RADIO_ALL                        0xFFFF 
 
 
+As an alternative to setting up the LoRa device with separate functions (as described above) you can use this single function; 
+
 **setupLoRa(Frequency, Offset, SpreadingFactor, Bandwidth, CodeRate, Optimisation)**
 
-As an alternative to setting up the LoRa device with separate functions (as described above) you can use this function. The function first sets the Frequency of operation, the frequency is in hertz as a 32 bit unsigned integer. The actual programmed operating frequency is the sum of Frequency and Offset (also 32 bit integer).
+The function first sets the Frequency of operation, the frequency is in hertz as a 32 bit unsigned integer. The actual programmed operating frequency is the sum of Frequency and Offset (also 32 bit integer).
 
 SpreadingFactor, Bandwidth and CodeRate are the LoRa modem parameters and the choices are as given for the setModulationParams() described above.
 
@@ -403,7 +417,7 @@ When using setupLoRa() that library function then calls the following functions 
 
 **printModemSettings()**
 
-Prints the current modem settings to the serial monitor for diagnostic purposes. The parameters printed for lora are ; device\_type, frequency, spreading factor, bandwidth, coding\_rate, syncword, IQ\_Status, preamble\_length.
+Prints the current modem settings to the serial monitor for diagnostic purposes. The parameters printed for LoRa are ; device\_type, frequency, spreading factor, bandwidth, coding\_rate, syncword, IQ\_Status, preamble\_length.
 
 **printOperatingSettings()**
 
@@ -419,7 +433,7 @@ Print as ASCII characters to the serial monitor the contents of the buffer name 
 
 **transmit(buff, TXPacketL, timeout, TXpower, WAIT_TX)**
 
-Transmit the contents of the buffer name given, for the given length. With a timeout in mS, with a TXpower in dBm and wait for the transmit to complete (a blocking command). To have the LoRa device start transmitting and continue as a no blocking command use NO\_WAIT. 
+Transmit the contents of the buffer name given, for the given length. With a time-out in mS, with a TXpower in dBm and wait for the transmit to complete (a blocking command). To have the LoRa device start transmitting and continue as a no blocking command use NO\_WAIT. 
 
 With **transmit** and WAIT\_TX the function returns the packet length if transmit detected no errors and 0 if errors were detected. If NO\_WAIT is used you will need to check when pin DIO0 (SX127X) or DIO1 (SX126X and SX128X) goes high indicating transmission is completed.    
 

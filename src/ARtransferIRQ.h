@@ -1364,7 +1364,8 @@ bool ARprocessArrayEnd()
 
 uint16_t ARarrayCRC(uint8_t *buffer, uint16_t size, uint16_t startvalue)
 {
-  uint16_t index, libraryCRC;
+  uint32_t index;
+  uint16_t libraryCRC;
   uint8_t j;
 
   libraryCRC = startvalue;                                  //start value for CRC16
