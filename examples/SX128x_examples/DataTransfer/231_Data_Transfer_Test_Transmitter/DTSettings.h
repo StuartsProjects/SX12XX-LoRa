@@ -41,9 +41,9 @@ const uint32_t ACKclosetimeoutmS = 250;         //mS to wait for receiving an AC
 const uint32_t NoAckCountLimit = 250;           //if no NoAckCount exceeds this value - restart transfer
 const uint32_t DuplicatedelaymS = 10;           //ms delay if there has been an duplicate segment or command receipt
 const uint32_t packetdelaymS = 0;               //mS delay between transmitted packets
-const uint8_t DataSizeMax = 245;                //max size of data array in bytes for LoRa
-const uint8_t HeaderSizeMax = 12;               //max size of header in bytes, minimum size is 7 bytes
 
+const uint8_t HeaderSizeMax = 12;               //max size of header in bytes, minimum size is 7 bytes
+const uint8_t DataSizeMax = 245;                //max size of data array in bytes
 const uint8_t DTfilenamesize = 32;              //size of DTfilename buffer
 
 const uint16_t NetworkID = 0x3210;              //a unique identifier to go out with packet
@@ -51,11 +51,10 @@ const uint8_t DTSendAttempts = 10;              //number of attempts sending a p
 
 const uint32_t DTFileSize = 65535;              //size of file to simulate
 
-
 #ifdef USELORA
-  const uint8_t DTSegmentSize = 245;            //number of bytes in each segment 245 is maximum value for LoRa
+const uint8_t SegmentSize = 245;                //number of bytes in each segment, 245 is maximum value for LoRa
 #endif
 
 #ifdef USEFLRC
-  const uint8_t DTSegmentSize = 117;            //number of bytes in each segment 117 is maximum value for FLRC
+const uint8_t SegmentSize = 117;                //number of bytes in each segment, 117 is maximum value for FLRC
 #endif

@@ -39,6 +39,13 @@ const uint32_t RXtimeoutmS = 60000;             //mS to wait for receiving a pac
 const uint32_t ACKdelaymS = 0;                  //ms delay after packet actioned and ack sent
 const uint32_t ACKtimeoutDTmS = 100;            //mS to wait for receiving an ACK and re-trying TX
 const uint32_t packetdelaymS = 0;               //mS delay between transmitted packets
-
-const uint8_t DTSegmentSize = 245;              //number of bytes in each segment or payload
 const uint16_t NetworkID = 0x3210;              //a unique identifier to go out with packet
+
+#ifdef USELORA
+const uint8_t SegmentSize = 245;                //number of bytes in each segment, 245 is maximum value for LoRa
+#endif
+
+#ifdef USEFLRC
+const uint8_t SegmentSize = 117;                //number of bytes in each segment, 117 is maximum value for FLRC
+#endif
+

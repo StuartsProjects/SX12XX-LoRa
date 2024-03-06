@@ -23,6 +23,9 @@
   The transmitter sends a sequence of segments in order and the receiver keeps track of the sequence. If
   the sequence fails for some reason, the receiver will return a NACK packet to the transmitter requesting
   the segment sequence it was expecting.
+  
+  The transfer can be carried out using LoRa or FLRC packets, max segment size (defined by DTSegmentSize) is
+  245 bytes for LoRa and 117 bytes for FLRC.
 
   Details of the packet identifiers, header and data lengths and formats used are in the file
   Data_transfer_packet_definitions.md in the \SX128X_examples\DataTransfer\ folder.

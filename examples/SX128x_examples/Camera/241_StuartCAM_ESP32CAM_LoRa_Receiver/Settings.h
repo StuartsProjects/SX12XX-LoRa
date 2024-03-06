@@ -48,7 +48,7 @@ const uint32_t ReceiveTimeoutmS = 60000;        //mS waiting for array transfer 
 const uint8_t HeaderSizeMax = 12;               //max size of header in bytes, minimum size is 6 bytes
 const uint8_t DataSizeMax = 245;                //max size of data array in bytes
 const uint8_t ARDTfilenamesize = 32;            //size of DTfilename buffer used by array transfer functions
-const uint32_t ARDTarraysize = 0x40000;         //maximum file\array size to receive, 262,144 bytes
+const uint32_t ARDTarraysize = 0x20000;         //maximum file\array size to receive
 const uint16_t NetworkID = 0x3210;              //a unique identifier to go out with packet
 
 const uint8_t StartAttempts = 2;                //number of attempts to start transfer before a fail

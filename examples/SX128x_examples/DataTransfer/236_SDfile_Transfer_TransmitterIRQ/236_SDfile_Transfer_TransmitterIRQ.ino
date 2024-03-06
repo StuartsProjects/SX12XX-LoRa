@@ -28,8 +28,8 @@
   Details of the packet identifiers, header and data lengths and formats used are in the file;
   'Data transfer packet definitions.md' in the \SX128X_examples\DataTransfer\ folder.
 
-  The transfer can be carried out using LoRa packets, max segment size (defined by DTSegmentSize) is 245 bytes
-  for LoRa.
+  The transfer can be carried out using LoRa or FLRC packets, max segment size (defined by DTSegmentSize) is
+  245 bytes for LoRa and 117 bytes for FLRC.
 
   Serial monitor baud rate is set at 115200.
 *******************************************************************************************************/

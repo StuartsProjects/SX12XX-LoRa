@@ -24,16 +24,14 @@
   the sequence fails for some reason, the receiver will return a NACK packet to the transmitter requesting
   the segment sequence it was expecting.
 
+  The transfers can be carried out using LoRa packets, max segment size (defined by DTSegmentSize) is 245 bytes
+  for LoRa, or FLRC packets where 117 is maximum segment size.
+
   Details of the packet identifiers, header and data lengths and formats used are in the file
   Data_transfer_packet_definitions.md in the \SX128X_examples\DataTransfer\ folder.
 
-  The transfer can be carried out using LoRa packets, max segment size (defined by DTSegmentSize) is 245 bytes
-  for LoRa, 117 is maximum value for FLRC.
-
   Serial monitor baud rate is set at 115200.
 *******************************************************************************************************/
-#define USELORA                               //enable this define to use LoRa packets
-//#define USEFLRC                             //enable this define to use FLRC packets
 
 #include <SPI.h>
 
@@ -43,6 +41,9 @@
 #include <arrayRW.h>
 
 SX128XLT LoRa;                                //create an SX128XLT library instance called LoRa
+
+#define USELORA                               //enable this define to use LoRa packets
+//#define USEFLRC                             //enable this define to use FLRC packets
 
 #define PRINTSEGMENTNUM                       //enable this define to print segment numbers
 

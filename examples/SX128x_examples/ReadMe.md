@@ -383,7 +383,13 @@ The 4 byte packet that is seen around 130mS later is the acknowledge which conta
 	125.237 RSSI,-96dBm,SNR,8dB  4 bytes > 10 32 69 BC 
 
 <br>
+
+
+## LoRa versus FLRC packets
+
+The SX128x devices support both LoRa and Fast Long Range Communication (FLRC) packets. The modem settings for the two types of packet are different. Both modulations are long range type modulations but the FLRC packets are capable of a faster air rate than LoRa, 1300Kbps for FLRC versus 200kbps for LoRa. LoRa allows a packet length of up to 255 bytes whilst FLRC is retricted to 127 bytes. 
+
 <br>
 
 ### Stuart Robinson
-### August 2021
+### March 2024

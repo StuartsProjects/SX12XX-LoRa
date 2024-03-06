@@ -54,4 +54,10 @@ const uint8_t Maxfilenamesize = 32;             //size of DTfilename buffer
 
 const uint16_t NetworkID = 0x3210;              //a unique identifier to go out with packet
 
+#ifdef USELORA
 const uint8_t SegmentSize = 245;                //number of bytes in each segment, 245 is maximum value for LoRa
+#endif
+
+#ifdef USEFLRC
+const uint8_t SegmentSize = 117;                //number of bytes in each segment, 117 is maximum value for FLRC
+#endif

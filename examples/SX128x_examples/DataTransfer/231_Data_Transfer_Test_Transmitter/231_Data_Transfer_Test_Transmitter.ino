@@ -9,12 +9,12 @@
   Program Operation - This is a program that simulates the transfer of a file using data transfer (DT)
   packet functions from the SX128X library. No SD cards are needed for the simulation. The file length
   used to simulate the transfer is defined by DTFileSize in the DTSettings.h file. Use with matching
-  receiver program 232_Data_Transfer_Test_Receiver.ino
+  receiver program 232_Data_Transfer_Test_Receiver.ino.
 
   DT packets can be used for transfering large amounts of data in a sequence of packets or segments,
   in a reliable and resiliant way. The file open requests to the remote receiver, each segement sent and
   the remote file close will all keep transmitting until a valid acknowledge comes from the receiver.
- 
+  
   On transmission the NetworkID and CRC of the payload are appended to the end of the packet by the library
   routines. The use of a NetworkID and CRC ensures that the receiver can validate the packet to a high degree
   of certainty.
@@ -25,13 +25,11 @@
   Details of the packet identifiers, header and data lengths and formats used are in the file;
   'Data transfer packet definitions.md' in the \SX128X_examples\DataTransfer\ folder.
 
-  The transfer can be carried out using LoRa packets, max segment size (defined by DTSegmentSize) is 245 bytes
-  for LoRa, 117 is maximum value for FLRC.
+  The transfers can be carried out using LoRa packets, max segment size (defined by DTSegmentSize) is 245 bytes
+  for LoRa, or FLRC packets where 117 is maximum segment size.
 
   Serial monitor baud rate is set at 115200.
 *******************************************************************************************************/
-#define USELORA                              //enable this define to use LoRa packets
-//#define USEFLRC                            //enable this define to use FLRC packets
 
 #include <SPI.h>
 
@@ -41,6 +39,9 @@
 #include <arrayRW.h>
 
 SX128XLT LoRa;                               //create an SX128XLT library instance called LoRa
+
+#define USELORA                              //enable this define to use LoRa packets
+//#define USEFLRC                            //enable this define to use FLRC packets
 
 #define PRINTSEGMENTNUM                      //enable this define to print segment numbers 
 

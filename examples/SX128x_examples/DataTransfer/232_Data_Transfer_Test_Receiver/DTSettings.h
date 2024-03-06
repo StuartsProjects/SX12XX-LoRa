@@ -52,9 +52,9 @@ const uint8_t DTSendAttempts = 10;              //number of attempts sending a p
 const uint32_t DTFileSize = 65535;              //size of file to simulate
 
 #ifdef USELORA
-  const uint8_t DTSegmentSize = 245;            //number of bytes in each segment 245 is maximum value for LoRa
+const uint8_t SegmentSize = 245;              //number of bytes in each segment, 245 is maximum value for LoRa
 #endif
 
 #ifdef USEFLRC
-  const uint8_t DTSegmentSize = 117;            //number of bytes in each segment 117 is maximum value for FLRC
+const uint8_t SegmentSize = 117;              //number of bytes in each segment, 117 is maximum value for FLRC
 #endif

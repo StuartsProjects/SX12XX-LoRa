@@ -52,4 +52,10 @@ const uint16_t NetworkID = 0x3210;              //a unique identifier to go out 
 const uint8_t SendAttempts = 10;                //number of attempts sending a packet or attempting a process before a restart of transfer
 const uint8_t StartAttempts = 10;               //number of attempts sending the file
 
+#ifdef USELORA
 const uint8_t SegmentSize = 245;                //number of bytes in each segment, 245 is maximum value for LoRa
+#endif
+
+#ifdef USEFLRC
+const uint8_t SegmentSize = 117;                //number of bytes in each segment, 117 is maximum value for FLRC
+#endif

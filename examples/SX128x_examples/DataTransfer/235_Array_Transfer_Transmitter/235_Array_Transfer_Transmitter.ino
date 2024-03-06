@@ -21,6 +21,9 @@
   of certainty. The receiver will not accept packets that dont have the appropriate NetworkID or payload CRC
   at the end of the packet.
 
+  The transfer can be carried out using LoRa or FLRC packets, max segment size (defined by DTSegmentSize) is
+  245 bytes for LoRa and 117 bytes for FLRC.
+
   Details of the packet identifiers, header and data lengths and formats used are in the file
   Data_transfer_packet_definitions.md in the \SX128X_examples\DataTransfer\ folder.
 
