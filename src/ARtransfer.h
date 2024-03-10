@@ -1,34 +1,34 @@
 /*******************************************************************************************************
-  Programs for Arduino - Copyright of the author Stuart Robinson - 01/02/22
+  Programs for Arduino - Copyright of the author Stuart Robinson - 10/03/24
 
   This program is supplied as is, it is up to the user of the program to decide if the program is
   suitable for the intended purpose and free from errors.
 *******************************************************************************************************/
 
 /*******************************************************************************************************
-  Program Operation -  This is a version of data tranfer functions that will transfer an array in memory
-  across to the receiver which may receive the array directly or store the received segments to an SD
-  card. These array transfer functions assume that ultimatly the array will be saved as a file somewhere,
-  so a filename needs to be provided, even when it may not be used.
+  Program Operation -  This is a version of SX12xx library data tranfer functions that can transmit and
+  receive the contents of a memory array via LoRa. The receiver may receive the array directly into
+  memory or store the received data segments to an SD card. These array transfer functions assume that
+  ultimatly the array will be saved as a file somewhere, so a filename needs to be provided, even when
+  it may not be used. 
 
-  These functions expect the calling sketch to create an instance called LoRa, so that SX12XX library
-  functions are called like this; LoRa.getARTXNetworkID().
+  These functions expect the calling sketch to create an SX12XX library instance called LoRa, so that
+  SX12XX library functions are called like this; LoRa.getARTXNetworkID().
 
-  To receive the array use a program from the SX12XX LoRa library such as 234_SDfile_Transfer_Receiver or
-  239_StuartCAM_LoRa_Receiver.
+  An example of a receiver program is 241_StuartCAM_ESP32CAM_LoRa_Receiver.
+
+  Note that the receiver of the array sets up the memory array to recieve the transfer of a size that is
+  defined by the #define MAXarraysize. Clearly the receiver microcontroller has to have this amount of
+  memory available to use.
 
   Updated 18/01/22 to allow the port for Monitorport debug prints to be changed, all prints now goto
   Monitorport. The actual port for prints is defined like this;
 
   #define Monitorport Serialx
 
-*******************************************************************************************************/
+  Updated 10/10/23 to correct issues with transfer of images > 65535 bytes long.
 
-//110122 added local function ARprintArrayHEX(uint8_t *buff, uint32_t len)
-//110122 Replace printpacketHEX() with ARprintArrayHEX() which used  LoRa.printSXBufferHEX() and Monitorport.print()
-//180122 preface all variables and functions with AR so that functions can be used with SD transfer functions
-//180122 allow the port for Monitorport debug prints to be changed
-//010222 Added ARsendDTInfo functions
+*******************************************************************************************************/
 
 //so that Monitorport prints default to the primary Monitorport port of Monitorport
 #ifndef Monitorport
@@ -39,7 +39,6 @@
 
 //#define DEBUG                              //enable this define to show data transfer debug info
 #include <arrayRW.h>                         //part of SX12XX library
-
 
 //Variables used on transmitter and receiver
 uint8_t ARRXPacketL;                         //length of received packet
@@ -53,6 +52,7 @@ uint16_t ARDTSourceArrayCRC;                 //CRC returned of the remote receiv
 uint32_t ARDTSourceArrayLength;              //length of file at source\transmitter
 uint16_t ARDTDestinationArrayCRC;            //CRC of complete array received
 uint32_t ARDTDestinationArrayLength;         //length of file\array written on the destination\receiver
+uint32_t MAXarraysize;                       //maximum size or array that can be handled
 uint32_t ARDTStartmS;                        //used for timeing transfers
 uint16_t ARDTSegment = 0;                    //current segment number
 char ARDTfilenamebuff[ARDTfilenamesize];     //global buffer to store filename
@@ -120,7 +120,7 @@ bool ARprocessArrayStart(uint8_t *buff, uint8_t filenamesize);
 bool ARprocessArrayEnd();
 void ARprintSourceArrayDetails();
 void ARprintDestinationArrayDetails();
-uint16_t ARarrayCRC(uint8_t *buffer, uint16_t size, uint16_t startvalue);
+uint16_t ARarrayCRC(uint8_t *buffer, uint32_t size, uint16_t startvalue);
 
 //Common functions
 void ARsetDTLED(int8_t pinnumber);
@@ -157,7 +157,6 @@ bool ARsendArray(uint8_t *ptrarray, uint32_t arraylength, char *filename, uint8_
   memcpy(ARDTfilenamebuff, filename, namelength);    //copy the name of destination file into global filename array for use outside this function
   ptrARsendArray = ptrarray;                         //set global pointer to array pointer passed
   ARArrayLength = arraylength;                       // the length of array to send
-
   ARDTSourceArrayCRC = 0;
   ARDTSourceArrayLength = 0;
   ARDTDestinationArrayCRC = 0;
@@ -336,13 +335,13 @@ bool ARstartArrayTransfer(char *buff, uint8_t filenamesize)
   }
 
 #ifdef ENABLEARRAYCRC
-  ARDTSourceArrayCRC = LoRa.CRCCCITT((uint8_t *) ptrARsendArray, ARArrayLength, 0xFFFF);       //get array CRC from position 0 to end
+  ARDTSourceArrayCRC = ARarrayCRC((uint8_t *) ptrARsendArray, ARArrayLength, 0xFFFF);            //get array CRC from position 0 to end
 #endif
 
   ARDTNumberSegments = ARgetNumberSegments(ARDTSourceArrayLength, SegmentSize);
   ARDTLastSegmentSize = ARgetLastSegmentSize(ARDTSourceArrayLength, SegmentSize);
   ARbuild_DTArrayStartHeader(ARDTheader, DTArrayStartHeaderL, filenamesize, ARDTSourceArrayLength, ARDTSourceArrayCRC, SegmentSize);
-  ARLocalPayloadCRC = LoRa.CRCCCITT((uint8_t *) buff, filenamesize, 0xFFFF);
+  ARLocalPayloadCRC = ARarrayCRC((uint8_t *) buff, filenamesize, 0xFFFF);
 
   do
   {
@@ -371,7 +370,7 @@ bool ARstartArrayTransfer(char *buff, uint8_t filenamesize)
     Monitorport.print(F("Send attempt "));
     Monitorport.println(localattempts);
 
-    if (ARTXPacketL == 0)                               //if there has been a send and ack error, ARTXPacketL returns as 0
+    if (ARTXPacketL == 0)                                 //if there has been a send and ack error, ARTXPacketL returns as 0
     {
       Monitorport.println(F("Transmit error"));
     }
@@ -385,7 +384,7 @@ bool ARstartArrayTransfer(char *buff, uint8_t filenamesize)
 #ifdef ENABLEMONITOR
 #ifdef DEBUG
       Monitorport.println(F("Valid ACK > "));
-      ARprintArrayHEX(ARDTheader, ValidACK);                   //ValidACK is packet length
+      ARprintArrayHEX(ARDTheader, ValidACK);               //ValidACK is packet length
 #endif
 #endif
     }
@@ -419,9 +418,7 @@ bool ARstartArrayTransfer(char *buff, uint8_t filenamesize)
     bitSet(ARDTErrors, ARStartTransfer);
     return false;
   }
-
   return true;
-
 }
 
 
@@ -460,7 +457,6 @@ bool ARsendSegments()
   {
     return false;
   }
-
   return true;
 }
 
@@ -485,15 +481,15 @@ bool ARsendArraySegment(uint16_t segnum, uint8_t segmentsize)
 
 #ifdef ENABLEMONITOR
 #ifdef PRINTSEGMENTNUM
-  Monitorport.print(segnum);
+  Monitorport.println(segnum);
 #endif
 #ifdef DEBUG
   Monitorport.print(F(" "));
   ARprintheader(ARDTheader, DTSegmentWriteHeaderL);
   Monitorport.print(F(" "));
   ARprintdata(ARDTdata, segmentsize);                           //print segment size of data array only
-#endif
   Monitorport.println();
+#endif
 #endif
 
   do
@@ -541,7 +537,7 @@ bool ARsendArraySegment(uint16_t segnum, uint8_t segmentsize)
         Monitorport.println(ARDTSegment * SegmentSize);
         Monitorport.println(F("************************************"));
         Monitorport.println();
-        Monitorport.flush();
+        //Monitorport.flush();
 #endif
       }
 
@@ -738,7 +734,7 @@ void ARprintLocalArrayDetails()
   Monitorport.print(ARDTSourceArrayLength);
   Monitorport.println(F(" bytes"));
 #ifdef ENABLEARRAYCRC
-  Monitorport.print(F("Source array CRC is 0x"));
+  Monitorport.print(F("1 Source array CRC is 0x"));
   Monitorport.println(ARDTSourceArrayCRC, HEX);
 #endif
   Monitorport.print(F("Segment Size "));
@@ -964,7 +960,7 @@ uint32_t ARreceiveArray(uint8_t *ptrarray, uint32_t length, uint32_t receivetime
   uint32_t startmS = millis();
 
   ptrARreceivearray = ptrarray;                        //set global pointer to array pointer passed
-  ARArrayLength = length;
+  MAXarraysize = length;
   ARDTArrayTimeout = false;
   ARDTArrayEnded = false;
   ARDTDestinationArrayLength = 0;
@@ -993,7 +989,6 @@ uint32_t ARreceiveArray(uint8_t *ptrarray, uint32_t length, uint32_t receivetime
     ARDTArrayTimeout = true;
     return 0;
   }
-
 }
 
 
@@ -1044,9 +1039,9 @@ bool ARreceivePacketDT()
       Monitorport.print(F("PacketError"));
       ARprintPacketDetails();
       ARprintReliableStatus();
-      Monitorport.print(F("IRQreg,0x"));
+      Monitorport.print(F(",IRQreg,0x"));
       Monitorport.println(LoRa.readIrqStatus(), HEX);
-      Monitorport.println();
+      //Monitorport.println();
 #endif
     }
 
@@ -1227,7 +1222,7 @@ bool ARprocessSegmentWrite()
     Monitorport.println();
     Monitorport.println(F("*****************************************"));
     Monitorport.println();
-    Monitorport.flush();
+    //Monitorport.flush();
 #endif
 
     if (ARDTLED >= 0)
@@ -1257,8 +1252,25 @@ bool ARprocessArrayStart(uint8_t *buff, uint8_t filenamesize)
   ARarraylocation = 0;
   beginarrayRW(ARDTheader, 4);                      //start buffer read at location 4
   ARDTSourceArrayLength = arrayReadUint32();        //load the array length being sent
+
+  Monitorport.println(F("Start array transfer"));
+
+  if (ARDTSourceArrayLength > MAXarraysize)
+  {
+    Monitorport.print(F("Array length to transfer "));
+    Monitorport.print(ARDTSourceArrayLength);
+    Monitorport.println(F(" bytes"));
+    Monitorport.println(F("ERROR - Not enough memory allocated"));
+    Monitorport.print(F("MAXarraysize is defined as "));
+    Monitorport.print(MAXarraysize);
+    Monitorport.println(F(" bytes"));
+    Monitorport.println();
+    return false;
+  }
+
+
   ARDTSourceArrayCRC = arrayReadUint16();           //load the CRC of the array being sent
-  memset(ARDTfilenamebuff, 0, ARDTfilenamesize);      //clear ARDTfilenamebuff to all 0s
+  memset(ARDTfilenamebuff, 0, ARDTfilenamesize);    //clear ARDTfilenamebuff to all 0s
   memcpy(ARDTfilenamebuff, buff, filenamesize);     //copy received ARDTdata into ARDTfilenamebuff, the array should have a destination filename
 
 #ifdef ENABLEMONITOR
@@ -1266,7 +1278,7 @@ bool ARprocessArrayStart(uint8_t *buff, uint8_t filenamesize)
   Monitorport.println(F(" Array start write request"));
 #ifdef DEBUG
   Monitorport.print(F("Header > "));
-  ARprintArrayHEX(ARDTheader, 16);
+  ARprintArrayHEX(ARDTheader, HeaderSizeMax);
 #endif
   Monitorport.println();
   ARprintSourceArrayDetails();
@@ -1277,7 +1289,7 @@ bool ARprocessArrayStart(uint8_t *buff, uint8_t filenamesize)
   }
 #endif
   ARDTStartmS = millis();
-  delay(ACKdelaystartendmS);
+  delay(ACKdelaystartendmS);                          //there needs to be a dealy here, to wait for receiver to be ready
 
   ARDTheader[0] = DTArrayStartACK;                    //set the ACK packet type
 
@@ -1362,11 +1374,11 @@ bool ARprocessArrayEnd()
 }
 
 
-uint16_t ARarrayCRC(uint8_t *buffer, uint16_t size, uint16_t startvalue)
+uint16_t ARarrayCRC(uint8_t *buffer, uint32_t size, uint16_t startvalue)
 {
   uint32_t index;
   uint16_t libraryCRC;
-  uint8_t j;	
+  uint8_t j;
 
   libraryCRC = startvalue;                                  //start value for CRC16
 
@@ -1394,7 +1406,7 @@ void ARprintSourceArrayDetails()
   Monitorport.print(ARDTSourceArrayLength);
   Monitorport.println(F(" bytes"));
 #ifdef ENABLEARRAYCRC
-  Monitorport.print(F("Source array CRC is 0x"));
+  Monitorport.print(F("2 Source array CRC is 0x"));
   Monitorport.println(ARDTSourceArrayCRC, HEX);
 #endif
 #endif
@@ -1423,7 +1435,7 @@ void ARprintDestinationArrayDetails()
 #ifdef ENABLEARRAYCRC
   Monitorport.print(F("Destination array CRC is 0x"));
   Monitorport.println(ARDTDestinationArrayCRC, HEX);
-  Monitorport.print(F("Source array CRC is 0x"));
+  Monitorport.print(F("3 Source array CRC is 0x"));
   Monitorport.println(ARDTSourceArrayCRC, HEX);
 
   if (ARDTDestinationArrayCRC != ARDTSourceArrayCRC)
