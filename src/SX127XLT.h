@@ -6,6 +6,7 @@
   New version, 24/08/21, Reliable packets added
   New version, 19/09/21, Data Transfer packets added, support for no DIO0 operation added
   21/11/21, new begin() function added for NSS and NRESET
+  05/12/23, corrected issue with CRC calculation of arrays > 0xffff
 */
 
 
@@ -16,7 +17,6 @@
 
 ****************************************************************************
 */
-
 
 
 #ifndef SX127XLT_h
