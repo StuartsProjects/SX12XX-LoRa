@@ -4,8 +4,8 @@
 #include "Arduino.h"
 #include <SX128XLT_Definitions.h>
 
+//10/03/24, corrected issue with CRC calculation of arrays > 0xffff
 
-//check if (size > 251 ) for receive reliable
 
 class SX128XLT  {
 

@@ -17,11 +17,11 @@
 #define LTUNUSED(v) (void) (v)       //add LTUNUSED(variable); to avoid compiler warnings 
 #define USE_SPI_TRANSACTION
 
-//#define DEBUGBUSY                   //comment out if you do not want a busy timeout message
-//#define SX126XDEBUG               //enable debug messages
-//#define SX126XDEBUG3              //enable debug messages
-//#define SX126XDEBUGPINS           //enable pin allocation debug messages
-//#define DEBUGFSKRTTY                 //enable for FSKRTTY debugging
+//#define DEBUGBUSY                  //comment out if you do not want a busy timeout message
+//#define SX126XDEBUG                //enable debug messages
+//#define SX126XDEBUG3               //enable debug messages
+//#define SX126XDEBUGPINS            //enable pin allocation debug messages
+//#define DEBUGFSKRTTY               //enable for FSKRTTY debugging
 
 
 SX126XLT::SX126XLT()

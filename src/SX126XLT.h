@@ -3,15 +3,7 @@
   Licensed under a MIT license displayed at the bottom of this document.
   17/12/19
   Revised 24/03/22
-*/
-
-
-/*
-****************************************************************************
-  To Do:
-
-
-****************************************************************************
+  05/12/23, corrected issue with CRC calculation of arrays > 0xffff
 */
 
 

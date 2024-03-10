@@ -66,7 +66,7 @@ uint16_t SDLocalPayloadCRC;                  //for calculating the local data ar
 uint8_t SDDTLastSegmentSize;                 //size of the last segment
 uint16_t SDDTNumberSegments;                 //number of segments for a file transfer
 uint16_t SDDTSentSegments;                   //count of segments sent
-bool SDDTFileTransferComplete;               //bool to flag file transfer complete
+bool SDDTFileTransferComplete = false;               //bool to flag file transfer complete
 uint32_t SDDTSendmS;                         //used for timing transfers
 float SDDTsendSecs;                          //seconds to transfer a file
 
@@ -275,6 +275,8 @@ uint32_t SDsendFile(char *filename, uint8_t namelength)
     }
   }
   while ((!SDDTFileTransferComplete) && (localattempts < StartAttempts));
+
+  SDDTFileTransferComplete = true;
 
   SDDTsendSecs = (float) SDDTSendmS / 1000;
 
