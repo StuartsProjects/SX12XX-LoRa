@@ -26,6 +26,5 @@
 
 const uint32_t Frequency = 434000000;           //frequency of transmissions in hertz
 const uint32_t Offset = 0;                      //offset frequency for calibration purposes
-const uint8_t deviation = 0x52;                 //set approx 5khz deviation  
+const uint8_t deviation = 0x52;                 //set approx 5khz deviation
 const int8_t TXpower = 10;                      //LoRa transmit power in dBm
-

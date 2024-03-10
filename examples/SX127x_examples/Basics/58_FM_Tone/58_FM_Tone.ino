@@ -2,14 +2,14 @@
   Programs for Arduino - Copyright of the author Stuart Robinson - 23/02/20
 
   This program is supplied as is, it is up to the user of the program to decide if the program is
-  suitable for the intended purpose and free from errors. 
+  suitable for the intended purpose and free from errors.
 *******************************************************************************************************/
 
 
 /*******************************************************************************************************
-  Program Operation - Transmits a FM tone using the LoRa device that can be picked up on an FM UHF 
-  handheld receiver. The tones are not true FM but the UHF receiver does not know that. 
-  
+  Program Operation - Transmits a FM tone using the LoRa device that can be picked up on an FM UHF
+  handheld receiver. The tones are not true FM but the UHF receiver does not know that.
+
   Serial monitor baud rate is set at 9600
 *******************************************************************************************************/
 
@@ -28,11 +28,11 @@ void loop()
   Serial.print(F("dBm "));
   Serial.println(F("PlayTone> "));
   Serial.println();
-  
+
   digitalWrite(LED1, HIGH);
-  LT.toneFM(1000, 1000, deviation, adjustfreq, TXpower);  
+  LT.toneFM(1000, 1000, deviation, adjustfreq, TXpower);
   digitalWrite(LED1, LOW);
-  
+
   delay(1000);
 }
 
@@ -85,9 +85,8 @@ void setup()
       led_Flash(50, 50);                                 //long fast speed LED flash indicates device error
     }
   }
-  
+
   LT.setupDirect(Frequency, Offset);
   Serial.print(F("Tone Transmitter ready"));
   Serial.println();
 }
-

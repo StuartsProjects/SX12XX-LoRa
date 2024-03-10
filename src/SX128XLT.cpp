@@ -2104,6 +2104,8 @@ void SX128XLT::setSyncWordErrors(uint8_t errors)
 
 void SX128XLT::setSleep(uint8_t sleepconfig)
 {
+//Note: Its been reported that the TXpower setting is not retained in sleep mode 
+
 #ifdef SX128XDEBUG
   Serial.println(F("setSleep()"));
 #endif
@@ -2335,9 +2337,7 @@ uint8_t SX128XLT::receiveAddressed(uint8_t *rxbuffer, uint8_t size, uint16_t tim
   SPI.transfer(RXstart);
   SPI.transfer(0xFF);
 
-  _RXPacketType = SPI.transfer(0);
-  _RXDestination = SPI.transfer(0);
-  _RXSource = SPI.transfer(0);
+  
 
   for (index = RXstart; index < RXend; index++)
   {
@@ -3217,6 +3217,25 @@ void SX128XLT::setRangingSlaveAddress(uint32_t address)
 }
 
 
+void SX128XLT::setRangingSlaveAddress(uint32_t address, uint8_t bits)
+{
+  //sets address of ranging slave
+#ifdef SX128XDEBUG
+  Serial.println(F("SetRangingSlaveAddress()"));
+#endif
+
+  uint8_t buffer[4];
+
+  buffer[0] = (address >> 24u ) & 0xFFu;
+  buffer[1] = (address >> 16u) & 0xFFu;
+  buffer[2] = (address >>  8u) & 0xFFu;
+  buffer[3] = (address & 0xFFu);
+  writeRegisters(0x916, buffer, 4 );
+  writeRegister(REG_LR_RANGINGIDCHECKLENGTH, bits);                        //set slave to check all 32 bits of address
+}
+
+
+
 void SX128XLT::setRangingMasterAddress(uint32_t address)
 {
   //sets address of ranging master
@@ -3395,6 +3414,39 @@ uint8_t SX128XLT::receiveRanging(uint32_t address, uint16_t timeout, int8_t txpo
     return false;                                            //so we can check for packet having enough buffer space
   }
 }
+
+
+uint8_t SX128XLT::receiveRanging(uint32_t address, uint8_t bits, uint16_t timeout, int8_t txpower, uint8_t wait)
+{
+#ifdef SX128XDEBUG
+  Serial.println(F("receiveRanging()"));
+#endif
+
+  setTxParams(txpower, RADIO_RAMP_02_US);
+  setRangingSlaveAddress(address, bits);
+  setDioIrqParams(IRQ_RADIO_ALL, (IRQ_RANGING_SLAVE_RESPONSE_DONE + IRQ_RANGING_SLAVE_REQUEST_DISCARDED + IRQ_HEADER_ERROR), 0, 0);
+  setRx(timeout);
+
+  if (!wait)
+  {
+    return NO_WAIT;                                          //not wait requested so no packet length to pass
+  }
+
+  while (!digitalRead(_RXDonePin));
+
+  setMode(MODE_STDBY_RC);                                    //ensure to stop further packet reception
+
+  if (readIrqStatus() & IRQ_RANGING_SLAVE_REQUEST_VALID)
+  {
+    return true;
+  }
+  else
+  {
+    return false;                                            //so we can check for packet having enough buffer space
+  }
+}
+
+
 
 
 uint16_t SX128XLT::lookupCalibrationValue(uint8_t spreadingfactor, uint8_t bandwidth)
@@ -3811,7 +3863,6 @@ uint8_t SX128XLT::receiveReliable(uint8_t *rxbuffer, uint8_t size, uint16_t netw
   if (!bitRead(_ReliableConfig, NoReliableCRC))
   {
     payloadcrc = CRCCCITT(rxbuffer, (_RXPacketL - 4), 0xFFFF);
-    //payloadcrc = CRCCCITT(rxbuffer, (_RXPacketL - 4), 0xFFFF) + 1;
     RXcrc = ((uint16_t) regdataH << 8) + regdataL;
 
     if (payloadcrc != RXcrc)

@@ -12,7 +12,7 @@
 
   DT packets can be used for transfering large amounts of data in a sequence of packets or segments,
   in a reliable and resiliant way. The remote file open request, the segements sent and the remote file close
-  will be transmitted until a valid acknowledge comes from the receiver. 
+  will be transmitted until a valid acknowledge comes from the receiver.
 
   Each DT packet contains a variable length header array and a variable length data array as the payload.
   On transmission the NetworkID and CRC of the payload are appended to the end of the packet by the library

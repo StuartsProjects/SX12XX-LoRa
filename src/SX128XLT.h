@@ -4,8 +4,6 @@
 #include "Arduino.h"
 #include <SX128XLT_Definitions.h>
 
-//10/03/24, corrected issue with CRC calculation of arrays > 0xffff
-
 
 class SX128XLT  {
 
@@ -137,6 +135,7 @@ class SX128XLT  {
     //Start ranging routines
     //***************************************************************************
     void setRangingSlaveAddress(uint32_t address);
+    void setRangingSlaveAddress(uint32_t address, uint8_t bits);
     void setRangingMasterAddress(uint32_t address);
     void setRangingCalibration(uint16_t cal);
     void setRangingRole(uint8_t role);
@@ -146,6 +145,7 @@ class SX128XLT  {
     bool setupRanging(uint32_t frequency, int32_t offset, uint8_t modParam1, uint8_t modParam2, uint8_t  modParam3, uint32_t address, uint8_t role);
     bool transmitRanging(uint32_t address, uint16_t timeout, int8_t txpower, uint8_t wait);
     uint8_t receiveRanging(uint32_t address, uint16_t timeout, int8_t txpower, uint8_t wait);
+    uint8_t receiveRanging(uint32_t address, uint8_t bits, uint16_t timeout, int8_t txpower, uint8_t wait);
     uint16_t lookupCalibrationValue(uint8_t spreadingfactor, uint8_t bandwidth);
     uint16_t getSetCalibrationValue();
     int16_t getRangingRSSI();

@@ -14,7 +14,7 @@
   DT packets can be used for transfering large amounts of data in a sequence of packets or segments,
   in a reliable and resiliant way. The file open requests to the remote receiver, each segement sent and
   the remote file close will all keep transmitting until a valid acknowledge comes from the receiver.
-
+  
   On transmission the NetworkID and CRC of the payload are appended to the end of the packet by the library
   routines. The use of a NetworkID and CRC ensures that the receiver can validate the packet to a high degree
   of certainty.

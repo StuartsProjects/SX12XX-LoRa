@@ -40,7 +40,7 @@ SX127XLT LT;                                    //create a library class instanc
 uint8_t TXPacketL;
 uint32_t TXPacketCount;
 
-uint8_t buff[] = "Hello World 1234567890";      //the message to send  
+uint8_t buff[] = "Hello World 1234567890";      //the message to send
 
 
 void setup()
@@ -78,7 +78,7 @@ void loop()
 
   TXPacketL = sizeof(buff);                                    //set TXPacketL to length of array
   buff[TXPacketL - 1] = '*';                                   //replace null character at buffer end so its visible on receiver
- 
+
   LT.printASCIIPacket(buff, TXPacketL);                        //print the buffer (the sent packet) as ASCII
 
   if (LT.transmitIRQ(buff, TXPacketL, 10000, TXpower, WAIT_TX))   //will return packet length sent if OK, otherwise 0 if transmit error

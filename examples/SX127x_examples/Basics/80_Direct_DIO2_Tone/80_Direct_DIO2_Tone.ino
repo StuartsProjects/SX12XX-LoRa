@@ -2,15 +2,15 @@
   Programs for Arduino - Copyright of the author Stuart Robinson - 23/02/20
 
   This program is supplied as is, it is up to the user of the program to decide if the program is
-  suitable for the intended purpose and free from errors. 
+  suitable for the intended purpose and free from errors.
 *******************************************************************************************************/
 
 
 /*******************************************************************************************************
-  Program Operation - Transmits a FM tone using the LoRa device that can be picked up on an FM UHF 
+  Program Operation - Transmits a FM tone using the LoRa device that can be picked up on an FM UHF
   handheld receiver. The tones are generated in direct mode by applying a pulse using the Arduino tone()
   function (not supported by all Arduinos) to the DIO2 pin.
-  
+
   Serial monitor baud rate is set at 9600
 *******************************************************************************************************/
 
@@ -33,18 +33,18 @@ void loop()
   LoRa.setupDirect(Frequency, Offset);
   LoRa.setTXDirect();                                          //turn on transmit
   LoRa.setTxParams(TXpower, RADIO_RAMP_DEFAULT);               //set TX power
-  LoRa.writeRegister(REG_FDEVLSB, deviation);                  //set the deviation  
+  LoRa.writeRegister(REG_FDEVLSB, deviation);                  //set the deviation
   LoRa.writeRegister(REG_PLLHOP, 0xAD);                        //set fast hop mode, needed for fast changes of frequency
 
-  
-  while(1)                                                     //repeat forever
+
+  while (1)                                                    //repeat forever
   {
-  digitalWrite(LED1, HIGH);
-  tone(DIO2, 1000);                                            //pin, frequency, durationmS 
-  delay(1000);
-  digitalWrite(LED1, LOW);
-  noTone(DIO2);
-  delay(1000);
+    digitalWrite(LED1, HIGH);
+    tone(DIO2, 1000);                                            //pin, frequency, durationmS
+    delay(1000);
+    digitalWrite(LED1, LOW);
+    noTone(DIO2);
+    delay(1000);
   };
 }
 
@@ -66,7 +66,7 @@ void setup()
 {
   pinMode(LED1, OUTPUT);                                   //setup pin as output for indicator LED
   pinMode(6, OUTPUT);
-  
+
   led_Flash(2, 125);                                       //two quick LED flashes to indicate program start
 
   Serial.begin(9600);
@@ -103,4 +103,3 @@ void setup()
   Serial.print(F("Tone Transmitter ready"));
   Serial.println();
 }
-

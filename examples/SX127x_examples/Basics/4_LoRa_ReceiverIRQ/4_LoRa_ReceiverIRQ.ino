@@ -19,7 +19,7 @@
   8s  Hello World 1234567890*,RSSI,-44dBm,SNR,9dB,Length,23,Packets,7,Errors,0,IRQreg,50
 
   If there is a packet error it might look like this, which is showing a CRC error;
-  
+
   137s PacketError,RSSI,-89dBm,SNR,-8dB,Length,23,Packets,37,Errors,2,IRQreg,70,IRQ_HEADER_VALID,IRQ_CRC_ERROR,IRQ_RX_DONE
 
   If there are no packets received in a 10 second period then you should see a message like this;

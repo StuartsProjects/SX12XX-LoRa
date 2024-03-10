@@ -1,5 +1,5 @@
 /*******************************************************************************************************
-  Programs for Arduino - Copyright of the author Stuart Robinson - 14/12/22
+  Programs for Arduino - Copyright of the author Stuart Robinson - 18/07/22
 
   This program is supplied as is, it is up to the user of the program to decide if the program is
   suitable for the intended purpose and free from errors.
@@ -36,8 +36,8 @@ SX127XLT LoRa;                                     //create a library class inst
 time_t recordtime;                                 //used to record the current time
 
 #include <Wire.h>
-#include <LiquidCrystal_PCF8574.h>                 //get library here > https://github.com/mathertel/LiquidCrystal_PCF8574
-LiquidCrystal_PCF8574 disp(DisplayAddress);        //set the LCD address to 0x3F, could be 0x27 also
+#include <LiquidCrystal_I2C.h>                     //www.4tronix.co.uk/arduino/sketches/LiquidCrystal_V1.2.1.zip
+LiquidCrystal_I2C disp(LCD20x4_I2C_ADDRESS, 2, 1, 0, 4, 5, 6, 7, 3, POSITIVE);  //Set the LCD I2C address and pins used
 
 #include <SdFat.h>                                 //get the library here > https://github.com/greiman/SdFat
 SdFat SD;
@@ -693,7 +693,7 @@ void setup()
 
   Wire.begin();
   disp.begin(20, 4);                       //initialize the lcd for 20 chars 4 lines, turn on backlight
-  disp.setBacklight(1);                    //backlight on
+  disp.backlight();                        //backlight on
   disp.setCursor(0, 0);
   disp.print(F("Check LoRa"));
 

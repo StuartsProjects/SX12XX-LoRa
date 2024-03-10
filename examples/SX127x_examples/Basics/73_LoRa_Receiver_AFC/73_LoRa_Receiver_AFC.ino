@@ -11,9 +11,9 @@
   used are defined in the Settings.h file.
 
   If a packet is received OK, then all that is needed is a call to the LT.doAFC() function, that reads the
-  last frequency error, calculates the new offset and changes the set frequency accordingly. 
+  last frequency error, calculates the new offset and changes the set frequency accordingly.
 
-  When the receiver starts the frequency error may be as large as 4000hz, when the AFC operates the error 
+  When the receiver starts the frequency error may be as large as 4000hz, when the AFC operates the error
   should reduce to 100hz or so. The first AFC correction to run is doAFCPPM(); which based on the frequency
   error also adjusts the PPM setting. If doAFC(); were only used then as the frequency error is reduced then
   the PPM adjustment would reduce.
@@ -22,8 +22,8 @@
   in use. So at 125000hz bandwidth the maximum frequency error is 31500hz, if the bandwidth is 7800hz the
   maximum frequency error is 1950hz. Whilst the AFC functionality can keep transmitter and receiver close
   together when reception is working if the transmitter and receiver are to far apart in frequency for
-  reception to work in the first place then AFC cannot operate to correct for the frequency differences.   
-  
+  reception to work in the first place then AFC cannot operate to correct for the frequency differences.
+
   Serial monitor baud rate is set at 9600.
 *******************************************************************************************************/
 
@@ -45,17 +45,17 @@ int16_t PacketRSSI;                             //stores RSSI of received packet
 int8_t  PacketSNR;                              //stores signal to noise ratio (SNR) of received packet
 int32_t frequencyerror;                         //frequency error of receved packet
 
-bool FirstAFC = true;                           //used to note that AFC has been called more than once 
+bool FirstAFC = true;                           //used to note that AFC has been called more than once
 
 void loop()
 {
-  
+
   Serial.print(F("SetFrequency,"));
   Serial.print(Frequency);
   Serial.print(F("hz,Offset,"));
   Serial.print(LT.getOffset());
   Serial.print(F("hz  "));
-    
+
   RXPacketL = LT.receive(RXBUFFER, RXBUFFER_SIZE, 60000, WAIT_RX); //wait for a packet to arrive with 60seconds (60000mS) timeout
 
   PacketRSSI = LT.readPacketRSSI();              //read the received packets RSSI value
@@ -70,12 +70,12 @@ void loop()
     packet_is_OK();
     if (FirstAFC)
     {
-    LT.doAFCPPM();                               //the first time AFC is called do the PPM adjust also 
-    FirstAFC = false;
+      LT.doAFCPPM();                               //the first time AFC is called do the PPM adjust also
+      FirstAFC = false;
     }
     else
     {
-    LT.doAFC();                                  //PPM adjust has been done so now just adjust frequency  
+      LT.doAFC();                                  //PPM adjust has been done so now just adjust frequency
     }
   }
 
@@ -86,23 +86,23 @@ void loop()
 void packet_is_OK()
 {
   uint16_t IRQStatus;
-  
-  
+
+
   RXpacketCount++;
   IRQStatus = LT.readIrqStatus();                  //read the LoRa device IRQ status register
   frequencyerror = LT.getFrequencyErrorHz();
   printElapsedTime();                              //print elapsed time to Serial Monitor
-  
+
   Serial.print(F("  "));
   LT.printASCIIPacket(RXBUFFER, RXPacketL);        //print the packet as ASCII characters
   Serial.print(F(","));
-  Serial.print(LT.readRegister(REG_FEIMSB),HEX);
+  Serial.print(LT.readRegister(REG_FEIMSB), HEX);
   Serial.print(F(","));
-  Serial.print(LT.readRegister(REG_FEIMID),HEX);
+  Serial.print(LT.readRegister(REG_FEIMID), HEX);
   Serial.print(F(","));
-  Serial.print(LT.readRegister(REG_FEILSB),HEX);
+  Serial.print(LT.readRegister(REG_FEILSB), HEX);
   Serial.print(F(",Regval,"));
-  Serial.print(LT.getFrequencyErrorRegValue(),HEX);
+  Serial.print(LT.getFrequencyErrorRegValue(), HEX);
   Serial.print(F(",FreqErrror,"));
   Serial.print(frequencyerror);
   Serial.print(F("hz,PpmCorrection,"));
@@ -190,11 +190,8 @@ void setup()
   Serial.println();
   LT.printOperatingSettings();                           //reads and prints the configured operating settings, useful check
   Serial.println();
-  
+
   Serial.print(F("Receiver ready - RXBUFFER_SIZE "));
   Serial.println(RXBUFFER_SIZE);
   Serial.println();
 }
-
-
-

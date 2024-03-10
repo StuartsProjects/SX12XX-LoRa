@@ -2,7 +2,7 @@
   Programs for Arduino - Copyright of the author Stuart Robinson - 18/03/20
 
   This program is supplied as is, it is up to the user of the program to decide if the program is
-  suitable for the intended purpose and free from errors. 
+  suitable for the intended purpose and free from errors.
 *******************************************************************************************************/
 
 /*******************************************************************************************************
@@ -12,58 +12,58 @@
   The program checks that a lora device can be accessed by doing a test register write and read.
   If there is no device found a message is printed on the serial monitor. The contents of the registers
   from 0x00 to 0x7F are printed and the program then changes the frequency between two values and prints
-  out the registers. This is to prove that the device registers are being read and written correctly. 
+  out the registers. This is to prove that the device registers are being read and written correctly.
   There is a copy of the typical printout below. Note that the read back changed frequency may be slightly
   different to the programmed frequency, there is a rounding error due to the use of floats to calculate
   the frequency. Although the program sets the frequency in the 434Mhz band, it will work on 868Mhz and
-  915Mhz devices and there is no attempt to confugure the device for transmission or reception. 
+  915Mhz devices and there is no attempt to confugure the device for transmission or reception.
 
   The Arduino pin number that NSS on the LoRa device is connected to must be specified in #define NSS
   line below. Leave the NRESET and DIOx pins not connected.
-  
+
   Typical printout;
 
   2_Register_Test Starting
   LoRa Device found
   Device version 0x12
   Frequency at Start 434000000
-  Registers at Start 
+  Registers at Start
   Reg    0  1  2  3  4  5  6  7  8  9  A  B  C  D  E  F
-  0x00  00 09 1A 0B 00 52 6C 80 00 4F 09 2B 20 08 02 0A 
-  0x10  FF 70 15 0B 28 0C 12 47 32 3E 00 00 00 00 00 40 
-  0x20  00 00 00 00 05 00 03 93 55 55 55 55 55 55 55 55 
-  0x30  90 40 40 00 00 0F 00 00 00 F5 20 82 FD 02 80 40 
-  0x40  00 00 12 24 2D 00 03 00 04 23 00 09 05 84 32 2B 
-  0x50  14 00 00 10 00 00 00 0F E0 00 0C FD 06 00 5C 78 
-  0x60  00 19 0C 4B CC 0D FD 20 04 47 AF 3F F6 3F DB 0B 
-  0x70  D0 01 10 00 00 00 00 00 00 00 00 00 00 00 00 00 
+  0x00  00 09 1A 0B 00 52 6C 80 00 4F 09 2B 20 08 02 0A
+  0x10  FF 70 15 0B 28 0C 12 47 32 3E 00 00 00 00 00 40
+  0x20  00 00 00 00 05 00 03 93 55 55 55 55 55 55 55 55
+  0x30  90 40 40 00 00 0F 00 00 00 F5 20 82 FD 02 80 40
+  0x40  00 00 12 24 2D 00 03 00 04 23 00 09 05 84 32 2B
+  0x50  14 00 00 10 00 00 00 0F E0 00 0C FD 06 00 5C 78
+  0x60  00 19 0C 4B CC 0D FD 20 04 47 AF 3F F6 3F DB 0B
+  0x70  D0 01 10 00 00 00 00 00 00 00 00 00 00 00 00 00
 
 
   Change Frequency to 434100000
   Changed Frequency 434099968
   Reg    0  1  2  3  4  5  6  7  8  9  A  B  C  D  E  F
-  0x00  00 09 1A 0B 00 52 6C 86 66 4F 09 2B 20 08 02 0A 
-  0x10  FF 70 15 0B 28 0C 12 47 32 3E 00 00 00 00 00 40 
-  0x20  00 00 00 00 05 00 03 93 55 55 55 55 55 55 55 55 
-  0x30  90 40 40 00 00 0F 00 00 00 F5 20 82 FD 02 80 40 
-  0x40  00 00 12 24 2D 00 03 00 04 23 00 09 05 84 32 2B 
-  0x50  14 00 00 10 00 00 00 0F E0 00 0C FD 06 00 5C 78 
-  0x60  00 19 0C 4B CC 0D FD 20 04 47 AF 3F F6 3F DB 0B 
-  0x70  D0 01 10 00 00 00 00 00 00 00 00 00 00 00 00 00 
+  0x00  00 09 1A 0B 00 52 6C 86 66 4F 09 2B 20 08 02 0A
+  0x10  FF 70 15 0B 28 0C 12 47 32 3E 00 00 00 00 00 40
+  0x20  00 00 00 00 05 00 03 93 55 55 55 55 55 55 55 55
+  0x30  90 40 40 00 00 0F 00 00 00 F5 20 82 FD 02 80 40
+  0x40  00 00 12 24 2D 00 03 00 04 23 00 09 05 84 32 2B
+  0x50  14 00 00 10 00 00 00 0F E0 00 0C FD 06 00 5C 78
+  0x60  00 19 0C 4B CC 0D FD 20 04 47 AF 3F F6 3F DB 0B
+  0x70  D0 01 10 00 00 00 00 00 00 00 00 00 00 00 00 00
 
   Change Frequency to 434200000
   Changed Frequency 434199936
   Reg    0  1  2  3  4  5  6  7  8  9  A  B  C  D  E  F
-  0x00  00 09 1A 0B 00 52 6C 8C CC 4F 09 2B 20 08 02 0A 
-  0x10  FF 70 15 0B 28 0C 12 47 32 3E 00 00 00 00 00 40 
-  0x20  00 00 00 00 05 00 03 93 55 55 55 55 55 55 55 55 
-  0x30  90 40 40 00 00 0F 00 00 00 F5 20 82 FD 02 80 40 
-  0x40  00 00 12 24 2D 00 03 00 04 23 00 09 05 84 32 2B 
-  0x50  14 00 00 10 00 00 00 0F E0 00 0C FD 06 00 5C 78 
-  0x60  00 19 0C 4B CC 0D FD 20 04 47 AF 3F F6 3F DB 0B  
-  0x70  D0 01 10 00 00 00 00 00 00 00 00 00 00 00 00 00 
+  0x00  00 09 1A 0B 00 52 6C 8C CC 4F 09 2B 20 08 02 0A
+  0x10  FF 70 15 0B 28 0C 12 47 32 3E 00 00 00 00 00 40
+  0x20  00 00 00 00 05 00 03 93 55 55 55 55 55 55 55 55
+  0x30  90 40 40 00 00 0F 00 00 00 F5 20 82 FD 02 80 40
+  0x40  00 00 12 24 2D 00 03 00 04 23 00 09 05 84 32 2B
+  0x50  14 00 00 10 00 00 00 0F E0 00 0C FD 06 00 5C 78
+  0x60  00 19 0C 4B CC 0D FD 20 04 47 AF 3F F6 3F DB 0B
+  0x70  D0 01 10 00 00 00 00 00 00 00 00 00 00 00 00 00
 
-  Note: An SX1272 will report as version 0x22 and the frequency at power up is 915000000hz. 
+  Note: An SX1272 will report as version 0x22 and the frequency at power up is 915000000hz.
 
   Serial monitor baud rate is set at 9600.
 *******************************************************************************************************/
@@ -95,7 +95,7 @@ void setup()
   SPI.beginTransaction(SPISettings(8000000, MSBFIRST, SPI_MODE0));
 
   //The begin function setups the hardware pins used by device and then checks if device is found
-  
+
   if (begin(NSS))
   {
     Serial.println(F("LoRa Device found"));
@@ -134,7 +134,7 @@ void loop()
   Serial.println(frequency);                 //print the changed frequency, did the write work (allow for rounding errors) ?
   printRegisters(0x00, 0x7F);                //show the registers after frequency change
   Serial.println();
-  
+
   Serial.println(F("Change Frequency to 434200000"));
   setRfFrequency(434200000, 0);              //change the frequency at reset, in hertz
   frequency = getFreqInt();                  //read back the changed frequency
@@ -142,7 +142,7 @@ void loop()
   Serial.println(frequency);                 //print the changed frequency, did the write work (allow for rounding errors) ?
   printRegisters(0x00, 0x7F);                //show the registers after frequency change
   Serial.println();
-   
+
   delay(5000);
 }
 
@@ -261,6 +261,3 @@ bool checkDevice()
     return false;
   }
 }
-
-
-
