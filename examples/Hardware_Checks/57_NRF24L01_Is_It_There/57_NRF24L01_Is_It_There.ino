@@ -7,37 +7,31 @@
 
 /*******************************************************************************************************
   Program Operation - This program is stand alone, it is not necessary to install a NRF2401 library.
-  The program checks that the NRF2401 can be written to and read from over the SPI bus.
-
+  Connect the SPI SCK, MOSI and MISO pins as normal.
+  
+  The program checks that the NRF2401 can be written to and read from over the SPI bus. 
+  
   The contents of the NRF2401 registers from 0x00 to 0x19 are read and printed to the serial monitor.
-  If the connections are OK then the printout should look like this;
+  If the connections are OK then the printout should look like something like this;
 
   57_NRF24L01_Is_It_There ?
 
-  Print registers 0x00 to 0x1F
+  Print registers 0x00 to 0x19
   Reg    0  1  2  3  4  5  6  7  8  9  A  B  C  D  E  F
   0x00  00 3F 02 03 5F 4C 27 42 00 00 E7 52 C3 C4 C5 C6
   0x10  E7 00 20 00 00 00 00 12 00 00
 
-  If you get this output;
-
-  Print registers 0x00 to 0x1F
-  Reg    0  1  2  3  4  5  6  7  8  9  A  B  C  D  E  F
-  0x00  00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-  0x10  00 00 00 00 00 00 00 00 00 00
-
-  Then the CSN_PIN is not connected or defined correctly.
-
   Note that this is just a 'is it there' type check, the CE pin is not used or needed for this simple check.
   If the device is faulty, not present or wired incorrectly the register contents will likely be all 00s or
-  FFs. The program makes no attempt to turn on the RF transmitter or receiver.
+  FFs. The program makes no attempt to turn on the RF transmitter or receiver so there are no special
+  requirements for the power supply.
 
   Serial monitor baud rate is set at 9600.
 *******************************************************************************************************/
 
 #include <SPI.h>
 
-#define CSN_PIN 10
+#define CSN_PIN 10                     //this is the pin used for the NRF2401 CSN pin
 
 #define CMD_R_REGISTER      0x00
 #define CMD_W_REGISTER      0x20

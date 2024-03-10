@@ -7,14 +7,14 @@
 
 /*******************************************************************************************************
   Program Operation - This is a simple program to test a UBLOX GPS. It reads characters from the GPS using
-  the I2C interface and sends them (echoes) to the IDE serial monitor. If your ever having problems with a
-  GPS (or just think you are) use this program first.
-
+  the GPSs I2C interface SCL and SDA pins and sends them (echoes) to the IDE serial monitor. 
+  
   Serial monitor baud rate is set at 115200.
 
 *******************************************************************************************************/
 
 #include <Wire.h>
+
 const uint16_t GPSI2CAddress = 0x42;
 
 
@@ -41,5 +41,5 @@ void setup()
   Wire.begin();
   Serial.begin(115200);
   Serial.println();
-  Serial.println("26C_GPS_Echo_UBLOXI2C Starting");
+  Serial.println("26C_GPS_Echo_I2C Starting");
 }
