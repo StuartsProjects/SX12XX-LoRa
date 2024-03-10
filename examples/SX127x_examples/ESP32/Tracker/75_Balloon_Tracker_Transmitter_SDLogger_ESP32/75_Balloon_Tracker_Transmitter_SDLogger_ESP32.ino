@@ -761,13 +761,6 @@ void setup()
     pinMode(BATVREADON, OUTPUT);            //for MOSFET controlling battery volts resistor divider
   }
 
-#ifdef QUECTELINUSE
-  Serial.println(F("Quectel GPS library"));
-#endif
-
-#ifdef UBLOXINUSE
-  Serial.println(F("UBLOX GPS library"));
-#endif
 
 #ifdef ClearAllMemory
   clearAllMemory();
@@ -842,8 +835,8 @@ void setup()
   GPS_Setup();                                //GPS should have had plenty of time to initialise by now
 
   delay(2000);
-
-  if (GPS_CheckConfiguration())               //Check that GPS is configured for high altitude mode
+  
+  if (GPS_CheckBalloonMode())                //Check that GPS is configured for high altitude mode
   {
     Serial.println();
     GPS_OutputOff();                          //GPS interrupts cause problems with lora device, so turn off for now
@@ -895,4 +888,3 @@ void setup()
 
 
 }
-

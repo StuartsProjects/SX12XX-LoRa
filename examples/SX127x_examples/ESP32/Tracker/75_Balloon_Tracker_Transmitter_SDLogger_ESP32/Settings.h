@@ -19,8 +19,6 @@
 
 #define NRESET 27                               //reset on LoRa device
 #define DIO0 35                                 //DIO0 on LoRa device, used for RX and TX done 
-#define DIO1 -1                                 //DIO1 on LoRa device, normally not used so set to -1
-#define DIO2 -1                                 //DIO2 on LoRa device, normally not used so set to -1
 #define LED1 2                                  //On board LED, high for on
 #define BUZZER -1                               //Buzzer if fitted, high for on. Set to -1 if not used      
 #define ONE_WIRE_BUS 32                         //for DS18B20 temperature sensor
@@ -84,8 +82,6 @@ const byte TXBUFFER_SIZE = 128;                   //defines the maximum size of 
 const uint16_t WaitGPSFixSeconds = 60;            //when in flight the time to wait for a new GPS fix 
 
 #define GPS_Library <UBLOXSerialGPS.h>            //use library file for UBLOX GPS                    
-//#define GPS_Library <QuectelSerialGPS.h>        //use library file for Quectel GPS
-
 
 //**************************************************************************************************
 // 5) FSK RTTY Settings
@@ -138,5 +134,3 @@ char FlightID[] = "Flight1";                       //flight ID for HAB packet
 const unsigned int SleepTimesecs = 13;             //sleep time in seconds after each TX loop
 
 const char ThisNode = '1';                         //tracker number for search packet
-
-
