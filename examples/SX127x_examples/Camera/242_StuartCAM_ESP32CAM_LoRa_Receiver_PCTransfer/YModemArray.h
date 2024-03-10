@@ -97,7 +97,7 @@ static uint32_t yModemSend(const char *filename, uint8_t *arraydata, uint32_t ar
 
   uint8_t ackerrors = 0;
 
-  if (arraysize > ARDTarraysize)
+  if (arraysize > allocated_PSRAM)
   {
     Monitorport.println("Array too big");
     return 0;

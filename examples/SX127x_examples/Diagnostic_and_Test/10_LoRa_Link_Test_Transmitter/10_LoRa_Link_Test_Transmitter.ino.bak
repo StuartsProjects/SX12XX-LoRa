@@ -41,7 +41,7 @@
   Serial monitor baud rate is set at 9600.
 *******************************************************************************************************/
 
-#define Program_Version "V1.2"
+#define Program_Version "V1.0"
 
 #include <SPI.h>
 #include <SX127XLT.h>

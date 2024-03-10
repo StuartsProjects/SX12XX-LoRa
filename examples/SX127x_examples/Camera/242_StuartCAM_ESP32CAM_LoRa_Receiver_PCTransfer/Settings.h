@@ -1,5 +1,5 @@
 /*******************************************************************************************************
-  Programs for Arduino - Copyright of the author Stuart Robinson - 21/03/22
+  Programs for Arduino - Copyright of the author Stuart Robinson - 20/03/22
 
   This program is supplied as is, it is up to the user of the program to decide if the program is
   suitable for the intended purpose and free from errors.
@@ -11,9 +11,7 @@
 #define MISO 13               //MISO on SPI3 
 #define MOSI 2                //MOSI on SPI3
 #define REDLED 33             //pin number for ESP32CAM on board red LED, set logic level low for on
-
-#define RXD2 40               //RX pin for monitor port, not used 
-#define TXD2 33               //TX pin for monitor port
+#define TXD 33                //pin number for ESP32CAM pin used as serial TX
 
 #define LORA_DEVICE DEVICE_SX1278               //this is the device we are using
 
@@ -48,7 +46,6 @@ const uint32_t ReceiveTimeoutmS = 60000;        //mS waiting for array transfer 
 const uint8_t HeaderSizeMax = 12;               //max size of header in bytes, minimum size is 6 bytes
 const uint8_t DataSizeMax = 245;                //max size of data array in bytes
 const uint8_t ARDTfilenamesize = 32;            //size of DTfilename buffer used by array transfer functions
-const uint32_t ARDTarraysize = 0x20000;         //maximum file\array size to receive
 const uint16_t NetworkID = 0x3210;              //a unique identifier to go out with packet
 
 const uint8_t StartAttempts = 2;                //number of attempts to start transfer before a fail

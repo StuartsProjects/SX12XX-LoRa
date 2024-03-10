@@ -5,12 +5,17 @@
   suitable for the intended purpose and free from errors.
 *******************************************************************************************************/
 
-#define NSS 12                //select on LoRa device
-#define NRESET 15             //reset pin on LoRa device
-#define SCK 4                 //SCK on SPI3
-#define MISO 13               //MISO on SPI3 
-#define MOSI 2                //MOSI on SPI3
-#define REDLED 33             //pin number for ESP32CAM on board red LED, set logic level low for on
+#define NSS 10                                  //select pin on LoRa device
+#define NRESET 1                                //reset pin on LoRa device
+#define DIO0 2                                  //DIO0 pin on LoRa device, used for RX and TX done 
+#define SCK 12
+#define MISO 13
+#define MOSI 11
+
+
+#define MMCSCK 7
+#define MMCCMD 9
+#define MMCD0 8   
 
 #define LORA_DEVICE DEVICE_SX1278               //this is the device we are using
 
@@ -42,7 +47,6 @@ const uint32_t ReceiveTimeoutmS = 60000;        //mS waiting for array transfer 
 const uint8_t HeaderSizeMax = 12;               //max size of header in bytes, minimum size is 6 bytes
 const uint8_t DataSizeMax = 245;                //max size of data array in bytes
 const uint8_t ARDTfilenamesize = 32;            //size of DTfilename buffer used by array transfer functions
-const uint32_t ARDTarraysize = 0x40000;         //maximum file\array size to receive, 262,144 bytes
 const uint16_t NetworkID = 0x3210;              //a unique identifier to go out with packet
 
 const uint8_t StartAttempts = 2;                //number of attempts to start transfer before a fail

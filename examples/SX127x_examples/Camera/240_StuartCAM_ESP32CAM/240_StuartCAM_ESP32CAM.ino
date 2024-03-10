@@ -1,5 +1,5 @@
 /*******************************************************************************************************
-  Programs for Arduino - Copyright of the author Stuart Robinson - 21/03/22
+  Programs for Arduino - Copyright of the author Stuart Robinson - 09/10/23
 
   This program is supplied as is, it is up to the user of the program to decide if the program is
   suitable for the intended purpose and free from errors.
@@ -40,6 +40,20 @@
   Note that if the camera fails then the program will attempt to send, and wait for the acknowledge, for a
   DTinfo packet reporting the fail.
 
+  The frame size can be set in configInitCamera() to;
+
+  FRAMESIZE_UXGA (1600 x 1200)
+  FRAMESIZE_QVGA (320 x 240)
+  FRAMESIZE_CIF (352 x 288)
+  FRAMESIZE_VGA (640 x 480)
+  FRAMESIZE_SVGA (800 x 600)
+  FRAMESIZE_XGA (1024 x 768)
+  FRAMESIZE_SXGA (1280 x 1024)
+
+  The image quality (config.jpeg_quality) is a number between 0 and 63. Lower numbers give a higher quality
+  image. Low numbers for config.jpeg_quality, in particular at high resolutions, may cause the ESP32-CAM to
+  crash or not take images correctly.
+
   Serial monitor baud rate is set at 115200
 *******************************************************************************************************/
 
@@ -78,24 +92,24 @@ void loop()
   SDOK = false;
   ARDTflags = 0;
 
-  if (initMicroSDCard())                     //need to setup SD card before camera
+  if (initMicroSDCard())                          //need to setup SD card before camera
   {
-    Serial.println(F("SD Card OK"));
+    Monitorport.println(F("SD Card OK"));
     SDOK = true;
   }
   else
   {
-    Serial.println(F("****************************"));
-    Serial.println(F("ERROR - SD Card Mount Failed"));
-    Serial.println(F("****************************"));
+    Monitorport.println(F("****************************"));
+    Monitorport.println(F("ERROR - SD Card Mount Failed"));
+    Monitorport.println(F("****************************"));
     bitSet(ARDTflags, ARNoFileSave);
   }
 
   if (!configInitCamera())
   {
-    bitSet(ARDTflags, ARNoCamera);             //set flag bit for no camera working
-    Serial.println(F("Camera config failed"));
-    Serial.println(F("Sending DTInfo packet"));
+    bitSet(ARDTflags, ARNoCamera);                  //set flag bit for no camera working
+    Monitorport.println(F("Camera config failed"));
+    Monitorport.println(F("Sending DTInfo packet"));
     setupLoRaDevice();
     ARsendDTInfo();
     startSleep();
@@ -110,12 +124,12 @@ void loop()
     else
     {
       //picture take failed
-      Serial.println("********************************");
-      Serial.println("ERROR - Take picture send failed");
-      Serial.println("********************************");
-      Serial.println();
-      Serial.println("Sending DTInfo packet");
-      Serial.flush();
+      Monitorport.println("********************************");
+      Monitorport.println("ERROR - Take picture send failed");
+      Monitorport.println("********************************");
+      Monitorport.println();
+      Monitorport.println("Sending DTInfo packet");
+      Monitorport.flush();
       bitSet(ARDTflags, ARNoCamera);             //set flag bit for no camera working
       setupLoRaDevice();
       ARsendDTInfo();
@@ -129,15 +143,15 @@ void startSleep()
 {
   LoRa.setSleep(CONFIGURATION_RETENTION);
   rtc_gpio_hold_en(GPIO_NUM_4);
-  rtc_gpio_hold_en(GPIO_NUM_12);              //hold LoRa device off in sleep
+  rtc_gpio_hold_en(GPIO_NUM_12);                  //hold LoRa device off in sleep
   esp_sleep_enable_timer_wakeup(SleepTimesecs * uS_TO_S_FACTOR);
-  Serial.print(F("Start Sleep "));
-  Serial.print(SleepTimesecs);
-  Serial.println(F("s"));
-  Serial.flush();
+  Monitorport.print(F("Start Sleep "));
+  Monitorport.print(SleepTimesecs);
+  Monitorport.println(F("s"));
+  Monitorport.flush();
   sleepcount++;
   esp_deep_sleep_start();
-  Serial.println("This should never be printed !!!");
+  Monitorport.println("This should never be printed !!!");
 }
 
 
@@ -153,10 +167,9 @@ bool initMicroSDCard()
 
   if (cardType == CARD_NONE)
   {
-    Serial.println(F("Unknown SD card type"));
+    Monitorport.println(F("Unknown SD card type"));
     return false;
   }
-
   return true;
 }
 
@@ -183,17 +196,17 @@ bool setupLoRaDevice()
 
   if (LoRa.begin(NSS, NRESET, LORA_DEVICE))
   {
-    Serial.println(F("LoRa device found"));
+    Monitorport.println(F("LoRa device found"));
   }
   else
   {
-    Serial.println(F("LoRa Device error"));
+    Monitorport.println(F("LoRa Device error"));
     return false;
   }
 
   LoRa.setupLoRa(Frequency, Offset, SpreadingFactor, Bandwidth, CodeRate, Optimisation);
 
-  Serial.println();
+  Monitorport.println();
   return true;
 }
 
@@ -210,20 +223,20 @@ void setup()
   digitalWrite(NSS, HIGH);
   pinMode(NSS, OUTPUT);
 
-  Serial.begin(115200);
-  Serial.println();
-  Serial.println(F(__FILE__));
+  Monitorport.begin(115200);
+  Monitorport.println();
+  Monitorport.println(F(__FILE__));
 
   if (bootCount == 0)                         //run this only the first time after programming or power up
   {
     bootCount = bootCount + 1;
   }
 
-  Serial.println(F("Awake !"));
-  Serial.print(F("Bootcount "));
-  Serial.println(bootCount);
-  Serial.print(F("Sleepcount "));
-  Serial.println(sleepcount);
+  Monitorport.println(F("Awake !"));
+  Monitorport.print(F("Bootcount "));
+  Monitorport.println(bootCount);
+  Monitorport.print(F("Sleepcount "));
+  Monitorport.println(sleepcount);
 
 #ifdef DISABLEPAYLOADCRC
   LoRa.setReliableConfig(NoReliableCRC);
@@ -231,11 +244,11 @@ void setup()
 
   if (LoRa.getReliableConfig(NoReliableCRC))
   {
-    Serial.println(F("Payload CRC disabled"));
+    Monitorport.println(F("Payload CRC disabled"));
   }
   else
   {
-    Serial.println(F("Payload CRC enabled"));
+    Monitorport.println(F("Payload CRC enabled"));
   }
 }
 
@@ -246,7 +259,7 @@ void setup()
 
 bool configInitCamera()
 {
-  Serial.println(F("Initialising the camera module "));
+  Monitorport.println(F("Initialising the camera module "));
 
   config.ledc_channel = LEDC_CHANNEL_0;
   config.ledc_timer = LEDC_TIMER_0;
@@ -272,14 +285,20 @@ bool configInitCamera()
   //Select lower framesize if the camera doesn't support PSRAM
   if (psramFound())
   {
-    Serial.println(F("PSRAM found"));
-    config.frame_size = FRAMESIZE_SVGA;      //FRAMESIZE_ + QVGA|CIF|VGA|SVGA|XGA|SXGA|UXGA, XUGA == 100K+, SVGA = 25K+
-    config.jpeg_quality = 10;                //10-63 lower number means higher quality
+    Monitorport.println(F("PSRAM found"));
+    config.frame_size = FRAMESIZE_UXGA;      //FRAMESIZE_ + QVGA|CIF|VGA|SVGA|XGA|SXGA|UXGA
+    config.jpeg_quality = 2;                 //0-63 lower number means higher quality
     config.fb_count = 2;
+
+    // approximate file sizes
+    // @ jpeg_quality = 10, SVGA image size = 25K+, UXGA image size = 55K+,
+    // @ jpeg_quality = 2, SVGA image size = 60K+, UXGA image size = 160K+,
+    // image sizes of circa 200K+ can cause ESP32CAM camera code to crash
+
   }
   else
   {
-    Serial.println(F("No PSRAM"));
+    Monitorport.println(F("No PSRAM"));
     config.frame_size = FRAMESIZE_XGA;
     config.jpeg_quality = 12;
     config.fb_count = 1;
@@ -288,8 +307,8 @@ bool configInitCamera()
   esp_err_t err = esp_camera_init(&config);   //Initialize the Camera
   if (err != ESP_OK)
   {
-    Serial.printf("Camera init failed with error 0x%x", err);
-    Serial.println();
+    Monitorport.printf("Camera init failed with error 0x%x", err);
+    Monitorport.println();
     return false;
   }
 
@@ -332,62 +351,68 @@ uint16_t  takePhotoSend(uint8_t num, uint32_t gapmS)
   {
     pictureNumber++;
     path = "/pic" + String(pictureNumber) + ".jpg";
-    Serial.print("Next picture file name ");
-    Serial.println(path.c_str());
+    Monitorport.print("Next picture file name ");
+    Monitorport.println(path.c_str());
 
     if (!fb)
     {
-      Serial.println(F("*****************************"));
-      Serial.println(F("ERROR - Camera capture failed"));
-      Serial.println(F("*****************************"));
+      Monitorport.println(F("*****************************"));
+      Monitorport.println(F("ERROR - Camera capture failed"));
+      Monitorport.println(F("*****************************"));
       delay(1000);
       pictureNumber--;                                       //restore picture number
       bitSet(ARDTflags, ARNoFileSave);
     }
 
-    Serial.println(F("Camera capture success"));
+    Monitorport.println(F("Camera capture success"));
 
 #ifdef DEBUG
-    Serial.print(F("First 8 bytes "));
+    Monitorport.print(F("First 8 bytes "));
     printarrayHEX(fb->buf, 0, 8);
-    Serial.println();
-    Serial.print(F("Last 8 bytes "));
+    Monitorport.println();
+    Monitorport.print(F("Last 8 bytes "));
     printarrayHEX(fb->buf, (fb->len - 8), 8);
-    Serial.println();
+    Monitorport.println();
 #endif
 
     if (SDOK)
     {
-      Serial.println(F("Save picture to SD card"));
+      Monitorport.println(F("Save picture to SD card"));
       fs::FS &fs = SD_MMC;                            //save picture to microSD card
       File file = fs.open(path.c_str(), FILE_WRITE);
       if (!file)
       {
-        Serial.println(F("*********************************************"));
-        Serial.println(F("ERROR Failed to open SD file in writing mode"));
-        Serial.println(F("*********************************************"));
+        Monitorport.println(F("*********************************************"));
+        Monitorport.println(F("ERROR Failed to open SD file in writing mode"));
+        Monitorport.println(F("*********************************************"));
         bitSet(ARDTflags, ARNoFileSave);
       }
       else
       {
         file.write(fb->buf, fb->len); // payload (image), payload length
-        Serial.printf("Saved file to path: %s\r\n", path.c_str());
+        //Monitorport.printf("Saved file to path: %s\r\n ", path.c_str());
+        Monitorport.print(F("Saved file "));
+        Monitorport.print(path.c_str());
+        Monitorport.print(F(" "));
+        Monitorport.print(fb->len);
+        Monitorport.println(F(" bytes"));
       }
       file.close();
     }
     else
     {
-      Serial.println(F("***************"));
-      Serial.println(F("No SD available"));
-      Serial.println(F("***************"));
+      Monitorport.println(F("***************"));
+      Monitorport.println(F("No SD available"));
+      Monitorport.println(F("***************"));
     }
   }
 
   SD_MMC.end();
+
   if (setupLoRaDevice())
   {
-    Serial.print(F("Send with LoRa "));
-    Serial.println(path.c_str());
+    Monitorport.print(F("Send with LoRa "));
+    Monitorport.println(path.c_str());
     uint8_t tempsize = path.length();
     path.toCharArray(filenamearray, tempsize + 1);             //copy file name to the local filenamearray
     filenamearray[tempsize + 1] = 0;                           //ensure there is a null at end of filename in filenamearray
@@ -395,7 +420,7 @@ uint16_t  takePhotoSend(uint8_t num, uint32_t gapmS)
   }
   else
   {
-    Serial.println(F("LoRa device not available"));
+    Monitorport.println(F("LoRa device not available"));
   }
 
   esp_camera_fb_return(fb);                                    //return the frame buffer back to the driver for reuse
@@ -404,14 +429,14 @@ uint16_t  takePhotoSend(uint8_t num, uint32_t gapmS)
 
   if (sentOK)
   {
-    Serial.print(filenamearray);
-    Serial.println(F(" Sent OK"));
+    Monitorport.print(filenamearray);
+    Monitorport.println(F(" Sent OK"));
     return pictureNumber;
   }
   else
   {
-    Serial.print(filenamearray);
-    Serial.println(F(" Send picture failed"));
+    Monitorport.print(filenamearray);
+    Monitorport.println(F(" Send picture failed"));
   }
   return 0;
 }
@@ -427,9 +452,9 @@ void printarrayHEX(uint8_t *buff, uint32_t startaddr, uint32_t len)
     buffdata = buff[index];
     if (buffdata < 16)
     {
-      Serial.print(F("0"));
+      Monitorport.print(F("0"));
     }
-    Serial.print(buffdata, HEX);
-    Serial.print(F(" "));
+    Monitorport.print(buffdata, HEX);
+    Monitorport.print(F(" "));
   }
 }

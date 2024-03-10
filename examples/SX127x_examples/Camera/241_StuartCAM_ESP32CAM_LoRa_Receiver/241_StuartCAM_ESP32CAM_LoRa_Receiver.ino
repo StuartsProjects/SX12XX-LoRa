@@ -1,5 +1,5 @@
 /*******************************************************************************************************
-  Programs for Arduino - Copyright of the author Stuart Robinson - 20/03/22
+  Programs for Arduino - Copyright of the author Stuart Robinson - 10/10/23
 
   This program is supplied as is, it is up to the user of the program to decide if the program is
   suitable for the intended purpose and free from errors.
@@ -19,6 +19,7 @@
 #include <SPI.h>
 #include "FS.h"                            //SD Card ESP32
 #include "SD_MMC.h"                        //SD Card ESP32
+SPIClass sdSPI(HSPI); 
 #include "soc/soc.h"                       //disable brownout problems
 #include "soc/rtc_cntl_reg.h"              //disable brownout problems
 #include "driver/rtc_io.h"
@@ -37,6 +38,8 @@ SX127XLT LoRa;                             //create an SX127XLT library instance
 #include <ARtransferIRQ.h>
 
 uint8_t *PSRAMptr;                         //create a global pointer to the array to send, so all functions have access
+uint32_t available_PSRAM;
+uint32_t allocated_PSRAM;
 bool SDOK;
 bool savedtoSDOK;
 
@@ -45,13 +48,11 @@ void loop()
 {
   uint32_t arraylength;
   SDOK = false;
-  Serial.println(F("LoRa file transfer receiver ready"));
+
   setupLoRaDevice();
+  Serial.println(F("LoRa file transfer receiver ready"));
 
-  //if there is a successful array transfer the returned length > 0
-  //arraylength = LocalARreceiveArray(PSRAMptr, sizeof(ARDTarraysize), ReceiveTimeoutmS);
-
-  arraylength = ARreceiveArray(PSRAMptr, sizeof(ARDTarraysize), ReceiveTimeoutmS);
+  arraylength = ARreceiveArray(PSRAMptr, allocated_PSRAM, ReceiveTimeoutmS);
 
   SPI.end();
 
@@ -60,8 +61,9 @@ void loop()
 
   if (arraylength)
   {
-    Serial.print(F("Returned picture length "));
+    Serial.print(F("Received picture length "));
     Serial.println(arraylength);
+
     if (initMicroSDCard())
     {
       SDOK = true;
@@ -69,7 +71,7 @@ void loop()
       Serial.print(ARDTfilenamebuff);
       Serial.println(F(" Save picture to SD card"));
 
-      fs::FS &fs = SD_MMC;                            //save picture to microSD card
+      fs::FS &fs = SD_MMC;                                //save picture to microSD card
       File file = fs.open(ARDTfilenamebuff, FILE_WRITE);
       if (!file)
       {
@@ -80,9 +82,9 @@ void loop()
       }
       else
       {
-        file.write(PSRAMptr, arraylength); // pointer to array and length
+        file.write(PSRAMptr, arraylength);                // pointer to array and length
         Serial.print(ARDTfilenamebuff);
-        Serial.println(" Saved to SD");
+        Serial.println(" Saved to SD card");
         savedtoSDOK = true;
       }
       file.close();
@@ -139,6 +141,8 @@ bool setupLoRaDevice()
 
 bool initMicroSDCard()
 {
+  SD_MMC.setPins(MMCSCK, MMCCMD, MMCD0);
+  
   if (!SD_MMC.begin("/sdcard", true))               //use this line for 1 bit mode, pin 2 only, 4,12,13 not used
   {
     Serial.println("*****************************");
@@ -163,9 +167,9 @@ void led_Flash(uint16_t flashes, uint16_t delaymS)
   uint16_t index;
   for (index = 1; index <= flashes; index++)
   {
-    digitalWrite(REDLED, HIGH);
+    digitalWrite(LED_BUILTIN, LOW);
     delay(delaymS);
-    digitalWrite(REDLED, LOW);
+    digitalWrite(LED_BUILTIN, HIGH);
     delay(delaymS);
   }
 }
@@ -173,40 +177,39 @@ void led_Flash(uint16_t flashes, uint16_t delaymS)
 
 void setup()
 {
-  uint32_t available_PSRAM_size;
-  uint32_t new_available_PSRAM_size;
-
-  //WRITE_PERI_REG(RTC_CNTL_BROWN_OUT_REG, 0);      //disable brownout detector
-  pinMode(REDLED, OUTPUT);                       //setup pin as output for indicator LED
-  led_Flash(2, 125);                             //two quick LED flashes to indicate program start
-  ARsetDTLED(REDLED);                            //setup LED pin for data transfer indicator
+  //WRITE_PERI_REG(RTC_CNTL_BROWN_OUT_REG, 0);     //disable brownout detector
+  //pinMode(LED_BUILTIN, OUTPUT);                       //setup pin as output for indicator LED
+  //led_Flash(2, 125);                             //two quick LED flashes to indicate program start
+  //ARsetDTLED(LED_BUILTIN);                            //setup LED pin for data transfer indicator
 
   digitalWrite(NSS, HIGH);
   pinMode(NSS, OUTPUT);                          //disable LoRa device for now
 
-  Serial.begin(115200);  
+  Serial.begin(115200);
   Serial.println();
   Serial.println(__FILE__);
 
   if (psramInit())
   {
-    Serial.println("PSRAM is correctly initialised");
-    available_PSRAM_size = ESP.getFreePsram();
-    Serial.println((String)"PSRAM Size available: " + available_PSRAM_size);
+    Serial.println("PSRAM is initialised");
+    available_PSRAM = ESP.getFreePsram();
+    Serial.print("PSRAM available: ");
+    Serial.print(available_PSRAM);
+    Serial.println(" bytes");
   }
   else
   {
     Serial.println("PSRAM not available");
+    Serial.println("Program halted");
     while (1);
   }
 
-  Serial.println("Allocate array in PSRAM");
-  uint8_t *byte_array = (uint8_t *) ps_malloc(ARDTarraysize * sizeof(uint8_t));
-  PSRAMptr = byte_array;                              //save the pointe to byte_array to global pointer
+  allocated_PSRAM = available_PSRAM / 2;                 //dont use all PSRAM for array
 
-  new_available_PSRAM_size = ESP.getFreePsram();
-  Serial.println((String)"PSRAM Size available: " + new_available_PSRAM_size);
-  Serial.print("PSRAM array bytes allocated: ");
-  Serial.println(available_PSRAM_size - new_available_PSRAM_size);
-  Serial.println();
+  Serial.print("Allocate ");
+  Serial.print(allocated_PSRAM);
+  Serial.println(" bytes of PSRAM as receive array");
+
+  uint8_t *byte_array = (uint8_t *) ps_malloc((allocated_PSRAM) * sizeof(uint8_t));
+  PSRAMptr = byte_array;                                 //save the pointer to byte_array as global pointer
 }

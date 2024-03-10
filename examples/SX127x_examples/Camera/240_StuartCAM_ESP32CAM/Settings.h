@@ -17,6 +17,8 @@
 
 #define LORA_DEVICE DEVICE_SX1278               //this is the device we are using
 
+#define Monitorport Serial    //Serial port for prints 
+
 //*******  Setup LoRa modem parameters here ! ***************
 const uint32_t Frequency = 434000000;           //frequency of transmissions in hertz
 const uint32_t Offset = 0;                      //offset frequency for calibration purposes
@@ -51,7 +53,7 @@ const uint8_t HeaderSizeMax = 12;               //max size of header in bytes, m
 const uint8_t DataSizeMax = 245;                //max size of data array in bytes
 const uint16_t NetworkID = 0x3210;              //a unique identifier to go out with packet
 
-const uint16_t SleepTimesecs = 15;              //sleep time in seconds after each TX loop
+const uint16_t SleepTimesecs = 120;             //sleep time in seconds after each send loop
 const uint32_t uS_TO_S_FACTOR = 1000000;        //Conversion factor for micro seconds to seconds
 const uint8_t PicturesToTake = 1;               //number of pictures to take at each wakeup, only last is sent via LoRa
 const uint32_t PictureDelaymS = 1000;           //delay in mS between pictures
