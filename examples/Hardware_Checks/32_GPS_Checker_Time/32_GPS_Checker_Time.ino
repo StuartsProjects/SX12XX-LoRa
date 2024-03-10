@@ -16,9 +16,6 @@
   Serial monitor baud rate is set at 115200.
 *******************************************************************************************************/
 
-#define Program_Version "V1.0"
-#define authorname "Stuart Robinson"
-
 #include <TinyGPS++.h>                             //get library here > http://arduiniana.org/libraries/tinygpsplus/
 TinyGPSPlus gps;                                   //create the TinyGPS++ object
 
@@ -71,7 +68,7 @@ bool gpsWaitFix(uint16_t waitSecs)
       //Serial.write(GPSchar);
     }
 
-    if (gps.location.isUpdated() && gps.time.isUpdated())
+    if (gps.speed.isUpdated() && gps.satellites.isUpdated())    //ensures that GPRMC and GPGGA have been processed
     {
       return true;
     }
@@ -142,12 +139,6 @@ void setup()
 
   Serial.begin(115200);
   Serial.println();
-  Serial.print(F(__TIME__));
-  Serial.print(F(" "));
-  Serial.println(F(__DATE__));
-  Serial.println(F(Program_Version));
-  Serial.println();
-
   Serial.println(F("32_GPS_Checker_Time Starting"));
   Serial.println();
 }

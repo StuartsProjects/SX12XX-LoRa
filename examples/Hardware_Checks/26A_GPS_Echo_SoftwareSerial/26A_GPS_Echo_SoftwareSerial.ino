@@ -1,5 +1,5 @@
 /*******************************************************************************************************
-  Programs for Arduino - Copyright of the author Stuart Robinson - 24/12/20
+  Programs for Arduino - Copyright of the author Stuart Robinson - 14/12/19
 
   This program is supplied as is, it is up to the user of the program to decide if the program is
   suitable for the intended purpose and free from errors.
@@ -13,9 +13,8 @@
   If you get no data displayed on the serial monitor, the most likely cause is that you have the receive
   data pin into the Arduino (RX) pin connected incorrectly.
 
-  GPS baud rate set at 9600 baud, Serial monitor set at 115200 baud. If the data displayed on the serial
-  terminal appears to be random text with odd symbols its very likely you have the GPS serial baud rate
-  set incorrectly for the GPS.
+  If the data displayed on the serial terminal appears to be random text with odd symbols its very
+  likely you have the GPS serial baud rate set incorrectly.
 
   Note that not all pins on all Arduinos will work with software serial, see here;
 
@@ -24,10 +23,12 @@
   Serial monitor baud rate is set at 115200.
 
 *******************************************************************************************************/
+
 #define RXpin A3              //this is the pin that the Arduino will use to receive data from the GPS
 #define TXpin A2              //this is the pin that the Arduino can use to send data (commands) to the GPS - not used
 
 #include <SoftwareSerial.h>
+
 SoftwareSerial GPS(RXpin, TXpin);
 
 void loop()
@@ -38,9 +39,10 @@ void loop()
   }
 }
 
+
 void setup()
 {
   GPS.begin(9600);
   Serial.begin(115200);
-  Serial.println("GPS_Echo Starting");
+  Serial.println("26A_GPS_Echo_SoftwareSerial Starting");
 }
