@@ -19,9 +19,6 @@
 #define ADMultiplier 10.6                       //adjustment to convert into mV of battery voltage. for 11K\91K divider 
 #define SupplyAD A0                             //Resistor divider for battery connected here 
 
-#define RXpin A3                                //pin number for GPS RX input into Arduino - TX from GPS
-#define TXpin A2                                //pin number for GPS TX output from Arduino- RX into GPS
-
 #define LORA_DEVICE DEVICE_SX1278               //this is the device we are using
 
 //**************************************************************************************************
@@ -61,15 +58,26 @@ const uint8_t TXBUFFER_SIZE = 128;               //defines the maximum size of t
 
 //**************************************************************************************************
 // 4) GPS Options
+// Comment in #define USESOFTSERIALGPS if using software GPS and define pins used below
+// If using hardware GPS comment out #define USESOFTSERIALGPS and define hardware Serial port
+// to use in the #define GPSserial line below
 //**************************************************************************************************
 
 #define GPSBaud 9600                              //GPS Baud rate
 
-#define USESOFTSERIALGPS                          //need to include this if using softserial for GPS, otherwise hardware serial assumed      
+#define USESOFTSERIALGPS                          //need to include this if using softserial for GPS otherwise hardware serial use
+
+#ifndef USESOFTSERIALGPS
+#define GPSserial Serial2                         //define hardware GPS port here
+#endif
+
+#define RXpin A3                                  //pin number for software serial GPS RX input into Arduino - TX from GPS
+#define TXpin A2                                  //pin number for software serial GPS TX output from Arduino- RX into GPS
 
 const uint16_t WaitGPSFixSeconds = 60;            //when in flight the time to wait for a new GPS fix 
 
-#define GPS_Library <UBLOXSerialGPS.h>            //use library file for UBLOX GPS                    
+#define GPS_Library <UBLOXSerialGPS.h>            //use library file for UBLOX GPS 
+                   
 
 //**************************************************************************************************
 // 5) FSK RTTY Settings

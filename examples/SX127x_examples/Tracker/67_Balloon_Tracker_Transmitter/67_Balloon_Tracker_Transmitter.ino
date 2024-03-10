@@ -83,12 +83,10 @@ uint8_t  TXBUFFER[TXBUFFER_SIZE];                //buffer for packet to send
 #include <TinyGPS++.h>                           //http://arduiniana.org/libraries/tinygpsplus/
 TinyGPSPlus gps;                                 //create the TinyGPS++ object
 
-//#include <NeoSWSerial.h>                       //https://github.com/SlashDevin/NeoSWSerial
-//NeoSWSerial GPSserial(RXpin, TXpin);           //alternative - this library is more relaible at GPS init than software serial
-
+#ifdef USESOFTSERIALGPS
 #include <SoftwareSerial.h>
 SoftwareSerial GPSserial(RXpin, TXpin);
-
+#endif
 
 #include GPS_Library                             //include previously defined GPS Library 
 
