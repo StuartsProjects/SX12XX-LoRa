@@ -23,10 +23,10 @@
 
 #define LED1 8                                  //on board LED, high for on
 #define SWITCH1 2                               //switch used to wake processor up, switch pin connected to 
-                                                //ground to activate. Define as -1 if switch not used.
+//ground to activate. Define as -1 if switch not used.
 
 uint32_t sleeps;
-                                                
+
 
 void loop()
 {
@@ -42,9 +42,9 @@ void loop()
   attachInterrupt(digitalPinToInterrupt(SWITCH1), wakeUp, FALLING);   //This is a hardware interrupt
 
   sleep_permanent();                           //goto sleep till woken up by switch press
-  
+
   detachInterrupt(digitalPinToInterrupt(SWITCH1));
-  
+
   Serial.println(F("Awake !"));
   digitalWrite(LED1, HIGH);
 }

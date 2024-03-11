@@ -8,9 +8,9 @@
 /*******************************************************************************************************
   Program Operation - This program is stand alone, it is not necessary to install a NRF2401 library.
   Connect the SPI SCK, MOSI and MISO pins as normal.
-  
-  The program checks that the NRF2401 can be written to and read from over the SPI bus. 
-  
+
+  The program checks that the NRF2401 can be written to and read from over the SPI bus.
+
   The contents of the NRF2401 registers from 0x00 to 0x19 are read and printed to the serial monitor.
   If the connections are OK then the printout should look like something like this;
 

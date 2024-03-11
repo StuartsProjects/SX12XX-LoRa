@@ -9,8 +9,8 @@
   Program Operation - This program is a simple test program for the LIL9341 TFT display that comes in a
   range of sizes. The program prints a short message on each line, pauses, clears the screen, and starts
   again. Program uses Adafruit ILI9341 library.
-  
-  Screen write time on Arduino DUE 332mS, screen clear 268mS 
+
+  Screen write time on Arduino DUE 332mS, screen clear 268mS
   Screen write time on Teensy 4.1 207mS, screen clear 180mS
 
   Serial monitor baud rate is set at 9600.
@@ -20,11 +20,11 @@
 #include "Adafruit_GFX.h"                      //get library here > https://github.com/adafruit/Adafruit-GFX-Library  
 #include "Adafruit_ILI9341.h"                  //get library here > https://github.com/adafruit/Adafruit_ILI9341
 
-int8_t DISPCS = 10;                            
+int8_t DISPCS = 10;
 int8_t DISPDC = 8;
 
-//int8_t DISPCS = 43;                            //for DUE shield                            
-//int8_t DISPDC = 45;                            //for DUE shield      
+//int8_t DISPCS = 43;                            //for DUE shield
+//int8_t DISPDC = 45;                            //for DUE shield
 
 Adafruit_ILI9341 disp = Adafruit_ILI9341(DISPCS, DISPDC);
 
@@ -69,7 +69,7 @@ void loop()
   disp.print(F("mS"));
 
   delay(2000);
-  
+
 }
 
 
@@ -131,4 +131,3 @@ void setup()
   disp.setRotation(1);
   disp.setTextSize(textscale);
 }
-

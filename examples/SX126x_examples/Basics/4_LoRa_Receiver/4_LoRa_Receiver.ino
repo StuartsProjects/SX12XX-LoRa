@@ -17,7 +17,7 @@
   8s  Hello World 1234567890*,RSSI,-44dBm,SNR,9dB,Length,23,Packets,7,Errors,0,IRQreg,50
 
   If there is a packet error it might look like this, which is showing a CRC error;
-  
+
   137s PacketError,RSSI,-89dBm,SNR,-8dB,Length,23,Packets,37,Errors,2,IRQreg,70,IRQ_HEADER_VALID,IRQ_CRC_ERROR,IRQ_RX_DONE
 
   If there are no packets received in a 10 second period then you should see a message like this;
@@ -29,8 +29,6 @@
   Serial monitor baud rate is set at 9600.
 *******************************************************************************************************/
 
-#define Program_Version "V1.1"
-
 #include <SPI.h>                                //the lora device is SPI based so load the SPI library
 #include <SX126XLT.h>                           //include the appropriate library   
 
@@ -40,7 +38,6 @@ SX126XLT LT;                                    //create a library class instanc
 #define NRESET 9                                //reset pin on LoRa device
 #define RFBUSY 7                                //SX126X busy pin
 #define DIO1 3                                  //DIO1 pin on LoRa device, used for RX and TX done 
-#define SW 5                                    //SW pin on LoRa device, used to power antenna switch
 #define LORA_DEVICE DEVICE_SX1262               //we need to define the device we are using
 #define RXBUFFER_SIZE 32                        //RX buffer size
 
@@ -63,7 +60,7 @@ void setup()
 
   SPI.begin();
 
-  if (LT.begin(NSS, NRESET, RFBUSY, DIO1, SW, LORA_DEVICE))
+  if (LT.begin(NSS, NRESET, RFBUSY, DIO1, LORA_DEVICE))
   {
     Serial.println(F("LoRa Device found"));
     delay(1000);
@@ -167,4 +164,3 @@ void printElapsedTime()
   Serial.print(seconds, 0);
   Serial.print(F("s"));
 }
-

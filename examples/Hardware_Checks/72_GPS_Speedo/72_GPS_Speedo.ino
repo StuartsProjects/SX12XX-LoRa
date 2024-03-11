@@ -9,8 +9,8 @@
 /*******************************************************************************************************
   Program Operation -  This program uses a GPS to indicate speed, should work with most GPSs. Speed update
   rate approx onece per second. GPS characters are output to serial monitor when checking for update from
-  GPS. 
-  
+  GPS.
+
   Serial monitor baud rate is set at 115200.
 *******************************************************************************************************/
 

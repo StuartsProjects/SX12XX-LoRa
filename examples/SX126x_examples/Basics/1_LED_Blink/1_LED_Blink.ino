@@ -15,8 +15,6 @@
 
 #define LED1 8                                 //pin number for LED, set logic level high for on
 
-#define Program_Version "V1.0"
-
 uint16_t seconds;                              //used to display time elapsed on Serial Monitor
 
 void loop()
@@ -58,12 +56,6 @@ void setup()
 
   Serial.begin(9600);
   Serial.println();
-  Serial.print(__TIME__);
-  Serial.print(F(" "));
-  Serial.println(__DATE__);
-  Serial.println(F(Program_Version));
-  Serial.println();
 
   Serial.println(F("1_LED_Blink Starting"));
 }
-

@@ -171,7 +171,7 @@ void setup(void)
 
   SPI.begin();
 
-  if (LT.begin(NSS, NRESET, RFBUSY, DIO1, SW, LORA_DEVICE))
+  if (LT.begin(NSS, NRESET, RFBUSY, DIO1, LORA_DEVICE))
   {
     led_Flash(2, 125);
     delay(1000);
@@ -191,4 +191,3 @@ void setup(void)
   Serial.println();
   Serial.println();
 }
-

@@ -6,9 +6,9 @@
 *******************************************************************************************************/
 
 /*******************************************************************************************************
-  Program Operation - This is a simple test for a Bosch BME280 sensor. Readings are sent to the serial 
+  Program Operation - This is a simple test for a Bosch BME280 sensor. Readings are sent to the serial
   monitor.
-  
+
   Serial monitor baud rate is set at 9600.
 *******************************************************************************************************/
 
@@ -34,7 +34,7 @@ void loop()
   printSensorValues();                      //print the sensor values
   Serial.println();
 
-  sleepBME280(); 
+  sleepBME280();
   delay(5000);
   normalBME280();                           //BME280 sensor to normal mode
 }
@@ -110,16 +110,15 @@ void setup()
   Serial.println();
   Serial.println(F("81_BME280_Test_ESP32 starting"));
 
-  bme280.init();                              //intialise BME280 library 
+  bme280.init();                              //intialise BME280 library
   Wire.begin();                               //default for ESP32 is SDA on 21, SCL on 22
-  
+
   //alternative pins for I2C, ESP32 allows re-direction of I2C, format is Wire.begin(SDA,SCL);
-  //The SeedBME280 library does do a Wire.begin(); so this will overide it 
-  Wire.begin(16,17);                          
-                                              
+  //The SeedBME280 library does do a Wire.begin(); so this will overide it
+  Wire.begin(16, 17);
+
   Serial.println(F("Initialised BME280"));
   Serial.println();
 
   readSensors();                              //do an initial sensor read
 }
-

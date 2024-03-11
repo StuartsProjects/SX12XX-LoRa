@@ -6,17 +6,17 @@
 *******************************************************************************************************/
 
 /*******************************************************************************************************
-  Program Operation - This is a simple program to configure a Ublox GPS. 
+  Program Operation - This is a simple program to configure a Ublox GPS.
 
-  At startup GPS characters are read and sent to the IDE serial monitor for 2 seconds. 
+  At startup GPS characters are read and sent to the IDE serial monitor for 2 seconds.
 
-  The GPS configuration is then cleared and a further 2 seconds of characters are sent. 
+  The GPS configuration is then cleared and a further 2 seconds of characters are sent.
 
   Then most GPS sentences are turned off, leaving only GPRMC and GPGGA that are those needed for location
   and speed data etc. The refresh rate is then changed to 10hz.
 
   The GPS characters are again copied to serial monitor using the new configuration.
-  
+
   GPS baud rate set at 9600 baud, Serial monitor set at 115200 baud. If the data displayed on the serial
   terminal appears to be random text with odd symbols its very likely you have the GPS serial baud rate
   set incorrectly for the GPS.
@@ -52,7 +52,7 @@ void loop()
   startmS = millis();
 
   //lets see 2 seconds of GPS characters at normal power up GPS configuration
-  
+
   do
   {
     while (GPS.available())
@@ -78,7 +78,7 @@ void loop()
   startmS = millis();
 
   //now lets see 2 seconds of GPS characters at cleared GPS configuration
-  
+
   do
   {
     while (GPS.available())

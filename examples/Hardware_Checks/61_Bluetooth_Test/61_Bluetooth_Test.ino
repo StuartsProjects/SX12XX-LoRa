@@ -6,11 +6,11 @@
 *******************************************************************************************************/
 
 /*******************************************************************************************************
-  Program Operation - This is a simple program to test a Serial Bluetooth device is working. The program 
+  Program Operation - This is a simple program to test a Serial Bluetooth device is working. The program
   uses software serial to send a Hello World message to a serial port. If the Bluetooth device is paired
-  with an Android device you should see Hello World in an Andriod Bluetooth terminal application. 
+  with an Android device you should see Hello World in an Andriod Bluetooth terminal application.
 
-  Bluetooth baud rate is set at 9600, an HC-06 Bluetooth device is assumed. 
+  Bluetooth baud rate is set at 9600, an HC-06 Bluetooth device is assumed.
   Note that not all pins on all Arduinos will work with software serial, see here;
 
   https://www.arduino.cc/en/Reference/softwareSerial
@@ -34,9 +34,9 @@ uint32_t counter;
 
 void loop()
 {
- BlueTooth.print(counter++);
- BlueTooth.println(F(" Hello World")); 
- delay(1000); 
+  BlueTooth.print(counter++);
+  BlueTooth.println(F(" Hello World"));
+  delay(1000);
 }
 
 

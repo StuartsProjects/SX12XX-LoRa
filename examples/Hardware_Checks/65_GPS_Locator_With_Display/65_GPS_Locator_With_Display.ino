@@ -8,10 +8,10 @@
 
 /*******************************************************************************************************
   Program Operation -  This program uses a GPS to indicate the distance and direction to a given location
-  which is specified as the TestLat (Latitude) and TestLon (Longitude) at the top of the program. GPS 
+  which is specified as the TestLat (Latitude) and TestLon (Longitude) at the top of the program. GPS
   characters are output to the serial monitor until a fix is obtained. The GPS latitude and longitude is
-  also displayed on the serial monitor. 
-  
+  also displayed on the serial monitor.
+
   Displays distance and direction on an SSD1306 or SH1106 OLED.
 
   Serial monitor baud rate is set at 115200.
@@ -35,7 +35,7 @@ U8G2_SH1106_128X64_NONAME_1_HW_I2C disp(U8G2_R0, U8X8_PIN_NONE);  //use this lin
 float GPSLatitude;
 float GPSLongitude;
 float distance;                                    //calculated distance to tracker
-uint16_t direction;                                //calculated direction to location 
+uint16_t direction;                                //calculated direction to location
 bool HaveFix = false;                              //set to true when there is a fix
 
 
@@ -46,7 +46,7 @@ const float TestLon = -0.07620;
 void loop()
 {
   GPSserial.begin(9600);
-  
+
   if (gpsWaitFix(3))
   {
     GPSserial.end();
@@ -54,7 +54,7 @@ void loop()
     GPSLongitude = gps.location.lng();
     direction = (int16_t) TinyGPSPlus::courseTo(TestLat, TestLon, GPSLatitude, GPSLongitude);
     distance = TinyGPSPlus::distanceBetween(TestLat, TestLon, GPSLatitude, GPSLongitude);
-    
+
     Serial.println();
     Serial.print(GPSLatitude, 6);
     Serial.print(F(","));
@@ -97,9 +97,9 @@ bool gpsWaitFix(uint16_t waitSecs)
     {
       GPSchar = GPSserial.read();
       gps.encode(GPSchar);
-      if (!HaveFix)                                       //while waiting for fix, display characters 
+      if (!HaveFix)                                       //while waiting for fix, display characters
       {
-      Serial.write(GPSchar);
+        Serial.write(GPSchar);
       }
     }
 
@@ -121,7 +121,7 @@ void displayscreen1()
   disp.firstPage();
   do {
     disp.setCursor(0, 15);
-    disp.print(distance,2);
+    disp.print(distance, 2);
     disp.print(F("m"));
     disp.setCursor(0, 45);
     disp.print(direction);
@@ -148,11 +148,11 @@ void setup()
   Serial.begin(115200);
   Serial.println();
   Serial.println();
-  
+
   disp.begin();
   disp.clear();
   displayscreen2();
 
   Serial.println(F("65_GPS_Locator_With_Display Starting"));
   Serial.println();
-  }
+}

@@ -2,15 +2,15 @@
   Programs for Arduino - Copyright of the author Stuart Robinson - 20/12/19
 
   This program is supplied as is, it is up to the user of the program to decide if the program is
-  suitable for the intended purpose and free from errors. 
+  suitable for the intended purpose and free from errors.
 *******************************************************************************************************/
 
 /*******************************************************************************************************
   Program Operation - This program is a simple test program for the SSD1306 and SH1106 OLEDs. The program
   prints a short message on each line, pauses, clears the screen, and starts again.
 
-  OLED address is defined as 0x3C. 
-   
+  OLED address is defined as 0x3C.
+
   Serial monitor baud rate is set at 9600.
 *******************************************************************************************************/
 
@@ -27,11 +27,11 @@ uint32_t startwritemS, endwritemS, timemS;
 
 void loop()
 {
-  writecount++; 
+  writecount++;
   Serial.print(writecount);
   Serial.print(F(" Writing to display"));
-  
-  disp.setI2CAddress(OLED_Address<<1);                       //I2C address multiplied by 2, the lowest bit must be zero   
+
+  disp.setI2CAddress(OLED_Address << 1);                     //I2C address multiplied by 2, the lowest bit must be zero
   disp.setFont(DEFAULTFONT);
 
   startwritemS = millis();
@@ -42,16 +42,16 @@ void loop()
   disp.setCursor(8, 4);
   disp.print(timemS);
   disp.print(F("mS"));
-  
+
   Serial.print(F(" - done"));
   Serial.print(timemS);
   Serial.println(F("mS"));
-  
+
   delay(2000);
   Serial.println(F("PowerSave display"));
   disp.setPowerSave(1);                                      //power save display, turns off
   delay(2000);
-  disp.setPowerSave(0);                                      //display back to normal   
+  disp.setPowerSave(0);                                      //display back to normal
 }
 
 
@@ -73,7 +73,7 @@ void screen1()
   disp.print(F("Line 6"));
   disp.setCursor(0, 7);
   disp.print(F("0123456789012345"));                         //display is 8 lines x 16 charaters when using the
-                                                             //u8x8_font_chroma48medium8_r font 
+  //u8x8_font_chroma48medium8_r font
 }
 
 
@@ -83,4 +83,3 @@ void setup()
   Serial.println(F("31_SSD1306_SH1106_OLED_Checker_ESP32 starting"));
   disp.begin();
 }
-

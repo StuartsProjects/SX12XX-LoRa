@@ -23,8 +23,6 @@
   Serial monitor baud rate is set at 9600
 *******************************************************************************************************/
 
-#define Program_Version "V1.0"
-
 #include <SPI.h>                                //the lora device is SPI based so load the SPI library                                         
 #include <SX126XLT.h>                           //include the appropriate library  
 
@@ -34,14 +32,13 @@ SX126XLT LT;                                    //create a library class instanc
 #define NRESET 9                                //reset pin on LoRa device
 #define RFBUSY 7                                //SX126X busy pin
 #define DIO1 3                                  //DIO1 pin on LoRa device, used for sensing RX and TX done 
-#define SW 5                                    //SW pin on LoRa device, used to power antenna switch
 #define LORA_DEVICE DEVICE_SX1262               //we need to define the device we are using
 #define TXpower 10                              //LoRa transmit power in dBm
 
 uint8_t TXPacketL;
 uint32_t TXPacketCount;
 
-uint8_t buff[] = "Hello World 1234567890";      //the message to send  
+uint8_t buff[] = "Hello World 1234567890";      //the message to send
 
 
 void setup()
@@ -52,7 +49,7 @@ void setup()
 
   SPI.begin();
 
-  if (LT.begin(NSS, NRESET, RFBUSY, DIO1, SW, LORA_DEVICE))
+  if (LT.begin(NSS, NRESET, RFBUSY, DIO1, LORA_DEVICE))
   {
     Serial.println(F("LoRa Device found"));
     delay(1000);
@@ -79,7 +76,7 @@ void loop()
 
   TXPacketL = sizeof(buff);                                    //set TXPacketL to length of array
   buff[TXPacketL - 1] = '*';                                   //replace null character at buffer end so its visible on receiver
- 
+
   LT.printASCIIPacket(buff, TXPacketL);                        //print the buffer (the sent packet) as ASCII
 
   if (LT.transmit(buff, TXPacketL, 10000, TXpower, WAIT_TX))   //will return packet length sent if OK, otherwise 0 if transmit error
@@ -119,5 +116,3 @@ void packet_is_Error()
   Serial.print(IRQStatus, HEX);                        //print IRQ status
   LT.printIrqStatus();                                 //prints the text of which IRQs set
 }
-
-

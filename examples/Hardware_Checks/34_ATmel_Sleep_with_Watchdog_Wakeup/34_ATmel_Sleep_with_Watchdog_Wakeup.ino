@@ -9,13 +9,13 @@
   Program Operation - This program tests the sleep mode of an Atmel ATMega328P processor.
 
   At power up the flashes an LED 4 times, then turns on the LED for 5 seconds. Then the processor is put
-  to sleep for 16 seconds. On wakeup the LED flashes twice, then is on for 2 seconds and the board goes to 
-  sleep again. And the sequence repeats. 
+  to sleep for 16 seconds. On wakeup the LED flashes twice, then is on for 2 seconds and the board goes to
+  sleep again. And the sequence repeats.
 
   Sleep current for a 'bare bones' ATmega328 with a MCP1700 regulator @ 3.3V and using an external event
   such as a switch to wakeup from sleep should be around 2uA. Using the watchdog timer to wakeup raises
-  the deep sleep current to circa 6.2uA.   
-  
+  the deep sleep current to circa 6.2uA.
+
   Serial monitor baud rate is set at 9600.
 *******************************************************************************************************/
 
@@ -25,7 +25,7 @@
 #include <avr/sleep.h>
 #include <avr/wdt.h>
 
-#define LED1 8                 
+#define LED1 8
 
 
 void loop ()
@@ -35,9 +35,9 @@ void loop ()
   digitalWrite(13, LOW);
   Serial.println(F("Now Sleeping... "));
   Serial.flush();
-  
+
   sleep8seconds(2);                                  //sleep for about 16 seconds
-  
+
   Serial.println("Awake ");
   led_Flash(2, 125);
   Serial.println("LED On ");
@@ -105,5 +105,3 @@ ISR (WDT_vect)
   //watchdog interrupt
   wdt_disable();  // disable watchdog
 }
-
-

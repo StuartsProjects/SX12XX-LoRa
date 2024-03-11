@@ -8,8 +8,8 @@
 /*******************************************************************************************************
   Program Operation - This program is a simple test program for the SSD1306 and SH1106 OLEDs. The program
   prints a short message on each line, pauses, clears the screen, turns off the screen, waits a while and
-  starts again. 
-  
+  starts again.
+
   OLED address defaults to 0x3C.
 
   Screen write on 8Mhz Atmel 196mS.

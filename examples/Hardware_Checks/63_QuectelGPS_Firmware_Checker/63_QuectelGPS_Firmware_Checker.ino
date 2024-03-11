@@ -6,9 +6,9 @@
 *******************************************************************************************************/
 
 /*******************************************************************************************************
-  Program Operation - This program sends a command to a Quectel GPS to return its firmware revision. 
+  Program Operation - This program sends a command to a Quectel GPS to return its firmware revision.
   The output from the GPS is copied to the Serial Monitor.
-  
+
   If you get no data displayed on the serial monitor, the most likely cause is that you have the receive
   data pin into the Arduino (RX) pin connected incorrectly.
 
@@ -52,11 +52,11 @@ void setup()
 
   pinMode(LED1, OUTPUT);
   digitalWrite(LED1, HIGH);
-  
+
   GPS.begin(GPSBAUD);
   Serial.begin(MONITORBAUD);
   Serial.println("63_QuectelGPS_Firmware_Checker");
   delay(2000);
   GPS.println("$PMTK605*31");
- 
+
 }

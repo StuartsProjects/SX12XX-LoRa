@@ -7,9 +7,9 @@
 
 /*******************************************************************************************************
   Program Operation - The is a test program for the TC74 using an ATmega328P based Arduino.
-  
+
   The TC74 is read for the temperature and the value printed to the serial monitor.
-  
+
   Serial monitor baud rate is set at 9600.
 *******************************************************************************************************/
 
@@ -23,7 +23,7 @@ int8_t temperature;                          //the TC74 temperature value
 void loop()
 {
   temperature = TC74read(TC74_ADDRESS);      //read the TC74
-  
+
   Serial.print(F("Temperature,"));
   Serial.print(temperature);
   Serial.println(F("c"));
@@ -34,8 +34,8 @@ void loop()
 int8_t TC74read(uint8_t addr)
 {
 
-  int8_t regdata = 128;                      //max temperature is 127 degrees, so 128 returned indicates a read error. 
-  
+  int8_t regdata = 128;                      //max temperature is 127 degrees, so 128 returned indicates a read error.
+
   Wire.beginTransmission(addr);
   Wire.write(0x00);
   Wire.endTransmission();

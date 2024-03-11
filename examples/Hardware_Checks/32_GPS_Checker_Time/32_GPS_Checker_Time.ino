@@ -8,10 +8,10 @@
 /*******************************************************************************************************
   Program Operation -  This program is GPS Time checker. It reads the GPS NMEA output and displays the time
   on the Arduino IDE serial monitor. If you have the serial monitor output on screen as the same time as
-  observing a web site displaying the current time you can check how close your GPS is reporting to real time. 
+  observing a web site displaying the current time you can check how close your GPS is reporting to real time.
 
   At power up a GPS will not normally display the time accurate to the exact second until it receives the
-  navigation message that is the updated value of current leaps seconds which is sent out every 12.5 minutes.  
+  navigation message that is the updated value of current leaps seconds which is sent out every 12.5 minutes.
 
   Serial monitor baud rate is set at 115200.
 *******************************************************************************************************/
@@ -104,7 +104,7 @@ void printGPSfix()
   }
 
   Serial.print(secs);
-  
+
   Serial.println();
 }
 

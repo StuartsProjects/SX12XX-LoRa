@@ -11,7 +11,7 @@
   SH1106 128x64 I2C OLED display. The program reads the GPS for 5 seconds checking for a fix and copies
   the characters from the GPS to the serial monitor so you can see if the GPS is working. This is an example
   printout from a working GPS with the program having been just been powered on;
-   
+
   29_GPS_Checker_Display Starting
 
   Wait GPS Fix 5 seconds
@@ -43,9 +43,9 @@
 
   Serial monitor baud rate is set at 115200.
 
-  Changes: 
+  Changes:
   290920 - Add speed to serial monitor output and display
-  
+
 *******************************************************************************************************/
 
 #define Program_Version "V1.2"
@@ -76,7 +76,7 @@ float GPSLon;                                      //Longitude from GPS
 float GPSAlt;                                      //Altitude from GPS
 uint8_t GPSSats;                                   //number of GPS satellites in use
 uint32_t GPSHdop;                                  //HDOP from GPS
-float GPSSpeed;                                    //Speed of GPS, mph  
+float GPSSpeed;                                    //Speed of GPS, mph
 
 uint8_t hours, mins, secs, day, month;
 uint16_t year;
@@ -140,10 +140,10 @@ bool gpsWaitFix(uint16_t waitSecs)
   //Serial.print(F("Current millis() "));
   //Serial.println(millis());
 
-  waitmS = waitSecs * 1000;                               //convert seconds wait into mS  
-  
+  waitmS = waitSecs * 1000;                               //convert seconds wait into mS
+
   startmS = millis();
-  
+
   while ( (uint32_t) (millis() - startmS) < waitmS)       //allows for millis() overflow
   {
     if (GPSserial.available() > 0)
@@ -234,11 +234,11 @@ void displayscreen1()
   disp.print(GPSLon, 6);
   disp.clearLine(2);
   disp.setCursor(0, 2);
-  disp.print(GPSAlt,0);
+  disp.print(GPSAlt, 0);
   disp.print(F("m"));
   disp.clearLine(3);
   disp.setCursor(0, 3);
-  disp.print(GPSSpeed,0);
+  disp.print(GPSSpeed, 0);
   disp.print(F("mph"));
   disp.clearLine(4);
   disp.setCursor(0, 4);

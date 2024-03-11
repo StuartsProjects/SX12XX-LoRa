@@ -2,7 +2,7 @@
   Programs for Arduino - Copyright of the author Stuart Robinson - 06/02/20
 
   This program is supplied as is, it is up to the user of the program to decide if the program is
-  suitable for the intended purpose and free from errors. 
+  suitable for the intended purpose and free from errors.
 *******************************************************************************************************/
 
 /*******************************************************************************************************
@@ -27,46 +27,46 @@
   Reset device
   Registers at reset
   Reg    0  1  2  3  4  5  6  7  8  9  A  B  C  D  E  F
-  0x800  00 00 00 00 01 07 20 1E 00 10 19 04 0F FF 0F FF 
-  0x810  10 00 10 00 10 00 10 00 00 00 00 00 00 00 00 00 
-  0x820  00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 
-  0x830  00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 
-  0x840  00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 
-  0x850  00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 
-  0x860  00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 
-  0x870  00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 
-  0x880  03 00 00 5F 10 08 00 00 08 05 00 39 30 00 00 0C 
-  0x890  00 00 00 00 00 0F 0A 07 10 00 26 01 01 53 06 07 
-  0x8A0  10 00 AA 20 5A 04 F0 00 56 56 54 43 94 20 40 00 
-  0x8B0  00 83 11 00 01 04 0A 4C 14 0A 2F 01 6B FF FF 00 
-  0x8C0  00 A0 20 00 00 00 AC 00 1C 00 00 AB 05 30 00 00 
-  0x8D0  0C 14 14 40 06 00 00 10 C8 00 00 00 00 00 31 39 
-  0x8E0  90 39 0C 04 40 20 1C 18 03 00 05 04 03 02 01 01 
-  0x8F0  00 00 00 00 30 00 00 00 00 00 00 00 00 00 00 00 
-  0x900  30 00 00 00 00 00 00 00 00 00 00 00 24 04 47 04 
-  0x910  14 12 12 04 00 03 0A 00 15 35 09 00 02 1F 5F 08 
-  0x920  01 04 05 00 00 00 00 00 00 00 00 00 00 00 00 00 
-  0x930  00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 
-  0x940  00 07 00 03 02 00 10 0E 0D 0C 03 04 03 70 0C 00 
-  0x950  00 00 00 04 00 00 00 00 00 00 00 00 00 00 00 00 
-  0x960  00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 
-  0x970  00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 
-  0x980  00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 
-  0x990  00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 
-  0x9A0  00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 
-  0x9B0  00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 
-  0x9C0  00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 
-  0x9D0  00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 
-  0x9E0  00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 
-  0x9F0  00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 
+  0x800  00 00 00 00 01 07 20 1E 00 10 19 04 0F FF 0F FF
+  0x810  10 00 10 00 10 00 10 00 00 00 00 00 00 00 00 00
+  0x820  00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  0x830  00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  0x840  00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  0x850  00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  0x860  00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  0x870  00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  0x880  03 00 00 5F 10 08 00 00 08 05 00 39 30 00 00 0C
+  0x890  00 00 00 00 00 0F 0A 07 10 00 26 01 01 53 06 07
+  0x8A0  10 00 AA 20 5A 04 F0 00 56 56 54 43 94 20 40 00
+  0x8B0  00 83 11 00 01 04 0A 4C 14 0A 2F 01 6B FF FF 00
+  0x8C0  00 A0 20 00 00 00 AC 00 1C 00 00 AB 05 30 00 00
+  0x8D0  0C 14 14 40 06 00 00 10 C8 00 00 00 00 00 31 39
+  0x8E0  90 39 0C 04 40 20 1C 18 03 00 05 04 03 02 01 01
+  0x8F0  00 00 00 00 30 00 00 00 00 00 00 00 00 00 00 00
+  0x900  30 00 00 00 00 00 00 00 00 00 00 00 24 04 47 04
+  0x910  14 12 12 04 00 03 0A 00 15 35 09 00 02 1F 5F 08
+  0x920  01 04 05 00 00 00 00 00 00 00 00 00 00 00 00 00
+  0x930  00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  0x940  00 07 00 03 02 00 10 0E 0D 0C 03 04 03 70 0C 00
+  0x950  00 00 00 04 00 00 00 00 00 00 00 00 00 00 00 00
+  0x960  00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  0x970  00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  0x980  00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  0x990  00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  0x9A0  00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  0x9B0  00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  0x9C0  00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  0x9D0  00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  0x9E0  00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  0x9F0  00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
 
 
   Frequency at reset 915000000
   Reg    0  1  2  3  4  5  6  7  8  9  A  B  C  D  E  F
-  0x880  03 00 00 5F 10 08 00 00 08 05 00 39 30 00 00 0C 
+  0x880  03 00 00 5F 10 08 00 00 08 05 00 39 30 00 00 0C
   Change Frequency 434100000
   Reg    0  1  2  3  4  5  6  7  8  9  A  B  C  D  E  F
-  0x880  03 00 00 5F 10 08 00 00 08 05 00 1B 21 99 A0 0C 
+  0x880  03 00 00 5F 10 08 00 00 08 05 00 1B 21 99 A0 0C
   Changed Frequency 434100000
 
   Serial monitor baud rate is set at 9600.
@@ -93,8 +93,8 @@ const uint8_t DEVICE_SX1268 = 0x02;
 #define NSS 10                                  //SX126X device select
 #define NRESET 9                                //SX126X reset pin
 #define RFBUSY 7                                //SX126X busy pin 
+#define DIO1 -1                                 //SX126X busy pin, not used so set to -1 
 #define LED1 8                                  //for on board LED, put high for on
-#define SW -1                                   //SW pin on Dorji devices is used to turn RF switch on\off, set to -1 if not used     
 #define LORA_DEVICE DEVICE_SX1262               //define the device, DEVICE_SX1261, DEVICE_SX1262 or DEVICE_SX1268   
 
 //**************************************************************/
@@ -112,9 +112,8 @@ void setup()
   SPI.beginTransaction(SPISettings(8000000, MSBFIRST, SPI_MODE0));
 
   //The begin function setups the hardware pins used by device and then checks if device is found
-  //the DIO1, DIO2 and DIO3 are not used in this example so are set to -1
 
-  if (begin(NSS, NRESET, RFBUSY, -1, -1, -1, SW, LORA_DEVICE))
+  if (begin(NSS, NRESET, RFBUSY, DIO1, LORA_DEVICE))
   {
     Serial.println(F("LoRa Device found"));
   }
@@ -323,7 +322,7 @@ void resetDevice(uint8_t device)
 
 
 
-bool begin(int8_t pinNSS, int8_t pinNRESET, int8_t pinRFBUSY, int8_t pinDIO1, int8_t pinDIO2, int8_t pinDIO3, int8_t pinSW, uint8_t device)
+bool begin(int8_t pinNSS, int8_t pinNRESET, int8_t pinRFBUSY, int8_t pinDIO1, uint8_t device)
 {
   pinMode(pinNSS, OUTPUT);
   digitalWrite(pinNSS, HIGH);
@@ -336,23 +335,8 @@ bool begin(int8_t pinNSS, int8_t pinNRESET, int8_t pinRFBUSY, int8_t pinDIO1, in
     pinMode( pinDIO1, INPUT);
   }
 
-  if (pinDIO2 >= 0)
-  {
-    pinMode(pinDIO2, INPUT);
-  }
-
-  if (pinDIO3 >= 0)
-  {
-    pinMode(pinDIO3, INPUT);
-  }
-
-  if (pinSW >= 0)
-  {
-    pinMode(pinSW, OUTPUT);                     //Dorji devices have an SW pin that needs to be set high to power antenna switch
-    digitalWrite(pinSW, HIGH);
-  }
-
   resetDevice(device);
+
   if (checkDevice())
   {
     return true;
@@ -398,5 +382,3 @@ void writeCommand(uint8_t Opcode, uint8_t *buffer, uint16_t size)
 
   checkBusy();
 }
-
-

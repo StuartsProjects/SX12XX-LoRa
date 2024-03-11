@@ -8,7 +8,7 @@
 /*******************************************************************************************************
   Program Operation - This test program has been written to check that a connected SD card adapter, Micro
   or standard, is functional. The code was tested on an Atmel ATMega328P and ATMega1284P and running the
-  SD card in SPI mode. For this test it is assumed there are no other SPI devices on the SPI bus. 
+  SD card in SPI mode. For this test it is assumed there are no other SPI devices on the SPI bus.
 
   The program creates a file called LOGXXXX.TXT, where XXXX is a number that increases every time the
   program is restarted. The program opens the file and writes a line like this to the file;
@@ -125,12 +125,12 @@ bool dumpFile(char *buff)
   }
   else
   {
-  Serial.print("ERROR ");
-  Serial.println(" dumping file ");
-  Serial.print(buff);
-  Serial.println(" - program halted");
-  while (1);
-  //return false;
+    Serial.print("ERROR ");
+    Serial.println(" dumping file ");
+    Serial.print(buff);
+    Serial.println(" - program halted");
+    while (1);
+    //return false;
   }
 }
 

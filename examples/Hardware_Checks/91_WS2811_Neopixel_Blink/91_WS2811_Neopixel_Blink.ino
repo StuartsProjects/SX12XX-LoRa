@@ -28,7 +28,7 @@ void loop()
   Neo_FlashRed(4, 125, 0, BRIGHTNESS);
   Neo_FlashBlue(4, 125, 0, BRIGHTNESS);
   Neo_FlashWhite(4, 125, 0, BRIGHTNESS);
-  
+
   delay(2000);
 }
 
@@ -87,7 +87,7 @@ void Neo_FlashWhite(uint16_t flashes, uint16_t delaymS, uint8_t number, uint8_t 
 
   for (index = 1; index <= flashes; index++)
   {
-    pixels.setPixelColor(number, pixels.Color(brightness,brightness,brightness)); //White on
+    pixels.setPixelColor(number, pixels.Color(brightness, brightness, brightness)); //White on
     pixels.show();
     delay(delaymS);
     pixels.setPixelColor(number, pixels.Color(0, 0, 0));          //all colours off

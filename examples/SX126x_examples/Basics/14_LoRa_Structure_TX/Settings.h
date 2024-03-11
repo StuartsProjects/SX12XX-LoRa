@@ -17,8 +17,6 @@
 #define LED1 8                                  //on board LED, high for on
 #define RFBUSY 7                                //SX126X busy pin 
 #define DIO1 3                                  //DIO1 pin on LoRa device, used for RX and TX done 
-#define DIO2 -1                                 //DIO2 pin on LoRa device, normally not used so set to -1 
-#define DIO3 -1                                 //DIO3 pin on LoRa device, normally not used so set to -1
 #define SW -1                                   //SW pin on Dorji devices is used to turn RF switch on\off, set to -1 if not used    
 
 #define LORA_DEVICE DEVICE_SX1262               //we need to define the device we are using
@@ -38,4 +36,3 @@ const uint8_t Optimisation = LDRO_AUTO;         //low data rate optimisation set
 const int8_t TXpower = 10;                      //LoRa transmit power in dBm
 
 const uint16_t packet_delay = 1000;             //mS delay between packets
-

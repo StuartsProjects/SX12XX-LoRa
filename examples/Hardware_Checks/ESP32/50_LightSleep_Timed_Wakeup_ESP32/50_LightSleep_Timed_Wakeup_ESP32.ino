@@ -10,7 +10,7 @@
   Program operation - The program flashes a LED connected to the pin defined by LED1, and puts the ESP32 to
   light_sleep for a period determined by TIME_TO_SLEEP (in seconds).
 
-  The program also has the option of using a logic pin to control the power to the lora.SD card and DS18B20  
+  The program also has the option of using a logic pin to control the power to the lora.SD card and DS18B20
   devices, which can save power in sleep mode. If the hardware is fitted to your board these devices are
   powered on by setting the VCCPOWER pin low. If your board does not have this feature set VCCPOWER to -1.
 
@@ -89,4 +89,3 @@ void setup()
   }
 
 }
-

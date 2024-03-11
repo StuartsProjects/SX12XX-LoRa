@@ -8,7 +8,7 @@
 
 /*******************************************************************************************************
   Program Operation - This test program has been written to check that a connected SD card adapter, Micro
-  or standard, is functional. 
+  or standard, is functional.
 
   When the program runs it will attempts to create a file that is next in sequence to Log0000.txt, thus
   if this is the first time the program has run on the SD card it will create file Log0001.txt. If the
@@ -33,16 +33,16 @@
   This file dump will grow if you let the program run. If an error with the SD card is detected at any
   time the LED will rapid flash continuously and the message 'X Card failed, or not present' is printed
   to serial monitor. The number X will allow you to check the program listing for where the error occured.
-  
+
   1 Card failed = SD card did not initialise
-  2 Card failed = Could nt setup logFile for new name 
+  2 Card failed = Could nt setup logFile for new name
   3 Card failed = Could not open file for append
   4 Card failed = Failure to dump file to serial monitor
 
   Note: At the time of writing, 04/06/20, the function that the dumpFile() routine uses to check if an SD
   card is still present, SD.exists(filename), does not work on the SD.h file included in the current Expressif
   core for Arduino. If the SD card is removed, the SD.exists(filename) function returns true so the following
-  dump of the file locks up the ESP32.  
+  dump of the file locks up the ESP32.
 
   Serial monitor baud rate is set at 9600
 *******************************************************************************************************/
@@ -84,9 +84,9 @@ void loop()
 
   if (!setupSDLOG(filename))                            //setup logfile name for writing
   {
-  cardFail(2);  
+    cardFail(2);
   }
-  
+
   Serial.print(F("logFile name is "));
   Serial.println(filename);
 
@@ -176,16 +176,16 @@ bool dumpFile(char *buf)
   //Note, this function will return true if the SD card is remove. See note at program start.
   if (SD.exists(buf))
   {
-  Serial.print(buf);
-  Serial.println(" found");  
+    Serial.print(buf);
+    Serial.println(" found");
   }
   else
   {
-  Serial.print(filename);
-  Serial.println(" not found");
-  return false;  
+    Serial.print(filename);
+    Serial.println(" not found");
+    return false;
   }
-    
+
   logFile = SD.open(buf);
 
   if (logFile)                                    //if the file is available, read from it
@@ -268,5 +268,3 @@ void setup()
   Serial.println();
   Serial.println(F("43_SD_Card_Test Starting"));
 }
-
-

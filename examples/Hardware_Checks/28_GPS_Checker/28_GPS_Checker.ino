@@ -8,7 +8,7 @@
 /*******************************************************************************************************
   Program Operation -  This program is a portable GPS checker. It reads the GPS for 5 seconds and copies
   the characters from the GPS to the serial monitor.
-  
+
   Serial monitor baud rate is set at 115200.
 *******************************************************************************************************/
 
