@@ -27,7 +27,7 @@
   LoRa radio to another remote Arduino.
 
   This program is for an ESP32CAM board that has an SPI LoRa module set up on the following pins; NSS 12,
-  NRESET 14, SCK 4, MISO 13, MOSI 2, RFBUSY 15, 3.3V VCC and GND. All other pins on the SX126X are not 
+  NRESET 14, SCK 4, MISO 13, MOSI 2, RFBUSY 15, 3.3V VCC and GND. All other pins on the SX126X are not
   connected.
 
   Note that the white LED on pin 4 or the transistor controlling it need to be removed so that the LoRa

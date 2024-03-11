@@ -182,7 +182,7 @@ void setup()
   digitalWrite(NSS, HIGH);
   pinMode(NSS, OUTPUT);                          //disable LoRa device for now
 
-  Serial.begin(115200);  
+  Serial.begin(115200);
   Serial.println();
   Serial.println(__FILE__);
 

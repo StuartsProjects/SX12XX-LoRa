@@ -5,7 +5,6 @@
   suitable for the intended purpose and free from errors.
 *******************************************************************************************************/
 
-
 #define NSS 10                                  //select on LoRa device
 #define NRESET 9                                //reset on LoRa device
 #define RFBUSY 7                                //RFBUSY pin on LoRa device

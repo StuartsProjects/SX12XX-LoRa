@@ -2,7 +2,7 @@
   Programs for Arduino - Copyright of the author Stuart Robinson - 19/06/20
 
   This program is supplied as is, it is up to the user of the program to decide if the program is
-  suitable for the intended purpose and free from errors. 
+  suitable for the intended purpose and free from errors.
 *******************************************************************************************************/
 
 /*******************************************************************************************************
@@ -21,8 +21,6 @@
 
   Serial monitor baud rate is set at 9600.
 *******************************************************************************************************/
-
-#define Program_Version "V1.1"
 
 #include <SPI.h>
 #include <SX126XLT.h>
@@ -54,19 +52,14 @@ void loop()
   Serial.flush();
 
   attachInterrupt(digitalPinToInterrupt(DIO1), wakeUp, HIGH);
-  
+
   atmelSleepPermanent();                                         //sleep the processor
-  
+
   detachInterrupt(digitalPinToInterrupt(DIO1));
 
   //something has happened ?
   Serial.println(F("Awake"));
-  digitalWrite(LED1, HIGH);                             
-
-  if (BUZZER > 0)
-  {
-    digitalWrite(BUZZER, HIGH);
-  }
+  digitalWrite(LED1, HIGH);
 
   RXPacketL = LT.readPacket(RXBUFFER, RXBUFFER_SIZE);            //now read in the received packet to the RX buffer
 
@@ -84,11 +77,6 @@ void loop()
 
   digitalWrite(LED1, LOW);
 
-  if (BUZZER > 0)
-  {
-
-    digitalWrite(BUZZER, LOW);
-  }
   Serial.println();
 }
 
@@ -183,20 +171,7 @@ void setup()
 
   Serial.begin(9600);
   Serial.println();
-  Serial.print(__TIME__);
-  Serial.print(F(" "));
-  Serial.println(__DATE__);
-  Serial.println(F(Program_Version));
-  Serial.println();
   Serial.println(F("62_LoRa_Wake_on_RX_Atmel Starting"));
-
-  if (BUZZER > 0)
-  {
-    pinMode(BUZZER, OUTPUT);
-    digitalWrite(BUZZER, HIGH);
-    delay(50);
-    digitalWrite(BUZZER, LOW);
-  }
 
   SPI.begin();
 
@@ -221,4 +196,3 @@ void setup()
   Serial.println(RXBUFFER_SIZE);
   Serial.println();
 }
-

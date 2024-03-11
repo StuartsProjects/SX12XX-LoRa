@@ -28,7 +28,7 @@
   No DIO0 pin needs to be connected to the LoRa device for this program.
 
   The matching transmitter program is 219_Reliable_Transmitter_Data_RequestorIRQ.
-  
+
   Serial monitor baud rate should be set at 115200.
 *******************************************************************************************************/
 
@@ -227,9 +227,6 @@ void setup()
 
   Serial.begin(115200);
   Serial.println();
-  Serial.println();
-  Serial.println(__FILE__);
-  Serial.println();
 
   SPI.begin();
 
@@ -248,7 +245,7 @@ void setup()
   }
 
   LT.setupLoRa(Frequency, Offset, SpreadingFactor, Bandwidth, CodeRate, Optimisation);
-  
+
   Serial.println(F("Receiver ready"));
   Serial.println();
 }

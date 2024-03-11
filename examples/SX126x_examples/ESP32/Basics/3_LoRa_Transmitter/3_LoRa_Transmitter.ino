@@ -23,8 +23,6 @@
   Serial monitor baud rate is set at 9600
 *******************************************************************************************************/
 
-#define Program_Version "V1.0"
-
 #include <SPI.h>                                //the lora device is SPI based so load the SPI library                                         
 #include <SX126XLT.h>                           //include the appropriate library  
 
@@ -32,7 +30,7 @@ SX126XLT LT;                                    //create a library class instanc
 
 //These are the pin definitions for used for the program. Be sure to change to match the pins for your
 //own setup. You will also need to connect up the pins for the SPI bus, which are SCK on pin 18, MISO
-//on pin 19 and MOSI on pin 23.
+//on pin 19 and MOSI on pin 23 on an ESP32 Dev Kit board, but check your pinout.
 
 #define NSS 5                                   //select pin on LoRa device
 #define NRESET 27                               //reset pin on LoRa device
@@ -123,5 +121,3 @@ void packet_is_Error()
   Serial.print(IRQStatus, HEX);                        //print IRQ status
   LT.printIrqStatus();                                 //prints the text of which IRQs set
 }
-
-

@@ -24,7 +24,7 @@
   The request is for the receiver to return a set of GPS co-ordinates. This information is included in the
   acknowledge the receiver sends if there is a match for request type and station number. The orginal network
   ID and payload CRC are also returned with the acknowledge so the transmitter can verify if the packet it
-  receives in reply is geniune. 
+  receives in reply is geniune.
 
   The matching receiver program is 218_Reliable_Receiver_Data_Requestor.
 
@@ -57,7 +57,7 @@ uint8_t TrackerStatus;
 
 void loop()
 {
-  
+
   //*****************************************************************************************
   //Request GPS location
   //*****************************************************************************************
@@ -78,9 +78,9 @@ void loop()
   }
 
   //*****************************************************************************************
- 
+
   Serial.println();
-  delay(5000); 
+  delay(5000);
 }
 
 
@@ -209,11 +209,8 @@ void setup()
 {
   pinMode(LED1, OUTPUT);
   led_Flash(2, 125);                                       //two quick LED flashes to indicate program start
-   
+
   Serial.begin(115200);
-  Serial.println();
-  Serial.println();
-  Serial.println(__FILE__);
   Serial.println();
 
   SPI.begin();

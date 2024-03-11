@@ -9,18 +9,14 @@
 //*******  Setup hardware pin definitions here ! ***************
 
 //These are the pin definitions for one of my own boards, the Easy Pro Mini,
-//be sure to change the definitiosn to match your own setup. Some pins such as DIO1,
-//DIO2, BUZZER SWITCH1 may not be in used by this sketch so they do not need to be
-//connected and should be set to -1.
+//be sure to change the definitiosn to match your own setup.
 
 #define NSS 10                                  //select on LoRa device
 #define NRESET 9                                //reset on LoRa device
 #define RFBUSY 7                                //SX126X busy pin 
 #define DIO1 3                                  //DIO1 on LoRa device, used for RX and TX done 
-#define SW -1                                   //SW pin on Dorji devices is used to turn RF switch on\off, set to -1 if not used 
-#define LED1 8                                  //On board LED, high for on
 
-#define BUZZER -1                               //Buzzer if fitted, high for on. Set to -1 if not used      
+#define LED1 8                                  //On board LED, high for on
 
 #define RXpin A3                                //pin number for GPS RX input into Arduino - TX from GPS
 #define TXpin A2                                //pin number for GPS TX output from Arduino- RX into GPS
@@ -30,9 +26,9 @@
 #define GPSOFFSTATE LOW                         //logic level to turn GPS off via pin GPSPOWER
 
 #define LORA_DEVICE DEVICE_SX1262               //this is the device we are using
- 
 
- 
+
+
 
 
 //*******  Setup LoRa Test Parameters Here ! ***************
@@ -54,7 +50,7 @@ const int8_t TXpower = 10;                      //LoRa transmit power in dBm
 //**************************************************************************************************
 
 #define USE_SOFTSERIAL_GPS                       //need to include this if we are using softserial for GPS     
-//#define HardwareSerialPort Serial1             //if using hardware serial enable this define for hardware serial port 
+//#define HardwareSerialPort Serial1             //if using hardware serial enable this define for hardware serial port
 
 #define GPSBaud 9600                             //GPS Baud rate   
 #define WaitGPSFixSeconds 30                     //time to wait for a new GPS fix 
@@ -62,6 +58,4 @@ const int8_t TXpower = 10;                      //LoRa transmit power in dBm
 
 #define NoRXGPSfixms 15000                       //max number of mS to allow before no local fix flagged 
 #define DisplayRate 7                            //when working OK the GPS will get a new fix every second or so
-                                                 //this rate defines how often the display should be updated
-
-
+//this rate defines how often the display should be updated

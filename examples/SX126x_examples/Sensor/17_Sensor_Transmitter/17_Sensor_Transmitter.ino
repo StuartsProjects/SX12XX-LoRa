@@ -98,7 +98,7 @@ void loop()
   //wait a bit ................
   Serial.println(F(" - Awake !!"));         //the processor has woken up
   Serial.println();
-  
+
   LT.wake();
   normalBME280();                           //BME280 sensor to normal mode
 }
@@ -286,7 +286,7 @@ void setup()
 
   SPI.begin();
 
-  if (LT.begin(NSS, NRESET, RFBUSY, DIO1, SW, LORA_DEVICE))
+  if (LT.begin(NSS, NRESET, RFBUSY, DIO1, LORA_DEVICE))
   {
     led_Flash(2, 125);
   }
@@ -312,4 +312,3 @@ void setup()
 
   readSensors();                            //do an initial sensor read
 }
-

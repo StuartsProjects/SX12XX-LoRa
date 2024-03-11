@@ -146,7 +146,7 @@ void setup()
 
   SPI.begin();
 
-  if (LT.begin(NSS, NRESET, RFBUSY, DIO1, SW, LORA_DEVICE))
+  if (LT.begin(NSS, NRESET, RFBUSY, DIO1, LORA_DEVICE))
   {
     led_Flash(2, 125);
   }
@@ -169,5 +169,3 @@ void setup()
   Serial.println();
   Serial.println("Relay Ready");
 }
-
-

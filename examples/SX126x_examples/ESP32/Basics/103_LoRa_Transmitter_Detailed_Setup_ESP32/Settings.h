@@ -8,9 +8,7 @@
 //*******  Setup hardware pin definitions here ! ***************
 
 //These are the pin definitions for one of my own boards, a ESP32 shield base with my BBF board shield on
-//top. Be sure to change the definitions to match your own setup. Some pins such as DIO2, DIO3, BUZZER
-//may not be in used by this sketch so they do not need to be connected and should be included and be 
-//set to -1.
+//top. Be sure to change the definitions to match your own setup. 
 
 #define NSS 5                                   //select pin on LoRa device
 #define SCK 18                                  //SCK on SPI3
@@ -22,9 +20,6 @@
 
 #define LED1 2                                  //on board LED, high for on
 #define DIO1 35                                 //DIO1 pin on LoRa device, used for RX and TX done 
-#define SW -1                                   //SW pin on Dorji devices is used to turn RF switch on\off, set to -1 if not used    
-#define BUZZER -1                               //pin for buzzer, set to -1 if not used 
-#define VCCPOWER 14                             //pin controls power to external devices
 
 #define LORA_DEVICE DEVICE_SX1262               //we need to define the device we are using
 
@@ -43,4 +38,3 @@ const uint8_t Optimisation = LDRO_AUTO;         //low data rate optimisation set
 const int8_t TXpower = 10;                      //LoRa transmit power in dBm
 
 const uint16_t packet_delay = 1000;             //mS delay between packets
-

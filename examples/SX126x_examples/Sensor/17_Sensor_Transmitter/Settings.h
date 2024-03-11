@@ -15,9 +15,6 @@
 #define LED1 8                                  //on board LED, high for on
 #define RFBUSY 7                                //SX126X busy pin 
 #define DIO1 3                                  //DIO1 pin on LoRa device, used for RX and TX done 
-#define DIO2 -1                                 //DIO2 pin on LoRa device, normally not used so set to -1 
-#define DIO3 -1                                 //DIO3 pin on LoRa device, normally not used so set to -1
-#define SW -1                                   //SW pin on Dorji devices is used to turn RF switch on\off, set to -1 if not used    
 
 #define BATVREADON 8                            //when high turns on the resistor divider to measure voltage, -1 if not used
 #define BATTERYAD A7                            //Resitor divider for battery connected here, -1 if not used
@@ -44,4 +41,4 @@ const int8_t TXpower = 14;                      //LoRa transmit power in dBm
 #define BME280_ADDRESS  0x76                    //I2C bus address of BME280 
 #define BME280_REGISTER_CONTROL 0xF4            //BME280 register number for power control
 
-const uint8_t sleeps = 2;                       //number of 8 second sleeps, gap between transmissions 
+const uint8_t sleeps = 2;                       //number of 8 second sleeps, gap between transmissions

@@ -52,8 +52,8 @@
   Serial monitor baud rate is set at 9600.
 *******************************************************************************************************/
 
-
 #define Program_Version "V1.1"
+#define authorname "Stuart Robinson"
 
 #include <SPI.h>
 #include <SX126XLT.h>
@@ -121,11 +121,6 @@ void loop()
   //something has happened in receiver
   digitalWrite(LED1, HIGH);
 
-  if (BUZZER > 0)
-  {
-    digitalWrite(BUZZER, HIGH);
-  }
-
   RXPacketL = LT.readRXPacketL();
   PacketRSSI = LT.readPacketRSSI();
   PacketSNR = LT.readPacketSNR();
@@ -142,10 +137,6 @@ void loop()
 
   digitalWrite(LED1, LOW);
 
-  if (BUZZER > 0)
-  {
-    digitalWrite(BUZZER, LOW);
-  }
   Serial.println();
 }
 
@@ -376,13 +367,6 @@ void packet_is_Error()
 {
   uint16_t IRQStatus;
 
-  if (BUZZER >= 0)
-  {
-    digitalWrite(BUZZER, LOW);
-    delay(100);
-    digitalWrite(BUZZER, HIGH);
-  }
-
   IRQStatus = LT.readIrqStatus();                    //get the IRQ status
   RXerrors++;
   Serial.print(F("PacketError,RSSI"));
@@ -398,12 +382,6 @@ void packet_is_Error()
   LT.printIrqStatus();
   digitalWrite(LED1, LOW);
 
-  if (BUZZER >= 0)
-  {
-    digitalWrite(BUZZER, LOW);
-    delay(100);
-    digitalWrite(BUZZER, HIGH);
-  }
 }
 
 
@@ -554,18 +532,11 @@ void setup()
 
   Serial.begin(9600);
   Serial.println();
-  Serial.print(F(__TIME__));
-  Serial.print(F(" "));
-  Serial.println(F(__DATE__));
+  Serial.println(F(authorname));
   Serial.println(F(Program_Version));
   Serial.println();
 
   Serial.println(F("25_GPS_Tracker_Receiver_With_Display_and_GPS Starting"));
-
-  if (BUZZER >= 0)
-  {
-    pinMode(BUZZER, OUTPUT);
-  }
 
   SPI.begin();
 
@@ -575,7 +546,7 @@ void setup()
   Serial.print(F("Checking LoRa device - "));         //Initialize LoRa
   disp.setCursor(0, 0);
 
-  if (LT.begin(NSS, NRESET, RFBUSY, DIO1, SW, LORA_DEVICE))
+  if (LT.begin(NSS, NRESET, RFBUSY, DIO1, LORA_DEVICE))
   {
     Serial.println(F("Receiver ready"));
     disp.print(F("Receiver ready"));
@@ -619,6 +590,3 @@ void setup()
   Serial.println(F("Receiver ready"));
   Serial.println();
 }
-
-
-

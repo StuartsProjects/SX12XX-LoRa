@@ -2,7 +2,7 @@
   Programs for Arduino - Copyright of the author Stuart Robinson - 08/04/20
 
   This program is supplied as is, it is up to the user of the program to decide if the program is
-  suitable for the intended purpose and free from errors. 
+  suitable for the intended purpose and free from errors.
 *******************************************************************************************************/
 
 /*******************************************************************************************************
@@ -22,8 +22,6 @@
 
   Serial monitor baud rate is set at 9600.
 *******************************************************************************************************/
-
-#define Program_Version "V1.0"
 
 #include <SPI.h>
 #include <SX126XLT.h>
@@ -57,15 +55,10 @@ void loop()
   Serial.flush();                            //make sure all serial has gone, it can wake up processor
 
   sleep_permanent();                         //put processor to sleep, with LoRa device listening, should
-                                             //wakeup when DIO1 goes high 
+  //wakeup when DIO1 goes high
 
   Serial.println(F("Awake !!!!"));
   digitalWrite(LED1, HIGH);                  //something has happened ?
-
-  if (BUZZER > 0)
-  {
-    digitalWrite(BUZZER, HIGH);
-  }
 
   RXPacketL = LT.readPacket(RXBUFFER, RXBUFFER_SIZE);   //now read in the received packet to the RX buffer
 
@@ -82,12 +75,6 @@ void loop()
   }
 
   digitalWrite(LED1, LOW);
-
-  if (BUZZER > 0)
-  {
-
-    digitalWrite(BUZZER, LOW);
-  }
 
   Serial.println();
 }
@@ -204,25 +191,12 @@ void setup()
 
   Serial.begin(9600);
   Serial.println();
-  Serial.print(__TIME__);
-  Serial.print(F(" "));
-  Serial.println(__DATE__);
-  Serial.println(F(Program_Version));
-  Serial.println();
   Serial.println(F("6_LoRa_RX_and_Sleep_Atmel Starting"));
   Serial.println();
 
-  if (BUZZER > 0)
-  {
-    pinMode(BUZZER, OUTPUT);
-    digitalWrite(BUZZER, HIGH);
-    delay(50);
-    digitalWrite(BUZZER, LOW);
-  }
-
   SPI.begin();
 
-  if (LT.begin(NSS, NRESET, RFBUSY, DIO1, SW, LORA_DEVICE))
+  if (LT.begin(NSS, NRESET, RFBUSY, DIO1, LORA_DEVICE))
   {
     Serial.println(F("Radio Device found"));
     led_Flash(2, 125);
@@ -245,4 +219,3 @@ void setup()
   Serial.println();
 
 }
-

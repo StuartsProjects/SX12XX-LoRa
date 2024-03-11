@@ -14,7 +14,7 @@
 
 /*******************************************************************************************************
   Program Operation - This is a demonstration program that uses LoRa to transfer an image taken with an
-  OV2640 Arducam camera. The LoRa transfer is carried out using the data transfer functions of the 
+  OV2640 Arducam camera. The LoRa transfer is carried out using the data transfer functions of the
   SX12XX-LoRa library. Program tested on Arduino DUE.
 
   The Arducam software takes an image and saves it to a SD card. The filename is then passed across to

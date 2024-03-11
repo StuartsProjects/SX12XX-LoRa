@@ -1,5 +1,5 @@
 //File from https://www.arduino.cc/en/Tutorial/toneMelody
-//This note table was originally written by Brett Hagman, on whose work the Arduino tone() command was based. 
+//This note table was originally written by Brett Hagman, on whose work the Arduino tone() command was based.
 
 #define NOTE_B0  31
 #define NOTE_C1  33
@@ -90,5 +90,3 @@
 #define NOTE_CS8 4435
 #define NOTE_D8  4699
 #define NOTE_DS8 4978
-
-

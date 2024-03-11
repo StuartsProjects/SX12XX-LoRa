@@ -23,30 +23,28 @@
   see the Settings.h file for all the options. FSK RTTY gets sent at the same frequency as the Tracker mode
   HAB packet. The LT.transmitFSKRTTY() function sends at 1 start bit, 7 data bits, no parity and 2 stop bits.
   For full control of the FSK RTTY setting you can use the following alternative function;
-  
+
   LT.transmitFSKRTTY(chartosend, databits, stopbits, parity, baudPerioduS, pin)
 
   There is a matching Balloon Tracker Receiver program which writes received data to the Serial monitor as well
   as a small OLED display.
 
-  In the Settings.h file you can set the configuration for either a Ublox GPS or a Quectel L70\L80. The GPSs 
+  In the Settings.h file you can set the configuration for either a Ublox GPS or a Quectel L70\L80. The GPSs
   are configured for high altitude balloon mode.
 
   It is strongly recommended that a FRAM option is fitted for this transmitter. The sequence, resets and error
   nembers are stred in non-volatile memory. This defaults to EEPROM which has a limited endurance of only
-  100,000 writes, so in theory the limt is reached after the transmission of 100,000 hab packets. The use of 
-  a FRAM will extend the life of the tracker to circa 100,000,000,000,000 transmissions. 
+  100,000 writes, so in theory the limt is reached after the transmission of 100,000 hab packets. The use of
+  a FRAM will extend the life of the tracker to circa 100,000,000,000,000 transmissions.
 
   Changes:
   240420 - Change to work with Easy Pro Mini style modules
   300420 - Improve error detection for UBLOX GPS library
 
   ToDo:
- 
+
   Serial monitor baud rate is set at 115200
 *******************************************************************************************************/
-
-#define Program_Version "V1.1"
 
 #include <Arduino.h>
 #include <SX126XLT.h>                           //include the appropriate library  
@@ -116,18 +114,18 @@ void loop()
   {
     GPS_OutputOff();
     sendCommand(NoFix);                          //report a GPS fix error
-    delay(1000);                                 //give receiver enough time to report NoFix          
+    delay(1000);                                 //give receiver enough time to report NoFix
   }
   Serial.println();
 
-  do_Transmissions();                            //do the transmissions 
-  
+  do_Transmissions();                            //do the transmissions
+
   Serial.println(F("Sleep"));
-  LT.setSleep(CONFIGURATION_RETENTION);          //put LoRa device to sleep, preserve lora register settings 
+  LT.setSleep(CONFIGURATION_RETENTION);          //put LoRa device to sleep, preserve lora register settings
   Serial.flush();                                //make sure no serial output pending before goint to sleep
-    
+
   delay(SleepTimesecs * 1000);
-  
+
   Serial.println(F("Wake"));
   LT.wake();                                     //wake the LoRa device from sleep
 }
@@ -138,7 +136,7 @@ void do_Transmissions()
   //this is where all the transmisions get sent
   uint32_t startTimemS;
   uint8_t index;
-  
+
   incMemoryUint32(addr_SequenceNum);             //increment Sequence number
 
   if (readConfigByte(SearchEnable))
@@ -161,11 +159,11 @@ void do_Transmissions()
     Serial.println();
   }
 
-  delay(1000);                                        //gap between transmissions 
- 
-  setTrackerMode();                              
-  
-  TXPacketL = buildHABPacket();                       
+  delay(1000);                                        //gap between transmissions
+
+  setTrackerMode();
+
+  TXPacketL = buildHABPacket();
   Serial.print(F("HAB Packet > "));
   printBuffer(TXBUFFER, (TXPacketL + 1));             //print the buffer (the packet to send) as ASCII
   digitalWrite(LED1, HIGH);
@@ -180,23 +178,23 @@ void do_Transmissions()
 
   if (readConfigByte(FSKRTTYEnable))
   {
-    LT.setupDirect(TrackerFrequency, Offset);                               
+    LT.setupDirect(TrackerFrequency, Offset);
     LT.startFSKRTTY(FrequencyShift, NumberofPips, PipPeriodmS, PipDelaymS, LeadinmS);
-    
+
     startTimemS = millis() - LeadinmS;
-    
+
     Serial.print(F("FSK RTTY > $$$"));
     Serial.flush();
     LT.transmitFSKRTTY('$', BaudPerioduS, LED1);            //send a '$' as sync
     LT.transmitFSKRTTY('$', BaudPerioduS, LED1);            //send a '$' as sync
     LT.transmitFSKRTTY('$', BaudPerioduS, LED1);            //send a '$' as sync
-        
-    for (index = 0; index <= (TXPacketL - 1); index++)      //its  TXPacketL-1 since we dont want to send the null at the end 
+
+    for (index = 0; index <= (TXPacketL - 1); index++)      //its  TXPacketL-1 since we dont want to send the null at the end
     {
       LT.transmitFSKRTTY(TXBUFFER[index], BaudPerioduS, LED1);
       Serial.write(TXBUFFER[index]);
     }
-    
+
     LT.transmitFSKRTTY(13, BaudPerioduS, LED1);              //send carriage return
     LT.transmitFSKRTTY(10, BaudPerioduS, LED1);              //send line feed
     LT.endFSKRTTY(); //stop transmitting carrier
@@ -211,9 +209,9 @@ void do_Transmissions()
 
 void printTXtime(uint32_t startmS, uint32_t endmS)
 {
-Serial.print(F(" "));
-Serial.print(endmS-startmS);
-Serial.print(F("mS"));
+  Serial.print(F(" "));
+  Serial.print(endmS - startmS);
+  Serial.print(F("mS"));
 }
 
 
@@ -245,7 +243,7 @@ void printBuffer(uint8_t *buffer, uint8_t size)
 }
 
 
-uint8_t buildHABPacket()                                        
+uint8_t buildHABPacket()
 {
   //build the HAB tracker payload
   uint16_t index, j, CRC;
@@ -326,7 +324,7 @@ uint8_t buildLocationOnly(float Lat, float Lon, uint16_t Alt, uint8_t stat)
   LT.writeInt16(Alt);                         //add altitude
   LT.writeUint8(stat);                        //add tracker status
   len = LT.endWriteSXBuffer();                //close buffer write
-  return len; 
+  return len;
 }
 
 
@@ -382,15 +380,15 @@ uint8_t readConfigByte(uint8_t bitnum)
 
 void setTrackerMode()
 {
- Serial.println(F("setTrackerMode"));
- LT.setupLoRa(TrackerFrequency, Offset, TrackerSpreadingFactor, TrackerBandwidth, TrackerCodeRate, TrackerOptimisation);
+  Serial.println(F("setTrackerMode"));
+  LT.setupLoRa(TrackerFrequency, Offset, TrackerSpreadingFactor, TrackerBandwidth, TrackerCodeRate, TrackerOptimisation);
 }
 
 
 void setSearchMode()
 {
- Serial.println(F("setSearchMode"));
- LT.setupLoRa(SearchFrequency, Offset, SearchSpreadingFactor, SearchBandwidth, SearchCodeRate, SearchOptimisation);
+  Serial.println(F("setSearchMode"));
+  LT.setupLoRa(SearchFrequency, Offset, SearchSpreadingFactor, SearchBandwidth, SearchCodeRate, SearchOptimisation);
 }
 
 
@@ -411,7 +409,7 @@ uint8_t sendCommand(char cmd)
   len = LT.endWriteSXBuffer();              //close the packet, get the length of data to be sent
 
   //now transmit the packet, set a timeout of 5000mS, wait for it to complete sending
-  
+
   digitalWrite(LED1, HIGH);                 //turn on LED as an indicator
   TXPacketL = LT.transmitSXBuffer(0, len, 5000, TrackerTXpower, WAIT_TX);
   digitalWrite(LED1, LOW);                  //turn off indicator LED
@@ -530,7 +528,7 @@ bool gpsWaitFix(uint16_t waitSecs)
 
   uint32_t endwaitmS, millistowait, currentmillis;
   uint8_t GPSchar;
-  
+
   Serial.flush();
 
   Serial.print(F("Wait GPS Fix "));
@@ -540,7 +538,7 @@ bool gpsWaitFix(uint16_t waitSecs)
 
   GPS_OutputOn();
   Serial.flush();
-  
+
   currentmillis = millis();
   millistowait = waitSecs * 1000;
   endwaitmS = currentmillis + millistowait;
@@ -607,21 +605,20 @@ void setup()
 {
   uint32_t i;
   uint16_t j;
-  
+
   Serial.begin(115200);                     //Setup Serial console ouput
   Serial.println();
-  Serial.println();
   Serial.println(F("67_HAB_Balloon_Tracker_Transmitter Starting"));
-  
+
   memoryStart(Memory_Address);              //setup the memory
   j = readMemoryUint16(addr_ResetCount);
   j++;
   writeMemoryUint16(addr_ResetCount, j);
   j = readMemoryUint16(addr_ResetCount);
-  
+
   Serial.print(F("TXResets "));
   Serial.println(j);
-  
+
   if (GPSPOWER >= 0)                        //if GPS needs power switching, turn it on
   {
     pinMode(GPSPOWER, OUTPUT);
@@ -633,14 +630,14 @@ void setup()
     pinMode(BATVREADON, OUTPUT);            //for MOSFET controlling battery volts resistor divider
   }
 
-  #ifdef QUECTELINUSE                       
+#ifdef QUECTELINUSE
   Serial.println(F("Quectel GPS library"));
-  #endif
+#endif
 
-  #ifdef UBLOXINUSE                       
+#ifdef UBLOXINUSE
   Serial.println(F("UBLOX GPS library"));
-  #endif
-  
+#endif
+
 #ifdef ClearAllMemory
   clearAllMemory();
 #endif
@@ -683,7 +680,6 @@ void setup()
   printTempDS18B20();
   Serial.println();
 
-  //j = readSupplyVoltage();                    //get supply mV
   TXStatus = 0;                               //clear all TX status bits
 
   sendCommand(PowerUp);                       //send power up command, includes supply mV and config, on tracker settings
@@ -694,7 +690,7 @@ void setup()
 
   delay(2000);
 
-  if (GPS_CheckConfiguration())               //Check that GPS is configured for high altitude mode
+  if (GPS_CheckBalloonMode())                 //Check that GPS is configured for high altitude mode
   {
     Serial.println();
     GPS_OutputOff();                          //GPS interrupts cause problems with lora device, so turn off for now

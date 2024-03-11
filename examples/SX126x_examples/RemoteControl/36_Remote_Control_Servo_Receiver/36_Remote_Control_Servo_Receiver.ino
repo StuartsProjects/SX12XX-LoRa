@@ -40,8 +40,6 @@
   Serial monitor baud rate is set at 115200.
 *******************************************************************************************************/
 
-#define programversion "V1.0"
-
 #include <SPI.h>
 #include <SX126XLT.h>
 #include "Settings.h"
@@ -64,7 +62,7 @@ uint8_t RXPacketType;                      //type of received packet
 void loop()
 {
   uint16_t IRQStatus;
-  
+
   RXPacketL = LT.receiveSXBuffer(0, 0, WAIT_RX);   //returns 0 if packet error of some sort
 
   while (!digitalRead(DIO1));                      //wait for DIO1 to go high
@@ -78,7 +76,7 @@ void loop()
   else
   {
     Serial.print(F("IRQ,"));
-    Serial.print(LT.readIrqStatus(),HEX);
+    Serial.print(LT.readIrqStatus(), HEX);
     Serial.print(F(","));
     packet_is_Error();
   }
@@ -236,7 +234,7 @@ void setup()
 
   SPI.begin();
 
-  if (LT.begin(NSS, NRESET, RFBUSY, DIO1, SW, LORA_DEVICE))
+  if (LT.begin(NSS, NRESET, RFBUSY, DIO1, LORA_DEVICE))
   {
     led_Flash(2, 125);
   }
@@ -254,6 +252,3 @@ void setup()
   Serial.println(F("36_Remote_Control_Servo_Receiver ready"));
   Serial.println();
 }
-
-
-

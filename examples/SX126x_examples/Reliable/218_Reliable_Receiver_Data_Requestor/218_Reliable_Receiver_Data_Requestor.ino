@@ -224,9 +224,6 @@ void setup()
 
   Serial.begin(115200);
   Serial.println();
-  Serial.println();
-  Serial.println(__FILE__);
-  Serial.println();
 
   SPI.begin();
 
@@ -245,7 +242,7 @@ void setup()
   }
 
   LT.setupLoRa(Frequency, Offset, SpreadingFactor, Bandwidth, CodeRate, Optimisation);
-  
+
   Serial.println(F("Receiver ready"));
   Serial.println();
 }

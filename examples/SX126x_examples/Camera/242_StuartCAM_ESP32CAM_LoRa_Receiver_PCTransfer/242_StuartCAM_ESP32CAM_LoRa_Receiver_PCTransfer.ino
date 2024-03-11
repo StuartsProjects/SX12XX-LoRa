@@ -8,7 +8,7 @@
 /*******************************************************************************************************
   Program Operation -  This is a receiver program for an ESP32CAM board that has an SPI LoRa module set up
   on the following pins; NSS 12, NRESET 14, SCK 4, MISO 13, MOSI 2, RFBUSY 15, 3.3V VCC and GND. All other
-  pins on the SX126X are not connected. The received pictures are saved to the ESP32CAMs SD card and also 
+  pins on the SX126X are not connected. The received pictures are saved to the ESP32CAMs SD card and also
   transferred to a connected PC using the YModem protocol over the normal program upload port. Progress
   or debug messages can be seen by connection an additional serial adapter to pin 33 on the ESP32CAM.
 
@@ -18,7 +18,7 @@
 
   Note that the white LED on pin 4 or the transistor controlling it need to be removed so that the LoRa
   device can properly use pin 4.
-  
+
   Serial monitor baud rate is set at 115200.
 *******************************************************************************************************/
 

@@ -22,8 +22,6 @@
   Serial monitor baud rate is set at 9600
 *******************************************************************************************************/
 
-#define Program_Version "V1.1"
-
 #include <SPI.h>                                               //the lora device is SPI based so load the SPI library                                         
 #include <SX126XLT.h>                                          //include the appropriate library  
 #include "Settings.h"                                          //include the setiings file, frequencies, LoRa settings etc   
@@ -118,24 +116,20 @@ void setup()
 
   Serial.begin(9600);
   Serial.println();
-  Serial.print(F(__TIME__));
-  Serial.print(F(" "));
-  Serial.println(F(__DATE__));
-  Serial.println(F(Program_Version));
-  Serial.println();
   Serial.println(F("103_LoRa_Transmitter_Detailed_Setup Starting"));
 
   SPI.begin();
+  //SPI.begin(SCK, MISO, MOSI);                               //this will work too, allows you to move SPI pins
 
   //SPI beginTranscation is normally part of library routines, but if it is disabled in library
   //a single instance is needed here, so uncomment the program line below
   //SPI.beginTransaction(SPISettings(8000000, MSBFIRST, SPI_MODE0));
 
   //setup hardware pins used by device, then check if device is found
-  if (LT.begin(NSS, NRESET, RFBUSY, DIO1, SW, LORA_DEVICE))
+  if (LT.begin(NSS, NRESET, RFBUSY, DIO1, LORA_DEVICE))
   {
     Serial.println(F("LoRa Device found"));
-    led_Flash(2, 125);                                   //two further quick LED flashes to indicate device found
+    led_Flash(2, 125);                                     //two further quick LED flashes to indicate device found
     delay(1000);
   }
   else
@@ -186,4 +180,3 @@ void setup()
   Serial.print(F("Transmitter ready"));
   Serial.println();
 }
-

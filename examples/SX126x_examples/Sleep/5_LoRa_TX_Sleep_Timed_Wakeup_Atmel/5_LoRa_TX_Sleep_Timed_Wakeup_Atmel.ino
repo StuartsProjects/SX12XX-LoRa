@@ -21,8 +21,6 @@
   Serial monitor baud rate is set at 9600.
 *******************************************************************************************************/
 
-#define Program_Version "V1.0"
-
 #include <avr/wdt.h>                 //watchdog timer library, integral to Arduino IDE
 #include <SPI.h>
 #include <LowPower.h>                //get the library here; https://github.com/rocketscream/Low-Power
@@ -209,16 +207,11 @@ void setup()
 
   Serial.begin(9600);
   Serial.println();
-  Serial.print(__TIME__);
-  Serial.print(F(" "));
-  Serial.println(__DATE__);
-  Serial.println(F(Program_Version));
-  Serial.println();
   Serial.println(F("5_LoRa_TX_Sleep_Timed_Wakeup_Atmel Starting"));
 
   SPI.begin();
 
-  if (LT.begin(NSS, NRESET, RFBUSY, DIO1, SW, LORA_DEVICE))
+  if (LT.begin(NSS, NRESET, RFBUSY, DIO1, LORA_DEVICE))
   {
     Serial.println(F("LoRa Device found"));
     led_Flash(2, 125);
@@ -239,4 +232,3 @@ void setup()
   Serial.println(TXBUFFER_SIZE);
   Serial.println();
 }
-
