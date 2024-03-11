@@ -35,8 +35,8 @@ void printModemSettingsSD()
   //devices on the SPI bus all the time
   regdata = LT.readsavedModParam2();
   bandwidth = LT.returnBandwidth(regdata);
- 
-  freqint = LT.getFreqInt();sf = LT.getLoRaSF();
+
+  freqint = LT.getFreqInt(); sf = LT.getLoRaSF();
   cr = (LT.getLoRaCodingRate() + 4);
   opt = LT.getOptimisation();
   syncword = LT.getSyncWord();
@@ -341,6 +341,3 @@ void printtimeSD()
   printDigitsSD(minute(recordtime));
   printDigitsSD(second(recordtime));
 }
-
-
-

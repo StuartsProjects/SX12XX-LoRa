@@ -21,9 +21,9 @@
   There is the option of turning on an a requirement for an acknowledgement from a remote receiver, before
   the transmitter sends the next packet, set this; 'const bool waitforACK = true;' definition in the
   settings file. The matching receiver program '43_LoRa_Data_Throughput_Acknowledge_Receiver' does then need
-  to be configured with same lora settings as this transmitter. When this option is set, the program will 
+  to be configured with same lora settings as this transmitter. When this option is set, the program will
   keep running until the number of transmissions and acknowledgements has completed without any timeouts
-  in order to produce a valid average.   
+  in order to produce a valid average.
 
   The results of the test are printed out thus;
 
@@ -37,8 +37,6 @@
 
   Serial monitor baud rate is set at 9600
 *******************************************************************************************************/
-
-#define Program_Version "V1.0"
 
 #include <SPI.h>                      //the lora device is SPI based so load the SPI library                                         
 #include <SX126XLT.h>                 //include the appropriate library  
@@ -145,8 +143,8 @@ void loop()
 
     Serial.print(averagePacketTime, 2);
     Serial.println(F("mS"));
-    Serial.print(F("Packets per second ")); 
-    Serial.println((float) (1000/averagePacketTime));
+    Serial.print(F("Packets per second "));
+    Serial.println((float) (1000 / averagePacketTime));
     bitsPerpacket = (uint32_t) (TXPacketL * 8);
     Serial.print(F("Bits per packet sent = "));
     Serial.println(bitsPerpacket);
@@ -242,11 +240,6 @@ void setup()
 
   Serial.begin(9600);
   Serial.println();
-  Serial.print(F(__TIME__));
-  Serial.print(F(" "));
-  Serial.println(F(__DATE__));
-  Serial.println(F(Program_Version));
-  Serial.println();
   Serial.println(F("42_LoRa_Data_Throughput_Test_Transmitter Starting"));
 
   SPI.begin();
@@ -279,4 +272,3 @@ void setup()
   Serial.print(F("Transmitter ready"));
   Serial.println();
 }
-

@@ -82,7 +82,7 @@ static int yModemSend(const char *filename, int waitForReceiver, int batchMode )
   uint8_t ackerrors = 0;
 
   File srcFile = SD.open(filename, O_RDONLY);
-  
+
   if (srcFile < 0)
   {
     Serial.println("Open error");
@@ -90,13 +90,13 @@ static int yModemSend(const char *filename, int waitForReceiver, int batchMode )
   }
 
   numBytesStillToSend = srcFile.size();
-  
+
   if (numBytesStillToSend == 0)
   {
-  Serial.println("SD file error");
-  return 0;
+    Serial.println("SD file error");
+    return 0;
   }
-  
+
   //convert the size of the file to an ASCII representation for header packet
   sprintf(spfBuff, "%ld", numBytesStillToSend);
 

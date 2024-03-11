@@ -19,8 +19,6 @@
   Serial monitor baud rate is set at 9600.
 *******************************************************************************************************/
 
-#define Program_Version "V1.0"
-
 #include <SPI.h>
 #include <SX126XLT.h>
 #include "Settings.h"
@@ -170,11 +168,6 @@ void setup()
 
   Serial.begin(9600);
   Serial.println();
-  Serial.print(__TIME__);
-  Serial.print(F(" "));
-  Serial.println(__DATE__);
-  Serial.println(F(Program_Version));
-  Serial.println();
 
   Serial.println(F("11_LoRa_Packet_Logger_Receiver Starting"));
   Serial.println();
@@ -193,7 +186,7 @@ void setup()
   //a single instance is needed here, so uncomment the program line below
   //SPI.beginTransaction(SPISettings(8000000, MSBFIRST, SPI_MODE0));
 
-  if (LT.begin(NSS, NRESET, RFBUSY, DIO1, SW, LORA_DEVICE))
+  if (LT.begin(NSS, NRESET, RFBUSY, DIO1, LORA_DEVICE))
   {
     Serial.println(F("Radio Device found"));
     led_Flash(2, 125);
@@ -220,4 +213,3 @@ void setup()
   Serial.print(F(" Receiver ready"));
   Serial.println();
 }
-

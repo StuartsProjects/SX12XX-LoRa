@@ -11,7 +11,7 @@
   Arduino DUEs were used for the test and this example transfers an JPG image.
 
   This program uses routines that do not need to use the DIO1 pin on the LoRa device which is usually used
-  to indicate RXDONE or TXDONE. 
+  to indicate RXDONE or TXDONE.
 
   DT packets can be used for transfering large amounts of data in a sequence of packets or segments,
   in a reliable and resiliant way. The file open requests to the remote receiver, each segement sent and
@@ -110,8 +110,6 @@ void setup()
 #ifdef ENABLEMONITOR
   Monitorport.begin(115200);
   Monitorport.println();
-  Monitorport.println(F(__FILE__));
-  Monitorport.flush();
 #endif
 
   SPI.begin();

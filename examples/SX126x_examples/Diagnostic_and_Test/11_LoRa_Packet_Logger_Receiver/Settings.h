@@ -7,21 +7,16 @@
 
 //*******  Setup hardware pin definitions here ! ***************
 
-//These are the pin definitions for one of my own boards, the Easy Pro Mini, 
-//be sure to change the definitions to match your own setup. Some pins such as DIO1,
-//DIO2, BUZZER may not be in used by this sketch so they do not need to be connected
-//and should be set to -1.
+//These are the pin definitions for one of my own boards, the Easy Pro Mini,
+//be sure to change the definitions to match your own setup.
 
 #define NSS 10                                  //select on LoRa device
 #define NRESET 9                                //reset on LoRa device
 #define RFBUSY 7                                //SX12XX busy pin 
 #define DIO1 3                                  //DIO1 on LoRa device, used for RX and TX done 
-#define DIO2 -1                                 //DIO2 on LoRa device, normally not used so set to -1
-#define DIO3 -1                                 //DIO3 on LoRa device, normally not used so set to -1
-#define SW -1                                   //SW pin on Dorji devices is used to turn RF switch on\off, set to -1 if not used 
 #define LED1 8                                  //On board LED, high for on
 #define BUZZER -1                               //normally not used so set to -1
- 
+
 
 #define LORA_DEVICE DEVICE_SX1262               //this is the device we are using
 
@@ -39,4 +34,3 @@ const uint8_t Optimisation = LDRO_AUTO;         //low data rate optimisation set
 const int8_t TXpower = 2;                       //LoRa TX power
 
 #define packet_delay 1000                       //mS delay between packets
-

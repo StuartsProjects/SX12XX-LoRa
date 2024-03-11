@@ -43,7 +43,7 @@ SX126XLT LoRa;                               //create an SX126XLT library instan
 #define PRINTSEGMENTNUM                      //enable this define to print segment numbers 
 #define ENABLEFILECRC                        //enable this define to uses and show file CRCs
 //#define DISABLEPAYLOADCRC                  //enable this define if you want to disable payload CRC checking
-//#define DEBUG                              //see additional debug info  
+//#define DEBUG                              //see additional debug info
 
 //#define SDLIB                              //define SDLIB for SD.h or SDFATLIB for SDfat.h
 #define SDFATLIB
@@ -108,8 +108,6 @@ void setup()
 #ifdef ENABLEMONITOR
   Monitorport.begin(115200);
   Monitorport.println();
-  Monitorport.println(F(__FILE__));
-  Monitorport.flush();
 #endif
 
   SPI.begin();

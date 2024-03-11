@@ -18,8 +18,6 @@
   Serial monitor baud rate is set at 9600.
 *******************************************************************************************************/
 
-#define Program_Version "V1.1"
-
 #include <SPI.h>                                 //the lora device is SPI based so load the SPI library
 #include <SX126XLT.h>                            //include the appropriate library   
 #include "Settings.h"                            //include the setiings file, frequencies, LoRa settings etc   
@@ -117,33 +115,33 @@ void processPacket()
   {
     if (RXBUFFER[0] == ' ')
     {
-    lTXpower = 0;
+      lTXpower = 0;
     }
 
     if (RXBUFFER[0] == '+')
     {
-    lTXpower = ((RXBUFFER[1] - 48) * 10) +  (RXBUFFER[2] - 48);   //convert packet text to power
+      lTXpower = ((RXBUFFER[1] - 48) * 10) +  (RXBUFFER[2] - 48);   //convert packet text to power
     }
-    
+
     if (RXBUFFER[0] == '-')
     {
-    lTXpower = (((RXBUFFER[1] - 48) * 10) +  (RXBUFFER[2] - 48)) * -1;  //convert packet text to power
+      lTXpower = (((RXBUFFER[1] - 48) * 10) +  (RXBUFFER[2] - 48)) * -1;  //convert packet text to power
     }
 
     Serial.print(F(" ("));
 
     if (RXBUFFER[0] != '-')
     {
-    Serial.write(RXBUFFER[0]);
+      Serial.write(RXBUFFER[0]);
     }
-    
+
     Serial.print(lTXpower);
     Serial.print(F("dBm)"));
 
     if (updateCounts)
     {
-      temp = (Test1Count[lTXpower+9]);
-      Test1Count[lTXpower+9] = temp + 1;
+      temp = (Test1Count[lTXpower + 9]);
+      Test1Count[lTXpower + 9] = temp + 1;
     }
   }
 
@@ -180,7 +178,7 @@ void print_Test1Count()
   Serial.println();
   for (index = 31; index >= 0; index--)
   {
-    Serial.print(index-9);
+    Serial.print(index - 9);
     Serial.print(F("dBm,"));
     j = Test1Count[index];
     Serial.print(j);
@@ -261,11 +259,6 @@ void setup()
 
   Serial.begin(9600);
   Serial.println();
-  Serial.print(__TIME__);
-  Serial.print(F(" "));
-  Serial.println(__DATE__);
-  Serial.println(F(Program_Version));
-  Serial.println();
   Serial.println(F("20_LoRa_Link_Test_Receiver Starting"));
   Serial.println();
 
@@ -285,7 +278,7 @@ void setup()
   //SPI.beginTransaction(SPISettings(8000000, MSBFIRST, SPI_MODE0));
 
   //setup hardware pins used by device, then check if device is found
-   if (LT.begin(NSS, NRESET, RFBUSY, DIO1, LORA_DEVICE))
+  if (LT.begin(NSS, NRESET, RFBUSY, DIO1, LORA_DEVICE))
   {
     Serial.println(F("LoRa Device found"));
     led_Flash(2, 125);
@@ -314,4 +307,3 @@ void setup()
   Serial.println(RXBUFFER_SIZE);
   Serial.println();
 }
-

@@ -9,12 +9,12 @@
   Program Operation - This is a program that simulates the transfer of a file using data transfer (DT)
   packet functions from the SX126X library. No SD cards are needed for the simulation. The file length
   used to simulate the transfer is defined by DTFileSize in the DTSettings.h file. Use with matching
-  receiver program 232_Data_Transfer_Test_Receiver.ino
+  receiver program 232_Transfer_Test_Receiver.ino
 
   DT packets can be used for transfering large amounts of data in a sequence of packets or segments,
   in a reliable and resiliant way. The file open requests to the remote receiver, each segement sent and
   the remote file close will all keep transmitting until a valid acknowledge comes from the receiver.
- 
+
   On transmission the NetworkID and CRC of the payload are appended to the end of the packet by the library
   routines. The use of a NetworkID and CRC ensures that the receiver can validate the packet to a high degree
   of certainty.

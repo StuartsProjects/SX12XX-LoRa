@@ -2,12 +2,12 @@
   Programs for Arduino - Copyright of the author Stuart Robinson - 01/03/20
 
   This program is supplied as is, it is up to the user of the program to decide if the program is
-  suitable for the intended purpose and free from errors. 
+  suitable for the intended purpose and free from errors.
 *******************************************************************************************************/
 
 /*******************************************************************************************************
   Program Operation - The program listens for incoming packets using the LoRa settings in the 'Settings.h'
-  file. The pins to access the lora device need to be defined in the 'Settings.h' file also. 
+  file. The pins to access the lora device need to be defined in the 'Settings.h' file also.
 
   There is a printout of the valid packets received, the packet is assumed to be in ASCII printable text,
   if its not ASCII text characters from 0x20 to 0x7F, expect weird things to happen on the Serial Monitor.
@@ -21,12 +21,10 @@
 
   1189s PacketError,RSSI,-111dBm,SNR,-12dB,Length,0,Packets,1126,Errors,1,IRQreg,70,IRQ_HEADER_VALID,IRQ_CRC_ERROR,IRQ_RX_DONE
 
-  A summary of the packet reception is sent to the OLED display as well, useful for portable applications. 
+  A summary of the packet reception is sent to the OLED display as well, useful for portable applications.
 
   Serial monitor baud rate is set at 9600.
 *******************************************************************************************************/
-
-#define Program_Version "V1.0"
 
 #include <SPI.h>                                 //the lora device is SPI based so load the SPI library
 #include <SX126XLT.h>                            //include the appropriate library   
@@ -37,7 +35,6 @@ SX126XLT LT;                                     //create a library class instan
 #include <U8x8lib.h>                                      //get library here >  https://github.com/olikraus/u8g2 
 U8X8_SSD1306_128X64_NONAME_HW_I2C disp(U8X8_PIN_NONE);    //use this line for standard 0.96" SSD1306
 //U8X8_SH1106_128X64_NONAME_HW_I2C disp(U8X8_PIN_NONE);   //use this line for 1.3" OLED often sold as 1.3" SSD1306
-
 
 uint32_t RXpacketCount;
 uint32_t RXpacketErrors;
@@ -215,11 +212,6 @@ void setup()
 
   Serial.begin(9600);
   Serial.println();
-  Serial.print(F(__TIME__));
-  Serial.print(F(" "));
-  Serial.println(F(__DATE__));
-  Serial.println(F(Program_Version));
-  Serial.println();
   Serial.println(F("33_LoRa_RSSI_Checker_With_Display Starting"));
   Serial.println();
 
@@ -246,7 +238,7 @@ void setup()
   disp.setCursor(0, 1);
 
   //setup hardware pins used by device, then check if device is found
-  if (LT.begin(NSS, NRESET, RFBUSY, DIO1, SW, LORA_DEVICE))
+  if (LT.begin(NSS, NRESET, RFBUSY, DIO1, LORA_DEVICE))
   {
     disp.print(F("LoRa OK"));
     Serial.println(F("LoRa Device found"));

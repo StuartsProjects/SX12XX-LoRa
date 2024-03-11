@@ -6,24 +6,21 @@
 *******************************************************************************************************/
 
 /*******************************************************************************************************
-  Program Operation - This program can be used to check the frequency error between a pair of LoRa 
+  Program Operation - This program can be used to check the frequency error between a pair of LoRa
   devices, a transmitter and receiver. This receiver measures the frequecy error between the receivers
   centre frequency and the centre frequency of the transmitted packet. The frequency difference is shown
   for each packet and an average over 10 received packets reported. Any transmitter program can be used
-  to give this program something to listen to, including example program '3_LoRa_Transmit'. 
+  to give this program something to listen to, including example program '3_LoRa_Transmit'.
 
   Checked for correct operation with lora bandwidths of 500000hz, 125000 and 7800hz. At higher bandwidths
   the reported frequency errors can be within 10-20hz at minimum bandwidth, 7800hz, the reported frequency
   can be circa 100hz out.
 
   Note: Semtech appear to have stated that the frequency error function that this example uses, is not
-  supported for SX126X, for reasons that have not been given, so use at your own risk.   
+  supported for SX126X, for reasons that have not been given, so use at your own risk.
 
   Serial monitor baud rate is set at 9600.
 *******************************************************************************************************/
-
-
-#define Program_Version "V1.0"
 
 #include <SPI.h>
 #include <SX126XLT.h>
@@ -156,17 +153,12 @@ void setup()
 
   Serial.begin(9600);
   Serial.println();
-  Serial.print(__TIME__);
-  Serial.print(F(" "));
-  Serial.println(__DATE__);
-  Serial.println(F(Program_Version));
-  Serial.println();
   Serial.println(F("16_LoRa_RX_Frequency_Error_Check Starting"));
   Serial.println();
 
   SPI.begin();
 
-   if (LT.begin(NSS, NRESET, RFBUSY, DIO1, SW, LORA_DEVICE))
+  if (LT.begin(NSS, NRESET, RFBUSY, DIO1, LORA_DEVICE))
   {
     Serial.println(F("LoRa Device found"));
     led_Flash(2, 125);
@@ -185,6 +177,3 @@ void setup()
   Serial.println(F("Receiver ready"));
   Serial.println();
 }
-
-
-
