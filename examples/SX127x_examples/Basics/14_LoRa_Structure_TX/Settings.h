@@ -16,8 +16,6 @@
 #define NSS 10                                  //select on LoRa device
 #define NRESET 9                                //reset on LoRa device
 #define DIO0 3                                  //DIO0 on LoRa device, used for RX and TX done 
-#define DIO1 -1                                 //DIO1 on LoRa device, normally not used so set to -1
-#define DIO2 -1                                 //DIO2 on LoRa device, normally not used so set to -1
 #define LED1 8                                  //On board LED, high for on
 
 #define LORA_DEVICE DEVICE_SX1278               //this is the device we are using

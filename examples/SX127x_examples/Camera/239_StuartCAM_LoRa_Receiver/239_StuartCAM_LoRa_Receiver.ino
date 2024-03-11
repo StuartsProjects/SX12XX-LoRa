@@ -7,9 +7,9 @@
 
 /*******************************************************************************************************
   Program Operation - This is a program to receive images sent via LoRa using program
-  238_StuartCAM_LoRa_Remote_Camera which uses an OV2640 Arducam camera to take pictures. 
-  
-  The received images\files are saved onto an SD card. Arduino DUEs were used for this test. 
+  238_StuartCAM_LoRa_Remote_Camera which uses an OV2640 Arducam camera to take pictures.
+
+  The received images\files are saved onto an SD card. Arduino DUEs were used for this test.
 
   Serial monitor baud rate is set at 115200.
 *******************************************************************************************************/
@@ -63,7 +63,6 @@ void setup()
 #ifdef ENABLEMONITOR
   Monitorport.begin(115200);
   Monitorport.println();
-  Monitorport.println(F(__FILE__));
 #endif
 
   SPI.begin();

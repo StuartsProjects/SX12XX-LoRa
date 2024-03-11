@@ -107,8 +107,6 @@ void setup()
 #ifdef ENABLEMONITOR
   Monitorport.begin(115200);
   Monitorport.println();
-  Monitorport.println(F(__FILE__));
-  Monitorport.flush();
 #endif
 
   SPI.begin();

@@ -15,7 +15,8 @@
 
 #define MMCSCK 7
 #define MMCCMD 9
-#define MMCD0 8   
+#define MMCD0 8
+#define REDLED 33
 
 #define LORA_DEVICE DEVICE_SX1278               //this is the device we are using
 

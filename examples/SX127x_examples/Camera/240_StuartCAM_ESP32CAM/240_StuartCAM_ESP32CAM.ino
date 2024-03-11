@@ -225,7 +225,6 @@ void setup()
 
   Monitorport.begin(115200);
   Monitorport.println();
-  Monitorport.println(F(__FILE__));
 
   if (bootCount == 0)                         //run this only the first time after programming or power up
   {

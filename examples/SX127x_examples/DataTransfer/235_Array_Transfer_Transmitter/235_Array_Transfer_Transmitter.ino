@@ -103,7 +103,7 @@ bool doArrayTransfer(uint8_t *ptrarray)
 {
   ptrDTsendarray = ptrarray;                                                 //set the global ptr for the  the array to send
   DTLocalArrayCRC = LoRa.CRCCCITT(ptrDTsendarray, DTLocalArrayLength, 0xFFFF);
-  
+
   DTStartmS = millis();
   do
   {
@@ -111,7 +111,7 @@ bool doArrayTransfer(uint8_t *ptrarray)
     {
       Serial.print(DTfilenamebuff);
       Serial.println(" opened OK on remote");
-      
+
       DTNumberSegments = getNumberSegments(DTLocalArrayLength, DTSegmentSize);
       DTLastSegmentSize = getLastSegmentSize(DTLocalArrayLength, DTSegmentSize);
       printLocalFileDetails();
@@ -622,7 +622,7 @@ uint32_t moveFileArray(char *filenamebuff, uint8_t *buff, uint32_t buffsize)
   Serial.println(F(" bytes"));
   DTLocalFileCRC = DTSD_fileCRCCCITT(DTLocalFileLength);                   //get file CRC from position 0 to end
   Serial.print(F("DTLocalFileCRC 0x"));
-  Serial.println(DTLocalFileCRC,HEX);
+  Serial.println(DTLocalFileCRC, HEX);
 
   //now tranfer SD file to global array
   dataFile.seek(0);                                                        //ensure at first position in file

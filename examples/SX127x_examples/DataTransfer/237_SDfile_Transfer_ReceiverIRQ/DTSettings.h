@@ -5,7 +5,6 @@
   suitable for the intended purpose and free from errors.
 *******************************************************************************************************/
 
-
 #define NSS 10                                  //select pin on LoRa device
 #define NRESET 9                                //reset pin on LoRa device
 #define LED1 8                                  //LED used to indicate transmission

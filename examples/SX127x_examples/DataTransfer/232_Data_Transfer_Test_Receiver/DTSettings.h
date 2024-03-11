@@ -5,7 +5,6 @@
   suitable for the intended purpose and free from errors.
 *******************************************************************************************************/
 
-
 #define NSS 10                                  //select pin on LoRa device
 #define NRESET 9                                //reset pin on LoRa device
 #define DIO0 3                                  //DIO0 pin on LoRa device, used for sensing RX and TX done 

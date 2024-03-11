@@ -6,7 +6,7 @@
 *******************************************************************************************************/
 
 /*******************************************************************************************************
-    Program Operation - This is a program for receiving files transmitted by LoRa and saving them to SD card
+  Program Operation - This is a program for receiving files transmitted by LoRa and saving them to SD card
   and then optionally transfering them to a PC using a second serial port and the Ymodem protocol. Arduino
   DUEs were used for testing the program, these have multiple hardware Serial ports.
 
@@ -113,7 +113,6 @@ void setup()
 #ifdef ENABLEMONITOR
   Monitorport.begin(115200);
   Monitorport.println();
-  Monitorport.println(F(__FILE__));
 #endif
 
   SPI.begin();

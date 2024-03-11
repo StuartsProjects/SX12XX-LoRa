@@ -74,7 +74,6 @@ void setup()
 
   Serial.begin(115200);
   Serial.println();
-  Serial.println(F(__FILE__));
 
   SPI.begin();
 

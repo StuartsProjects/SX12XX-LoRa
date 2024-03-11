@@ -22,8 +22,6 @@
   Serial monitor baud rate is set at 9600
 *******************************************************************************************************/
 
-#define Program_Version "V1.1"
-
 #include <SPI.h>                                               //the lora device is SPI based so load the SPI library
 #include <SX127XLT.h>                                          //include the appropriate library  
 #include "Settings.h"                                          //include the setiings file, frequencies, LoRa settings etc
@@ -116,12 +114,8 @@ void setup()
   pinMode(LED1, OUTPUT);                                   //setup pin as output for indicator LED
   led_Flash(2, 125);                                       //two quick LED flashes to indicate program start
 
-  Serial.begin(9600);
   Serial.println();
-  Serial.print(F(__TIME__));
-  Serial.print(F(" "));
-  Serial.println(F(__DATE__));
-  Serial.println(F(Program_Version));
+  Serial.begin(9600);
   Serial.println();
   Serial.println(F("103_LoRa_Transmitter_Detailed_Setup Starting"));
 
@@ -180,4 +174,3 @@ void setup()
   Serial.print(F("Transmitter ready"));
   Serial.println();
 }
-

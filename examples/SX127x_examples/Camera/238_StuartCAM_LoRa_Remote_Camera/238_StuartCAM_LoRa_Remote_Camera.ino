@@ -14,7 +14,7 @@
 
 /*******************************************************************************************************
   Program Operation - This is a demonstration program that uses LoRa to transfer an image taken with an
-  OV2640 Arducam camera. The LoRa transfer is carried out using the data transfer functions of the 
+  OV2640 Arducam camera. The LoRa transfer is carried out using the data transfer functions of the
   SX12XX-LoRa library. Program tested on Arduino DUE.
 
   The Arducam software takes an image and saves it to a SD card. The filename is then passed across to
@@ -50,8 +50,10 @@ SX127XLT LoRa;                          //create an SX127XLT library instance ca
 
 char FileName[13];                      //filename passed to both Arducam and LoRa routines
 
-ArduCAM myCAM( OV2640, OV2640CS );
-#include "OV2640.h"                     //include local Arducam code for OV2640 camera 
+
+ArduCAM myCAM(OV2640, OV2640CS );
+#define OV2640_CAM
+#include "OV2640.h"                     //include local Arducam code for OV2640 camera
 
 
 void loop()
@@ -84,17 +86,17 @@ void setup()
   pinMode(LED1, OUTPUT);                      //setup pin as output for indicator LED
   led_Flash(2, 125);                          //two quick LED flashes to indicate program start
   SDsetLED(LED1);                             //setup LED pin for data transfer indicator
-  
+
   digitalWrite(NSS, HIGH);
   pinMode(NSS, OUTPUT);                       //set the LoRa NSS as an output
   digitalWrite(OV2640CS, HIGH);
   pinMode(OV2640CS, OUTPUT);                  //set the camera CS as an output
   digitalWrite(SDCS, HIGH);
   pinMode(SDCS, OUTPUT);                      //set the SDCS as an output
-  
+
 
   Serial.begin(115200);
-  Serial.println(__FILE__);
+  Serial.println();
 
   Wire.begin();
   SPI.begin();

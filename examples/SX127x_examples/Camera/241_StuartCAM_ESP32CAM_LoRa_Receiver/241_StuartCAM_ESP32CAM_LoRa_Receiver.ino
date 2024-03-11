@@ -19,7 +19,7 @@
 #include <SPI.h>
 #include "FS.h"                            //SD Card ESP32
 #include "SD_MMC.h"                        //SD Card ESP32
-SPIClass sdSPI(HSPI); 
+SPIClass sdSPI(HSPI);
 #include "soc/soc.h"                       //disable brownout problems
 #include "soc/rtc_cntl_reg.h"              //disable brownout problems
 #include "driver/rtc_io.h"
@@ -142,7 +142,7 @@ bool setupLoRaDevice()
 bool initMicroSDCard()
 {
   SD_MMC.setPins(MMCSCK, MMCCMD, MMCD0);
-  
+
   if (!SD_MMC.begin("/sdcard", true))               //use this line for 1 bit mode, pin 2 only, 4,12,13 not used
   {
     Serial.println("*****************************");
@@ -167,9 +167,9 @@ void led_Flash(uint16_t flashes, uint16_t delaymS)
   uint16_t index;
   for (index = 1; index <= flashes; index++)
   {
-    digitalWrite(LED_BUILTIN, LOW);
+    digitalWrite(REDLED, LOW);
     delay(delaymS);
-    digitalWrite(LED_BUILTIN, HIGH);
+    digitalWrite(REDLED, HIGH);
     delay(delaymS);
   }
 }
@@ -177,17 +177,16 @@ void led_Flash(uint16_t flashes, uint16_t delaymS)
 
 void setup()
 {
-  //WRITE_PERI_REG(RTC_CNTL_BROWN_OUT_REG, 0);     //disable brownout detector
-  //pinMode(LED_BUILTIN, OUTPUT);                       //setup pin as output for indicator LED
-  //led_Flash(2, 125);                             //two quick LED flashes to indicate program start
-  //ARsetDTLED(LED_BUILTIN);                            //setup LED pin for data transfer indicator
+  //WRITE_PERI_REG(RTC_CNTL_BROWN_OUT_REG, 0);       //disable brownout detector
+  //pinMode(REDLED, OUTPUT);                         //setup pin as output for indicator LED
+  //led_Flash(2, 125);                               //two quick LED flashes to indicate program start
+  //ARsetDTLED(REDLED);                              //setup LED pin for data transfer indicator
 
   digitalWrite(NSS, HIGH);
-  pinMode(NSS, OUTPUT);                          //disable LoRa device for now
+  pinMode(NSS, OUTPUT);                            //disable LoRa device for now
 
   Serial.begin(115200);
   Serial.println();
-  Serial.println(__FILE__);
 
   if (psramInit())
   {
