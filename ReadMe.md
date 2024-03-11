@@ -52,9 +52,18 @@ However, its up to module manufactures to connect the Semtech LoRa devices up as
 
 A prime objective of the library was to allow the same program sketches to be used across the range of UHF LoRa modules (SX126x and SX127x) as well as the 2.4Ghz SX128x modules. With this library a sketch written for the SX1278 should run with very minor changes on the SX1262 or SX1280. However, whilst the SX126x and SX128x modules use the same style of internal device programming, the SX127x internal programming is completely different. The function style used for the SX126x and SX128x devices has been emulated for the SX127x.
 
+The newer LLCC68 LoRa modules should work when programmed as SX126X devices although check the data sheets for the range of LoRa modem parameters supported.
+
 ### Warning
 
 **The base Semtech devices that this library supports are all 3.3V logic level devices and most available modules do not include logic level conversion circuits.  So do not use modules directly with 5V logic level Arduinos unless some form of logic level conversion is implemented.** There are no specific logic level converters I could recommend. 
+
+## Support
+
+Support for the library and examples can be achieved by posting an issue at the GITHUB repository for the library. A reasonable level of experience with Arduinos is expected for those using the library as there are no basic tutorials provided on wiring Arduinos up, powering them or using the Arduino IDE.  
+
+The examples do work, so if for you they do not, assume there is a problem with how you have wired the modules or that your modules are faulty or that your Arduino set-up or LoRa module is faulty or not supported. You are best placed to diagnose these issues. **It is not practical for me to provide on-going technical support for programs other than the library examples .** This also applies to external  libraries used in examples, if you have problems with these libraries, contact the authors for support. 
+
 
 ## SX12XX Library installation
 
@@ -270,8 +279,8 @@ Carries out an internal device calibration, normally carried out after setting t
 Sets the LoRa modem parameters for Spreading factor, Bandwidth, CodeRate and Optimisation. The options are; 
 
     //LoRa Spreading factors
-    LORA_SF5    (SX126X and SX128X libraries only)   
-    LORA_SF6
+    LORA_SF5    //SX126X and SX128X libraries only   
+    LORA_SF6    //on SX127X requires fixed length implicit packets
     LORA_SF7
     LORA_SF8
     LORA_SF9
@@ -499,20 +508,10 @@ Which means there is a test packet (T) its been sent as a broadcast (*) and its 
  
 It was not the intention of this library to specifically support the large number of non-Atmel platforms. The use of platform specific hardware functions such as timers or interrupts has been avoided in the libraries, so if a hardware platform supports standard SPI and a program compiles, it should work. There are library functions that use the millis() and micros() functions. Some example programs use SoftwareSerial which is not supported on all platforms. A few programs have been tested and work on ESP32 based boards and an STM32 Xnucleo board. See the Readme for ESP32 and STM32 in the ESP32 and STM32 examples folders.
 
-
-## Support
-
-The examples do work, so if for you they do not, assume there is a problem with how you have wired the modules or that your modules are faulty or that your Arduino set-up or LoRa module is faulty or unsupported. You are best placed to diagnose these issues. **It is not practical for me to provide on-going technical support for programs that are not the library examples included.** This also applies to external  libraries used in examples, if you have problems with these libraries, contact the authors for support. 
-
-If you find a bug, or other error in the SX12xx library or examples, and your using the ATMega328P and ATMega1284P platforms please let me know.
-
-
-
 <br>
-
 
 
 ### Stuart Robinson
 
-### January 2023
+### March 2024
 
