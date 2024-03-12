@@ -15,7 +15,6 @@
 #define LED1 8                                  //on board LED, high for on
 #define RFBUSY 7                                //SX126X busy pin 
 #define DIO1 3                                  //DIO1 pin on LoRa device, used for RX and TX done 
-#define SW -1                                   //SW pin on Dorji devices is used to turn RF switch on\off, set to -1 if not used    
 
 #define LORA_DEVICE DEVICE_SX1262               //we need to define the device we are using
 
