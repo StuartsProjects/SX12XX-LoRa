@@ -2,7 +2,7 @@
   Programs for Arduino - Copyright of the author Stuart Robinson - 11/02/20
 
   This program is supplied as is, it is up to the user of the program to decide if the program is
-  suitable for the intended purpose and free from errors. 
+  suitable for the intended purpose and free from errors.
 *******************************************************************************************************/
 
 /*******************************************************************************************************
@@ -27,31 +27,31 @@
   Reset device
   Registers at reset
   Reg    0  1  2  3  4  5  6  7  8  9  A  B  C  D  E  F
-  0x900  80 0C 7B 02 20 FA C0 00 00 80 00 00 00 00 00 FF 
-  0x910  FF FF 00 00 00 19 00 00 00 19 87 65 43 21 7F FF 
-  0x920  FF FF FF 0C 70 37 0A 50 D0 80 00 C0 5F D2 8F 0A 
-  0x930  00 C0 00 00 00 24 00 21 28 B0 30 09 1A 59 70 08 
-  0x940  58 0B 32 0A 14 24 6A 96 00 18 00 00 00 00 00 00 
-  0x950  00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 
-  0x960  00 00 00 00 00 00 00 00 00 00 FF FF FF FF FF FF 
-  0x970  FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF 04 
-  0x980  00 0B 18 70 00 00 00 4C 00 F0 64 00 00 00 00 00 
-  0x990  00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 
-  0x9A0  00 08 EC B8 9D 8A E6 66 06 00 00 00 00 00 00 00 
-  0x9B0  00 08 EC B8 9D 8A E6 66 06 00 00 00 00 00 00 00 
-  0x9C0  00 16 00 3F E8 01 FF FF FF FF 5E 4D 25 10 55 55 
-  0x9D0  55 55 55 55 55 55 55 55 55 55 55 55 55 00 00 00 
-  0x9E0  00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 
-  0x9F0  00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 
+  0x900  80 0C 7B 02 20 FA C0 00 00 80 00 00 00 00 00 FF
+  0x910  FF FF 00 00 00 19 00 00 00 19 87 65 43 21 7F FF
+  0x920  FF FF FF 0C 70 37 0A 50 D0 80 00 C0 5F D2 8F 0A
+  0x930  00 C0 00 00 00 24 00 21 28 B0 30 09 1A 59 70 08
+  0x940  58 0B 32 0A 14 24 6A 96 00 18 00 00 00 00 00 00
+  0x950  00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  0x960  00 00 00 00 00 00 00 00 00 00 FF FF FF FF FF FF
+  0x970  FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF 04
+  0x980  00 0B 18 70 00 00 00 4C 00 F0 64 00 00 00 00 00
+  0x990  00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  0x9A0  00 08 EC B8 9D 8A E6 66 06 00 00 00 00 00 00 00
+  0x9B0  00 08 EC B8 9D 8A E6 66 06 00 00 00 00 00 00 00
+  0x9C0  00 16 00 3F E8 01 FF FF FF FF 5E 4D 25 10 55 55
+  0x9D0  55 55 55 55 55 55 55 55 55 55 55 55 55 00 00 00
+  0x9E0  00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  0x9F0  00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
 
    Frequency at reset 2495996672hz
   Change Frequency to 2445000000hz
         Frequency now 2444999936hz
 
   Reg    0  1  2  3  4  5  6  7  8  9  A  B  C  D  E  F
-  0x900  80 0C 7B 02 20 FA BC 13 C1 80 00 00 00 00 00 61 
+  0x900  80 0C 7B 02 20 FA BC 13 C1 80 00 00 00 00 00 61
 
-Serial monitor baud rate is set at 9600.
+  Serial monitor baud rate is set at 9600.
 *******************************************************************************************************/
 
 const uint16_t REG_RFFrequency23_16 = 0x906;
@@ -60,7 +60,7 @@ const uint16_t REG_RFFrequency7_0 = 0x908;
 const uint8_t RADIO_WRITE_REGISTER = 0x18;
 const uint8_t RADIO_READ_REGISTER = 0x19;
 const uint8_t RADIO_SET_RFFREQUENCY = 0x86;             //commnad to change frequency
-const uint8_t RADIO_SET_PACKETTYPE =  0x8A;             //commnad to set packet mode    
+const uint8_t RADIO_SET_PACKETTYPE =  0x8A;             //commnad to set packet mode
 const float FREQ_STEP = 198.364;
 const uint8_t PACKET_TYPE_LORA = 0x01;
 
@@ -74,9 +74,8 @@ const uint8_t PACKET_TYPE_LORA = 0x01;
 #define NRESET 9                                //SX128X reset pin
 #define RFBUSY 7                                //SX128X busy pin 
 #define LED1 8                                  //for on board LED, put high for on
-  
-//**************************************************************/
 
+//**************************************************************/
 
 #include <SPI.h>
 
@@ -92,11 +91,11 @@ void setup()
   SPI.beginTransaction(SPISettings(8000000, MSBFIRST, SPI_MODE0));
 
   //The begin function setups the hardware pins used by device and then checks if device is found
-  //the DIO1, DIO2 and DIO3 pins are not used in this example so are set to -1
-  
- if (begin(NSS, NRESET, RFBUSY, -1, -1, -1, 0))
+  //the DIO1 pin is not used in this example
+
+  if (begin(NSS, NRESET, RFBUSY, 0))
   {
-    Serial.println(F("LoRa Device found"));
+    Serial.println(F("Device found"));
   }
   else
   {
@@ -113,16 +112,16 @@ void loop()
   printRegisters(0x0900, 0x09FF);
   Serial.println();
   Serial.println();
-  
+
   frequency = getFreqInt();                  //read the set frequency following a reset
   Serial.print(F(" Frequency at reset "));
   Serial.print(frequency);
   Serial.println(F("hz"));
 
   Serial.print(F("Change Frequency to 2445000000hz"));
-  setPacketType(PACKET_TYPE_LORA);           //this is needed to ensure frequency change is reflected in register print  
+  setPacketType(PACKET_TYPE_LORA);           //this is needed to ensure frequency change is reflected in register print
   setRfFrequency(2445000000, 0);             //change the frequency to 2445000000hertz
- 
+
   frequency = getFreqInt();                  //read back the changed frequency
   Serial.println();
   Serial.print(F("      Frequency now "));
@@ -282,44 +281,29 @@ void checkBusy()
 
 void resetDevice()
 {
-    Serial.println(F("Reset device"));
-    delay(10);
-    digitalWrite(NRESET, LOW);
-    delay(2);
-    digitalWrite(NRESET, HIGH);
-    delay(25);
-    checkBusy();
+  Serial.println(F("Reset device"));
+  delay(10);
+  digitalWrite(NRESET, LOW);
+  delay(2);
+  digitalWrite(NRESET, HIGH);
+  delay(25);
+  checkBusy();
 }
 
 
 
-bool begin(int8_t pinNSS, int8_t pinNRESET, int8_t pinRFBUSY, int8_t pinDIO1, int8_t pinDIO2, int8_t pinDIO3, uint8_t device)
+bool begin(int8_t pinNSS, int8_t pinNRESET, int8_t pinRFBUSY, uint8_t device)
 {
   saveddevice = device;
-  
+
   pinMode(pinNSS, OUTPUT);
   digitalWrite(pinNSS, HIGH);
   pinMode(pinNRESET, OUTPUT);
   digitalWrite(pinNRESET, HIGH);
   pinMode(pinRFBUSY, INPUT);
 
-  if (pinDIO1 >= 0)
-  {
-    pinMode( pinDIO1, INPUT);
-  }
-
-  if (pinDIO2 >= 0)
-  {
-    pinMode(pinDIO2, INPUT);
-  }
-
-  if (pinDIO3 >= 0)
-  {
-    pinMode(pinDIO3, INPUT);
-  }
-
   resetDevice();
-  
+
   if (checkDevice())
   {
     return true;
@@ -357,7 +341,7 @@ void writeCommand(uint8_t Opcode, uint8_t *buffer, uint16_t size)
 
   digitalWrite(NSS, LOW);
   SPI.transfer(Opcode);
-  
+
   for (index = 0; index < size; index++)
   {
     SPI.transfer(buffer[index]);
@@ -372,4 +356,3 @@ void setPacketType(uint8_t packettype)
 {
   writeCommand(RADIO_SET_PACKETTYPE, &packettype, 1);
 }
-

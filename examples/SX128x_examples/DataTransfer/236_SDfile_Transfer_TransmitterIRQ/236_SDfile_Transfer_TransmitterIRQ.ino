@@ -10,7 +10,7 @@
   from the SX128X library to send a file from the SD card on one Arduino to the SD card on another Arduino.
   Arduino DUEs were used for the test and this example transfers an JPG image.
 
-    This program uses routines that do not need to use the DIO1 pin on the LoRa device which is usually used
+  This program uses routines that do not need to use the DIO1 pin on the LoRa device which is usually used
   to indicate RXDONE or TXDONE.
 
   DT packets can be used for transfering large amounts of data in a sequence of packets or segments,
@@ -34,6 +34,9 @@
   Serial monitor baud rate is set at 115200.
 *******************************************************************************************************/
 
+#define USELORA                              //enable this define to use LoRa packets
+//#define USEFLRC                            //enable this define to use FLRC packets
+
 #include <SPI.h>
 
 #include <SX128XLT.h>
@@ -41,9 +44,6 @@
 #include "DTSettings.h"                      //LoRa settings etc.
 
 SX128XLT LoRa;                               //create an SX128XLT library instance called LoRa, required by SDtransfer.h
-
-#define USELORA                              //enable this define to use LoRa packets
-//#define USEFLRC                            //enable this define to use FLRC packets
 
 #define ENABLEMONITOR                        //enable monitor prints
 #define PRINTSEGMENTNUM                      //enable this define to print segment numbers 

@@ -7,7 +7,7 @@
 
 /*******************************************************************************************************
   Program Operation - This is a receiver program that can be used to test the throughput of a LoRa
-  transmitter. The matching program '42_LoRa_Data_Throughput_Test_Transmitter' is setup to send packets
+  transmitter. The matching program '42_FLRC_Data_Throughput_Test_Transmitter' is setup to send packets
   that require an acknowledgement before sending the next packet. This will slow down the effective
   throughput. Make sure the lora settings in the 'Settings.h' file match those used in the transmitter.
 
@@ -153,7 +153,19 @@ void setup()
     }
   }
 
-  LT.setupLoRa(Frequency, Offset, SpreadingFactor, Bandwidth, CodeRate);
+  //***************************************************************************************************
+  //Setup FLRC
+  //***************************************************************************************************
+  LT.setMode(MODE_STDBY_RC);
+  LT.setRegulatorMode(USE_LDO);
+  LT.setPacketType(PACKET_TYPE_FLRC);
+  LT.setRfFrequency(Frequency, Offset);
+  LT.setBufferBaseAddress(0, 0);
+  LT.setModulationParams(BandwidthBitRate, CodingRate, BT);
+  LT.setPacketParams(PREAMBLE_LENGTH_32_BITS, FLRC_SYNC_WORD_LEN_P32S, RADIO_RX_MATCH_SYNCWORD_1, RADIO_PACKET_VARIABLE_LENGTH, 127, RADIO_CRC_3_BYTES, RADIO_WHITENING_OFF);
+  LT.setDioIrqParams(IRQ_RADIO_ALL, (IRQ_TX_DONE + IRQ_RX_TX_TIMEOUT), 0, 0);              //set for IRQ on TX done and timeout on DIO1
+  LT.setSyncWord1(Sample_Syncword);
+  //***************************************************************************************************
 
   Serial.println();
   LT.printModemSettings();                                     //reads and prints the configured LoRa settings, useful check

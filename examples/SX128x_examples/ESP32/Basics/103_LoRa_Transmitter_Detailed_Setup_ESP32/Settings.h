@@ -43,4 +43,3 @@ const uint8_t CodeRate = LORA_CR_4_5;           //LoRa coding rate
 const int8_t TXpower = 10;                      //LoRa transmit power in dBm
 
 const uint16_t packet_delay = 1000;             //mS delay between packets
-

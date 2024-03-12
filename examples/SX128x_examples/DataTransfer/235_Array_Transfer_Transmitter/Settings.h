@@ -42,10 +42,9 @@ const uint32_t packetdelaymS = 0;               //mS delay between transmitted p
 const uint16_t NetworkID = 0x3210;              //a unique identifier to go out with packet
 
 #ifdef USELORA
-const uint8_t SegmentSize = 245;                //number of bytes in each segment, 245 is maximum value for LoRa
+const uint8_t DTSegmentSize = 245;                //number of bytes in each segment, 245 is maximum value for LoRa
 #endif
 
 #ifdef USEFLRC
-const uint8_t SegmentSize = 117;                //number of bytes in each segment, 117 is maximum value for FLRC
+const uint8_t DTSegmentSize = 117;                //number of bytes in each segment, 117 is maximum value for FLRC
 #endif
-

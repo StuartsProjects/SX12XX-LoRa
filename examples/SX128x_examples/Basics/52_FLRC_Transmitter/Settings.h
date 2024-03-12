@@ -15,8 +15,6 @@
 #define NRESET 9
 #define LED1 8
 #define DIO1 3
-#define RX_EN -1                //pin for RX enable, used on some SX1280 devices, set to -1 if not used
-#define TX_EN -1                //pin for TX enable, used on some SX1280 devices, set to -1 if not used                        
 
 #define LORA_DEVICE DEVICE_SX1280                         //we need to define the device we are using  
 

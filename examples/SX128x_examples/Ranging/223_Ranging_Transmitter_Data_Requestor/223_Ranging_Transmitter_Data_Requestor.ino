@@ -24,11 +24,11 @@
   Two types af request are demonstrated here. The first request is for the receiver to return a set of GPS
   co-ordinates. This information is included in the acknowledge the receiver sends if there is a match for
   request type and station number. The orginal network ID and payload CRC are also returned with the
-  acknowledge so the transmitter can verify if the packet it receives in reply is geniune. 
+  acknowledge so the transmitter can verify if the packet it receives in reply is geniune.
 
-  The second request is for the receiver to go into ranging (distance measurment) mode. The period for the 
+  The second request is for the receiver to go into ranging (distance measurment) mode. The period for the
   receiver to stay in ranging mode goes out with the request sent by the transmitter. The transmitter then
-  goes into ranging mode and measures the distance between transmitter (master) and receiver (slave).  
+  goes into ranging mode and measures the distance between transmitter (master) and receiver (slave).
 
   The matching receiver program is 224_Ranging_Receiver_Data_Requestor.
 
@@ -61,9 +61,9 @@ uint8_t TrackerStatus;
 
 void loop()
 {
-  
+
   LT.setupLoRa(Frequency, Offset, SpreadingFactor, Bandwidth, CodeRate);
-  
+
   //*****************************************************************************************
   //Request GPS location
   //*****************************************************************************************
@@ -296,7 +296,7 @@ void actionRanging(uint32_t rangingaddress, uint8_t number, uint32_t timeout, in
     digitalWrite(LED1, HIGH);
     LT.transmitRanging(rangingaddress, timeout, txpower, WAIT_TX);
     digitalWrite(LED1, LOW);
-    
+
     IrqStatus = LT.readIrqStatus();
 
     if (IrqStatus & IRQ_RANGING_MASTER_RESULT_VALID)
@@ -401,10 +401,8 @@ void setup()
 {
   pinMode(LED1, OUTPUT);
   led_Flash(2, 125);                                       //two quick LED flashes to indicate program start
-   
+
   Serial.begin(115200);
-  Serial.println();
-  Serial.println();
   Serial.println(__FILE__);
   Serial.println();
 

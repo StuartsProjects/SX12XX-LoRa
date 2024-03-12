@@ -45,7 +45,7 @@ SX128XLT LoRa;                               //create an SX128XLT library instan
 #define PRINTSEGMENTNUM                      //enable this define to print segment numbers 
 #define ENABLEFILECRC                        //enable this define to uses and show file CRCs
 //#define DISABLEPAYLOADCRC                  //enable this define if you want to disable payload CRC checking
-//#define DEBUG                              //see additional debug info 
+//#define DEBUG                              //see additional debug info
 
 //#define SDLIB                              //define SDLIB for SD.h or SDFATLIB for SDfat.h
 #define SDFATLIB

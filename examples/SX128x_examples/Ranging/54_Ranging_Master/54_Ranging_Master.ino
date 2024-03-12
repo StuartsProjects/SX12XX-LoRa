@@ -5,21 +5,17 @@
   suitable for the intended purpose and free from errors.
 *******************************************************************************************************/
 
-#define Program_Version "V1.0"
-
 #include <SPI.h>
 #include <SX128XLT.h>
 #include "Settings.h"
 
 SX128XLT LT;
 
-
 #ifdef ENABLEOLED
 #include <U8x8lib.h>                                        //https://github.com/olikraus/u8g2 
 //U8X8_SSD1306_128X64_NONAME_HW_I2C disp(U8X8_PIN_NONE);      //standard 0.96" SSD1306
 U8X8_SH1106_128X64_NONAME_HW_I2C disp(U8X8_PIN_NONE);     //1.3" OLED often sold as 1.3" SSD1306
 #endif
-
 
 uint16_t rangeing_errors, rangeings_valid, rangeing_results;
 uint16_t IrqStatus;
@@ -163,11 +159,6 @@ void setup()
   led_Flash(4, 125);                                       //two quick LED flashes to indicate program start
 
   Serial.begin(9600);
-  Serial.println();
-  Serial.print(F(__TIME__));
-  Serial.print(F(" "));
-  Serial.println(F(__DATE__));
-  Serial.println(F(Program_Version));
   Serial.println();
   Serial.println(F("54_Ranging_Master Starting"));
 

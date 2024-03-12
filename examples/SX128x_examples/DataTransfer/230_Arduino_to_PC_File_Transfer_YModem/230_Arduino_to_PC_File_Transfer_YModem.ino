@@ -43,21 +43,21 @@ void loop()
   Serial.println(FileName);
   Serial.flush();
   digitalWrite(LED1, HIGH);
-  
+
   bytestransfered = yModemSend(FileName, 1, 1);     //transfer filename with waitForReceiver and batchMode options set
-  
+
   if (bytestransfered > 0)
   {
-  Serial.print(F("YModem transfer completed "));
-  Serial.print(bytestransfered);
-  Serial.println(F(" bytes sent"));
+    Serial.print(F("YModem transfer completed "));
+    Serial.print(bytestransfered);
+    Serial.println(F(" bytes sent"));
   }
   else
   {
-  Serial.println(F("YModem transfer FAILED"));
+    Serial.println(F("YModem transfer FAILED"));
   }
   Serial.println();
-  
+
   digitalWrite(LED1, LOW);
   Serial.println();
   delay(10000);

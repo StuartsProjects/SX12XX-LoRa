@@ -58,11 +58,11 @@ uint8_t RXPacketType;                      //type of received packet
 void loop()
 {
   uint16_t IRQStatus;
-  
+
   RXPacketL = LT.receiveSXBuffer(0, 0, WAIT_RX);   //returns 0 if packet error of some sort
 
   while (!digitalRead(DIO1));                      //wait for DIO1 to go high
-  
+
   if  (LT.readIrqStatus() == (IRQ_RX_DONE + IRQ_HEADER_VALID + IRQ_PREAMBLE_DETECTED) )
   {
     packet_is_OK();
@@ -224,8 +224,7 @@ void setup()
 #endif
 
   SPI.begin();
-
-  if (LT.begin(NSS, NRESET, RFBUSY, DIO1, DIO2, DIO3, RX_EN, TX_EN, LORA_DEVICE))
+  if (LT.begin(NSS, NRESET, RFBUSY, DIO1, LORA_DEVICE))
   {
     led_Flash(2, 125);
   }

@@ -29,8 +29,9 @@
 
   Serial monitor baud rate is set at 115200.
 *******************************************************************************************************/
-#define USELORA                                 //enable this define to use LoRa packets
-//#define USEFLRC                               //enable this define to use FLRC packets
+
+#define USELORA                                  //enable this define to use LoRa packets
+//#define USEFLRC                                //enable this define to use FLRC packets
 
 #include <SPI.h>
 #include <SX128XLT.h>

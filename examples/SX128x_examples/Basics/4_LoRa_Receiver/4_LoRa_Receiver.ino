@@ -24,8 +24,6 @@
   Serial monitor baud rate is set at 9600.
 *******************************************************************************************************/
 
-#define Program_Version "V1.0"
-
 #include <SPI.h>                                 //the lora device is SPI based so load the SPI library
 #include <SX128XLT.h>                            //include the appropriate library   
 #include "Settings.h"                            //include the setiings file, frequencies, LoRa settings etc   
@@ -171,13 +169,7 @@ void setup()
 
   Serial.begin(9600);
   Serial.println();
-  Serial.print(F(__TIME__));
-  Serial.print(F(" "));
-  Serial.println(F(__DATE__));
-  Serial.println(F(Program_Version));
-  Serial.println();
   Serial.println(F("4_LoRa_Receiver Starting"));
-  Serial.println();
 
   if (BUZZER > 0)
   {
@@ -194,7 +186,7 @@ void setup()
   //SPI.beginTransaction(SPISettings(8000000, MSBFIRST, SPI_MODE0));
 
   //setup hardware pins used by device, then check if device is found
-  if (LT.begin(NSS, NRESET, RFBUSY, DIO1, DIO2, DIO3, RX_EN, TX_EN, LORA_DEVICE))
+  if (LT.begin(NSS, NRESET, RFBUSY, DIO1, RX_EN, TX_EN, LORA_DEVICE))
   {
     Serial.println(F("LoRa Device found"));
     led_Flash(2, 125);
@@ -226,7 +218,6 @@ void setup()
   LT.setPacketParams(12, LORA_PACKET_VARIABLE_LENGTH, 255, LORA_CRC_ON, LORA_IQ_NORMAL, 0, 0);
   LT.setDioIrqParams(IRQ_RADIO_ALL, (IRQ_TX_DONE + IRQ_RX_TX_TIMEOUT), 0, 0);
   LT.setHighSensitivity();
-  //LT.setLowPowerRX();
   //***************************************************************************************************
 
 

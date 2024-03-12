@@ -164,7 +164,7 @@ void setup()
   //SPI.beginTransaction(SPISettings(8000000, MSBFIRST, SPI_MODE0));
 
   //setup hardware pins used by device, then check if device is found
-  if (LT.begin(NSS, NRESET, RFBUSY, DIO1, RX_EN, TX_EN, LORA_DEVICE))
+  if (LT.begin(NSS, NRESET, RFBUSY, DIO1, LORA_DEVICE))
   {
     Serial.println(F("FLRC Device found"));
     led_Flash(2, 125);

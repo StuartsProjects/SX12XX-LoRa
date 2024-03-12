@@ -23,7 +23,7 @@
   The transmitter sends a sequence of segments in order and the receiver keeps track of the sequence. If
   the sequence fails for some reason, the receiver will return a NACK packet to the transmitter requesting
   the segment sequence it was expecting.
-  
+
   The transfer can be carried out using LoRa or FLRC packets, max segment size (defined by DTSegmentSize) is
   245 bytes for LoRa and 117 bytes for FLRC.
 
@@ -50,7 +50,7 @@ SX128XLT LoRa;                              //create an SX128XLT library instanc
 #define PRINTSEGMENTNUM
 #define ENABLEFILECRC                       //enable this define to uses and show file CRCs
 //#define DISABLEPAYLOADCRC                 //enable this define if you want to disable payload CRC checking
-//#define DEBUG                             //see additional debug info 
+//#define DEBUG                             //see additional debug info
 
 #include <DTSDlibrary.h>                    //library of SD functions
 #include <SDtransfer.h>                     //library of data transfer functions

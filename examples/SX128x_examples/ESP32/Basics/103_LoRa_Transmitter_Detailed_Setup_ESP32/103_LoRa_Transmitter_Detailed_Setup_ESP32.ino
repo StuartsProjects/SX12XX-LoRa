@@ -125,7 +125,8 @@ void setup()
   Serial.println();
   Serial.println(F("103_LoRa_Transmitter_Detailed_Setup Starting"));
 
-  SPI.begin();
+  //SPI.begin();                                          //default setup can be used be used
+  SPI.begin(SCK, MISO, MOSI, NSS);                        //alternative format for SPI3, VSPI; SPI.begin(SCK,MISO,MOSI,SS)
 
   //SPI beginTranscation is normally part of library routines, but if it is disabled in library
   //a single instance is needed here, so uncomment the program line below
@@ -180,4 +181,3 @@ void setup()
   Serial.print(F("Transmitter ready"));
   Serial.println();
 }
-

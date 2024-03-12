@@ -28,9 +28,7 @@
 //130122 Converted all Serial prints to Monitorport.print() format
 //140322 added #ifdef ENABLEMONITOR to serial prints
 
-
 #define SDUNUSED(v) (void) (v)               //add SDUNUSED(variable); to avoid compiler warnings 
-
 
 #ifndef Monitorport
 #define Monitorport Serial

@@ -8,14 +8,12 @@
 //*******  Setup hardware pin definitions here ! ***************
 
 //These are the pin definitions for one of my own boards, the Easy Pro Mini,
-//be sure to change the definitiosn to match your own setup. 
+//be sure to change the definitiosn to match your own setup.
 
 #define NSS 10                                  //select on LoRa device
 #define NRESET 9                                //reset on LoRa device
 #define RFBUSY 7                                //SX128X busy pin 
 #define DIO1 3                                  //DIO1 on LoRa device, used for RX and TX done
-#define RX_EN -1                                //pin for RX enable, used on some SX1280 devices, set to -1 if not used
-#define TX_EN -1                                //pin for TX enable, used on some SX1280 devices, set to -1 if not used 
 
 #define GPSPOWER 4                              //Pin that controls power to GPS, set to -1 if not used
 #define GPSONSTATE HIGH                         //logic level to turn GPS on via pin GPSPOWER 
@@ -54,7 +52,7 @@ const int8_t TXpower = 10;                       //Power for transmissions in dB
 //**************************************************************************************************
 
 #define USE_SOFTSERIAL_GPS                       //need to include this if we are using softserial for GPS     
-//#define HardwareSerialPort Serial1             //if using hardware serial enable this define for hardware serial port 
+//#define HardwareSerialPort Serial1             //if using hardware serial enable this define for hardware serial port
 
 #define GPSBaud 9600                             //GPS Baud rate   
 

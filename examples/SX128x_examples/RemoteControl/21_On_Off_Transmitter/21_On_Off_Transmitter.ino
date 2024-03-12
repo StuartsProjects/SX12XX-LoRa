@@ -53,8 +53,8 @@ void loop()
 
   LT.setSleep(CONFIGURATION_RETENTION);     //sleep LoRa device, keeping register settings in sleep.
   sleep_permanent();                        //sleep Atmel processor permanently for switch wakeup only
-  LT.wake();                                //wake up the lora device - nicely 
-  
+  LT.wake();                                //wake up the lora device - nicely
+
   digitalWrite(LED1, HIGH);
 
   Serial.println(F(" - Awake !!"));         //the processor has woken up
@@ -285,7 +285,7 @@ void setup()
 
   SPI.begin();
 
-  if (LT.begin(NSS, NRESET, RFBUSY, DIO1, DIO2, DIO3, RX_EN, TX_EN, LORA_DEVICE))
+  if (LT.begin(NSS, NRESET, RFBUSY, DIO1, LORA_DEVICE))
   {
     led_Flash(2, 125);
   }
@@ -304,4 +304,3 @@ void setup()
   Serial.println();
 
 }
-

@@ -33,7 +33,6 @@
   Serial monitor baud rate should be set at 115200.
 *******************************************************************************************************/
 
-
 #include <SPI.h>                                //the LoRa device is SPI based so load the SPI library
 #include <SX128XLT.h>                           //include the appropriate library   
 #include "Settings.h"
@@ -299,8 +298,6 @@ void setup()
   led_Flash(2, 125);                                       //two quick LED flashes to indicate program start
 
   Serial.begin(115200);
-  Serial.println();
-  Serial.println();
   Serial.println(__FILE__);
   Serial.println();
 

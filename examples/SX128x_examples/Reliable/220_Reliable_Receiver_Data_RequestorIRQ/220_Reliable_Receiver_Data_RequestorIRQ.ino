@@ -24,14 +24,13 @@
   acknowledge the receiver sends if there is a match for request type and station number. The orginal network
   ID and payload CRC are also returned with the acknowledge so the transmitter can verify if the packet it
   receives in reply is geniune.
-  
+
   No DIO1 pin needs to be connected to the LoRa device for this program.
 
   The matching transmitter program is 219_Reliable_Transmitter_Data_RequestorIRQ.
-  
+
   Serial monitor baud rate should be set at 115200.
 *******************************************************************************************************/
-
 
 #include <SPI.h>                                //the LoRa device is SPI based so load the SPI library
 #include <SX128XLT.h>                           //include the appropriate library   
@@ -226,7 +225,6 @@ void setup()
   led_Flash(2, 125);                                       //two quick LED flashes to indicate program start
 
   Serial.begin(115200);
-  Serial.println();
   Serial.println();
   Serial.println(__FILE__);
   Serial.println();

@@ -17,10 +17,9 @@
 
   https://stuartsprojects.github.io/2022/01/01/StuartCAM-ESP32CAM-Getting-the-Pictures-Onto-a-PC.html
 
-  
+
   Serial monitor baud rate is set at 115200.
 *******************************************************************************************************/
-
 
 #include <SPI.h>
 #include <SX128XLT.h>

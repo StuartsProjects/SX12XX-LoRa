@@ -12,8 +12,6 @@
   Serial monitor baud rate is set at 9600
 *******************************************************************************************************/
 
-#define programversion "V1.0"
-
 #include <SPI.h>
 #include <SX128XLT.h>
 #include "Settings.h"
@@ -82,15 +80,6 @@ void setup()
 {
   Serial.begin(9600);            //setup Serial console ouput
   Serial.println();
-  Serial.println(__FILE__);
-  Serial.print(F("Compiled "));
-  Serial.print(__TIME__);
-  Serial.print(F(" "));
-  Serial.println(__DATE__);
-  Serial.println(F(programversion));
-  Serial.println(F("Stuart Robinson"));
-  Serial.println();
-
   Serial.println("55_Ranging_Slave Starting");
 
   pinMode(LED1, OUTPUT);
@@ -125,18 +114,18 @@ void setup()
   //Setup LoRa device for Ranging Slave
   //***************************************************************************************************
   /*
-  LT.setMode(MODE_STDBY_RC);
-  LT.setPacketType(PACKET_TYPE_RANGING);
-  LT.setModulationParams(SpreadingFactor, Bandwidth, CodeRate);
-  LT.setPacketParams(12, LORA_PACKET_VARIABLE_LENGTH, 0, LORA_CRC_ON, LORA_IQ_NORMAL, 0, 0);
-  LT.setRfFrequency(Frequency, Offset);
-  LT.setTxParams(TXpower, RADIO_RAMP_02_US);
-  LT.setRangingMasterAddress(RangingAddress);
-  LT.setRangingSlaveAddress(RangingAddress);
-  LT.setRangingCalibration(LT.lookupCalibrationValue(SpreadingFactor, Bandwidth));
-  LT.setRangingRole(RANGING_SLAVE);
-  LT.writeRegister(REG_RANGING_FILTER_WINDOW_SIZE, 8); //set up window size for ranging averaging
-  LT.setHighSensitivity();
+    LT.setMode(MODE_STDBY_RC);
+    LT.setPacketType(PACKET_TYPE_RANGING);
+    LT.setModulationParams(SpreadingFactor, Bandwidth, CodeRate);
+    LT.setPacketParams(12, LORA_PACKET_VARIABLE_LENGTH, 0, LORA_CRC_ON, LORA_IQ_NORMAL, 0, 0);
+    LT.setRfFrequency(Frequency, Offset);
+    LT.setTxParams(TXpower, RADIO_RAMP_02_US);
+    LT.setRangingMasterAddress(RangingAddress);
+    LT.setRangingSlaveAddress(RangingAddress);
+    LT.setRangingCalibration(LT.lookupCalibrationValue(SpreadingFactor, Bandwidth));
+    LT.setRangingRole(RANGING_SLAVE);
+    LT.writeRegister(REG_RANGING_FILTER_WINDOW_SIZE, 8); //set up window size for ranging averaging
+    LT.setHighSensitivity();
   */
   //***************************************************************************************************
 

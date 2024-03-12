@@ -52,7 +52,7 @@ void loop()
   setupLoRaDevice();
 
   //if there is a successful array transfer the returned length > 0
-  
+
   arraylength = ARreceiveArray(PSRAMptr, sizeof(ARDTarraysize), ReceiveTimeoutmS);
 
   SPI.end();

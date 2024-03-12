@@ -36,7 +36,5 @@ const int8_t TXpower = 10;                      //LoRa transmit power in dBm
 const uint16_t packet_delay = 1000;             //mS delay between packets
 
 #define RXBUFFER_SIZE 32                        //RX buffer size  
-const uint16_t packetCRCcheck = 0x3F83;         //CRC to check RX packet for 
-const uint8_t packetCRClengthcheck = 23;        //packet length to check for 
-
-
+const uint16_t packetCRCcheck = 0x3F83;         //CRC to check RX packet for
+const uint8_t packetCRClengthcheck = 23;        //packet length to check for

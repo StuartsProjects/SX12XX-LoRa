@@ -24,12 +24,12 @@
 
 //*******  Setup LoRa Parameters Here ! ***************
 
-//LoRa Modem Parameters
-#define Frequency 2445000000                    //frequency of transmissions
-#define Offset 0                                //offset frequency for calibration purposes  
+//LoRa Modem FLRC mode Parameters
+#define Frequency 2445000000                     //frequency of transmissions
+#define Offset 0                                 //offset frequency for calibration purposes  
 
-#define Bandwidth LORA_BW_1600                  //LoRa bandwidth
-#define SpreadingFactor LORA_SF5                //LoRa spreading factor
-#define CodeRate LORA_CR_4_5                    //LoRa coding rate
-
-const int8_t TXpower = 10;                      //LoRa transmit power in dBm
+const uint8_t BandwidthBitRate = FLRC_BR_1_300_BW_1_2;    //FLRC bandwidth and bit rate, 1.3Mbs
+const uint8_t CodingRate = FLRC_CR_1_2;                   //FLRC coding rate
+const uint8_t BT = RADIO_MOD_SHAPING_BT_1_0;              //FLRC BT
+const uint32_t Sample_Syncword = 0x01234567;              //FLRC uses syncword
+const int8_t TXpower = 10;                                //LoRa transmit power in dBm

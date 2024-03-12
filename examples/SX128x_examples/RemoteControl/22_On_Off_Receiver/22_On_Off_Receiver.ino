@@ -21,13 +21,10 @@
   Serial monitor baud rate is set at 9600.
 *******************************************************************************************************/
 
-#define programversion "V1.0"
-
 #include <SPI.h>
 #include <SX128XLT.h>
 #include "Settings.h"
 #include <ProgramLT_Definitions.h>
-
 
 SX128XLT LT;
 
@@ -76,7 +73,7 @@ uint8_t packet_is_OK()
   Serial.print(F("  Packet Received"));
 
   LT.startReadSXBuffer(0);                //start buffer read at location 0
-  RXPacketType = LT.readUint8();          //read in the packet type 
+  RXPacketType = LT.readUint8();          //read in the packet type
   TXIdentity = LT.readUint32();           //read in the identity of transmitter
   SwitchByte = LT.readUint8();            //read in the Switch values
   RXPacketL = LT.endReadSXBuffer();       //finish buffer read
@@ -89,7 +86,7 @@ uint8_t packet_is_OK()
     led_Flash(5, 25);                      //short fast speed flash indicates wrong packet type
     return 0;
   }
-    
+
   if (TXIdentity != RXIdentity)
   {
     Serial.print(F("  Transmitter "));
@@ -108,19 +105,9 @@ uint8_t packet_is_OK()
 
   //if we get to here, then the packet is valid so switch outputs accordingly
 
-  if (BUZZER  >= 0)
-  {
-    digitalWrite(BUZZER, HIGH);
-  }
-  
   Serial.print(F(",SwitchByte Received "));
   Serial.print(SwitchByte, BIN);           //print switch values in binary, if a bit is 0, that switch is active
   actionOutputs(SwitchByte);
-
-  if (BUZZER  >= 0)
-  {
-    digitalWrite(BUZZER, LOW);
-  }
 
   return RXPacketL;
 }
@@ -222,11 +209,6 @@ void setupOutputs()
     pinMode(OUTPUT3, OUTPUT);
   }
 
-  if (BUZZER  >= 0)
-  {
-    pinMode(BUZZER, OUTPUT);
-  }
-
 }
 
 
@@ -254,10 +236,6 @@ void outputCheck(uint8_t number, uint32_t ondelaymS, uint32_t offdelaymS)
     delay(offdelaymS);
     digitalWrite(OUTPUT3, LOW);
     delay(offdelaymS);
-    digitalWrite(BUZZER, HIGH);
-    delay(offdelaymS);
-    digitalWrite(BUZZER, LOW);
-    delay(offdelaymS);
   }
 }
 
@@ -266,16 +244,16 @@ void setup()
 {
   pinMode(LED1, OUTPUT);
   led_Flash(2, 125);
-  
+
   Serial.begin(9600);
-  
+
   setupOutputs();
 
   outputCheck(3, 500, 100);
 
   SPI.begin();
 
-  if (LT.begin(NSS, NRESET, RFBUSY, DIO1, DIO2, DIO3, RX_EN, TX_EN, LORA_DEVICE))
+  if (LT.begin(NSS, NRESET, RFBUSY, DIO1, LORA_DEVICE))
   {
     led_Flash(2, 125);
   }

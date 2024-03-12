@@ -7,20 +7,13 @@
 
 
 //These are the pin definitions for one of my own boards, the Easy Pro Mini,
-//be sure to change the definitions to match your own setup. Some pins such as DIO2,
-//DIO3, BUZZER may not be in used by this sketch so they do not need to be
-//connected and should be set to -1.
+//be sure to change the definitions to match your own setup.
 
 #define NSS 10
 #define RFBUSY 7
 #define NRESET 9
 #define LED1 8
 #define DIO1 3
-#define DIO2 -1                 //not used 
-#define DIO3 -1                 //not used
-#define RX_EN -1                //pin for RX enable, used on some SX1280 devices, set to -1 if not used
-#define TX_EN -1                //pin for TX enable, used on some SX1280 devices, set to -1 if not used  
-#define BUZZER -1               //pin for BUZZER, set to -1 if not used 
 
 #define BATVREADON 8                            //when high turns on the resistor divider to measure voltage, -1 if not used
 #define BATTERYAD A7                            //Resistor divider for battery connected here, -1 if not used

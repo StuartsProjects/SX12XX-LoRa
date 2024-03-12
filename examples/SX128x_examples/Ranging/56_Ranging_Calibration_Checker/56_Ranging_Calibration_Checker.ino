@@ -5,9 +5,6 @@
   suitable for the intended purpose and free from errors.
 *******************************************************************************************************/
 
-#define programversion "V1.1"
-#define Serial_Monitor_Baud 9600
-
 #include <SPI.h>
 #include <SX128XLT.h>
 SX128XLT LT;
@@ -124,15 +121,7 @@ void setup()
   uint16_t Remainder;
   Serial.println();
   Serial.println();
-  Serial.begin(Serial_Monitor_Baud);            //setup Serial console ouput
-  Serial.println();
-  Serial.println(__FILE__);
-  Serial.print(F("Compiled "));
-  Serial.print(__TIME__);
-  Serial.print(F(" "));
-  Serial.println(__DATE__);
-  Serial.println(F(programversion));
-  Serial.println(F("Stuart Robinson"));
+  Serial.begin(9600);                     //setup Serial console ouput
   Serial.println();
 
   Serial.println(F("56_Ranging_Calibration_Checker Starting"));
@@ -145,7 +134,7 @@ void setup()
 
   SPI.begin();
 
-  if (LT.begin(NSS, NRESET, RFBUSY, DIO1, DIO2, DIO3, RX_EN, TX_EN, LORA_DEVICE))
+  if (LT.begin(NSS, NRESET, RFBUSY, DIO1, LORA_DEVICE))
   {
     Serial.println(F("Device found"));
     led_Flash(2, 125);

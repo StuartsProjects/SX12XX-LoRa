@@ -52,9 +52,6 @@
   Serial monitor baud rate is set at 9600.
 *******************************************************************************************************/
 
-
-#define Program_Version "V1.1"
-
 #include <SPI.h>
 #include <SX128XLT.h>
 SX128XLT LT;
@@ -554,11 +551,6 @@ void setup()
 
   Serial.begin(9600);
   Serial.println();
-  Serial.print(F(__TIME__));
-  Serial.print(F(" "));
-  Serial.println(F(__DATE__));
-  Serial.println(F(Program_Version));
-  Serial.println();
 
   Serial.println(F("25_GPS_Tracker_Receiver_With_Display_and_GPS Starting"));
 
@@ -575,7 +567,7 @@ void setup()
   Serial.print(F("Checking LoRa device - "));         //Initialize LoRa
   disp.setCursor(0, 0);
 
-  if (LT.begin(NSS, NRESET, RFBUSY, DIO1, RX_EN, TX_EN, LORA_DEVICE))
+  if (LT.begin(NSS, NRESET, RFBUSY, DIO1, LORA_DEVICE))
   {
     Serial.println(F("Receiver ready"));
     disp.print(F("Receiver ready"));

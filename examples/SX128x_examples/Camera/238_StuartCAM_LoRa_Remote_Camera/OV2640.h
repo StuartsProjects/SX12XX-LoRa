@@ -4,7 +4,8 @@
   ArduCAM demo (C)2017 Lee
   Web: http://www.ArduCAM.com
  *******************************************************************************************************/
-
+#define OV2640_CHIPID_HIGH   0x0A
+#define OV2640_CHIPID_LOW   0x0B
 
 void setupOV2640(uint8_t resolution);
 void myCAMSaveToSDFile2();

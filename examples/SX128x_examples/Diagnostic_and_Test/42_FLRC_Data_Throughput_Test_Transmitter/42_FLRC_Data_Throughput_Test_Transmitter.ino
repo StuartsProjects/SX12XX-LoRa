@@ -7,38 +7,28 @@
 
 
 /*******************************************************************************************************
-  Program Operation - This is a program that can be used to test the throughput of a LoRa transmitter.
+  Program Operation - This is a program that can be used to test the throughput of a LoRa transmitter in
+  FLRC mode.
+
   Whilst the various LoRa calculators tell you the on air data rate, in practice the achievable data
   rate will be less than that due to the overhead of the software routines to load and send a packet
   and internal delays in the LoRa device itself.
 
   A buffer is filled with characters and that buffer is then transmitted. The total time for a number of
-  transmissions is recorded and the bit rate calculated. The packet size (1 - 255 bytes) and the number of
+  transmissions is recorded and the bit rate calculated. The packet size (1 - 127 bytes) and the number of
   packets to send in the test are specified in the 'Settings.h' file, see the 'Setup packet parameters Here !'
   section. The setting file also has the lora settings to use. A lower spreading factors and higher
   bandwidths will result in higher bitrates.
 
   There is the option of turning on an a requirement for an acknowledgement from a remote receiver, before
   the transmitter sends the next packet, set this; 'const bool waitforACK = true;' definition in the
-  settings file. The matching receiver program '43_LoRa_Data_Throughput_Acknowledge_Receiver' does then need
-  to be configured with same lora settings as this transmitter. When this option is set, the program will 
+  settings file. The matching receiver program '43_FLRC_Data_Throughput_Acknowledge_Receiver' does then need
+  to be configured with same FLRC settings as this transmitter. When this option is set, the program will
   keep running until the number of transmissions and acknowledgements has completed without any timeouts
-  in order to produce a valid average.   
-
-  The results of the test are printed out thus;
-
-  SX1280,434000000hz,SF7,BW500000,CR4:5,LDRO_Off,SyncWord_0x12,IQNormal,Preamble_8
-  Total transmit time 100 packets = 1382mS
-  Average 16 byte packet transmit time = 13.82mS
-  Packets per second 72.36
-  Bits per packet sent = 128
-  Data rate = 9262bps
-
+  in order to produce a valid average.
 
   Serial monitor baud rate is set at 9600
 *******************************************************************************************************/
-
-#define Program_Version "V1.0"
 
 #include <SPI.h>                      //the lora device is SPI based so load the SPI library                                         
 #include <SX128XLT.h>                 //include the appropriate library  
@@ -145,8 +135,8 @@ void loop()
 
     Serial.print(averagePacketTime, 2);
     Serial.println(F("mS"));
-    Serial.print(F("Packets per second ")); 
-    Serial.println((float) (1000/averagePacketTime));
+    Serial.print(F("Packets per second "));
+    Serial.println((float) (1000 / averagePacketTime));
     bitsPerpacket = (uint32_t) (TXPacketL * 8);
     Serial.print(F("Bits per packet sent = "));
     Serial.println(bitsPerpacket);
@@ -242,12 +232,7 @@ void setup()
 
   Serial.begin(9600);
   Serial.println();
-  Serial.print(F(__TIME__));
-  Serial.print(F(" "));
-  Serial.println(F(__DATE__));
-  Serial.println(F(Program_Version));
-  Serial.println();
-  Serial.println(F("42_LoRa_Data_Throughput_Test_Transmitter_FLRC Starting"));
+  Serial.println(F("42_FLRC_Data_Throughput_Test_Transmitter Starting"));
 
   SPI.begin();
 
@@ -280,7 +265,7 @@ void setup()
   LT.setDioIrqParams(IRQ_RADIO_ALL, (IRQ_TX_DONE + IRQ_RX_TX_TIMEOUT), 0, 0);              //set for IRQ on TX done and timeout on DIO1
   LT.setSyncWord1(Sample_Syncword);
   //***************************************************************************************************
-  
+
   Serial.println();
   LT.printModemSettings();                               //reads and prints the configured LoRa settings, useful check
   Serial.println();
@@ -291,4 +276,3 @@ void setup()
   Serial.print(F("Transmitter ready"));
   Serial.println();
 }
-

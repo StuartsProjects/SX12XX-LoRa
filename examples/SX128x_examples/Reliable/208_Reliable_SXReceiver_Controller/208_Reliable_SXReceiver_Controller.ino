@@ -171,7 +171,6 @@ void printPacketDetails()
   LT.printReliableStatus();
 }
 
-
 void setup()
 {
   Serial.begin(115200);

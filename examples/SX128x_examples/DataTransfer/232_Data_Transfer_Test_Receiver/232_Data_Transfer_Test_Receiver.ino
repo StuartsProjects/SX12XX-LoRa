@@ -12,7 +12,7 @@
 
   DT packets can be used for transfering large amounts of data in a sequence of packets or segments,
   in a reliable and resiliant way. The remote file open request, the segements sent and the remote file close
-  will be transmitted until a valid acknowledge comes from the receiver. 
+  will be transmitted until a valid acknowledge comes from the receiver.
 
   Each DT packet contains a variable length header array and a variable length data array as the payload.
   On transmission the NetworkID and CRC of the payload are appended to the end of the packet by the library
@@ -33,6 +33,9 @@
   Serial monitor baud rate is set at 115200.
 *******************************************************************************************************/
 
+#define USELORA                               //enable this define to use LoRa packets
+//#define USEFLRC                             //enable this define to use FLRC packets
+
 #include <SPI.h>
 
 #include <SX128XLT.h>
@@ -41,9 +44,6 @@
 #include <arrayRW.h>
 
 SX128XLT LoRa;                                //create an SX128XLT library instance called LoRa
-
-#define USELORA                               //enable this define to use LoRa packets
-//#define USEFLRC                             //enable this define to use FLRC packets
 
 #define PRINTSEGMENTNUM                       //enable this define to print segment numbers
 

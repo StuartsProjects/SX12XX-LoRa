@@ -18,7 +18,6 @@
 
 *******************************************************************************************************/
 
-
 #include <SPI.h>
 #include <SX128XLT.h>
 #include "Settings.h"
@@ -38,11 +37,6 @@ void loop()
 
   digitalWrite(LED1, HIGH);                      //something has happened
 
-  if (BUZZER > 0)                                //turn buzzer on
-  {
-    digitalWrite(BUZZER, HIGH);
-  }
-
   PacketRSSI = LT.readPacketRSSI();              //read the recived RSSI value
   PacketSNR = LT.readPacketSNR();                //read the received SNR value
 
@@ -53,11 +47,6 @@ void loop()
   else
   {
     packet_is_OK();
-  }
-
-  if (BUZZER > 0)
-  {
-    digitalWrite(BUZZER, LOW);                    //buzzer off
   }
 
   Serial.println();

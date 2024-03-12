@@ -13,15 +13,13 @@
 
 //*******  Setup hardware pin definitions here ! ***************
 
-//These are the pin definitions for one of my own boards, the Easy Pro Mini, 
-//be sure to change the definitiosn to match your own setup. 
+//These are the pin definitions for one of my own boards, the Easy Pro Mini,
+//be sure to change the definitiosn to match your own setup.
 
 #define NSS 10                                  //select on LoRa device
 #define NRESET 9                                //reset on LoRa device
 #define RFBUSY 7                                //SX128X busy pin 
 #define DIO1 3                                  //DIO1 on LoRa device, used for RX and TX done 
-#define RX_EN -1                                //pin for RX enable, used on some SX1280 devices, set to -1 if not used
-#define TX_EN -1                                //pin for TX enable, used on some SX1280 devices, set to -1 if not used 
 
 #define LED1 8                                  //On board LED, high for on
 

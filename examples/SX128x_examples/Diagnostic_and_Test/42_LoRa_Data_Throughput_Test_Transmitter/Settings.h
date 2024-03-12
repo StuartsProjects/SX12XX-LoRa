@@ -27,8 +27,8 @@
 #define Frequency 2445000000                    //frequency of transmissions
 #define Offset 0                                //offset frequency for calibration purposes  
 
-#define Bandwidth LORA_BW_0400                  //LoRa bandwidth
-#define SpreadingFactor LORA_SF7                //LoRa spreading factor
+#define Bandwidth LORA_BW_1600                  //LoRa bandwidth
+#define SpreadingFactor LORA_SF5                //LoRa spreading factor
 #define CodeRate LORA_CR_4_5                    //LoRa coding rate
 
 const int8_t TXpower = 10;                      //LoRa transmit power in dBm

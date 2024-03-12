@@ -10,7 +10,7 @@
   The tranmitter receives data from the GPS on the defined serial port and puts that serial data into a
   LoRa packet which is then transmitted. This matching reciever picks up the packet and feeds it into the
   TinyGPSplus library and which decodes the data into a position fix, which is printed to the serial
-  monitor. The number of NMEA sentences passing and failing on checksum is also printed to serial monitor.  
+  monitor. The number of NMEA sentences passing and failing on checksum is also printed to serial monitor.
 
   Serial monitor baud rate should be set at 115200.
 *******************************************************************************************************/

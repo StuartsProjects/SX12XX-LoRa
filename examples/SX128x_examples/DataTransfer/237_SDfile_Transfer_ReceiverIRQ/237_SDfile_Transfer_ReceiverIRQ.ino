@@ -35,6 +35,8 @@
 
   Serial monitor baud rate is set at 115200.
 *******************************************************************************************************/
+#define USELORA                             //enable this define to use LoRa packets
+//#define USEFLRC                           //enable this define to use FLRC packets
 
 #include <SPI.h>
 
@@ -43,9 +45,6 @@
 #include "DTSettings.h"                     //LoRa settings etc.
 
 SX128XLT LoRa;                              //create an SX128XLT library instance called LoRa, required by SDtransfer.h
-
-#define USELORA                             //enable this define to use LoRa packets
-//#define USEFLRC                           //enable this define to use FLRC packets
 
 //#define SDLIB                             //define SDLIB for SD.h or SDFATLIB for SDfat.h
 #define SDFATLIB

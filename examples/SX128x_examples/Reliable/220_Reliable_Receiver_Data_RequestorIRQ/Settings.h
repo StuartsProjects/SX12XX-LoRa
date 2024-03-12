@@ -21,7 +21,7 @@ const int8_t RangingTXPower = 10;               //Transmit power used for rangin
 const uint8_t Bandwidth = LORA_BW_1600;         //LoRa bandwidth
 const uint8_t SpreadingFactor = LORA_SF5;       //LoRa spreading factor
 const uint8_t CodeRate = LORA_CR_4_5;           //LoRa coding rate
-const uint32_t ACKdelay = 200;                  //delay in mS before sending reply                      
+const uint32_t ACKdelay = 200;                  //delay in mS before sending reply
 const uint32_t RXtimeout = 5000;                //receive timeout in mS.
 
 const uint8_t RequestGPSLocation = 1;           //request type for GPS location

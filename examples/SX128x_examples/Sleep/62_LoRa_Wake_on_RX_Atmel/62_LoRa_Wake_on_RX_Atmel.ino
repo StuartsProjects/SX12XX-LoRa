@@ -2,7 +2,7 @@
   Programs for Arduino - Copyright of the author Stuart Robinson - 19/06/20
 
   This program is supplied as is, it is up to the user of the program to decide if the program is
-  suitable for the intended purpose and free from errors. 
+  suitable for the intended purpose and free from errors.
 *******************************************************************************************************/
 
 /*******************************************************************************************************
@@ -21,8 +21,6 @@
 
   Serial monitor baud rate is set at 9600.
 *******************************************************************************************************/
-
-#define Program_Version "V1.1"
 
 #include <SPI.h>
 #include <SX128XLT.h>
@@ -54,14 +52,14 @@ void loop()
   Serial.flush();
 
   attachInterrupt(digitalPinToInterrupt(DIO1), wakeUp, HIGH);
-  
+
   atmelSleepPermanent();                                         //sleep the processor
-  
+
   detachInterrupt(digitalPinToInterrupt(DIO1));
 
   //something has happened ?
   Serial.println(F("Awake"));
-  digitalWrite(LED1, HIGH);                             
+  digitalWrite(LED1, HIGH);
 
   if (BUZZER > 0)
   {
@@ -182,12 +180,6 @@ void setup()
   led_Flash(2, 125);                            //two quick LED flashes to indicate program start
 
   Serial.begin(9600);
-  Serial.println();
-  Serial.print(__TIME__);
-  Serial.print(F(" "));
-  Serial.println(__DATE__);
-  Serial.println(F(Program_Version));
-  Serial.println();
   Serial.println(F("62_LoRa_Wake_on_RX_Atmel Starting"));
 
   if (BUZZER > 0)
