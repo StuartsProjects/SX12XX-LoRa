@@ -2,7 +2,7 @@
   Programs for Arduino - Copyright of the author Stuart Robinson - 03/04/22
 
   This program is supplied as is, it is up to the user of the program to decide if the program is
-  suitable for the intended purpose and free from errors. 
+  suitable for the intended purpose and free from errors.
 *******************************************************************************************************/
 
 /*******************************************************************************************************
@@ -10,7 +10,7 @@
   the sensor packets sent by the program 83_TC74_Temperature_Sensor_transmitter. Uses an SSD1306 or SH1107
   OLED display and SX1278 LoRa module.
 
-   
+
   Serial monitor baud rate is set at 9600.
 *******************************************************************************************************/
 
@@ -31,8 +31,8 @@ int16_t PacketRSSI;              //RSSI of received packet
 int8_t  PacketSNR;               //signal to noise ratio of received packet
 
 uint8_t RXPacketType;            //indicates type of packet sent
-uint8_t RXDestination;           //destination node of packet 0 - 255   
-uint8_t RXSource;                //source node of packet 0 - 255 
+uint8_t RXDestination;           //destination node of packet 0 - 255
+uint8_t RXSource;                //source node of packet 0 - 255
 int8_t temperature;              //the TC74 temperature value
 uint16_t voltage;                //the battery voltage value in mV
 
@@ -58,7 +58,7 @@ void loop()
   }
   else
   {
-    packet_Received_OK();                            
+    packet_Received_OK();
   }
 
   digitalWrite(LED1, LOW);
@@ -71,11 +71,11 @@ void packet_Received_OK()
   RXpacketCount++;
   Serial.print(F("Packets,"));
   Serial.print(RXpacketCount);
-  
+
   LoRa.startReadSXBuffer(0);
-  
+
   RXPacketType = LoRa.readUint8();           //the packet type received
-  RXDestination = LoRa.readUint8();          //the destination address the packet was sent to 
+  RXDestination = LoRa.readUint8();          //the destination address the packet was sent to
   RXSource = LoRa.readUint8();               //the source address, where the packet came from
 
   /************************************************************************
@@ -93,8 +93,8 @@ void packet_Received_OK()
 
   Serial.println(F("Packet is OK"));
   printSensorValues();                       //print the sensor values
-  Serial.println(); 
-  printPacketCounts();                       //print count of valid packets and errors                  
+  Serial.println();
+  printPacketCounts();                       //print count of valid packets and errors
   displayscreen1();
   Serial.println();
 }
@@ -117,7 +117,7 @@ void printreceptionDetails()
   Serial.print(F("dBm,SNR,"));
   Serial.print(PacketSNR);
   Serial.print(F("dB,Length,"));
-  Serial.print(LoRa.readRXPacketL()); 
+  Serial.print(LoRa.readRXPacketL());
 }
 
 
@@ -126,7 +126,7 @@ void printPacketCounts()
   Serial.print(F("OKPackets,"));
   Serial.print(RXpacketCount);
   Serial.print(F(",Errors,"));
-  Serial.print(RXpacketErrors);  
+  Serial.print(RXpacketErrors);
 }
 
 

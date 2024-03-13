@@ -139,7 +139,7 @@ void setup()
   //a single instance is needed here, so uncomment the program line below
   //SPI.beginTransaction(SPISettings(8000000, MSBFIRST, SPI_MODE0));
 
-  if (LoRa.begin(NSS, NRESET, DIO1, LORA_DEVICE))
+  if (LoRa.begin(NSS, NRESET, DIO0, LORA_DEVICE))
   {
     Serial.println(F("LoRa Device found"));
     led_Flash(2, 125);

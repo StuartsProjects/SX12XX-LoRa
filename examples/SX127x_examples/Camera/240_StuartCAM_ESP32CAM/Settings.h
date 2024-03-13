@@ -17,7 +17,7 @@
 
 #define LORA_DEVICE DEVICE_SX1278               //this is the device we are using
 
-#define Monitorport Serial    //Serial port for prints 
+#define Monitorport Serial                      //Serial port for prints 
 
 //*******  Setup LoRa modem parameters here ! ***************
 const uint32_t Frequency = 434000000;           //frequency of transmissions in hertz

@@ -8,7 +8,7 @@
 //*******  Setup hardware pin definitions here ! ***************
 
 //These are the pin definitions for one of my own boards, the Easy Pro Mini,
-//be sure to change the definitiosn to match your own setup. 
+//be sure to change the definitions to match your own setup.
 
 #define NSS 10                                  //select on LoRa device
 #define NRESET 9                                //reset on LoRa device
@@ -54,7 +54,7 @@ const int8_t TXpower = 10;                       //LoRa TX power
 
 #define USESOFTSERIALGPS                         //if your using software serial for the GPS, enable this define     
 //#define USEHARDWARESERIALGPS                   //if your using hardware serial for the GPS, enable this define
-//#define HARDWARESERIALPORT Serial2             //if your using hardware serial for the GPS, define the port here  
+//#define HARDWARESERIALPORT Serial2             //if your using hardware serial for the GPS, define the port here
 
 
 #define GPSBaud 9600                             //GPS Baud rate   

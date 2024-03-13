@@ -5,55 +5,52 @@
 *******************************************************************************************************/
 
 /*******************************************************************************************************
-Program Operation -  This program is an example of a functional GPS tracker receiver using lora. 
-It is capable of picking up the trackers location packets from many kilometres away with only basic antennas. 
+  Program Operation -  This program is an example of a functional GPS tracker receiver using lora.
+  It is capable of picking up the trackers location packets from many kilometres away with only basic antennas.
 
-The program receives the location packets from the remote tracker transmitter and writes them on an OLED
-display and also prints the information to the Arduino IDE serial monitor. The program can read a locally
-attached GPS and when that has a fix, will display the distance and direction to the remote tracker. 
+  The program receives the location packets from the remote tracker transmitter and writes them on an OLED
+  display and also prints the information to the Arduino IDE serial monitor. The program can read a locally
+  attached GPS and when that has a fix, will display the distance and direction to the remote tracker.
 
-The program writes direct to the lora devices internal buffer, no memory buffer is used. The lora settings
-are configured in the Settings.h file.
+  The program writes direct to the lora devices internal buffer, no memory buffer is used. The lora settings
+  are configured in the Settings.h file.
 
-The receiver recognises two types of tracker packet, the one from the matching program '23_GPS_Tracker_Transmitter'
-(LocationPacket, 27 bytes) which causes these fields to be printed to the serial monitor;
-  
-Latitude, Longitude, Altitude, Satellites, HDOP, TrackerStatusByte, GPS Fixtime, Battery mV, Distance, Direction,
-Distance, Direction, PacketRSSI, PacketSNR, NumberPackets, PacketLength, IRQRegister.
+  The receiver recognises two types of tracker packet, the one from the matching program '23_GPS_Tracker_Transmitter'
+  (LocationPacket, 27 bytes) which causes these fields to be printed to the serial monitor;
 
-This is a long packet which at the long range LoRa settings takes just over 3 seconds to transmit. 
+  Latitude, Longitude, Altitude, Satellites, HDOP, TrackerStatusByte, GPS Fixtime, Battery mV, Distance, Direction,
+  Distance, Direction, PacketRSSI, PacketSNR, NumberPackets, PacketLength, IRQRegister.
 
-The receiver also recognises a much shorter location only packet (LocationBinaryPacket, 11 bytes) and when
-received this is printed to the serial monitor;
+  This is a long packet which at the long range LoRa settings takes just over 3 seconds to transmit.
 
-Latitude, Longitude, Altitude, TrackerStatusByte, Distance, Direction, PacketRSSI, PacketSNR, NumberPackets,
-PacketLength, IRQRegister.
+  The receiver also recognises a much shorter location only packet (LocationBinaryPacket, 11 bytes) and when
+  received this is printed to the serial monitor;
 
-Most of the tracker information (for both types of packet) is shown on the OLED display. If there has been a
-tracker transmitter GPS fix the number\identifier of that tracker is shown on row 0 right of screen and if there
-is a recent local (receiver) GPS fix an 'R' is displayed  row 1 right of screen.
+  Latitude, Longitude, Altitude, TrackerStatusByte, Distance, Direction, PacketRSSI, PacketSNR, NumberPackets,
+  PacketLength, IRQRegister.
 
-When the tracker transmitter starts up or is reset its sends a power up message containing the battery voltage
-which is shown on the OLED and printer to the serial monitor.
+  Most of the tracker information (for both types of packet) is shown on the OLED display. If there has been a
+  tracker transmitter GPS fix the number\identifier of that tracker is shown on row 0 right of screen and if there
+  is a recent local (receiver) GPS fix an 'R' is displayed  row 1 right of screen.
 
-The program has the option of using a pin to control the power to the GPS, if the GPS module being used has this
-feature. To use the option change the define in Settings.h; 
+  When the tracker transmitter starts up or is reset its sends a power up message containing the battery voltage
+  which is shown on the OLED and printer to the serial monitor.
 
-'#define GPSPOWER -1' from -1 to the pin number being used. Also set the GPSONSTATE and GPSOFFSTATE defines to
-the appropriate logic levels.
+  The program has the option of using a pin to control the power to the GPS, if the GPS module being used has this
+  feature. To use the option change the define in Settings.h;
 
-The program by default uses software serial to read the GPS, you can use hardware serial by commenting out this
-line in the Settings.h file;
+  '#define GPSPOWER -1' from -1 to the pin number being used. Also set the GPSONSTATE and GPSOFFSTATE defines to
+  the appropriate logic levels.
 
-#define USE_SOFTSERIAL_GPS
+  The program by default uses software serial to read the GPS, you can use hardware serial by commenting out this
+  line in the Settings.h file;
 
-And then defining the hardware serial port you are using, which defaults to Serial1.
+  #define USE_SOFTSERIAL_GPS
 
-Serial monitor baud rate is set at 115200.
+  And then defining the hardware serial port you are using, which defaults to Serial1.
+
+  Serial monitor baud rate is set at 115200.
 *******************************************************************************************************/
-
-
-#define Program_Version "V1.2"
 
 #include <SPI.h>
 #include <SX127XLT.h>
@@ -102,7 +99,7 @@ uint16_t RXVolts;              //supply\battery voltage
 float TXdistance;              //calculated distance to tracker
 uint16_t TXdirection;          //calculated direction to tracker
 uint16_t RXerrors;
-uint32_t TXupTimemS;           //up time of TX in mS 
+uint32_t TXupTimemS;           //up time of TX in mS
 
 uint32_t LastRXGPSfixCheck;    //used to record the time of the last GPS fix
 
@@ -293,7 +290,7 @@ void packet_is_OK()
     Serial.print(F("mS,"));
     Serial.print(TXVolts);
     Serial.print(F("mV,"));
-    Serial.print((TXupTimemS/1000));
+    Serial.print((TXupTimemS / 1000));
     Serial.print(F("s,"));
 
     Serial.print(TXdistance, 0);
@@ -436,17 +433,17 @@ void dispscreen1()
   disp.print(TXLat, 6);
 
   disp.setCursor(14, 0);
-  
+
   if (readTXStatus(GPSFix))
   {
-   disp.print(F("T"));
-   disp.write(Source);
+    disp.print(F("T"));
+    disp.write(Source);
   }
   else
   {
-   disp.print(F("T?"));  
+    disp.print(F("T?"));
   }
-  
+
   disp.clearLine(1);
   disp.setCursor(0, 1);
   disp.print(TXLon, 6);
@@ -454,16 +451,16 @@ void dispscreen1()
   disp.setCursor(14, 1);
   if (RXGPSfix)
   {
-   disp.print(F("RG"));
+    disp.print(F("RG"));
   }
   else
   {
-   disp.print(F("R?"));  
+    disp.print(F("R?"));
   }
-  
+
   disp.clearLine(2);
   disp.setCursor(0, 2);
-  disp.print(TXAlt,0);
+  disp.print(TXAlt, 0);
   disp.print(F("m"));
   disp.clearLine(3);
   disp.setCursor(0, 3);
@@ -546,7 +543,7 @@ void GPSTest()
   {
     if (GPSserial.available() > 0)
     {
-     Serial.write(GPSserial.read());
+      Serial.write(GPSserial.read());
     }
   }
   Serial.println();
@@ -561,11 +558,6 @@ void setup()
   led_Flash(2, 125);                            //two quick LED flashes to indicate program start
 
   Serial.begin(115200);
-  Serial.println();
-  Serial.print(F(__TIME__));
-  Serial.print(F(" "));
-  Serial.println(F(__DATE__));
-  Serial.println(F(Program_Version));
   Serial.println();
 
   Serial.println(F("25_GPS_Tracker_Receiver_With_Display_and_GPS Starting"));
@@ -604,7 +596,7 @@ void setup()
 
   Serial.println();
   Serial.println(F("Startup GPS check"));
-  
+
   if (GPSPOWER >= 0)
   {
     pinMode(GPSPOWER, OUTPUT);
@@ -613,7 +605,7 @@ void setup()
 
   GPSserial.begin(GPSBaud);
   GPSTest();
-  
+
   Serial.println();
   Serial.println();
 

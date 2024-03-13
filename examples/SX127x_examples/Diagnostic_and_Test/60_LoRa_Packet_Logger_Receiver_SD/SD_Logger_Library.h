@@ -405,6 +405,3 @@ void printtimeSD()
   printDigitsSD(minute(recordtime));
   printDigitsSD(second(recordtime));
 }
-
-
-

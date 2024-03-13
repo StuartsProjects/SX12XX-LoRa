@@ -17,12 +17,10 @@
   'offset' setting in the 'Settings.h' file.
 
   There will be a limit to how fast the logger can receive packets, mainly caused by the delay in writing
-  to SD card, so at high packet rates, packets will be lost.   
+  to SD card, so at high packet rates, packets will be lost.
 
   Serial monitor baud rate is set at 9600.
 *******************************************************************************************************/
-
-#define Program_Version "V1.0"
 
 #include <SPI.h>
 
@@ -192,12 +190,6 @@ void setup()
 
   Serial.begin(9600);
   Serial.println();
-  Serial.print(__TIME__);
-  Serial.print(F(" "));
-  Serial.println(__DATE__);
-  Serial.println(F(Program_Version));
-  Serial.println();
-
   Serial.println(F("60_LoRa_Packet_Logger_Receiver_SD Starting"));
   Serial.println();
 
@@ -249,4 +241,3 @@ void setup()
   Serial.print(F("Receiver ready"));
   Serial.println();
 }
-

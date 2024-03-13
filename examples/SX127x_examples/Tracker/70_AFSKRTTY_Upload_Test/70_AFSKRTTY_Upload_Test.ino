@@ -7,8 +7,8 @@
 
 
 /*******************************************************************************************************
-  Program Operation - This test program has been written to check that the hardware for sending AFSK RTTY on
-  been connected correctly. AFSKRTTY can be used to upload packets received from a high altitude balloon
+  Program Operation - This test program has been written to check that the hardware for sending AFSK RTTY
+  been connected correctly. AFSK RTTY can be used to upload packets received from a high altitude balloon
   tracker as LoRa into DL-FLDIGI running on a PC and from there uploaded to an Internet connected tracking
   system.
 
@@ -36,8 +36,6 @@
 //uint8_t testBuffer[] = "0123456789* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *";
 //uint8_t testBuffer[] = "UUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUU";
 uint8_t testBuffer[] = "$$$$MyFlight1,2213,14:54:37,51.48230,-3.18136,15,6,3680,23,66,3,0*2935";
-
-
 
 const uint16_t leadinmS = 1000;      //number of ms for AFSK constant lead in tone
 const uint16_t leadoutmS = 0;        //number of ms for AFSK constant lead out tone
@@ -94,5 +92,3 @@ void setup()
   Serial.println(F("70_AFSKRTTY_Upload_Test"));
   Serial.println();
 }
-
-

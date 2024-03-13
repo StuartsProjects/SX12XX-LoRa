@@ -13,13 +13,12 @@
   Serial monitor baud rate is set at 9600.
 *******************************************************************************************************/
 
-#define Program_Version "V1.0"
-
 //These are the pin definitions for one of the Tracker boards, be sure to change them to match
 //your own setup.
 
 #define NSS 10                              //SX127X device select
 #define NRESET 9                            //SX127X reset pin
+#define DIO0 3                               //SX127x DIO0 pin   
 #define LED1 8                              //for on board LED, put high for on
 
 #define LORA_DEVICE DEVICE_SX1278           //this is the device we are using 
@@ -30,8 +29,8 @@
 SX127XLT LT;
 
 const int8_t temperature_compensate = 0;    //value, degrees centigrade, to add to read temperature for calibration. Can be negative
-                                            //this compensate value will be different for each LoRa device instance, so best to
-                                            //label and record values for each device
+//this compensate value will be different for each LoRa device instance, so best to
+//label and record values for each device
 
 
 void loop()
@@ -68,21 +67,14 @@ void setup()
 {
   pinMode(LED1, OUTPUT);                                   //setup pin as output for indicator LED
   led_Flash(2, 125);                                       //two quick LED flashes to indicate program start
-  
+
   Serial.begin(9600);
-  Serial.println();
-  Serial.print(F(__TIME__));
-  Serial.print(F(" "));
-  Serial.println(F(__DATE__));
-  Serial.println(F(Program_Version));
-  Serial.println();
   Serial.println(F("39_LoRa_SX127x_Temperature_Read Starting"));
 
-  
   SPI.begin();
 
   //setup hardware pins used by device, then check if device is found
-  if (LT.begin(NSS, NRESET, -1, -1, -1, LORA_DEVICE))
+  if (LT.begin(NSS, NRESET, DIO0, LORA_DEVICE))
   {
     Serial.println(F("LoRa Device found"));
     led_Flash(2, 125);                                   //two further quick LED flashes to indicate device found
@@ -100,4 +92,3 @@ void setup()
   Serial.println(F("Temperature Sensor Ready"));
   Serial.println();
 }
-

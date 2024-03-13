@@ -10,7 +10,7 @@
 
 
 //These are the pin definitions for one of my own boards, the Easy Pro Mini,
-//be sure to change the definitiosn to match your own setup.
+//be sure to change the definitions to match your own setup.
 
 const int8_t NSS = 10;                          //select on LoRa device
 const int8_t NRESET = 9;                        //reset on LoRa device

@@ -2,18 +2,16 @@
   Programs for Arduino - Copyright of the author Stuart Robinson - 23/02/20
 
   This program is supplied as is, it is up to the user of the program to decide if the program is
-  suitable for the intended purpose and free from errors. 
+  suitable for the intended purpose and free from errors.
 *******************************************************************************************************/
 
 
 /*******************************************************************************************************
   Program Operation - Transmits an FSK carrier on a single frequency. Useful for checking the output
-  of a LoRa device. View the output level on a low cost SDR or spectrum analyser. 
-  
+  of a LoRa device. View the output level on a low cost SDR or spectrum analyser.
+
   Serial monitor baud rate is set at 9600
 *******************************************************************************************************/
-
-#define Program_Version "V1.0"
 
 #include <SPI.h>                                               //the lora device is SPI based so load the SPI library                                         
 #include <SX127XLT.h>                                          //include the appropriate library  
@@ -26,18 +24,18 @@ void loop()
 {
   Serial.print(TXpower);                                       //print the transmit power defined
   Serial.print(F("dBm "));
-  
+
   digitalWrite(LED1, HIGH);
   Serial.print(F("Transmit Carrier > On "));
-    
+
   LT.setupDirect(Frequency, Offset);
   LT.fskCarrierOn(TXpower);
   delay(2000);
-  LT.fskCarrierOff(); 
-  
+  LT.fskCarrierOff();
+
   digitalWrite(LED1, LOW);
   Serial.println(F("off"));
-  
+
   delay(1000);
 }
 
@@ -61,12 +59,6 @@ void setup()
   led_Flash(2, 125);                                       //two quick LED flashes to indicate program start
 
   Serial.begin(9600);
-  Serial.println();
-  Serial.print(F(__TIME__));
-  Serial.print(F(" "));
-  Serial.println(F(__DATE__));
-  Serial.println(F(Program_Version));
-  Serial.println();
   Serial.println(F("66_FSK_Carrier_Generator Starting"));
 
   SPI.begin();
@@ -90,9 +82,8 @@ void setup()
       led_Flash(50, 50);                                 //long fast speed LED flash indicates device error
     }
   }
-  
+
   //LT.setupDirect(Frequency, Offset);
   //Serial.print(F("Transmitter ready"));
   //Serial.println();
 }
-

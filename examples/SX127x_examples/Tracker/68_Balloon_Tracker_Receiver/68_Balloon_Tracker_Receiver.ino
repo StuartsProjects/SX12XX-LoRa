@@ -35,9 +35,6 @@
 
 *******************************************************************************************************/
 
-
-#define Program_Version "V1.2"
-
 #include <SPI.h>
 #include <SX127XLT.h>
 SX127XLT LT;
@@ -991,11 +988,6 @@ void setup()
   }
 
   Serial.begin(9600);
-  Serial.println();
-  Serial.print(F(__TIME__));
-  Serial.print(F(" "));
-  Serial.println(F(__DATE__));
-  Serial.println(F(Program_Version));
   Serial.println();
 
   Serial.println(F("68_Balloon_Tracker_Receiver Starting"));

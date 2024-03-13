@@ -13,7 +13,7 @@
   for a packet to arrive. If a packet is received it is displayed and the LED flashes. If no packet is
   received the timeout is reported. After a packet is received or there is a timeout the processor and
   LoRa device goto sleep for 16 seconds. The sequence is then repeated.
- 
+
   Tested on a 'bare bones' ATmega328P board, the current in sleep mode was 9uA.
 
   Serial monitor baud rate is set at 9600.
@@ -41,7 +41,7 @@ uint16_t IRQStatus;
 
 void loop()
 {
-  
+
   LT.fillSXBuffer(0, 13, '#');                              //make sure the first part of LoRa FIFO is cleared, so we can tell its a fresh packet
 
   RXPacketL = LT.receive(RXBUFFER, RXBUFFER_SIZE, RXTIMEOUT, WAIT_RX);   //setup LoRa device for receive, timout of 2000mS
@@ -82,8 +82,8 @@ void loop()
   Serial.println(F("Awake !!!!"));
   Serial.println();
 
-  LT.wake();                                  
-  
+  LT.wake();
+
 }
 
 

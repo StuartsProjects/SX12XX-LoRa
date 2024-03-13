@@ -19,8 +19,6 @@
 
   Serial monitor baud rate is set at 115200.
 *******************************************************************************************************/
-
-
 #include <SPI.h>
 #include <SX127XLT.h>
 #include <ProgramLT_Definitions.h>

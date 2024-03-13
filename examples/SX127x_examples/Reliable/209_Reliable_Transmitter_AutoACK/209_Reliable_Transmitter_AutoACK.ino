@@ -27,7 +27,7 @@
   received. This program should be used with the matching receiver program, 210_Reliable_Receiver_AutoACK.
 
   The program will attempt to transmit the packet and have it acknowledged by the receiver a number of times
-  as defined by constant TXattempts. If there is no acknowledge withing this time it will be reported. 
+  as defined by constant TXattempts. If there is no acknowledge withing this time it will be reported.
 
   It is possible to use the 'NetworkID' to direct the packet to specific receivers.
 
@@ -62,7 +62,7 @@ void loop()
 
   //keep transmitting the packet until an ACK is received
   uint8_t attempts = TXattempts;
-  
+
   do
   {
     Serial.print(F("Transmit Payload > "));
@@ -72,10 +72,10 @@ void loop()
 
     Serial.print(F("Send attempt "));
     Serial.println(TXattempts - attempts + 1);
-    
+
     TXPacketL = LT.transmitReliableAutoACK(buff, sizeof(buff), NetworkID, ACKtimeout, TXtimeout, TXpower, WAIT_TX);
     attempts--;
-    
+
     if (TXPacketL > 0)
     {
       //if transmitReliable() returns > 0 then transmit and ack was OK
@@ -95,16 +95,16 @@ void loop()
 
   if (TXPacketL > 0)
   {
-  Serial.println(F("Packet acknowledged"));  
-  } 
+    Serial.println(F("Packet acknowledged"));
+  }
 
   if (attempts == 0)
   {
-  Serial.print(F("No acknowledge after "));
-  Serial.print(TXattempts);  
-  Serial.print(F(" attempts"));
+    Serial.print(F("No acknowledge after "));
+    Serial.print(TXattempts);
+    Serial.print(F(" attempts"));
   }
-  
+
   Serial.println();
   delay(5000);                                         //have a delay between packets
 }

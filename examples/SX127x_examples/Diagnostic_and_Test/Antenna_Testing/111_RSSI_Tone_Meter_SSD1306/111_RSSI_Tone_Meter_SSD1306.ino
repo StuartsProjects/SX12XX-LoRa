@@ -14,7 +14,6 @@
   Do not forget to fit an antenna to the LoRa device, you can destroy it if you use it without and antenna
 ************************************************************************************************************/
 
-
 #include <SPI.h>                                 //the LoRa device is SPI based so load the SPI library
 #include <SX127XLT.h>                            //include the appropriate library   
 #include "Settings.h"                            //include the setiings file, frequencies, LoRa settings etc   

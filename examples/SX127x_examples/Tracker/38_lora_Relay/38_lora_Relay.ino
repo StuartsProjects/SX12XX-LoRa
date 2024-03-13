@@ -7,21 +7,20 @@
 
 /*******************************************************************************************************
   Program Operation - This program will receive a lora packet and relay (re-transmit) it. The receiving
-  and transmitting can use different frequencies and lora settings, although in this example they are 
+  and transmitting can use different frequencies and lora settings, although in this example they are
   the same. The receiving and transmitting settings are in the 'Settings.h' file. If the relay is located
   in an advantageous position, for instance on top of a tall tree, building or in an radio controlled model
-  then the range at which trackers or nodes on the ground can be received is considerably increased. 
-  In these circumstances the relay may listen at a long range setting using SF12 for example and then 
-  re-transmit back to the ground at SF7. 
-  
+  then the range at which trackers or nodes on the ground can be received is considerably increased.
+  In these circumstances the relay may listen at a long range setting using SF12 for example and then
+  re-transmit back to the ground at SF7.
+
   For an example of the use of such a program see this report;
 
-  https://stuartsprojects.github.io/2016/08/15/how-to-search-500-square-kilometres-in-10-minutes.html 
+  https://stuartsprojects.github.io/2016/08/15/how-to-search-500-square-kilometres-in-10-minutes.html
 
   Serial monitor baud rate is set at 9600.
 
 *******************************************************************************************************/
-
 
 #include <SPI.h>
 #include <SX127XLT.h>
@@ -42,11 +41,6 @@ void loop()
 
   digitalWrite(LED1, HIGH);                      //something has happened
 
-  if (BUZZER > 0)                                //turn buzzer on
-  {
-    digitalWrite(BUZZER, HIGH);
-  }
-
   PacketRSSI = LT.readPacketRSSI();              //read the recived RSSI value
   PacketSNR = LT.readPacketSNR();                //read the received SNR value
 
@@ -57,11 +51,6 @@ void loop()
   else
   {
     packet_is_OK();
-  }
-
-  if (BUZZER > 0)
-  {
-    digitalWrite(BUZZER, LOW);                    //buzzer off
   }
 
   Serial.println();
@@ -146,7 +135,7 @@ void setup()
 
   SPI.begin();
 
-  if (LT.begin(NSS, NRESET, DIO0, DIO1, DIO2, LORA_DEVICE))
+  if (LT.begin(NSS, NRESET, DIO0, LORA_DEVICE))
   {
     led_Flash(2, 125);
   }
@@ -169,5 +158,3 @@ void setup()
   Serial.println();
   Serial.println(F("Relay Ready"));
 }
-
-

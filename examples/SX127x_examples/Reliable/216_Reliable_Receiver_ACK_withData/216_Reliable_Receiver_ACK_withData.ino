@@ -7,7 +7,7 @@
 
 /*******************************************************************************************************
   Program Operation - This is a demonstration of the transmission and acknowledgement of a 'Reliable'
-  packet. 
+  packet.
 
   A reliable packet has 4 bytes automatically appended to the end of the buffer\array that is the data
   payload. The first two bytes appended are a 16bit 'NetworkID'. The receiver needs to have the same
@@ -23,13 +23,13 @@
   If the received packet is valid then a data payload together with the networkID and payload CRC are
   returned in a packet as an acknowledgement that the transmitter listens for. If the transmitter does not
   receive the acknowledgement within the ACKtimeout period, the original packet is re-transmitted until a
-  valid acknowledgement is received. 
-  
+  valid acknowledgement is received.
+
   With this example and the matching transmitter program, 215_Reliable_Transmitter_ACK_withData, the
   generation of the acknowledge by the receiver is manual and also returns data to the transmitter. This
   allows the transmitter to send a request to the receiver for it to return data. Since the acknowledge
   returns the networkID and payload CRC used in the original transmitted request, when the transmitter
-  receives the acknowledge it can be very confident the data is geniune. 
+  receives the acknowledge it can be very confident the data is geniune.
 
   Serial monitor baud rate should be set at 115200.
 *******************************************************************************************************/
@@ -73,12 +73,12 @@ void loop()
   if (PacketOK > 0)
   {
     //if the LT.receiveReliable() returns a value > 0 for PacketOK then packet was received OK
-  Serial.print(F("Payload received OK > "));
-  LT.printASCIIPacket(RXBUFFER, RXPayloadL);
-  Serial.println();
-  packet_is_OK();
-  sendACK();
-  Serial.println();
+    Serial.print(F("Payload received OK > "));
+    LT.printASCIIPacket(RXBUFFER, RXPayloadL);
+    Serial.println();
+    packet_is_OK();
+    sendACK();
+    Serial.println();
   }
   else
   {
@@ -120,7 +120,7 @@ void printPacketDetails()
   LocalPayloadCRC = LT.CRCCCITT(RXBUFFER, RXPayloadL, 0xFFFF);  //calculate payload crc from the received RXBUFFER
   TransmitterNetworkID = LT.getRXNetworkID(RXPacketL);
   RXPayloadCRC = LT.getRXPayloadCRC(RXPacketL);
-  
+
   Serial.print(F("LocalNetworkID,0x"));
   Serial.print(NetworkID, HEX);
   Serial.print(F(",TransmitterNetworkID,0x"));
@@ -135,12 +135,12 @@ void printPacketDetails()
 
 void sendACK()
 {
- uint8_t buff[] = "Goodbye";                                          //the ack payload to send
- LocalPayloadCRC = LT.CRCCCITTReliable(0, RXPayloadL - 1, 0xFFFF);    //calculate received payload crc 
- delay(ACKdelay);
- LT.sendReliableACK(buff, sizeof(buff), NetworkID, LocalPayloadCRC, TXpower);
- Serial.print(F("Ack sent > "));
- LT.printASCIIPacket(buff, sizeof(buff));
+  uint8_t buff[] = "Goodbye";                                          //the ack payload to send
+  LocalPayloadCRC = LT.CRCCCITTReliable(0, RXPayloadL - 1, 0xFFFF);    //calculate received payload crc
+  delay(ACKdelay);
+  LT.sendReliableACK(buff, sizeof(buff), NetworkID, LocalPayloadCRC, TXpower);
+  Serial.print(F("Ack sent > "));
+  LT.printASCIIPacket(buff, sizeof(buff));
 }
 
 

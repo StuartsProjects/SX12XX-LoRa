@@ -186,7 +186,7 @@ void setup()
 
   if (LT.begin(NSS, NRESET, RFBUSY, LORA_DEVICE))
   {
-    Serial.println(F("Radio Device found"));
+    Serial.println(F("LoRa Device found"));
     led_Flash(2, 125);
     delay(1000);
   }

@@ -9,7 +9,7 @@
 
 const uint8_t NSS = 10;                         //select pin on LoRa device
 const uint8_t NRESET = 9;                       //reset pin on LoRa device
-const uint8_t DIO0 = 3;                         //DIO1 pin on LoRa device, used for sensing RX and TX done
+const uint8_t DIO0 = 3;                         //DIO0 pin on LoRa device, used for sensing RX and TX done
 const uint8_t LED1 = 8;
 const uint8_t LORA_DEVICE = DEVICE_SX1278;      //we need to define the device we are using
 
@@ -23,7 +23,7 @@ const uint8_t CodeRate = LORA_CR_4_5;           //LoRa coding rate
 const uint8_t Optimisation = LDRO_AUTO;         //low data rate optimisation setting, normally set to auto
 const int8_t  TXpower = 2;                      //LoRa transmit power
 
-const uint32_t ACKdelay = 200;                  //delay in mS before sending reply                      
+const uint32_t ACKdelay = 200;                  //delay in mS before sending reply
 const uint32_t RXtimeout = 10000;                //receive timeout in mS.
 
 const uint8_t RequestGPSLocation = 1;           //request type for GPS location

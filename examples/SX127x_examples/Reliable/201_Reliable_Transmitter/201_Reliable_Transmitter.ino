@@ -62,7 +62,7 @@ void loop()
   //now transmit the packet
   digitalWrite(LED1, HIGH);                                            //LED on to indicate transmit
   TXPacketL = LT.transmitReliable(buff, TXPayloadL, NetworkID, TXtimeout, TXpower, WAIT_TX);  //will return packet length > 0 if sent OK, otherwise 0 if transmit error
-  
+
   if (TXPacketL > 0)
   {
     //if transmitReliable() returns > 0 then transmit was OK

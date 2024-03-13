@@ -12,7 +12,6 @@
 #define MISO 13
 #define MOSI 11
 
-
 #define MMCSCK 7
 #define MMCCMD 9
 #define MMCD0 8

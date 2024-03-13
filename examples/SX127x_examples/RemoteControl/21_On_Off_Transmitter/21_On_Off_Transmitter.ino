@@ -284,7 +284,7 @@ void setup()
 
   SPI.begin();
 
-  if (LT.begin(NSS, NRESET, DIO0, DIO1, DIO2, LORA_DEVICE))
+  if (LT.begin(NSS, NRESET, DIO0, LORA_DEVICE))
   {
     led_Flash(2, 125);
   }
@@ -303,4 +303,3 @@ void setup()
   Serial.println();
 
 }
-

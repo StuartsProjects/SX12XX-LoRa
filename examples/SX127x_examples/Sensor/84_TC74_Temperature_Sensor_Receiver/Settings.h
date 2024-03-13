@@ -9,7 +9,8 @@
 //*******  Setup hardware pin definitions here ! ***************
 
 //These are the pin definitions for one of my own boards, the Easy Pro Mini,
-//be sure to change the definitiosn to match your own setup. 
+//be sure to change the definitions to match your own setup.
+
 #define NSS 10                                  //select on LoRa device
 #define NRESET 9                                //reset on LoRa device
 #define DIO0 3                                  //DIO0 on LoRa device, used for RX and TX done 

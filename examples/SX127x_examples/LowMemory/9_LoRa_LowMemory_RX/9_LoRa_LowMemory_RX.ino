@@ -23,13 +23,13 @@
   3999           (uint16_t)    - battery voltage
   -9             (int8_t)      - temperature
 
-  
-  
+
+
   Memory use on an Arduino Pro Mini;
-  
-  Sketch uses 6290 bytes (19%) of program storage space. 
-  Global variables use 237 bytes (11%) of dynamic memory, leaving 1811 bytes for local variables. 
- 
+
+  Sketch uses 6290 bytes (19%) of program storage space.
+  Global variables use 237 bytes (11%) of dynamic memory, leaving 1811 bytes for local variables.
+
 
   Serial monitor baud rate is set at 9600.
 
@@ -45,7 +45,7 @@ SX127XLT LoRa;
 void loop()
 {
   uint8_t RXPacketL;
-  
+
   RXPacketL = LoRa.receiveSXBuffer(0, 0, WAIT_RX);       //returns 0 if packet error of some sort, no timeout
 
   if (RXPacketL == 0)
@@ -72,7 +72,7 @@ uint8_t packet_is_OK()
   int8_t temperature;
   uint8_t RXPacketL;
   static uint8_t RXpacketCount;
-  
+
   //packet has been received, now read from the SX12xx Buffer using the same variable type and
   //order as the transmit side used.
 
@@ -88,7 +88,7 @@ uint8_t packet_is_OK()
   satellites = LoRa.readUint8();           //read in the number of satellites
   voltage = LoRa.readUint16();             //read in the voltage
   temperature = LoRa.readInt8();           //read in the temperature
-  RXPacketL = LoRa.endReadSXBuffer();      //finish packet read, get received packet length 
+  RXPacketL = LoRa.endReadSXBuffer();      //finish packet read, get received packet length
 
   Serial.print(receivebuffer);           //print the received character buffer
   Serial.print(F(","));
@@ -132,10 +132,10 @@ void printpacketDetails()
 {
   int16_t PacketRSSI;              //RSSI of received packet
   int8_t  PacketSNR;               //signal to noise ratio of received packet
-  
+
   PacketRSSI = LoRa.readPacketRSSI();
   PacketSNR = LoRa.readPacketSNR();
-  
+
   Serial.print(F("  RSSI,"));
   Serial.print(PacketRSSI);
   Serial.print(F("dBm,SNR,"));
@@ -163,6 +163,3 @@ void setup()
   Serial.flush();
   LoRa.setupLoRa(Frequency, Offset, SpreadingFactor, Bandwidth, CodeRate, Optimisation);
 }
-
-
-

@@ -13,12 +13,10 @@
   are displayed on the serial monitor and analysed to extract the packet data which indicates the power
   used to send the packet. A count is kept of the numbers of each power setting received. When the transmitter
   sends the test mode packet at the beginning of the sequence (displayed as 999) the running totals of the
-  powers received are printed. Thus you can quickly see at what transmit power levels the reception fails. 
+  powers received are printed. Thus you can quickly see at what transmit power levels the reception fails.
 
   Serial monitor baud rate is set at 9600.
 *******************************************************************************************************/
-
-#define Program_Version "V1.0"
 
 #include <SPI.h>                                 //the lora device is SPI based so load the SPI library
 #include <SX127XLT.h>                            //include the appropriate library   
@@ -241,12 +239,6 @@ void setup()
   led_Flash(2, 125);                            //two quick LED flashes to indicate program start
 
   Serial.begin(9600);
-  Serial.println();
-  Serial.print(__TIME__);
-  Serial.print(F(" "));
-  Serial.println(__DATE__);
-  Serial.println(F(Program_Version));
-  Serial.println();
   Serial.println(F("20_LoRa_Link_Test_Receiver Starting"));
   Serial.println();
 
@@ -283,7 +275,7 @@ void setup()
 
   //this function call sets up the device for LoRa using the settings from settings.h
   LT.setupLoRa(Frequency, Offset, SpreadingFactor, Bandwidth, CodeRate, Optimisation);
-  
+
   Serial.println();
   LT.printModemSettings();                                     //reads and prints the configured LoRa settings, useful check
   Serial.println();

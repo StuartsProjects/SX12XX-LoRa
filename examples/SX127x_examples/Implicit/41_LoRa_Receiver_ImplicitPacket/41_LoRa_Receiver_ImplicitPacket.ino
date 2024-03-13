@@ -2,7 +2,7 @@
   Programs for Arduino - Copyright of the author Stuart Robinson - 16/12/19
 
   This program is supplied as is, it is up to the user of the program to decide if the program is
-  suitable for the intended purpose and free from errors. 
+  suitable for the intended purpose and free from errors.
 *******************************************************************************************************/
 
 /*******************************************************************************************************
@@ -31,8 +31,6 @@
 
   Serial monitor baud rate is set at 9600.
 *******************************************************************************************************/
-
-#define Program_Version "V1.1"
 
 #include <SPI.h>                                 //the lora device is SPI based so load the SPI library
 #include <SX127XLT.h>                            //include the appropriate library   
@@ -75,7 +73,7 @@ void loop()
   {
     packet_is_Error();
   }
-  
+
   if (BUZZER > 0)
   {
     digitalWrite(BUZZER, LOW);                    //buzzer off
@@ -178,7 +176,7 @@ void led_Flash(uint16_t flashes, uint16_t delaymS)
 
 void setupLoRa()
 {
-  //this setup is used so as the implicit packet type,LORA_PACKET_FIXED_LENGTH, is used  
+  //this setup is used so as the implicit packet type,LORA_PACKET_FIXED_LENGTH, is used
   LT.setMode(MODE_STDBY_RC);                              //got to standby mode to configure device
   LT.setPacketType(PACKET_TYPE_LORA);                     //set for LoRa transmissions
   LT.setRfFrequency(Frequency, Offset);                   //set the operating frequency
@@ -199,12 +197,6 @@ void setup()
   led_Flash(2, 125);                            //two quick LED flashes to indicate program start
 
   Serial.begin(9600);
-  Serial.println();
-  Serial.print(F(__TIME__));
-  Serial.print(F(" "));
-  Serial.println(F(__DATE__));
-  Serial.println(F(Program_Version));
-  Serial.println();
   Serial.println(F("41_LoRa_Receiver_ImplicitPacket Starting"));
   Serial.println();
 
@@ -223,7 +215,7 @@ void setup()
   //SPI.beginTransaction(SPISettings(8000000, MSBFIRST, SPI_MODE0));
 
   //setup hardware pins used by device, then check if device is found
-  if (LT.begin(NSS, NRESET, DIO0, DIO1, DIO2, LORA_DEVICE))
+  if (LT.begin(NSS, NRESET, DIO0, LORA_DEVICE))
   {
     Serial.println(F("LoRa Device found"));
     led_Flash(2, 125);
@@ -255,4 +247,3 @@ void setup()
   Serial.println(RXBUFFER_SIZE);
   Serial.println();
 }
-

@@ -2,20 +2,20 @@
   Programs for Arduino - Copyright of the author Stuart Robinson - 16/10/20
 
   This program is supplied as is, it is up to the user of the program to decide if the program is
-  suitable for the intended purpose and free from errors. 
+  suitable for the intended purpose and free from errors.
 *******************************************************************************************************/
 
 /*******************************************************************************************************
   Program Operation - The program receives a LoRa packet without using a processor buffer, the LoRa devices
-  internal buffer is read direct for the received sensor data. 
-  
+  internal buffer is read direct for the received sensor data.
+
   The sensor used in the matching '17_Sensor_Transmiter' program is a BME280 and the pressure, humidity,
   and temperature are being and received. There is also a 16bit value of battery mV and and a 8 bit status
   value at the end of the packet.
 
   When a packet is received,its printed and assuming the packet is validated, the sensor results are printed to the serial monitor
   and screen.
-  
+
   For the sensor data to be accepted as valid the folowing need to match;
 
   The 16bit CRC on the received sensor data must match the CRC value transmitted with the packet.
@@ -27,8 +27,8 @@
 
   The pin definitions, LoRa frequency and LoRa modem settings are in the Settings.h file.
 
-  With a standard Arduino Pro Mini and SSD1306 display the current consumption was 20.25mA with the 
-  display and 16.6mA without the display.  
+  With a standard Arduino Pro Mini and SSD1306 display the current consumption was 20.25mA with the
+  display and 16.6mA without the display.
 
   Serial monitor baud rate is set at 9600.
 *******************************************************************************************************/
@@ -66,7 +66,7 @@ U8X8_SSD1306_128X64_NONAME_HW_I2C disp(U8X8_PIN_NONE);        //use this line fo
 #define default_font u8x8_font_chroma48medium8_r
 
 //for SH1106
-//#include <U8x8lib.h>                                        //get library here >  https://github.com/olikraus/u8g2 
+//#include <U8x8lib.h>                                        //get library here >  https://github.com/olikraus/u8g2
 //U8X8_SH1106_128X64_NONAME_HW_I2C disp(U8X8_PIN_NONE);       //use this line for 1.3" OLED often sold as 1.3" SSD1306
 //#define default_font u8x8_font_chroma48medium8_r
 
@@ -107,9 +107,9 @@ void packet_Received_OK()
   Serial.print(F(",PacketsReceived,"));
 
   LT.startReadSXBuffer(0);
-  
+
   RXPacketType = LT.readUint8();           //the packet type received
-  RXDestination = LT.readUint8();          //the destination address the packet was sent to 
+  RXDestination = LT.readUint8();          //the destination address the packet was sent to
   RXSource = LT.readUint8();               //the source address, where the packet came from
 
   /************************************************************************
@@ -128,7 +128,7 @@ void packet_Received_OK()
   printreceptionDetails();                   //print details of reception, RSSI etc
   Serial.println();
 
-  contenterrors = checkPacketValid(len);     //pass length of packet to check routine 
+  contenterrors = checkPacketValid(len);     //pass length of packet to check routine
 
   if (contenterrors == 0)
   {
@@ -136,18 +136,18 @@ void packet_Received_OK()
     ValidPackets++;
     printSensorValues();                     //print the sensor values
     Serial.println();
-    printPacketCounts();                     //print count of valid packets and errors                  
+    printPacketCounts();                     //print count of valid packets and errors
     displayscreen1();
     Serial.println();
   }
   else
   {
-  Serial.println(F("  Packet is not valid"));
-  RXpacketErrors++;
-  disp.clearLine(7);
-  disp.setCursor(0, 7);
-  disp.print(F("Errors "));
-  disp.print(RXpacketErrors);  
+    Serial.println(F("  Packet is not valid"));
+    RXpacketErrors++;
+    disp.clearLine(7);
+    disp.setCursor(0, 7);
+    disp.print(F("Errors "));
+    disp.print(RXpacketErrors);
   }
 }
 
@@ -155,7 +155,7 @@ void packet_Received_OK()
 uint8_t checkPacketValid(uint8_t len)
 {
   //this function checks if the packet is valid and will be displayed
-  
+
   uint8_t errors = 0;
 
   if (RXPacketType != Sensor1)                        //is it a Sensor1 type packet
@@ -163,12 +163,12 @@ uint8_t checkPacketValid(uint8_t len)
     errors++;
   }
 
-  if (RXDestination != This_Node)                     //was the packet sent to this receiver node ? 
+  if (RXDestination != This_Node)                     //was the packet sent to this receiver node ?
   {
     errors++;
   }
 
-  if (!checkCRCvalue(len))                            //is the sent CRC value of sensor data valid ? 
+  if (!checkCRCvalue(len))                            //is the sent CRC value of sensor data valid ?
   {
     errors++;
   }
@@ -183,8 +183,8 @@ uint8_t checkPacketValid(uint8_t len)
 bool checkCRCvalue(uint8_t len)
 {
   uint16_t CRCSensorData;
-  
-  CRCSensorData = LT.CRCCCITTSX(3, (len-1), 0xFFFF);    //calculate the CRC of packet sensor data
+
+  CRCSensorData = LT.CRCCCITTSX(3, (len - 1), 0xFFFF);  //calculate the CRC of packet sensor data
 
   Serial.print(F("(CRC of Received sensor data "));
   Serial.print(CRCSensorData, HEX);
@@ -235,7 +235,7 @@ void printreceptionDetails()
   Serial.print(F("dBm,SNR,"));
   Serial.print(PacketSNR);
   Serial.print(F("dB,Length,"));
-  Serial.print(LT.readRXPacketL()); 
+  Serial.print(LT.readRXPacketL());
 }
 
 
@@ -244,7 +244,7 @@ void printPacketCounts()
   Serial.print(F("ValidPackets,"));
   Serial.print(ValidPackets);
   Serial.print(F(",Errors,"));
-  Serial.print(RXpacketErrors);  
+  Serial.print(RXpacketErrors);
 }
 
 
@@ -338,7 +338,7 @@ void setup()
 
   SPI.begin();
 
-  if (LT.begin(NSS, NRESET, DIO0, DIO1, DIO2, LORA_DEVICE))
+  if (LT.begin(NSS, NRESET, DIO0, LORA_DEVICE))
   {
     disp.print(F("LoRa OK"));
     led_Flash(2, 125);
@@ -358,4 +358,3 @@ void setup()
   Serial.println(F("Receiver ready"));
   Serial.println();
 }
-

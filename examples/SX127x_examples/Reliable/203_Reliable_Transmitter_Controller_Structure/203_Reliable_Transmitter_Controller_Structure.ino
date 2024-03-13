@@ -51,7 +51,7 @@ struct controllerStructure
   uint16_t destinationNode;
   uint8_t outputNumber;
   uint8_t onoroff;
-}__attribute__((packed, aligned(1)));           //remove structure padding so there is compatibility between 8bit and 32bit Arduinos   
+} __attribute__((packed, aligned(1)));          //remove structure padding so there is compatibility between 8bit and 32bit Arduinos
 
 struct controllerStructure controller1;         //define an instance called controller1 of the structure controllerStructure
 uint16_t PayloadCRC;
@@ -82,7 +82,7 @@ void loop()
 
   //now transmit the packet
   digitalWrite(LED1, HIGH);                                               //LED on to indicate transmit
-  
+
   TXPacketL = LT.transmitReliable((uint8_t *) &controller1, sizeof(controller1), NetworkID, TXtimeout, TXpower, WAIT_TX);  //will return packet length > 0 if sent OK, otherwise 0 if transmit error
 
   if (TXPacketL > 0)

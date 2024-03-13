@@ -22,8 +22,6 @@
   Serial monitor baud rate is set at 9600.
 *******************************************************************************************************/
 
-#define Program_Version "V1.1"
-
 #include <SPI.h>
 #include <SX127XLT.h>
 #include "Settings.h"
@@ -182,12 +180,6 @@ void setup()
   led_Flash(2, 125);                            //two quick LED flashes to indicate program start
 
   Serial.begin(9600);
-  Serial.println();
-  Serial.print(__TIME__);
-  Serial.print(F(" "));
-  Serial.println(__DATE__);
-  Serial.println(F(Program_Version));
-  Serial.println();
   Serial.println(F("62_LoRa_Wake_on_RX_Atmel Starting"));
 
   if (BUZZER > 0)
@@ -202,7 +194,7 @@ void setup()
 
   if (LT.begin(NSS, NRESET, DIO0, LORA_DEVICE))
   {
-    Serial.println(F("Radio Device found"));
+    Serial.println(F("LoRa Device found"));
     led_Flash(2, 125);
     delay(1000);
   }
@@ -221,4 +213,3 @@ void setup()
   Serial.println(RXBUFFER_SIZE);
   Serial.println();
 }
-

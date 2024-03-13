@@ -1,4 +1,4 @@
-                             /*******************************************************************************************************
+/*******************************************************************************************************
   Programs for Arduino - Copyright of the author Stuart Robinson - 03/04/22
 
   This program is supplied as is, it is up to the user of the program to decide if the program is
@@ -10,7 +10,7 @@
 //**************************************************************************************************
 
 //These are the pin definitions for one of my own boards, the Easy Pro Mini,
-//be sure to change the definitions to match your own setup. 
+//be sure to change the definitions to match your own setup.
 
 #define NSS 10                                  //select on LoRa device
 #define NRESET 9                                //reset on LoRa device
@@ -28,7 +28,7 @@
 //#define ClearAllMemory                          //Clears memory of stored tracker information, counts, errors etc
 
 //**************************************************************************************************
-// 3) LoRa modem settings 
+// 3) LoRa modem settings
 //**************************************************************************************************
 
 //LoRa Modem Parameters
@@ -43,7 +43,7 @@ const uint8_t TrackerOptimisation = LDRO_AUTO;   //low data rate optimisation se
 const int8_t TrackerTXpower = 10;                //LoRa TX power in dBm
 
 //Search mode
-const uint32_t SearchFrequency = 434000000;      //frequency of transmissionsconst 
+const uint32_t SearchFrequency = 434000000;      //frequency of transmissionsconst
 uint8_t SearchBandwidth = LORA_BW_062;           //LoRa bandwidth
 const uint8_t SearchSpreadingFactor = LORA_SF12; //LoRa spreading factor
 const uint8_t SearchCodeRate = LORA_CR_4_5;      //LoRa coding rate
@@ -51,7 +51,7 @@ const uint8_t SearchOptimisation = LDRO_AUTO;    //low data rate optimisation se
 const int8_t SearchTXpower = 10;                 //LoRa TX power in dBm
 
 const uint16_t deviation = 10000;                //deviation in hz for FM tones
-const float adjustfreq = 0.9;                    //adjustment to tone frequency 
+const float adjustfreq = 0.9;                    //adjustment to tone frequency
 
 const uint8_t TXBUFFER_SIZE = 128;               //defines the maximum size of the trasnmit buffer;
 
@@ -74,33 +74,33 @@ const uint8_t TXBUFFER_SIZE = 128;               //defines the maximum size of t
 #define RXpin A3                                  //pin number for software serial GPS RX input into Arduino - TX from GPS
 #define TXpin A2                                  //pin number for software serial GPS TX output from Arduino- RX into GPS
 
-const uint16_t WaitGPSFixSeconds = 60;            //when in flight the time to wait for a new GPS fix 
+const uint16_t WaitGPSFixSeconds = 60;            //when in flight the time to wait for a new GPS fix
 
 #define GPS_Library <UBLOXSerialGPS.h>            //use library file for UBLOX GPS 
-                   
+
 
 //**************************************************************************************************
 // 5) FSK RTTY Settings
 //**************************************************************************************************
 
-uint32_t FrequencyShift = 500;                    //hertz frequency shift, approx, sent at nearest 61.03515625hz step  
+uint32_t FrequencyShift = 500;                    //hertz frequency shift, approx, sent at nearest 61.03515625hz step
 uint8_t NumberofPips = 4;                         //number of marker pips to send
-uint16_t PipDelaymS = 1000;                       //mS between pips when carrier is off 
+uint16_t PipDelaymS = 1000;                       //mS between pips when carrier is off
 uint16_t PipPeriodmS = 100;                       //mS length of pip
-uint16_t BaudPerioduS = 10000;                    //uS period for baud, 10000uS for 100baud 
-uint16_t LeadinmS = 1000;                         //ms of leadin constant shifted carrier 
+uint16_t BaudPerioduS = 10000;                    //uS period for baud, 10000uS for 100baud
+uint16_t LeadinmS = 1000;                         //ms of leadin constant shifted carrier
 
 
 //****************************************************************************************************
 // 6) Program Default Option settings - This section determines which options are on or off by default,
-//    these are saved in the Default_config1 byte. These options are set in this way so that it is 
-//    possible (in future program changes) to alter the options remotly. 
+//    these are saved in the Default_config1 byte. These options are set in this way so that it is
+//    possible (in future program changes) to alter the options remotly.
 //**************************************************************************************************
 
 uint8_t OptionOff = 0;
 uint8_t OptionOn = 1;
 
-const char option_SearchEnable = OptionOn;       //set to OptionOn to enable transmit of Search mode packet       
+const char option_SearchEnable = OptionOn;       //set to OptionOn to enable transmit of Search mode packet
 const char option_FSKRTTYEnable = OptionOn;      //set to OptionOn to enable transmit of FSKRTTY
 
 #define option_SearchEnable_SUM (option_SearchEnable*1)
@@ -108,15 +108,15 @@ const char option_FSKRTTYEnable = OptionOn;      //set to OptionOn to enable tra
 
 const uint16_t Default_config1 = (option_SearchEnable_SUM + option_FSKRTTYEnable_SUM);
 //const uint16_t Default_config1 = 0x05;      //Phew, the default config can always be set manually........
-                                                  //0x05 would turn on transmit of search mode and FSKRTTY 
+//0x05 would turn on transmit of search mode and FSKRTTY
 
-                                                   
+
 //**************************************************************************************************
 // 7) Memory settings - define the type of memory to use for non-Volatile storage.
-//    Default is internal ATmega device EEPROM but EEPROM has a limited write endurance of 'only' 
+//    Default is internal ATmega device EEPROM but EEPROM has a limited write endurance of 'only'
 //    100,000 writes. Since the non-Volatile memory selected is written to at each transmission loop
 //    and error, its highly recommended to use one of the FRAM options, these have an endurance of
-//    100,000,000,000,000 writes.   
+//    100,000,000,000,000 writes.
 //**************************************************************************************************
 
 #define Memory_Library <EEPROM_Memory.h>

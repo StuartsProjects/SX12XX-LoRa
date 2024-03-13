@@ -7,8 +7,8 @@
 
 // *******  Setup hardware pin definitions here ! ***************
 
-//These are the pin definitions for one of my own boards, the Easy Pro Mini, 
-//be sure to change the definitiosn to match your own setup. 
+//These are the pin definitions for one of my own boards, the Easy Pro Mini,
+//be sure to change the definitions to match your own setup.
 
 #define NSS 10                                  //select on LoRa device
 #define NRESET 9                                //reset on LoRa device
@@ -43,6 +43,5 @@ const uint8_t TC74_ADDRESS = 0x4C;              //I2C bus address of TC74
 // *******  Setup node addressing here ! ***************
 
 const uint8_t TXPacketType = Sensor1;           //the packet type sent
-const uint8_t TXDestination = 'B';              //the destination address of the receiver where the packet is being sent to 
+const uint8_t TXDestination = 'B';              //the destination address of the receiver where the packet is being sent to
 const uint8_t TXSource = 2;                     //the source address, the address of this node, where the packet came from
- 

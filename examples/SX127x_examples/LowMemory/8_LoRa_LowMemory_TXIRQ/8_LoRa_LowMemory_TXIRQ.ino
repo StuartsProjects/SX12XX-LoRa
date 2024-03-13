@@ -29,7 +29,7 @@
 
   This is a version of example 8_LoRa_LowMemory_TX.ino that does not require the use of the DIO0 pin to
   check for transmit done. In addition no NRESET pin is needed either, so its a program for use with a
-  minimum pin count Arduino. Leave the DIO0 and NRESET pins on the LoRa device not connected.  
+  minimum pin count Arduino. Leave the DIO0 and NRESET pins on the LoRa device not connected.
 
   Serial monitor baud rate is set at 9600.
 *******************************************************************************************************/

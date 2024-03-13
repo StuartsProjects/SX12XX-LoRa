@@ -21,8 +21,6 @@
   Serial monitor baud rate is set at 9600.
 *******************************************************************************************************/
 
-#define programversion "V1.0"
-
 #include <SPI.h>
 #include <SX127XLT.h>
 #include "Settings.h"
@@ -76,7 +74,7 @@ uint8_t packet_is_OK()
   Serial.print(F("  Packet Received"));
 
   LT.startReadSXBuffer(0);                //start buffer read at location 0
-  RXPacketType = LT.readUint8();          //read in the packet type 
+  RXPacketType = LT.readUint8();          //read in the packet type
   TXIdentity = LT.readUint32();           //read in the identity of transmitter
   SwitchByte = LT.readUint8();            //read in the Switch values
   RXPacketL = LT.endReadSXBuffer();       //finish buffer read
@@ -89,7 +87,7 @@ uint8_t packet_is_OK()
     led_Flash(5, 25);                      //short fast speed flash indicates wrong packet type
     return 0;
   }
-    
+
   if (TXIdentity != RXIdentity)
   {
     Serial.print(F("  Transmitter "));
@@ -112,7 +110,7 @@ uint8_t packet_is_OK()
   {
     digitalWrite(BUZZER, HIGH);
   }
-  
+
   Serial.print(F(",SwitchByte Received "));
   Serial.print(SwitchByte, BIN);           //print switch values in binary, if a bit is 0, that switch is active
   actionOutputs(SwitchByte);
@@ -266,16 +264,16 @@ void setup()
 {
   pinMode(LED1, OUTPUT);
   led_Flash(2, 125);
-  
+
   Serial.begin(9600);
-  
+
   setupOutputs();
 
   outputCheck(3, 500, 100);
 
   SPI.begin();
 
-  if (LT.begin(NSS, NRESET, DIO0, DIO1, DIO2, LORA_DEVICE))
+  if (LT.begin(NSS, NRESET, DIO0, LORA_DEVICE))
   {
     led_Flash(2, 125);
   }
@@ -292,6 +290,3 @@ void setup()
 
   Serial.println(F("Receiver ready"));
 }
-
-
-

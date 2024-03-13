@@ -20,15 +20,13 @@
   Sample serial monitor output;
 
   1109s  Hello World 1234567890*,CRC,DAAB,RSSI,-61dBm,SNR,9dB,Length,23,Packets,1026,Errors,0,IRQreg,50
-  
+
   If there is a packet error it might look like this, which is showing a CRC error,
 
   1189s PacketError,RSSI,-111dBm,SNR,-12dB,Length,0,Packets,1126,Errors,1,IRQreg,70,IRQ_HEADER_VALID,IRQ_CRC_ERROR,IRQ_RX_DONE
 
   Serial monitor baud rate is set at 9600.
 *******************************************************************************************************/
-
-#define Program_Version "V1.0"
 
 #include <SPI.h>                                 //the SX127X device is SPI based so load the SPI library
 #include <SX127XLT.h>                            //include the appropriate library   
@@ -180,12 +178,6 @@ void setup()
   }
 
   Serial.begin(9600);
-  Serial.println();
-  Serial.print(F(__TIME__));
-  Serial.print(F(" "));
-  Serial.println(F(__DATE__));
-  Serial.println(F(Program_Version));
-  Serial.println();
   Serial.println(F("4_LoRa_Receiver_ESP32 Starting"));
   Serial.println();
 
@@ -198,14 +190,14 @@ void setup()
   }
 
   //SPI.begin();                                      //default setup can be used be used
-  SPI.begin(SCK, MISO, MOSI, NSS);                   //alternative format for SPI3, VSPI; SPI.begin(SCK,MISO,MOSI,SS)
+  SPI.begin(SCK, MISO, MOSI);                         //alternative format for SPI3, VSPI; SPI.begin(SCK,MISO,MOSI,SS)
 
   //SPI beginTranscation is normally part of library routines, but if it is disabled in the library
   //a single instance is needed here, so uncomment the program line below
   //SPI.beginTransaction(SPISettings(8000000, MSBFIRST, SPI_MODE0));
 
   //setup hardware pins used by device, then check if device is found
-  if (LT.begin(NSS, NRESET, DIO0, DIO1, DIO2, LORA_DEVICE))
+  if (LT.begin(NSS, NRESET, DIO0, LORA_DEVICE))
   {
     Serial.println(F("LoRa Device found"));
     led_Flash(2, 125);
@@ -255,4 +247,3 @@ void setup()
   Serial.println(RXBUFFER_SIZE);
   Serial.println();
 }
-

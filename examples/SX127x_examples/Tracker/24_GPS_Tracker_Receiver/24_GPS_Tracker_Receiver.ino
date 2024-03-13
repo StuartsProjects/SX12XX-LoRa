@@ -16,8 +16,6 @@
   Serial monitor baud rate is set at 115200.
 *******************************************************************************************************/
 
-#define Program_Version "V1.2"
-
 #include <SPI.h>
 #include <SX127XLT.h>
 
@@ -43,7 +41,7 @@ uint32_t TXHdop;               //HDOP, indication of fix quality, horizontal dil
 uint32_t TXGPSFixTime;         //time in mS for fix
 uint16_t TXVolts;              //supply\battery voltage
 uint8_t TXSats;                //number of sattelites in use
-uint32_t TXupTimemS;           //up time of TX in mS 
+uint32_t TXupTimemS;           //up time of TX in mS
 
 
 void loop()
@@ -155,7 +153,7 @@ void packet_is_OK()
     Serial.print(F("mS,"));
     Serial.print(TXVolts);
     Serial.print(F("mV,"));
-    Serial.print((TXupTimemS/1000));
+    Serial.print((TXupTimemS / 1000));
     Serial.print(F("s,"));
     printpacketDetails();
     return;
@@ -275,11 +273,6 @@ void setup()
 
   Serial.begin(115200);
   Serial.println();
-  Serial.print(F(__TIME__));
-  Serial.print(F(" "));
-  Serial.println(F(__DATE__));
-  Serial.println(F(Program_Version));
-  Serial.println();
 
   Serial.println(F("24_GPS_Tracker_Receiver Starting"));
 
@@ -310,7 +303,7 @@ void setup()
   }
 
   LT.setupLoRa(Frequency, Offset, SpreadingFactor, Bandwidth, CodeRate, Optimisation);
-  
+
   Serial.println();
   LT.printModemSettings();                           //reads and prints the configured LoRa settings, useful check
   Serial.println();
@@ -318,6 +311,3 @@ void setup()
   Serial.println(F("Receiver ready"));
   Serial.println();
 }
-
-
-

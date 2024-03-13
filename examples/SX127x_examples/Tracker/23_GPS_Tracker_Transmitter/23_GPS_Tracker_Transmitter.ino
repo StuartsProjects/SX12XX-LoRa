@@ -32,9 +32,6 @@
   Serial monitor baud rate is set at 115200.
 *******************************************************************************************************/
 
-#define Program_Version "V1.2"
-#define authorname "Stuart Robinson"
-
 #include <SPI.h>
 #include <SX127XLT.h>
 
@@ -101,18 +98,18 @@ bool gpsWaitFix(uint32_t waitSecs)
   Serial.print(F("Wait GPS Fix "));
   Serial.print(waitSecs);
   Serial.println(F("s"));
-  Serial.flush();                                        //so there are no Serial out interrupts to interfere with software serial 
+  Serial.flush();                                        //so there are no Serial out interrupts to interfere with software serial
 
   waitmS = waitSecs * 1000;                              //convert seconds wait into mS
   startmS = millis();
- 
+
   while ((uint32_t) (millis() - startmS) < waitmS)
   {
     if (GPSserial.available() > 0)
     {
       GPSchar = GPSserial.read();
       gps.encode(GPSchar);
-      //Serial.write(GPSchar);                           //dont print GPS chars here if using software serial for GPS 
+      //Serial.write(GPSchar);                           //dont print GPS chars here if using software serial for GPS
     }
 
     if (gps.location.isUpdated() && gps.altitude.isUpdated())
@@ -186,7 +183,7 @@ void sendLocation(float Lat, float Lon, float Alt, uint32_t Hdop, uint32_t fixti
   LT.writeUint8(TXStatus);                    //add tracker status
   LT.writeUint32(fixtime);                    //add GPS fix time in mS
   LT.writeUint16(TXVolts);                    //add tracker supply volts
-  LT.writeUint32(millis());                   //add uptime in mS    
+  LT.writeUint32(millis());                   //add uptime in mS
   len = LT.endWriteSXBuffer();                //close buffer write
 
   digitalWrite(LED1, HIGH);
@@ -216,7 +213,7 @@ void sendLocation(float Lat, float Lon, float Alt, uint32_t Hdop, uint32_t fixti
     Serial.println();
     LT.resetDevice();
     LT.setupLoRa(Frequency, Offset, SpreadingFactor, Bandwidth, CodeRate, Optimisation);
-    setStatusByte(LORAError,1);
+    setStatusByte(LORAError, 1);
   }
 }
 
@@ -341,7 +338,7 @@ void GPSTest()
   {
     if (GPSserial.available() > 0)
     {
-     Serial.write(GPSserial.read());
+      Serial.write(GPSserial.read());
     }
   }
   Serial.println();
@@ -367,11 +364,6 @@ void setup()
   led_Flash(2, 125);                                          //two quick LED flashes to indicate program start
 
   Serial.begin(115200);
-  Serial.println();
-  Serial.print(F(__TIME__));
-  Serial.print(F(" "));
-  Serial.println(F(__DATE__));
-  Serial.println(F(Program_Version));
   Serial.println();
 
   Serial.println(F("23_GPS_Tracker_Transmitter Starting"));

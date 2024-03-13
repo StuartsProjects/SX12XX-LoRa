@@ -2,7 +2,7 @@
   Programs for Arduino - Copyright of the author Stuart Robinson - 16/12/19
 
   This program is supplied as is, it is up to the user of the program to decide if the program is
-  suitable for the intended purpose and free from errors. 
+  suitable for the intended purpose and free from errors.
 *******************************************************************************************************/
 
 
@@ -20,8 +20,6 @@
 
   Serial monitor baud rate is set at 9600
 *******************************************************************************************************/
-
-#define Program_Version "V1.0"
 
 #include <SPI.h>                                               //the SX127X device is SPI based so load the SPI library                                         
 #include <SX127XLT.h>                                          //include the appropriate library  
@@ -117,11 +115,6 @@ void setup()
 
   Serial.begin(9600);
   Serial.println();
-  Serial.print(F(__TIME__));
-  Serial.print(F(" "));
-  Serial.println(F(__DATE__));
-  Serial.println(F(Program_Version));
-  Serial.println();
   Serial.println(F("3_LoRa_Transmitter_STM32 Starting"));
 
   SPI.begin();
@@ -131,7 +124,7 @@ void setup()
   //SPI.beginTransaction(SPISettings(8000000, MSBFIRST, SPI_MODE0));
 
   //setup hardware pins used by device, then check if device is found
-  if (LT.begin(NSS, NRESET, DIO0, DIO1, DIO2, LORA_DEVICE))
+  if (LT.begin(NSS, NRESET, DIO0, LORA_DEVICE))
   {
     Serial.println(F("LoRa Device found"));
     led_Flash(2, 125);                                   //two further quick LED flashes to indicate device found
@@ -146,7 +139,7 @@ void setup()
     }
   }
 
- //The function call list below shows the complete setup for the LoRa device using the information defined in the
+  //The function call list below shows the complete setup for the LoRa device using the information defined in the
   //Settings.h file.
   //The 'Setup LoRa device' list below can be replaced with a single function call;
   //LT.setupLoRa(Frequency, Offset, SpreadingFactor, Bandwidth, CodeRate, Optimisation);
@@ -179,4 +172,3 @@ void setup()
   Serial.print(F("Transmitter ready"));
   Serial.println();
 }
-

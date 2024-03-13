@@ -55,16 +55,16 @@ const uint16_t thisNode = 2;                    //node number for this node
 uint8_t outputNumber = 1;                       //output number on node we are controlling
 uint8_t onoroff = 1;                            //set to 0 to set remote output off, 1 to set it on
 uint8_t startaddr = 0;                          //address in SX buffer to start packet
-  
+
 void loop()
 {
   PacketOK = LT.receiveSXReliable(startaddr, NetworkID, RXtimeout, WAIT_RX); //wait for a packet to arrive with 60seconds (60000mS) timeout
 
-  RXPacketL = LT.readRXPacketL();                //get the received packet length, get this before reading packet 
+  RXPacketL = LT.readRXPacketL();                //get the received packet length, get this before reading packet
   RXPayloadL = RXPacketL - 4;
   PacketRSSI = LT.readPacketRSSI();              //read the received packets RSSI value
 
-  LT.startReadSXBuffer(startaddr);               //start buffer read at location 0 
+  LT.startReadSXBuffer(startaddr);               //start buffer read at location 0
   destinationNode = LT.readUint16();             //load the destination node
   outputNumber = LT.readUint8();                 //load the output number
   onoroff = LT.readUint8();                      //0 for off, 1 for on

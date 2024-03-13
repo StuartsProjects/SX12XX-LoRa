@@ -2,7 +2,7 @@
   Programs for Arduino - Copyright of the author Stuart Robinson - 16/12/19
 
   This program is supplied as is, it is up to the user of the program to decide if the program is
-  suitable for the intended purpose and free from errors. 
+  suitable for the intended purpose and free from errors.
 *******************************************************************************************************/
 
 /*******************************************************************************************************
@@ -21,8 +21,6 @@
 
   Serial monitor baud rate is set at 9600.
 *******************************************************************************************************/
-
-#define Program_Version "V1.0"
 
 #include <SPI.h>
 #include <SX127XLT.h>
@@ -56,7 +54,7 @@ void loop()
   Serial.flush();                            //make sure all serial has gone, it can wake up processor
 
   sleep_permanent();                         //put processor to sleep, with LoRa device listening, should
-                                             //wakeup when DIO0 goes high 
+  //wakeup when DIO0 goes high
 
   Serial.println(F("Awake !!!!"));
   digitalWrite(LED1, HIGH);                  //something has happened ?
@@ -202,12 +200,6 @@ void setup()
   led_Flash(2, 125);                            //two quick LED flashes to indicate program start
 
   Serial.begin(9600);
-  Serial.println();
-  Serial.print(__TIME__);
-  Serial.print(F(" "));
-  Serial.println(__DATE__);
-  Serial.println(F(Program_Version));
-  Serial.println();
   Serial.println(F("6_LoRa_RX_and_Sleep_Atmel Starting"));
   Serial.println();
 
@@ -221,9 +213,9 @@ void setup()
 
   SPI.begin();
 
-  if (LT.begin(NSS, NRESET, DIO0, DIO1, DIO2, LORA_DEVICE))
+  if (LT.begin(NSS, NRESET, DIO0, LORA_DEVICE))
   {
-    Serial.println(F("Radio Device found"));
+    Serial.println(F("LoRa Device found"));
     led_Flash(2, 125);
     delay(1000);
   }
@@ -244,4 +236,3 @@ void setup()
   Serial.println();
 
 }
-

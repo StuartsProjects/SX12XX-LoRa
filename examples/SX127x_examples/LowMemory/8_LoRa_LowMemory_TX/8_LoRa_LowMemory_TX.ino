@@ -96,4 +96,3 @@ void setup()
   LoRa.setupLoRa(Frequency, Offset, SpreadingFactor, Bandwidth, CodeRate, Optimisation);
   Serial.flush();
 }
-

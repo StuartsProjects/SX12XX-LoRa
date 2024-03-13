@@ -60,7 +60,7 @@ const uint16_t NetworkID = 0x3210;              //NetworkID identifies this conn
 void loop()
 {
   PacketOK = LT.receiveReliableAutoACK(RXBUFFER, RXBUFFER_SIZE, NetworkID, ACKdelay, TXpower, RXtimeout, WAIT_RX); //wait for a packet to arrive with 60seconds (60000mS) timeout
-  
+
   RXPacketL = LT.readRXPacketL();               //get the received packet length
   RXPayloadL = RXPacketL - 4;                   //payload length is always 4 bytes less than packet length
   PacketRSSI = LT.readPacketRSSI();             //read the received packets RSSI value
@@ -146,7 +146,7 @@ void setup()
   }
 
   LT.setupLoRa(434000000, 0, LORA_SF7, LORA_BW_125, LORA_CR_4_5, LDRO_AUTO);   //configure frequency and LoRa settings
-  
+
   Serial.println(F("Receiver ready"));
   Serial.println();
 }

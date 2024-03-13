@@ -40,9 +40,6 @@ uint8_t TXPacketL;
 uint8_t onpacket[] = "LEDOn";                   //send this to turn LED on
 uint8_t offpacket[] = "LEDOff";                 //send this to turn LED off
 
-#include <SPI.h>
-#include <LoRa.h>
-
 
 void loop()
 {
@@ -123,5 +120,3 @@ void setup()
   Serial.print(F("Transmitter ready"));
   Serial.println();
 }
-
-

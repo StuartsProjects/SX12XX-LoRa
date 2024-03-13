@@ -46,8 +46,6 @@
   Serial monitor baud rate is set at 115200
 *******************************************************************************************************/
 
-#define Program_Version "V1.1"
-
 #include <Arduino.h>
 
 #include <SX127XLT.h>                            //include the appropriate library  

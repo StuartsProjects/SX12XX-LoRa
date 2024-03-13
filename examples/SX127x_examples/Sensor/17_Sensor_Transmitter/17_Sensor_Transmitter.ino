@@ -33,18 +33,18 @@
 
   *******  Setup node addressing here ! ***************
   const uint8_t TXPacketType = Sensor1;           //the packet type sent
-  const uint8_t TXDestination = 'B'               //the destination address of the receiver. 
+  const uint8_t TXDestination = 'B'               //the destination address of the receiver.
   const uint8_t TXSource = 1;                     //the source address, the address of this node.
-  
+
   The TXDestination byte needs to match the RXDestination set in the receiver. The TXSource byte identifies
-  a particular sender node, and needs to be different for each sender. 
+  a particular sender node, and needs to be different for each sender.
 
   How often the sensor data is sent is controlled by this line in the Settings.h file;
 
   const uint8_t sleeps = 112;                     //number of 8 second sleeps, gap between transmissions
 
-  In the above case 112 sleeps is approximatly 112 x 8 = 900seconds, 15 minutes. 
-  
+  In the above case 112 sleeps is approximatly 112 x 8 = 900seconds, 15 minutes.
+
   There is also an option of using a logic pin to turn the resistor divider used to read battery voltage on
   and off. This reduces current used in sleep mode. To use the feature set the define for pin BATVREADON
   in 'Settings.h' to the pin used. If not using the feature set the pin number to -1.
@@ -303,7 +303,7 @@ void setup()
 
   SPI.begin();
 
-  if (LT.begin(NSS, NRESET, DIO0, DIO1, DIO2, LORA_DEVICE))
+  if (LT.begin(NSS, NRESET, DIO0, LORA_DEVICE))
   {
     led_Flash(2, 125);
   }
@@ -329,4 +329,3 @@ void setup()
 
   readSensors();                            //do an initial sensor read
 }
-

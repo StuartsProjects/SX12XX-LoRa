@@ -26,9 +26,9 @@
   ID and payload CRC are also returned with the acknowledge so the transmitter can verify if the packet it
   receives in reply is geniune.
 
-  No DIO0 pin needs to be connected to the LoRa device for this program.  
+  No DIO0 pin needs to be connected to the LoRa device for this program.
 
-  The matching receiver program is 220_Reliable_Receiver_Data_RequestorIRQ. 
+  The matching receiver program is 220_Reliable_Receiver_Data_RequestorIRQ.
 
   Serial monitor baud rate should be set at 115200.
 *******************************************************************************************************/
@@ -59,7 +59,7 @@ uint8_t TrackerStatus;
 
 void loop()
 {
-  
+
   //*****************************************************************************************
   //Request GPS location
   //*****************************************************************************************
@@ -80,9 +80,9 @@ void loop()
   }
 
   //*****************************************************************************************
- 
+
   Serial.println();
-  delay(5000); 
+  delay(5000);
 }
 
 
@@ -211,10 +211,8 @@ void setup()
 {
   pinMode(LED1, OUTPUT);
   led_Flash(2, 125);                                       //two quick LED flashes to indicate program start
-   
+
   Serial.begin(115200);
-  Serial.println();
-  Serial.println();
   Serial.println(__FILE__);
   Serial.println();
 

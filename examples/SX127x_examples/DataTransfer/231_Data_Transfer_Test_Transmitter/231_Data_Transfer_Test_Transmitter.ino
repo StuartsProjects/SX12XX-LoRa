@@ -96,31 +96,6 @@ void loop()
       DTDestinationFileLength = arrayReadUint32();
       Serial.print(F("Acknowledged remote destination file length "));
       Serial.println(DTDestinationFileLength);
-      /*
-        if (DTDestinationFileLength != DTSourceFileLength)
-        {
-        Serial.println(F("ERROR - file lengths do not match"));
-        }
-        else
-        {
-        Serial.println(F("File lengths match"));
-        }
-      */
-      /*
-        #ifdef ENABLEFILECRC
-            DTDestinationFileCRC = arrayReadUint16();
-            Serial.print(F("Acknowledged remote destination file CRC 0x"));
-            Serial.println(DTDestinationFileCRC, HEX);
-            if (DTDestinationFileCRC != DTSourceFileCRC)
-            {
-              Serial.println(F("ERROR - file CRCs do not match"));
-            }
-            else
-            {
-              Serial.println(F("File CRCs match"));
-            }
-        #endif
-      */
       DTFileTransferComplete = true;
     }
     else
@@ -171,7 +146,7 @@ void setup()
 
   Serial.begin(115200);
   Serial.println();
-  
+
   SPI.begin();
 
   if (LoRa.begin(NSS, NRESET, DIO0, LORA_DEVICE))

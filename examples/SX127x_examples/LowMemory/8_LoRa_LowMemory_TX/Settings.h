@@ -9,7 +9,7 @@
 //*******  Setup hardware pin definitions here ! ***************
 
 //These are the pin definitions for one of my own boards, the Easy Pro Mini,
-//be sure to change the definitions to match your own setup. 
+//be sure to change the definitions to match your own setup.
 
 #define NSS 10                                  //select on LoRa device
 #define NRESET 9                                //reset on LoRa device
@@ -27,4 +27,3 @@ const uint8_t CodeRate = LORA_CR_4_5;           //LoRa coding rate
 const uint8_t Optimisation = LDRO_AUTO;         //low data rate optimisation setting
 const int8_t TXpower = 10;                      //LoRa TX power in dBm
 const uint16_t packet_delay = 1000;             //mS delay between packets
-

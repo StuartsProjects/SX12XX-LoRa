@@ -2,12 +2,12 @@
   Programs for Arduino - Copyright of the author Stuart Robinson - 21/12/19
 
   This program is supplied as is, it is up to the user of the program to decide if the program is
-  suitable for the intended purpose and free from errors. 
+  suitable for the intended purpose and free from errors.
 *******************************************************************************************************/
 
 /*******************************************************************************************************
   Program Operation - The program listens for incoming packets using the LoRa settings in the 'Settings.h'
-  file. The pins to access the lora device need to be defined in the 'Settings.h' file also. 
+  file. The pins to access the lora device need to be defined in the 'Settings.h' file also.
 
   There is a printout of the valid packets received, the packet is assumed to be in ASCII printable text,
   if its not ASCII text characters from 0x20 to 0x7F, expect weird things to happen on the Serial Monitor.
@@ -21,12 +21,10 @@
 
   1189s PacketError,RSSI,-111dBm,SNR,-12dB,Length,0,Packets,1126,Errors,1,IRQreg,70,IRQ_HEADER_VALID,IRQ_CRC_ERROR,IRQ_RX_DONE
 
-  A summary of the packet reception is sent to the OLED display as well, useful for portable applications. 
+  A summary of the packet reception is sent to the OLED display as well, useful for portable applications.
 
   Serial monitor baud rate is set at 9600.
 *******************************************************************************************************/
-
-#define Program_Version "V1.0"
 
 #include <SPI.h>                                 //the lora device is SPI based so load the SPI library
 #include <SX127XLT.h>                            //include the appropriate library   
@@ -215,11 +213,6 @@ void setup()
 
   Serial.begin(9600);
   Serial.println();
-  Serial.print(F(__TIME__));
-  Serial.print(F(" "));
-  Serial.println(F(__DATE__));
-  Serial.println(F(Program_Version));
-  Serial.println();
   Serial.println(F("33_LoRa_RSSI_Checker_With_Display Starting"));
   Serial.println();
 
@@ -246,7 +239,7 @@ void setup()
   disp.setCursor(0, 1);
 
   //setup hardware pins used by device, then check if device is found
-  if (LT.begin(NSS, NRESET, DIO0, DIO1, DIO2, LORA_DEVICE))
+  if (LT.begin(NSS, NRESET, DIO0, LORA_DEVICE))
   {
     disp.print(F("LoRa OK"));
     Serial.println(F("LoRa Device found"));
@@ -280,4 +273,3 @@ void setup()
   Serial.println(RXBUFFER_SIZE);
   Serial.println();
 }
-

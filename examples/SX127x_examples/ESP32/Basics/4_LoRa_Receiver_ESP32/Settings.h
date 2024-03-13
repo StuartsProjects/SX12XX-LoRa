@@ -8,9 +8,8 @@
 //*******  Setup hardware pin definitions here ! ***************
 
 //These are the pin definitions for one of the Tracker boards, the ESP32_Micro_Node, be sure to change
-//them to match your own setup. You will also need to connect up the pins for the SPI bus, which on the 
-//ESP32_Micro_Node are SCK on pin 18, MISO on pin 19 and MOSI on pin 23. Some pins such as DIO1, DIO2 and
-//BUZZER may not be in used by this sketch so they do not need to be connected and should be set to -1.
+//them to match your own setup. You will also need to connect up the pins for the SPI bus, which on the
+//ESP32_Micro_Node are SCK on pin 18, MISO on pin 19 and MOSI on pin 23.
 
 #define NSS 5                                   //select pin on LoRa device
 #define SCK 18                                  //SCK on SPI3
@@ -22,8 +21,6 @@
 
 #define LED1 2                                  //on board LED, high for on
 #define DIO0 35                                 //DIO0 pin on LoRa device, used for RX and TX done 
-#define DIO1 -1                                 //DIO1 pin on LoRa device, normally not used so set to -1 
-#define DIO2 -1                                 //DIO2 pin on LoRa device, normally not used so set to -1
 #define BUZZER -1                               //pin for buzzer, set to -1 if not used 
 #define VCCPOWER 14                             //pin controls power to external devices
 
@@ -46,4 +43,3 @@ const int8_t TXpower = 10;                      //LoRa transmit power in dBm
 const uint16_t packet_delay = 1000;             //mS delay between packets
 
 #define RXBUFFER_SIZE 32                        //RX buffer size 
-

@@ -36,8 +36,9 @@ SX127XLT LoRa;                                     //create a library class inst
 time_t recordtime;                                 //used to record the current time
 
 #include <Wire.h>
-#include <LiquidCrystal_I2C.h>                     //www.4tronix.co.uk/arduino/sketches/LiquidCrystal_V1.2.1.zip
-LiquidCrystal_I2C disp(LCD20x4_I2C_ADDRESS, 2, 1, 0, 4, 5, 6, 7, 3, POSITIVE);  //Set the LCD I2C address and pins used
+#include <LiquidCrystal_PCF8574.h>                 // https://github.com/mathertel/LiquidCrystal_PCF8574
+LiquidCrystal_PCF8574 disp(0x27);                  // set the LCD address to 0x27
+
 
 #include <SdFat.h>                                 //get the library here > https://github.com/greiman/SdFat
 SdFat SD;
@@ -692,8 +693,8 @@ void setup()
   //SPI.beginTransaction(SPISettings(8000000, MSBFIRST, SPI_MODE0));
 
   Wire.begin();
-  disp.begin(20, 4);                       //initialize the lcd for 20 chars 4 lines, turn on backlight
-  disp.backlight();                        //backlight on
+  disp.begin(20, 4);                       //initialize for 20 x 4 lcd
+  disp.setBacklight(255);
   disp.setCursor(0, 0);
   disp.print(F("Check LoRa"));
 

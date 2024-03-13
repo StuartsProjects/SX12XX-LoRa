@@ -40,8 +40,6 @@
   Serial monitor baud rate is set at 115200.
 *******************************************************************************************************/
 
-#define programversion "V1.0"
-
 #include <SPI.h>
 #include <SX127XLT.h>
 #include "Settings.h"
@@ -212,7 +210,7 @@ void sweepTest(uint8_t num)
 
 void setupLoRa()
 {
-  //this setup is used so as the implicit packet type,LORA_PACKET_FIXED_LENGTH, is used  
+  //this setup is used so as the implicit packet type,LORA_PACKET_FIXED_LENGTH, is used
   LT.setMode(MODE_STDBY_RC);                              //got to standby mode to configure device
   LT.setPacketType(PACKET_TYPE_LORA);                     //set for LoRa transmissions
   LT.setRfFrequency(Frequency, Offset);                   //set the operating frequency
@@ -246,7 +244,7 @@ void setup()
 
   SPI.begin();
 
-  if (LT.begin(NSS, NRESET, DIO0, DIO1, DIO2, LORA_DEVICE))
+  if (LT.begin(NSS, NRESET, DIO0, LORA_DEVICE))
   {
     led_Flash(2, 125);
   }
@@ -270,6 +268,3 @@ void setup()
   Serial.println(F("36_Remote_Control_Servo_Receiver ready"));
   Serial.println();
 }
-
-
-
