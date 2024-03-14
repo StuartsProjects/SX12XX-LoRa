@@ -78,7 +78,6 @@ const uint16_t WaitGPSFixSeconds = 60;            //when in flight the time to w
 
 #define GPS_Library <UBLOXSerialGPS.h>            //use library file for UBLOX GPS 
 
-
 //**************************************************************************************************
 // 5) FSK RTTY Settings
 //**************************************************************************************************
