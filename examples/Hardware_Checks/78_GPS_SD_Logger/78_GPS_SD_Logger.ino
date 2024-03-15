@@ -386,7 +386,7 @@ void setup()
   Serial.print(F("Card Mount OK > "));
   Serial.println(filename);
 
-  Serial.println(F("28A_GPS_SD_Logger Starting"));
+  Serial.println(F("78_GPS_SD_Logger Starting"));
   Serial.println();
 
   startGetFixmS = millis();

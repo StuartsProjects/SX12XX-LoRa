@@ -182,12 +182,10 @@ void setup()
   pinMode(2, INPUT_PULLUP);
 
   Serial.begin(115200);
-  Serial.println();
-  Serial.println();
   Serial.print(__FILE__);
   Serial.println();
 
-  if (!SD_MMC.begin("/sdcard", true))
+  if (!SD_MMC.begin("/sdcard", true))              //start in 1 bit MMC mode
   {
     Serial.println();
     Serial.println("ERROR Card Mount Failed - program halted");

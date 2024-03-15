@@ -158,10 +158,7 @@ void GPS_SendConfig(const uint8_t *Progmem_ptr, uint8_t arraysize)
 void setup()
 {
   Serial.begin(115200);
-  Serial.println();
-  Serial.println();
   Serial.println("90_UBlox_GPS_Configuration Starting");
-  Serial.println();
   Serial.println();
   GPS.begin(9600);
 }

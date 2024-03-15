@@ -35,8 +35,6 @@ uint32_t counter, errors;
 
 void loop()
 {
-
-
   while (true)
   {
     counter++;
@@ -85,7 +83,6 @@ void writeMemory()
   Serial.print(F("Write uint32_t (counter) "));
   Serial.println(counter);
   writeMemoryUint32(16, counter);
-
 }
 
 
@@ -206,7 +203,6 @@ void readMemory()
 void setup()
 {
   Serial.begin(115200);
-  Serial.println();
   Serial.print(F(__FILE__));
   Serial.println();
 

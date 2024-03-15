@@ -88,11 +88,11 @@ bool gpsWaitFix(uint16_t waitSecs)
   Serial.print(waitSecs);
   Serial.println(F(" seconds"));
 
-  waitmS = waitSecs * 1000;                               //convert seconds wait into mS
+  waitmS = waitSecs * 1000;                                   //convert seconds wait into mS
 
   startmS = millis();
 
-  while ( (uint32_t) (millis() - startmS) < waitmS)       //allows for millis() overflow
+  while ( (uint32_t) (millis() - startmS) < waitmS)           //allows for millis() overflow
   {
     if (GPSserial.available() > 0)
     {
@@ -103,7 +103,7 @@ bool gpsWaitFix(uint16_t waitSecs)
 
     if (gps.speed.isUpdated() && gps.satellites.isUpdated()) //ensures that GGA and RMC sentences have been received
     {
-      endFixmS = millis();                                //record the time when we got a GPS fix
+      endFixmS = millis();                                   //record the time when we got a GPS fix
       return true;
     }
   }

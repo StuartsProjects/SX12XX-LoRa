@@ -45,11 +45,8 @@
 
   Changes:
   290920 - Add speed to serial monitor output and display
-
+  150324 - Change updates to speed and sats
 *******************************************************************************************************/
-
-#define Program_Version "V1.2"
-#define authorname "Stuart Robinson"
 
 #include <TinyGPS++.h>                             //get library here > http://arduiniana.org/libraries/tinygpsplus/
 TinyGPSPlus gps;                                   //create the TinyGPS++ object
@@ -57,7 +54,7 @@ TinyGPSPlus gps;                                   //create the TinyGPS++ object
 #define RXpin A3                                   //pin number for GPS RX input into Arduino - TX from GPS
 #define TXpin A2                                   //pin number for GPS TX output from Arduino- RX into GPS
 
-#define GPSPOWER -1                                //Pin that controls power to GPS, set to -1 if not used
+#define GPSPOWER -1                                //pin that can control power to GPS, set to -1 if not used
 #define GPSONSTATE HIGH                            //logic level to turn GPS on via pin GPSPOWER 
 #define GPSOFFSTATE LOW                            //logic level to turn GPS off via pin GPSPOWER 
 
@@ -71,12 +68,12 @@ U8X8_SSD1306_128X64_NONAME_HW_I2C disp(U8X8_PIN_NONE);    //use this line for st
 #define DEFAULTFONT u8x8_font_chroma48medium8_r           //font used by U8X8 Library
 
 
-float GPSLat;                                      //Latitude from GPS
-float GPSLon;                                      //Longitude from GPS
-float GPSAlt;                                      //Altitude from GPS
-uint8_t GPSSats;                                   //number of GPS satellites in use
-uint32_t GPSHdop;                                  //HDOP from GPS
-float GPSSpeed;                                    //Speed of GPS, mph
+float GPSLat;                                             //Latitude from GPS
+float GPSLon;                                             //Longitude from GPS
+float GPSAlt;                                             //Altitude from GPS
+uint8_t GPSSats;                                          //number of GPS satellites in use
+uint32_t GPSHdop;                                         //HDOP from GPS
+float GPSSpeed;                                           //Speed of GPS, mph
 
 uint8_t hours, mins, secs, day, month;
 uint16_t year;
@@ -137,8 +134,6 @@ bool gpsWaitFix(uint16_t waitSecs)
   Serial.print(F("Wait GPS Fix "));
   Serial.print(waitSecs);
   Serial.println(F(" seconds"));
-  //Serial.print(F("Current millis() "));
-  //Serial.println(millis());
 
   waitmS = waitSecs * 1000;                               //convert seconds wait into mS
 
@@ -153,9 +148,9 @@ bool gpsWaitFix(uint16_t waitSecs)
       Serial.write(GPSchar);
     }
 
-    if (gps.location.isUpdated() && gps.altitude.isUpdated() && gps.date.isUpdated())
+    if (gps.speed.isUpdated() && gps.satellites.isUpdated()) //ensures that GGA and RMC sentences have been received
     {
-      endFixmS = millis();                                //record the time when we got a GPS fix
+      endFixmS = millis();                                   //record the time when we got a GPS fix
       return true;
     }
   }
@@ -315,11 +310,6 @@ void setup()
   GPSserial.begin(9600);
 
   Serial.begin(115200);
-  Serial.println();
-  Serial.print(F(__TIME__));
-  Serial.print(F(" "));
-  Serial.println(F(__DATE__));
-  Serial.println(F(Program_Version));
   Serial.println();
 
   disp.begin();

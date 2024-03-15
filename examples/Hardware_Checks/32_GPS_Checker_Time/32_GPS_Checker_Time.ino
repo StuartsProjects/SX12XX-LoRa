@@ -22,7 +22,7 @@ TinyGPSPlus gps;                                   //create the TinyGPS++ object
 #define RXpin A3                                   //pin number for GPS RX input into Arduino - TX from GPS
 #define TXpin A2                                   //pin number for GPS TX output from Arduino- RX into GPS
 
-#define GPSPOWER -1                                //Pin that controls power to GPS, set to -1 if not used
+#define GPSPOWER -1                                //Pin that can control power to GPS, set to -1 if not used
 #define GPSONSTATE HIGH                            //logic level to turn GPS on via pin GPSPOWER 
 #define GPSOFFSTATE LOW                            //logic level to turn GPS off via pin GPSPOWER 
 

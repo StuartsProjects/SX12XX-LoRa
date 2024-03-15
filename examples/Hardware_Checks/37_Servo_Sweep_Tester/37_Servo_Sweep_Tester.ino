@@ -12,10 +12,8 @@
   Serial monitor baud rate is set at 9600.
 *******************************************************************************************************/
 
-
 #define pinservoX1 2                              //pin for controlling servo X 1 
 #define pinservoY1 4                              //pin for controlling servo Y 1 
-
 
 #define LED1 8
 

@@ -12,7 +12,6 @@
   Serial monitor baud rate is set at 9600.
 *******************************************************************************************************/
 
-
 #include <Adafruit_NeoPixel.h>                  //get library here > https://github.com/adafruit/Adafruit_NeoPixel
 
 #define NPIXEL A2                               //WS2811 on this pin

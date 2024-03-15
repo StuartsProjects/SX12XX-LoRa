@@ -17,9 +17,6 @@
   Serial monitor baud rate is set at 9600
 *******************************************************************************************************/
 
-
-#define programversion "V1.0"
-
 #define ONE_WIRE_BUS 4                            //pin the DS18B20 is connected to
 #define LED1 8                                    //LED, on when reading temperature  
 
@@ -64,12 +61,6 @@ void led_Flash(unsigned int flashes, unsigned int delaymS)
 void setup()
 {
   Serial.begin(9600);
-  Serial.println();
-  Serial.print(__TIME__);
-  Serial.print(F(" "));
-  Serial.println(__DATE__);
-  Serial.println(F(programversion));
-  Serial.println();
   Serial.println("48_DS18B20_Test Starting");
 
   pinMode(LED1, OUTPUT);
@@ -79,6 +70,3 @@ void setup()
   sensor.begin();
   sensor.requestTemperatures();               //do a null temperature read
 }
-
-
-

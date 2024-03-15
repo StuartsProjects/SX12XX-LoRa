@@ -17,17 +17,12 @@
 
   Serial monitor baud rate is set at 9600
 *******************************************************************************************************/
-/*
-******************************************************************************************************
-  Program operation -
-
-******************************************************************************************************
-*/
 
 #define ADMultiplier 6.36                      //adjustment to convert AD value read into mV of battery voltage 
 #define BATVREADON 8                           //used to turn on the resistor divider to measure voltage
 #define LED1 8                                 //pin for PCB LED  
 #define SupplyAD A0                            //Resitor divider for battery connected here 
+
 
 void loop()
 {
@@ -97,12 +92,6 @@ uint16_t readSupplyVoltage()
 void setup()
 {
   Serial.begin(9600);                       //setup Serial console ouput
-  Serial.println();
-  Serial.println(__FILE__);
-  Serial.print(F("Compiled "));
-  Serial.print(__TIME__);
-  Serial.print(F(" "));
-  Serial.println(__DATE__);
   Serial.println("45_Battery_Voltage_Read_Test Starting");
 
   pinMode(LED1, OUTPUT);                    //for PCB LED
@@ -112,4 +101,3 @@ void setup()
     pinMode (BATVREADON, OUTPUT);             //for turning on resistor divider
   }
 }
-

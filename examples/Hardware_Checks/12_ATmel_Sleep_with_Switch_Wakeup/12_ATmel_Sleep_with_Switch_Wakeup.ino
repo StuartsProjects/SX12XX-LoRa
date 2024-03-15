@@ -17,8 +17,6 @@
   Serial monitor baud rate is set at 9600.
 *******************************************************************************************************/
 
-#define Program_Version "V1.0"
-
 #include <avr/sleep.h>
 
 #define LED1 8                                  //on board LED, high for on
@@ -98,11 +96,6 @@ void setup()
   pinMode(SWITCH1, INPUT_PULLUP);              //setup switch pin, connect to ground to activate
 
   Serial.begin(9600);
-  Serial.println();
-  Serial.print(__TIME__);
-  Serial.print(F(" "));
-  Serial.println(__DATE__);
-  Serial.println(F(Program_Version));
   Serial.println();
 
   Serial.println(F("12_Atmel_Sleep_with_Switch_Wakeup Starting"));

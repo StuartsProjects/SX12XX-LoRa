@@ -13,12 +13,12 @@
   If you get no data displayed on the serial monitor, the most likely cause is that you have the receive
   data pin into the Arduino (RX) pin connected incorrectly.
 
-  At program start you should see '26A_GPS_Echo_Hardware_Serial Starting' in the serial monitor, if you
+  At program start you should see '26B_GPS_Echo_Hardware_Serial Starting' in the serial monitor, if you
   dont the serial monitor baud rate is probably incorrectly set. If you then see data displayed on the
   serial terminal which appears to be random text with odd symbols its very likely you have the GPS
   serial baud rate set incorrectly.
 
-  Change 'Serial1' in the program to match the hardware serial port you are using, for an Arduino Mega
+  Change 'Serial2' in the program to match the hardware serial port you are using, for an Arduino Mega
   this would normally be Serial1, Serila2 or Serial3.
 
   Serial monitor baud rate is set at 115200.
@@ -27,16 +27,16 @@
 
 void loop()
 {
-  while (Serial3.available())
+  while (Serial2.available())
   {
-    Serial.write(Serial3.read());
+    Serial.write(Serial2.read());
   }
 }
 
 
 void setup()
 {
-  Serial3.begin(9600);
+  Serial2.begin(9600);
   Serial.begin(115200);
   Serial.println();
   Serial.println("26B_GPS_Echo_Hardware_Serial Starting");

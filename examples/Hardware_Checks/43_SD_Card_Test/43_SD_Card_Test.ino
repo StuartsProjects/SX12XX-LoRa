@@ -173,8 +173,6 @@ uint8_t setupSDLOG(char *buff)
 void setup()
 {
   Serial.begin(115200);
-  Serial.println();
-  Serial.println();
   Serial.print(__FILE__);
   Serial.println();
 
