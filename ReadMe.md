@@ -1,7 +1,7 @@
 
 # SX12XX Library
 
-This Arduino LoRa library is I hope different to other libraries, this LoRa library has a specific emphasis on providing a large range of working examples for common applications.
+This Arduino LoRa library is I hope different to other libraries, this LoRa library has a specific emphasis on providing a range of working examples for common applications.
 
 There are the normal basic transmit and receive examples, but there are many additional real world examples for;
 
@@ -534,7 +534,7 @@ A number of updates have been applied to the SX127X part of the library, in part
 13. Add an overloaded begin(int8\_t pinNSS, uint8\_t device); function for use with ESP32CAM.
 14. Change Receive and Transmit functions to allow for millis() roll-over at 50days. 
  
-## Update - 24/08/21
+### Update - 24/08/21
 Reliable packets support added
 
 ### Update - 19/09/21
@@ -549,8 +549,9 @@ Corrected issue with CRC calculation for file transfer etc when buffer or file i
 3. Added extra functions to UBLOXSerialGPS.h library file.
 4. Added Baud rate, navigation rate, platform commands to UBLOX GPS code.
 
+<br>
 
-### Stuart Robinson
+## Stuart Robinson
 
 ### March 2024
 
