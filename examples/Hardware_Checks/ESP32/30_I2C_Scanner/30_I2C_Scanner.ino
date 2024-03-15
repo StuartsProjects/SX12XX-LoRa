@@ -9,9 +9,12 @@
 #include <Wire.h>
 uint16_t counter;
 
+#define SDA 21
+#define SCL 22
+
 void setup()
 {
-  Wire.begin();
+  Wire.begin(SDA, SCL);                              //format is Wire.begin(SDA,SCL);
 
   Serial.begin(9600);
   Serial.println(F("I2C Scanner starting"));

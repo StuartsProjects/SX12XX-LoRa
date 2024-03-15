@@ -24,12 +24,14 @@
   Serial monitor baud rate is set at 9600
 *******************************************************************************************************/
 
-#define Program_Version "V1.0"
-#include "ESP32_LoRa_Micro_Node.h"
-
 #include "FS.h"
 #include "SD.h"
 #include "SPI.h"
+
+
+#define SWITCH1 0                    //pin number to attach switch 
+#define LED1 2                       //pin number for LED
+#define SDCS  13                     //ESP32 pin number for device select on SD card module
 
 
 void loop()
@@ -82,19 +84,8 @@ void setup()
   pinMode(LED1, OUTPUT);                                 //for PCB LED
   led_Flash(4, 125);
 
-  if (VCCPOWER >= 0)
-  {
-    pinMode(VCCPOWER, OUTPUT);                  //For controlling power to external devices
-    digitalWrite(VCCPOWER, LOW);                //VCCOUT on. lora device on
-  }
-
   Serial.begin(9600);
-  Serial.println();
-  Serial.print(F(__TIME__));
-  Serial.print(F(" "));
-  Serial.println(F(__DATE__));
-  Serial.println(F(Program_Version));
-  Serial.println();
+
   Serial.println(F("44_SD_Card_Test_With_FS_ESP32 Starting"));
   Serial.print("Initializing SD card...");
 
@@ -106,5 +97,3 @@ void setup()
 
   Serial.println("Card initialized.");
 }
-
-

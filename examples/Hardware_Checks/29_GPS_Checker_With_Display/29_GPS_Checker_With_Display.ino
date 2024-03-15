@@ -46,21 +46,31 @@
   Changes:
   290920 - Add speed to serial monitor output and display
   150324 - Change updates to speed and sats
+  150324 - Add options to switch between software serial and hardware serial
 *******************************************************************************************************/
+
+//****************************************************************************************************************
+// Choose software serial or hardware serial to read GPS
+//****************************************************************************************************************
+
+#define USE_SOFTWARESERIAL                          //comment in this define if using software serial to read GPS
+//#define USE_HARDWARESERIAL                          //comment in this define if using hardware serial to read GPS
+
+#ifdef USE_SOFTWARESERIAL
+#define RXpin A3                                   //pin number for GPS RX input into Arduino - TX from GPS
+#define TXpin A2                                   //pin number for GPS TX output from Arduino- RX into GPS
+#include <SoftwareSerial.h>
+SoftwareSerial GPSserial(RXpin, TXpin);
+#endif
+
+#ifdef USE_HARDWARESERIAL
+#define GPSserial Serial2                           //serial port to use for hardware serial read of GPS 
+#endif
+
+//***************************************************************************************************************
 
 #include <TinyGPS++.h>                             //get library here > http://arduiniana.org/libraries/tinygpsplus/
 TinyGPSPlus gps;                                   //create the TinyGPS++ object
-
-#define RXpin A3                                   //pin number for GPS RX input into Arduino - TX from GPS
-#define TXpin A2                                   //pin number for GPS TX output from Arduino- RX into GPS
-
-#define GPSPOWER -1                                //pin that can control power to GPS, set to -1 if not used
-#define GPSONSTATE HIGH                            //logic level to turn GPS on via pin GPSPOWER 
-#define GPSOFFSTATE LOW                            //logic level to turn GPS off via pin GPSPOWER 
-
-#include <SoftwareSerial.h>
-SoftwareSerial GPSserial(RXpin, TXpin);
-
 
 #include <U8x8lib.h>                                      //get library here >  https://github.com/olikraus/u8g2 
 U8X8_SSD1306_128X64_NONAME_HW_I2C disp(U8X8_PIN_NONE);    //use this line for standard 0.96" SSD1306
@@ -281,42 +291,18 @@ void displayscreen1()
 }
 
 
-void GPSON()
-{
-  if (GPSPOWER)
-  {
-    digitalWrite(GPSPOWER, GPSONSTATE);                         //power up GPS
-  }
-}
-
-
-void GPSOFF()
-{
-  if (GPSPOWER)
-  {
-    digitalWrite(GPSPOWER, GPSOFFSTATE);                        //power off GPS
-  }
-}
-
-
 void setup()
 {
-  if (GPSPOWER >= 0)
-  {
-    pinMode(GPSPOWER, OUTPUT);
-    GPSON();
-  }
-
-  GPSserial.begin(9600);
-
-  Serial.begin(115200);
-  Serial.println();
-
   disp.begin();
   disp.setFont(DEFAULTFONT);
   disp.clear();
   disp.setCursor(0, 0);
   disp.print(F("Display Ready"));
+
+  GPSserial.begin(9600);
+
+  Serial.begin(115200);
+  Serial.println();
 
   Serial.println(F("29_GPS_Checker_With_Display Starting"));
   Serial.println();

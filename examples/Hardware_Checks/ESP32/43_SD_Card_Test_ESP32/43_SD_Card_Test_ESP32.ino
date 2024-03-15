@@ -46,8 +46,6 @@
 
   Serial monitor baud rate is set at 9600
 *******************************************************************************************************/
-#define Program_Version "V1.1"
-
 
 #include <SD.h>
 #include <SPI.h>
@@ -260,11 +258,5 @@ void setup()
   led_Flash(4, 125);
 
   Serial.begin(9600);
-  Serial.println();
-  Serial.print(F(__TIME__));
-  Serial.print(F(" "));
-  Serial.println(F(__DATE__));
-  Serial.println(F(Program_Version));
-  Serial.println();
-  Serial.println(F("43_SD_Card_Test Starting"));
+  Serial.println(F("43_SD_Card_Test_ESP32 Starting"));
 }

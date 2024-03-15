@@ -24,6 +24,7 @@
 #define LED1 2                                 //pin for PCB LED  
 #define SupplyAD 36                            //Resitor divider for battery connected here 
 
+
 void loop()
 {
   Serial.println(F("LED Flash"));
@@ -91,12 +92,6 @@ uint16_t readSupplyVoltage()
 void setup()
 {
   Serial.begin(9600);                               //setup Serial console ouput
-  Serial.println();
-  Serial.println(__FILE__);
-  Serial.print(F("Compiled "));
-  Serial.print(__TIME__);
-  Serial.print(F(" "));
-  Serial.println(__DATE__);
   Serial.println("45_Battery_Voltage_Read_Test_ESP32 Starting");
 
   pinMode(LED1, OUTPUT);                            //for PCB LED
@@ -107,5 +102,3 @@ void setup()
   }
 
 }
-
-
