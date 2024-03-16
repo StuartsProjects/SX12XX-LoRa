@@ -76,7 +76,8 @@ const uint8_t TXBUFFER_SIZE = 128;               //defines the maximum size of t
 
 const uint16_t WaitGPSFixSeconds = 60;            //when in flight the time to wait for a new GPS fix
 
-#define GPS_Library <UBLOXSerialGPS.h>            //use library file for UBLOX GPS 
+//#define GPS_Library <UBLOXSerialGPS.h>            //use library file for UBLOX GPS
+#define GPS_Library <QuectelSerialGPS.h>          //use library file for Quectel GPS                   
 
 //**************************************************************************************************
 // 5) FSK RTTY Settings

@@ -7,9 +7,9 @@
 
 
 /*******************************************************************************************************
-  Program Operation - This is a minimum setup LoRa test transmitter. A packet containing the ASCII text
+  Program Operation  - This is a minimum setup LoRa test transmitter. A packet containing the ASCII text
   "Hello World 1234567890" is sent using the frequency and LoRa settings specified in the LT.setupLoRa()
-  command. The pins to access the lora device need to be defined at the top of the program also.
+  command. The pins to access the LoRa device need to be defined at the top of the program also.
 
   The details of the packet sent and any errors are shown on the Arduino IDE Serial Monitor, together with
   the transmit power used and the packet length. The matching receiver program, '4_LoRa_Receiver' can be used
