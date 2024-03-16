@@ -46,6 +46,8 @@
   Serial monitor baud rate is set at 115200
 *******************************************************************************************************/
 
+#define Program_Version "V1.1"
+
 #include <Arduino.h>
 #include <SX126XLT.h>                           //include the appropriate library  
 
@@ -608,6 +610,7 @@ void setup()
 
   Serial.begin(115200);                     //Setup Serial console ouput
   Serial.println();
+  Serial.println();
   Serial.println(F("67_HAB_Balloon_Tracker_Transmitter Starting"));
 
   memoryStart(Memory_Address);              //setup the memory
@@ -680,6 +683,7 @@ void setup()
   printTempDS18B20();
   Serial.println();
 
+  //j = readSupplyVoltage();                    //get supply mV
   TXStatus = 0;                               //clear all TX status bits
 
   sendCommand(PowerUp);                       //send power up command, includes supply mV and config, on tracker settings
@@ -690,7 +694,7 @@ void setup()
 
   delay(2000);
 
-  if (GPS_CheckBalloonMode())                 //Check that GPS is configured for high altitude mode
+  if (GPS_CheckBalloonMode())               //Check that GPS is configured for high altitude mode
   {
     Serial.println();
     GPS_OutputOff();                          //GPS interrupts cause problems with lora device, so turn off for now
