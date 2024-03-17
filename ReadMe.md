@@ -10,7 +10,6 @@ There are the normal basic transmit and receive examples, but there are many add
 - GPS tracker transmitters and receivers with displays.
 - Using joysticks and servos for remote control.
 - Examples using sleep modes for low power consumption.
-- High altitude balloon trackers.
 - Transferring large data arrays or files.
 - Sending and receiving images from ESP32CAMs.
 - Sending and receiving packets where an acknowledge is required.
