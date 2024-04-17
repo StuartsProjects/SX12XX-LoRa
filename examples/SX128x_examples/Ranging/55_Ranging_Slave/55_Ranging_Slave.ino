@@ -85,9 +85,15 @@ void setup()
   pinMode(LED1, OUTPUT);
   led_Flash(2, 125);
 
-  SPI.begin();
+  #ifndef SX128XPA
+    SPI.begin();
+  #endif
 
-  if (LT.begin(NSS, NRESET, RFBUSY, DIO1, LORA_DEVICE))
+  #ifdef SX128XPA
+    SPI.begin(SCK, MISO, MOSI, NSS);
+  #endif
+
+  if (LT.begin(NSS, NRESET, RFBUSY, DIO1,RX_EN, TX_EN, LORA_DEVICE))
   {
     Serial.println(F("Device found"));
     led_Flash(2, 125);

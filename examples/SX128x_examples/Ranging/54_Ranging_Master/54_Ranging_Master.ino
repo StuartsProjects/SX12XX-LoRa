@@ -40,7 +40,13 @@ void loop()
 
     Serial.println(F("Start Ranging"));
 
-    LT.transmitRanging(RangingAddress, TXtimeoutmS, RangingTXPower, WAIT_TX);
+    #ifndef SX128XPA
+      LT.transmitRanging(RangingAddress, TXtimeoutmS, RangingTXPower, WAIT_TX);
+    #endif
+
+    #ifdef SX128XPA
+      LT.transmitRangingPA(RangingAddress, TXtimeoutmS, RangingTXPower, WAIT_TX);
+    #endif
 
     IrqStatus = LT.readIrqStatus();
 
@@ -162,11 +168,17 @@ void setup()
   Serial.println();
   Serial.println(F("54_Ranging_Master Starting"));
 
-  SPI.begin();
+  #ifndef SX128XPA
+    SPI.begin();
+  #endif
+
+  #ifdef SX128XPA
+    SPI.begin(SCK, MISO, MOSI, NSS);
+  #endif
 
   led_Flash(2, 125);
-
-  if (LT.begin(NSS, NRESET, RFBUSY, DIO1, LORA_DEVICE))
+  
+  if (LT.begin(NSS, NRESET, RFBUSY, DIO1, RX_EN, TX_EN, LORA_DEVICE))
   {
     Serial.println(F("Device found"));
     led_Flash(2, 125);

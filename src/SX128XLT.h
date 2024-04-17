@@ -144,6 +144,7 @@ class SX128XLT  {
     int32_t complement2( uint32_t num, uint8_t bitCnt );
     bool setupRanging(uint32_t frequency, int32_t offset, uint8_t modParam1, uint8_t modParam2, uint8_t  modParam3, uint32_t address, uint8_t role);
     bool transmitRanging(uint32_t address, uint16_t timeout, int8_t txpower, uint8_t wait);
+    bool transmitRangingPA(uint32_t address, uint16_t timeout, int8_t txpower, uint8_t wait);
     uint8_t receiveRanging(uint32_t address, uint16_t timeout, int8_t txpower, uint8_t wait);
     uint8_t receiveRanging(uint32_t address, uint8_t bits, uint16_t timeout, int8_t txpower, uint8_t wait);
     uint16_t lookupCalibrationValue(uint8_t spreadingfactor, uint8_t bandwidth);

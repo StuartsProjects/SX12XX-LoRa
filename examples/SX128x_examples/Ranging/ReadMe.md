@@ -1,6 +1,14 @@
 ## Ranging Calibration
 
-**Note:** The ranging feature of the SX128X is not supported if the module uses external RX and TX switching. 
+**Note:** The ranging feature of the SX128X is **now supported** if the module uses external RX and TX switching (currently not including 56_Ranging_Calibration_Checker).<br>
+Make sure to:
+* 55_Ranging_Slave.ino/Settings.h
+	* Set the correct pinout
+	* Uncomment the #define SX128XPA
+* 54_Ranging_Master.ino/Settings.h
+	* Set the correct pinout
+	* Uncomment the #define SX128XPA
+
 
 To measure a distance the master device transmits a ranging request which a slave receives and then sends a response, if the request was for that particular slave. The master receives the slaves response and knows by use of a timer how long the master slave response exchange took. 
 

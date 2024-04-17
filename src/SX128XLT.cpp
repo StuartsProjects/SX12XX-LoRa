@@ -23,6 +23,7 @@
 //#define USEPAYLOADLENGTHREGISTER   //enable autoamtic setting of Payload length with register write
 //#define DETECTRELIABLERRORS        //enable to improve error detect reliable errors such as incorrect packet size etc
 #define REVISEDCHECKBUSY             //change to checkBusy() made November 2021 to improve speed, comment this #define out to use previous code.
+//#define SX128XPA                   //enable ranging for 128X with PA
 
 //Changes November 2021
 //Revised packet RSSI
@@ -3354,7 +3355,52 @@ bool SX128XLT::transmitRanging(uint32_t address, uint16_t timeout, int8_t txpowe
   Serial.println(F("transmitRanging()"));
 #endif
 
-  if ((_RXEN >= 0) || (_TXEN >= 0))
+  #ifdef SX128XPA
+    if ((_RXEN = 0) || (_TXEN = 0)) //if ((_RXEN >= 0) || (_TXEN >= 0))
+    {
+      return false;
+    }
+  #endif
+  
+  #ifndef SX128XPA
+    if ((_RXEN >= 0) || (_TXEN >= 0))
+    {
+      return false;
+    }
+  #endif
+
+  setMode(MODE_STDBY_RC);
+  setRangingMasterAddress(address);
+  setTxParams(txpower, RADIO_RAMP_02_US);
+  setDioIrqParams(IRQ_RADIO_ALL, (IRQ_TX_DONE + IRQ_RANGING_MASTER_RESULT_VALID + IRQ_RANGING_MASTER_RESULT_TIMEOUT), 0, 0);
+  setTx(timeout);                                           //this sends the ranging packet
+
+  if (!wait)
+  {
+    return true;
+  }
+
+  while (!digitalRead(_TXDonePin));                         //Wait for DIO1 to go high
+
+  setMode(MODE_STDBY_RC);                                   //ensure we leave function with TX off
+
+  if (readIrqStatus() & IRQ_RANGING_MASTER_RESULT_VALID )   //check for timeout
+  {
+    return true;
+  }
+  else
+  {
+    return false;
+  }
+}
+
+bool SX128XLT::transmitRangingPA(uint32_t address, uint16_t timeout, int8_t txpower, uint8_t wait)
+{
+#ifdef SX128XDEBUG
+  Serial.println(F("transmitRanging()"));
+#endif
+
+  if ((_RXEN = 0) || (_TXEN = 0))
   {
     return false;
   }
