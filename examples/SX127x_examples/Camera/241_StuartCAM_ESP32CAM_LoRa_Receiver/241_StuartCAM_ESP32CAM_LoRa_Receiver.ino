@@ -6,9 +6,11 @@
 *******************************************************************************************************/
 
 /*******************************************************************************************************
-  Program Operation -  This is a receiver program for an ESP32CAM board that has an SPI LoRa module set up
-  on the following pins; NSS 12, NRESET 15, SCK 4, MISO 13, MOSI 2, 3.3V VCC and GND. All other pins on the
-  SX127X are not connected. The received pictures are saved to the ESP32CAMs SD card.
+  Program Operation -  This program is for an ESP32CAM board that has an SPI LoRa module set up on the
+  following pins; NSS 12, NRESET 15, SCK 4, MISO 13, MOSI 2, 3.3V VCC and GND. All other pins on the
+  SX127X are not connected.
+
+  The received pictures are saved to the ESP32CAMs SD card.
 
   Note that the white LED on pin 4 or the transistor controlling it need to be removed so that the LoRa
   device can properly use pin 4.
@@ -141,9 +143,7 @@ bool setupLoRaDevice()
 
 bool initMicroSDCard()
 {
-  SD_MMC.setPins(MMCSCK, MMCCMD, MMCD0);
-
-  if (!SD_MMC.begin("/sdcard", true))               //use this line for 1 bit mode, pin 2 only, 4,12,13 not used
+  if (!SD_MMC.begin("/sdcard", true))               //use this line for 1 bit mode
   {
     Serial.println("*****************************");
     Serial.println("ERROR - SD Card Mount Failed");
