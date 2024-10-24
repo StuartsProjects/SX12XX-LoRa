@@ -101,7 +101,7 @@ Regardless of the derived calibration value the conversion of the time of flight
 I set-up a outdoor test in a large open areas, my local playing field. The slave was placed on a pole about 1.8M off the ground and I stood with the master hand-held, away from my body, at 100m distance. The calibration and adjustment values were determined as mentioned above, so the master ought to be recoding a distance of 100m. The results of around 140 ranging measurements are below;
 
 
-![Picture 1](Pictures/SX128XLT_Ranging_100m.jpg)
+![Picture 3](SX128XLT_Ranging_100m.jpg)
 
 You can see a variation in distance of +\- 10m at 100m distance is not unusual. Apart from long term averaging its difficult to see what can be done to reduce these variances. 
 
