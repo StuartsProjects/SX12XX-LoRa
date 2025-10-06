@@ -525,7 +525,7 @@ void SX126XLT::readCommand(uint8_t Opcode, uint8_t *buffer, uint16_t size)
 
   digitalWrite(_NSS, LOW);
   SPI.transfer(Opcode);
-  SPI.transfer(0xFF);
+  SPI.transfer(0xFF); // often with status answers
 
   for ( i = 0; i < size; i++ )
   {
@@ -1889,6 +1889,20 @@ uint8_t SX126XLT::receiveIRQ(uint8_t *rxbuffer, uint8_t size, uint16_t timeout, 
   return _RXPacketL;
 }
 
+int8_t SX126XLT::readInstaRSSI()
+{
+#ifdef SX126XDEBUG
+  Serial.println(F("readInstaRSSI()"));
+#endif
+
+  uint8_t rssi_raw;
+  int16_t rssi;
+
+  readCommand(RADIO_GET_RSSIINST, &rssi_raw, 1) ;
+  rssi = -rssi_raw / 2;
+
+  return rssi;
+}
 
 int16_t SX126XLT::readPacketRSSI()
 {
