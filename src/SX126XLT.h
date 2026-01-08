@@ -81,6 +81,7 @@ class SX126XLT  {
     uint16_t CRCCCITT(uint8_t *buffer, uint32_t size, uint16_t start);
     uint8_t receive(uint8_t *rxbuffer, uint8_t size, uint32_t rxtimeout, uint8_t wait);
     uint8_t receiveIRQ(uint8_t *rxbuffer, uint8_t size, uint16_t timeout, uint8_t wait);
+    int8_t readInstaRSSI();
     int16_t readPacketRSSI();
     int8_t readPacketSNR();
     uint8_t readRXPacketL();
