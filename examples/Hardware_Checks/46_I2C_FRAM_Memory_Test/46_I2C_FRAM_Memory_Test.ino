@@ -17,7 +17,7 @@
   addresses and the program will then print the area of memory, then read back each variable from memory
   and print them out and check the values were read OK.
 
-  To check if the FRAM is reating memory you could make some changes to the variables written, run the
+  To check if the FRAM is keeping memory you could make some changes to the variables written, run the
   program and then power off. On restart the changed variables should be displayed.
 
   Serial monitor baud rate is set at 115200.

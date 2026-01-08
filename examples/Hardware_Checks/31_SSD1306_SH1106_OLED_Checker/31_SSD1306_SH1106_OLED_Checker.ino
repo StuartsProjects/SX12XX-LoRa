@@ -18,8 +18,8 @@
 *******************************************************************************************************/
 
 #include <U8x8lib.h>                                        //get library here >  https://github.com/olikraus/u8g2 
-//U8X8_SSD1306_128X64_NONAME_HW_I2C disp(U8X8_PIN_NONE);    //use this line for standard 0.96" SSD1306
-U8X8_SH1106_128X64_NONAME_HW_I2C disp(U8X8_PIN_NONE);       //use this line for 1.3" OLED often sold as 1.3" SSD1306
+U8X8_SSD1306_128X64_NONAME_HW_I2C disp(U8X8_PIN_NONE);    //use this line for standard 0.96" SSD1306
+//U8X8_SH1106_128X64_NONAME_HW_I2C disp(U8X8_PIN_NONE);       //use this line for 1.3" OLED often sold as 1.3" SSD1306
 
 #define DEFAULTFONT u8x8_font_chroma48medium8_r             //font for U8X8 Library
 

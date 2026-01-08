@@ -1015,7 +1015,7 @@ bool SDprocessPacket(uint8_t packettype)
 
   if (packettype == DTFileOpen)
   {
-    SDprocessFileOpen(SDDTdata, SDRXDataarrayL);
+	SDprocessFileOpen(SDDTdata, SDRXDataarrayL);
     return true;
   }
 

@@ -6,9 +6,10 @@
 *******************************************************************************************************/
 
 /*******************************************************************************************************
-  Program Operation - This is a simple program to test a GPS. It reads characters from the GPS using
-  a hardware serial port, set to Serial1 as default, and then sends them (echoes) to the Arduino IDE
-  serial monitor. If your ever having problems with a GPS (or just think you are) use this program first.
+  Program Operation - This is a simple program to test a GPS. Its for an Arduino that has additional
+  hardware serial ports such as the ESP32s. It reads characters from a GPS connected to the Serial2
+  hardware serial port and then sends them (echoes) to the Arduino IDE serial monitor. If your ever
+  having problems with a GPS (or just think you are) use this program first.
 
   If you get no data displayed on the serial monitor, the most likely cause is that you have the receive
   data pin into the Arduino (RX) pin connected incorrectly.
@@ -18,12 +19,12 @@
   serial terminal which appears to be random text with odd symbols its very likely you have the GPS
   serial baud rate set incorrectly.
 
-  Change 'Serial2' in the program to match the hardware serial port you are using, for an Arduino Mega
-  this would normally be Serial1, Serila2 or Serial3.
-
   Serial monitor baud rate is set at 115200.
 
 *******************************************************************************************************/
+
+#define RXD2 16
+#define TXD2 17
 
 void loop()
 {
@@ -36,7 +37,7 @@ void loop()
 
 void setup()
 {
-  Serial2.begin(9600);
+  Serial2.begin(9600, SERIAL_8N1, RXD2, TXD2);
   Serial.begin(115200);
   Serial.println();
   Serial.println("26B_GPS_Echo_Hardware_Serial Starting");
