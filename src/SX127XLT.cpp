@@ -5,6 +5,7 @@
   New version 23/12/20, support for modules no using PA_BOOST added
   New version, 24/08/21, Reliable packets support added
   New version, 19/09/21, Data Transfer and support for modules with no DIO0 pin added
+  14\8\25 Implement changes to returnBandwidth(uint8_t BWregvalue) for correct operation with SX1272
 */
 
 /*
@@ -235,6 +236,14 @@ bool SX127XLT::begin(int8_t pinNSS, uint8_t device)
   }
 
   return false;
+}
+
+
+void SX127XLT::setPins(int8_t pinNSS, int8_t pinNRESET, int8_t pinDIO0)
+{
+  _NSS = pinNSS;
+  _NRESET = pinNRESET;
+  _DIO0 = pinDIO0;
 }
 
 
@@ -2868,7 +2877,7 @@ uint16_t SX127XLT::getPreamble()
 }
 
 
-uint32_t SX127XLT::returnBandwidth(byte BWregvalue)
+uint32_t SX127XLT::returnBandwidth(uint8_t BWregvalue)
 {
 #ifdef SX127XDEBUG1
   Serial.println(F("returnBandwidth() "));
@@ -2878,22 +2887,24 @@ uint32_t SX127XLT::returnBandwidth(byte BWregvalue)
   {
     switch (BWregvalue)
     {
-      case 0:
-        return 125000;
+      //case 0:
+	    case LORA_BW_125:
+		return 125000;
 
-      case 64:
-        return 250000;
+    //case 64:
+        case LORA_BW_250:
+		return 250000;
 
-      case 128:
-        return 500000;
+      //case 128:
+        case LORA_BW_500:
+		return 500000;
 
       default:
-        return 0xFF;                      //so that a bandwidth invalid entry can be identified ?
+        return 0xF0;                      //so that a bandwidth invalid entry can be identified ?
     }
   }
   else
   {
-
     switch (BWregvalue)
     {
       case 0:
@@ -2927,7 +2938,7 @@ uint32_t SX127XLT::returnBandwidth(byte BWregvalue)
         return 500000;
 
       default:
-        return 0xFF;                      //so that a bandwidth invalid entry can be identified ?
+        return 0xF1;                      //so that a bandwidth invalid entry can be identified ?
     }
   }
 }
