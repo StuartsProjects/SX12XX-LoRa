@@ -1,5 +1,5 @@
 /*******************************************************************************************************
-  Programs for Arduino - Copyright of the author Stuart Robinson - 21/03/22
+  Programs for Arduino - Copyright of the author Stuart Robinson - 14/04/25
 
   This program is supplied as is, it is up to the user of the program to decide if the program is
   suitable for the intended purpose and free from errors.
@@ -208,9 +208,9 @@ void setup()
   led_Flash(2, 125);                             //two quick LED flashes to indicate program start
   ARsetDTLED(REDLED);                            //setup LED pin for data transfer indicator
 
-  digitalWrite(NSS, HIGH);
-  pinMode(NSS, OUTPUT);                          //disable LoRa device for now
-
+  pinMode(NSS, OUTPUT);
+  digitalWrite(NSS, HIGH);                       //disable LoRa device for now
+  
   YModemSerial.begin(115200);
   Monitorport.begin(115200, SERIAL_8N1, RXD2, TXD2);  //monitor port, format is Monitorport.begin(baud-rate, protocol, RX pin, TX pin);
   Monitorport.println();

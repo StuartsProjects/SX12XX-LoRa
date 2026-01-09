@@ -11,7 +11,7 @@
 
   The program checks that a SX126X LoRa device can be accessed by doing a test register write and read.
   If there is no device found a message is printed on the serial monitor. The contents of the registers
-  from 0x00 to 0x7F are printed, there is a copy of a typical printout below. Note that the read back
+  from 0x0800 to 0x09FF are printed, there is a copy of a typical printout below. Note that the read back
   changed frequency may be slightly different to the programmed frequency, there is a rounding error due
   to the use of floats to calculate the frequency.
 
@@ -93,7 +93,7 @@ const uint8_t DEVICE_SX1268 = 0x02;
 #define NSS 10                                  //SX126X device select
 #define NRESET 9                                //SX126X reset pin
 #define RFBUSY 7                                //SX126X busy pin 
-#define DIO1 -1                                 //SX126X busy pin, not used so set to -1 
+#define DIO1 -1                                 //SX126X DIO1 pin, not used so set to -1 
 #define LED1 8                                  //for on board LED, put high for on
 #define LORA_DEVICE DEVICE_SX1262               //define the device, DEVICE_SX1261, DEVICE_SX1262 or DEVICE_SX1268   
 
