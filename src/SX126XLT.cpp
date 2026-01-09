@@ -680,10 +680,49 @@ void SX126XLT::setupLoRa(uint32_t frequency, int32_t offset, uint8_t modParam1, 
   setMode(MODE_STDBY_RC);
   setRegulatorMode(USE_DCDC);
   setPaConfig(0x04, PAAUTO, _Device);         //use _Device, saved by begin.
-  setDIO3AsTCXOCtrl(TCXO_CTRL_3_3V);
+  setDIO3AsTCXOCtrl(TCXO_CTRL_3_3V);          //if not using TCXO set to NO_TCXO  
   calibrateDevice(ALLDevices);                //is required after setting TCXO
   calibrateImage(frequency);
   setDIO2AsRfSwitchCtrl();
+  setPacketType(PACKET_TYPE_LORA);
+  setRfFrequency(frequency, offset);
+  setModulationParams(modParam1, modParam2, modParam3, modParam4);
+  setBufferBaseAddress(0, 0);
+  setPacketParams(8, LORA_PACKET_VARIABLE_LENGTH, 255, LORA_CRC_ON, LORA_IQ_NORMAL);
+  setDioIrqParams(IRQ_RADIO_ALL, (IRQ_TX_DONE + IRQ_RX_TX_TIMEOUT), 0, 0);   //set for IRQ on TX done and timeout on DIO1
+  setHighSensitivity();  //set for maximum gain
+  setSyncWord(LORA_MAC_PRIVATE_SYNCWORD);
+}
+
+
+void SX126XLT::setupLoRa(uint32_t frequency, int32_t offset, uint8_t modParam1, uint8_t modParam2, uint8_t  modParam3, uint8_t modParam4, uint8_t tcxoVoltage, uint8_t rfswitch)
+{
+  //order of passed parameters is, frequency, offset, spreadingfactor, bandwidth, coderate, optimisation, ,TCXO control, DIO2 as RF switch
+
+#ifdef SX126XDEBUG
+  Serial.println(F("setupLoRa()"));
+#endif
+  setMode(MODE_STDBY_RC);
+  setRegulatorMode(USE_DCDC);
+  setPaConfig(0x04, PAAUTO, _Device);         //use _Device, saved by begin.
+  setDIO3AsTCXOCtrl(tcxoVoltage);             //if not using TCXO set to NO_TCXO  
+  calibrateDevice(ALLDevices);                //is required after setting TCXO
+  calibrateImage(frequency);
+
+  if (rfswitch == DIO2RFSWITCH)
+  {
+    setDIO2AsRfSwitchCtrl();
+#ifdef SX126XDEBUG
+    Serial.println(F("Using DIO2 As RF Switch Control"));
+#endif
+  }
+  else
+  {
+#ifdef SX126XDEBUG
+    Serial.println(F("Not using DIO2 As RF Switch Control"));
+#endif
+  }
+
   setPacketType(PACKET_TYPE_LORA);
   setRfFrequency(frequency, offset);
   setModulationParams(modParam1, modParam2, modParam3, modParam4);
@@ -781,14 +820,25 @@ void SX126XLT::setDIO3AsTCXOCtrl(uint8_t tcxoVoltage)
   Serial.println(F("setDIO3AsTCXOCtrl()"));
 #endif
 
+  if (tcxoVoltage != NO_TCXO)
+  {
   uint8_t buffer[4];
-
   buffer[0] = tcxoVoltage;
   buffer[1] = 0x00;
   buffer[2] = 0x00;
   buffer[3] = 0x64;
-
   writeCommand(RADIO_SET_TCXOMODE, buffer, 4);
+  #ifdef SX126XDEBUG
+  Serial.print(F("TCXO Reg "));
+  Serial.println(tcxoVoltage);
+  #endif
+  }
+  else
+  {
+  #ifdef SX126XDEBUG
+  Serial.println(F("NO_TCXO"));
+  #endif
+  }  
 }
 
 
@@ -1742,7 +1792,7 @@ void SX126XLT::txEnable()
 
 void SX126XLT::printASCIIPacket(uint8_t *buffer, uint8_t size)
 {
-#ifdef SX126XDEBUGPINS
+#ifdef SX126XDEBUG
   Serial.println(F("printASCIIPacket()"));
 #endif
 
@@ -5664,6 +5714,7 @@ uint8_t SX126XLT::waitACKDT(uint8_t *header, uint8_t headersize, uint32_t acktim
         setReliableRX(0);
         continue;
       }
+	  
       readCommand(RADIO_GET_RXBUFFERSTATUS, buffer, 2);
       _RXPacketL = buffer[0];
       RXnetworkID = readUint16SXBuffer(_RXPacketL - 4);

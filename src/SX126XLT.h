@@ -35,7 +35,8 @@ class SX126XLT  {
     void resetDevice();
     bool checkDevice();
     void setupLoRa(uint32_t frequency, int32_t offset, uint8_t modParam1, uint8_t modParam2, uint8_t  modParam3, uint8_t modParam4);
-    void setMode(uint8_t modeconfig);
+    void setupLoRa(uint32_t frequency, int32_t offset, uint8_t modParam1, uint8_t modParam2, uint8_t  modParam3, uint8_t modParam4, uint8_t tcxoVoltage, uint8_t rfswitch);
+	void setMode(uint8_t modeconfig);
     void setRegulatorMode(uint8_t mode);
 
     void setPaConfig(uint8_t dutycycle, uint8_t hpMax, uint8_t device);

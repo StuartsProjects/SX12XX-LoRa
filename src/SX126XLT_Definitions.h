@@ -169,6 +169,10 @@
 #define    TCXO_CTRL_2_7V                           0x05
 #define    TCXO_CTRL_3_0V                           0x06
 #define    TCXO_CTRL_3_3V                           0x07
+#define    NO_TCXO                                  0xFF
+
+#define    NO_DIO2RFSWITCH                          0x00
+#define    DIO2RFSWITCH                             0x01   
 
 #define    IRQ_RADIO_NONE                           0x0000
 #define    IRQ_TX_DONE                              0x0001
