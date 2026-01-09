@@ -47,7 +47,9 @@ The library does support the following Semtech LoRa devices;
 
 **SX1262,SX1262,SX1268,SX1272,SX1276,SX1277,SX1278,SX1279,SX1280,SX1281**
 
-However, its up to module manufactures to connect the Semtech LoRa devices up as they see fit. There are several options and additional control pins that a module manufacturer can add, so just because a module uses for example an SX1262 it does not mean the library code can support that particular modules combination of pins. See the section 'Considerations for pin usage' below. 
+However, its up to module manufactures to connect the Semtech LoRa devices up as they see fit. There are several options and additional control pins that a module manufacturer may add, so just because a module uses for example an SX1262 it does not mean the library code can support that particular modules combination of pins. See the section 'Considerations for pin usage' below. 
+
+Some Arduino compatible boards include power management devices which can be used to control power to a LoRa device. The library contains no code for managing such boards. 
 
 A prime objective of the library was to allow the same program sketches to be used across the range of UHF LoRa modules (SX126x and SX127x) as well as the 2.4Ghz SX128x modules. With this library a sketch written for the SX1278 should run with very minor changes on the SX1262 or SX1280. However, whilst the SX126x and SX128x modules use the same style of internal device programming, the SX127x internal programming is completely different. The function style used for the SX126x and SX128x devices has been emulated for the SX127x.
 
@@ -57,11 +59,36 @@ The newer LLCC68 LoRa modules should work when programmed as SX126X devices alth
 
 **The base Semtech devices that this library supports are all 3.3V logic level devices and most available modules do not include logic level conversion circuits.  So do not use modules directly with 5V logic level Arduinos unless some form of logic level conversion is implemented.** There are no specific logic level converters I could recommend. 
 
+## Considerations for pin usage
+
+The library does not provide settings or pin maps for particular Arduino or Arduino compatible boards. It is up to the user to review the documentation for their board and work out the correct pin assignments for using their LoRa module. Specifically do not assume that a particular example can just be loaded and will work as is, in most all cases you will need to set the correct pin assignments.
+
+Pins settings and usage must be set up either at the head of a program or in the the the 'Settings.h' file that is include in some sketch folders. Program **2\_Register\_Test** is an example of a sketch that does not use a 'Settings.h' file. 
+The library supports the SPI based LoRa modules and these all require that the SPI bus pins, SCK, MOSI and MISO are connected. All modules also need a NSS (chip select pin) and NRESET (reset) pin. All SX126X and SX128X devices need the RFBUSY pin to be used also. 
+
+Of the LoRa devices DIO pins the library in standard form only uses DIO0 (SX127X) and DIO1 (SX126X and SX128X). The pin definitions for DIO1 and DIO2 (SX127x) and DIO2 and DIO3 (SX126x and SX128x) are not currently used by the library or examples so can be defined as -1 meaning they will not be configured. 
+
+### Reduced pin usage
+
+There are 'IRQ' library functions that do not need the use of the DIO0 (SX127X) or DIO1 (SX126X and SX128X) pins. These functions read the LoRa devices IRQ registers to check for transmit or receive completion. See examples such as **3\_LoRa\_TransmitterIRQ**. On the SX127x devices you can normally leave the NRESET pin floating, the device clears itself at power on. This can save another IO pin. There are begin() methods for these combinations.
+
+The Dorji DRF1262 and DRF1268 modules have an SW pin which must be connected, it provides power to the antenna switch used on these modules. 
+
+### SX126x modules with RX or TX enable pins
+
+Some SX126x modules may have RX or TX enable pins, Ebyte E22 modules for instance. Whilst there is code in the SX126X library that was copied across from the SX128X library there were no SX126X devices using RX and TX switching available at the time this library was published, so these functions are currently not supported by the library as they have not been tested. If a user has SX126X modules that they want tested with the library, then donations of modules will be accepted.  
+
+### SX128x modules with RX or TX enable pins
+
+Some of the SX128x modules may also have RX or TX enable pins, such as the Ebyte E28 modules. These functions have been tested and are supported for SX128x devices. You need to define the pins RX\_EN and TX\_EN pins used, otherwise leave unused by defining them as -1.  
+
+
+
 ## Support
 
 Support for the library and examples can be achieved by posting an issue at the GITHUB repository for the library. A reasonable level of experience with Arduinos is expected for those using the library as there are no basic tutorials provided on wiring Arduinos up, powering them or using the Arduino IDE.  
 
-The examples do work, so if for you they do not, assume there is a problem with how you have wired the modules or that your modules are faulty or that your Arduino set-up or LoRa module is faulty or not supported. You are best placed to diagnose these issues. **It is not practical for me to provide on-going technical support for programs other than the library examples .** This also applies to external  libraries used in examples, if you have problems with these libraries, contact the authors for support. 
+The examples have been extensively tested and do work, so if for you they do not, assume there is a problem with how you have wired the modules or that your modules are faulty or that LoRa module is faulty or not simply not supported. You are best placed to diagnose these issues. **It is not practical for me to provide on-going technical support for programs other than the library examples .** This also applies to external  libraries used in examples, if you have problems with these libraries, contact the authors for support. 
 
 
 ## SX12XX Library installation
@@ -103,26 +130,6 @@ This is the matching code for the receiver;
 
 Clearly as with other methods of sending data the order in which the packet data is created in the transmitter has to match the order that it is read in the receiver.
 
-## Considerations for pin usage
-
-Pins settings and usage must be set up either at the head of a program or in the the the 'Settings.h' file that is include in some sketch folders. Program **2\_Register\_Test** is an example of a sketch that does not use a 'Settings.h' file. 
-The library supports the SPI based LoRa modules and these all require that the SPI bus pins, SCK, MOSI and MISO are connected. All modules also need a NSS (chip select pin) and NRESET (reset) pin. All SX126X and SX128X devices need the RFBUSY pin to be used also. 
-
-Of the LoRa devices DIO pins the library in standard form only uses DIO0 (SX127X) and DIO1 (SX126X and SX128X). The pin definitions for DIO1 and DIO2 (SX127x) and DIO2 and DIO3 (SX126x and SX128x) are not currently used by the library or examples so can be defined as -1 meaning they will not be configured. 
-
-### Reduced pin usage
-
-There are 'IRQ' library functions that do not need the use of the DIO0 (SX127X) or DIO1 (SX126X and SX128X) pins. These functions read the LoRa devices IRQ registers to check for transmit or receive completion. See examples such as **3\_LoRa\_TransmitterIRQ**. On the SX127x devices you can normally leave the NRESET pin floating, the device clears itself at power on. This can save another IO pin. There are begin() methods for these combinations.
-
-The Dorji DRF1262 and DRF1268 modules have an SW pin which must be connected, it provides power to the antenna switch used on these modules. 
-
-### SX126x modules with RX or TX enable pins
-
-Some SX126x modules may have RX or TX enable pins, Ebyte E22 modules for instance. Whilst there is code in the SX126X library that was copied across from the SX128X library there were no SX126X devices using RX and TX switching available at the time this library was published, so these functions are currently not supported by the library as they have not been tested. If a user has SX126X modules that they want tested with the library, then donations of modules will be accepted.  
-
-### SX128x modules with RX or TX enable pins
-
-Some of the SX128x modules may also have RX or TX enable pins, such as the Ebyte E28 modules. These functions have been tested and are supported for SX128x devices. You need to define the pins RX\_EN and TX\_EN pins used, otherwise leave unused by defining them as -1.  
 
 ## Testing of library and examples
 
