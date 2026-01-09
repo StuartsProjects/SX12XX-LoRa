@@ -274,11 +274,6 @@ uint16_t readSupplyVoltage()
   uint16_t volts = 0;
   byte index;
 
-  if (BATVREADON >= 0)
-  {
-    digitalWrite(BATVREADON, HIGH);               //turn on MOSFET connecting resitor divider in circuit
-  }
-
   temp = analogRead(SupplyAD);
 
   for (index = 0; index <= 4; index++)            //sample AD 5 times
@@ -287,11 +282,6 @@ uint16_t readSupplyVoltage()
     volts = volts + temp;
   }
   volts = ((volts / 5) * ADMultiplier);
-
-  if (BATVREADON >= 0)
-  {
-    digitalWrite(BATVREADON, LOW);                //turn off MOSFET connecting resitor divider in circuit
-  }
 
   return volts;
 }
@@ -320,21 +310,10 @@ void setup()
 {
   uint32_t endmS;
 
-  if (VCCPOWER >= 0)
-  {
-    pinMode(VCCPOWER, OUTPUT);                    //this pin switches power for external devices, lora and SD card
-    digitalWrite(VCCPOWER, LOW);                  //turn device power on
-  }
-
   if (GPSPOWER >= 0)
   {
     pinMode(GPSPOWER, OUTPUT);
     GPSON();
-  }
-
-  if (BATVREADON >= 0)
-  {
-    pinMode(BATVREADON, OUTPUT);
   }
 
   pinMode(LED1, OUTPUT);                          //setup pin as output for indicator LED
@@ -346,7 +325,7 @@ void setup()
   Serial.println(F("23_Simple_GPS_Tracker_Transmitter_ESP32 Starting"));
 
   //SPI.begin();
-  SPI.begin(SCK, MISO, MOSI);                    //alternative format for SPI3, VSPI; SPI.begin(SCK,MISO,MOSI,SS)
+  SPI.begin(SCK, MISO, MOSI);
 
   if (LT.begin(NSS, NRESET, DIO0, LORA_DEVICE))
   {

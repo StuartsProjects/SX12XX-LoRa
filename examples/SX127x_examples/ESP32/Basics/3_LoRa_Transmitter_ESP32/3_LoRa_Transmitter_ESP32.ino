@@ -76,7 +76,7 @@ void packet_is_OK()
   Serial.print(TXPacketL);                             //print transmitted packet length
   localCRC = LT.CRCCCITT(buff, TXPacketL, 0xFFFF);
   Serial.print(F("  CRC,"));
-  Serial.print(localCRC, HEX);                              //print CRC of sent packet
+  Serial.print(localCRC, HEX);                         //print CRC of sent packet
   Serial.print(F("  TransmitTime,"));
   Serial.print(endmS - startmS);                       //print transmit time of packet
   Serial.print(F("mS"));
@@ -89,13 +89,13 @@ void packet_is_Error()
 {
   //if here there was an error transmitting packet
   uint16_t IRQStatus;
-  IRQStatus = LT.readIrqStatus();                  //read the the interrupt register
+  IRQStatus = LT.readIrqStatus();                      //read the the interrupt register
   Serial.print(F(" SendError,"));
   Serial.print(F("Length,"));
-  Serial.print(TXPacketL);                         //print transmitted packet length
+  Serial.print(TXPacketL);                             //print transmitted packet length
   Serial.print(F(",IRQreg,"));
-  Serial.print(IRQStatus, HEX);                    //print IRQ status
-  LT.printIrqStatus();                             //prints the text of which IRQs set
+  Serial.print(IRQStatus, HEX);                        //print IRQ status
+  LT.printIrqStatus();                                 //prints the text of which IRQs set
 }
 
 
@@ -117,18 +117,12 @@ void setup()
   pinMode(LED1, OUTPUT);                               //setup pin as output for indicator LED
   led_Flash(2, 125);                                   //two quick LED flashes to indicate program start
 
-  if (VCCPOWER >= 0)
-  {
-    pinMode(VCCPOWER, OUTPUT);                  //For controlling power to external devices
-    digitalWrite(VCCPOWER, LOW);                //VCCOUT on. lora device on
-  }
-
   Serial.begin(9600);
   Serial.println();
   Serial.println(F("3_LoRa_Transmitter_ESP32 Starting"));
 
-  //SPI.begin();                                //default setup can be used be used
-  SPI.begin(SCK, MISO, MOSI);                   //alternative format for SPI3, VSPI; SPI.begin(SCK,MISO,MOSI,SS)
+  //SPI.begin();                                       //default setup can be used
+  SPI.begin(SCK, MISO, MOSI);                          //alternative format for SPI3, VSPI; SPI.begin(SCK,MISO,MOSI,SS)
 
   //SPI beginTranscation is normally part of library routines, but if it is disabled in library
   //a single instance is needed here, so uncomment the program line below

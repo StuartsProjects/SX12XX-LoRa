@@ -12,8 +12,8 @@
   There is a printout to serial monitor of the hex values of a valid valid packet received. The LED will
   flash for each packet received and the buzzer will sound, if fitted.
 
-  The 128x64 OLED will display the number of packets received OK, those with errors and the RSSI and SNR of
-  the last received packet. At startup the display will show the set frequency, LoRa spreading factor, LoRa
+  The LCD will display the number of packets received OK, those with errors and the RSSI and SNR of the
+  last received packet. At startup the display will show the set frequency, LoRa spreading factor, LoRa
   bandwidth and the SD logfile name used, if an SD card is detected.
 
   Sample serial monitor output;
@@ -36,7 +36,7 @@ SX127XLT LoRa;                                     //create a library class inst
 time_t recordtime;                                 //used to record the current time
 
 #include <Wire.h>
-#include <LiquidCrystal_PCF8574.h>                 // https://github.com/mathertel/LiquidCrystal_PCF8574
+#include <LiquidCrystal_PCF8574.h>                 //get the library here > https://github.com/mathertel/LiquidCrystal_PCF8574
 LiquidCrystal_PCF8574 disp(0x27);                  // set the LCD address to 0x27
 
 

@@ -8,14 +8,17 @@
 
 //*******  Setup hardware pin definitions here ! ***************
 
-//These are the pin definitions for one of my own boards, the Easy Pro Mini,
-//be sure to change the definitions to match your own setup. 
+//These are the pin definitions be sure to change them to match your own setup.
+//You will also need to connect up the pins for the SPI bus
 
 #define NSS 5                                   //select on LoRa device
+#define SCK 18                                  //SCK on SPI3
+#define MISO 19                                 //MISO on SPI3 
+#define MOSI 23                                 //MOSI on SPI3 
+
 #define NRESET 27                               //reset on LoRa device
 #define DIO0 35                                 //DIO0 on LoRa device, used for RX and TX done 
-#define LED1 82                                 //On board LED, high for on
-#define BUZZER -1                               //Buzzer if fitted, high for on. Set to -1 if not used      
+#define LED1 2                                  //On board LED, high for on
 
 #define RXpin 16                                //pin number for GPS RX input into Arduino - TX from GPS
 #define TXpin 17                                //pin number for GPS TX output from Arduino- RX into GPS
@@ -44,15 +47,12 @@ const int8_t TXpower = 10;                      //LoRa transmit power in dBm
 // GPS Settings
 //**************************************************************************************************
 
-//#define USE_SOFTSERIAL_GPS                       //need to include this if we are using softserial for GPS     
-#define HardwareSerialPort Serial2               //if using hardware serial enable this define for hardware serial port 
-
+#define GPSserial Serial2                        //define GPSserial as ESP32 Serial2 
 #define GPSBaud 9600                             //GPS Baud rate   
+
 #define WaitGPSFixSeconds 30                     //time to wait for a new GPS fix 
 #define echomS 2000                              //number of mS to run GPS echo for at startup    
 
 #define NoRXGPSfixms 15000                       //max number of mS to allow before no local fix flagged 
 #define DisplayRate 7                            //when working OK the GPS will get a new fix every second or so
-                                                 //this rate defines how often the display should be updated
-
-
+//this rate defines how often the display should be updated

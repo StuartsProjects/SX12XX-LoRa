@@ -5,12 +5,10 @@
   suitable for the intended purpose and free from errors.
 *******************************************************************************************************/
 
-
 //*******  Setup hardware pin definitions here ! ***************
 
-//These are the pin definitions for one of the Tracker boards, the ESP32_Micro_Node, be sure to change
-//them to match your own setup. You will also need to connect up the pins for the SPI bus, which on the
-//ESP32_Micro_Node are SCK on pin 18, MISO on pin 19 and MOSI on pin 23.
+//These are the pin definitions be sure to change them to match your own setup.
+//You will also need to connect up the pins for the SPI bus
 
 #define NSS 5                                   //select on LoRa device
 #define SCK 18                                  //SCK on SPI3
@@ -20,10 +18,7 @@
 #define NRESET 27                               //reset on LoRa device
 #define DIO0 35                                 //DIO0 on LoRa device, used for RX and TX done 
 #define LED1 2                                  //On board LED, high for on
-#define BUZZER -1                               //Buzzer if fitted, high for on. Set to -1 if not used      
-#define VCCPOWER 14                             //controls power to lora and SD card, set to -1 if not used 
 #define SupplyAD 36                             //pin for reading supply\battery voltage
-#define BATVREADON 25                           //turns on battery resistor divider, high for on
 #define ADMultiplier 11.65                      //Multiplier for conversion of AD reading to mV
 
 #define RXpin 17                                //pin number for GPS RX input into Arduino - TX from GPS
@@ -32,7 +27,6 @@
 #define GPSPOWER 26                             //Pin that controls power to GPS, set to -1 if not used
 #define GPSONSTATE LOW                          //logic level to turn GPS on via pin GPSPOWER 
 #define GPSOFFSTATE HIGH                        //logic level to turn GPS off via pin GPSPOWER 
-#define GPSserial Serial2                       //define GPSserial as ESP32 Serial2 
 
 #define LORA_DEVICE DEVICE_SX1278                //this is the device we are using
 
@@ -50,13 +44,14 @@ const uint8_t Optimisation = LDRO_AUTO;         //low data rate optimisation set
 const int8_t TXpower = 10;                      //LoRa transmit power in dBm
 
 
-#define ThisNode 'T'                             //a character that identifies this tracker
+#define ThisNode 'T'                            //a character that identifies this tracker
 
 //**************************************************************************************************
 // GPS Settings
 //**************************************************************************************************
 
-#define GPSBaud 9600                             //GPS Baud rate   
+#define GPSserial Serial2                        //define GPSserial as ESP32 Serial2 
+#define GPSBaud 9600                             //GPS Baud rate  
 
 #define WaitGPSFixSeconds 30                     //time in seconds to wait for a new GPS fix 
 #define WaitFirstGPSFixSeconds 1800              //time to seconds to wait for the first GPS fix at startup

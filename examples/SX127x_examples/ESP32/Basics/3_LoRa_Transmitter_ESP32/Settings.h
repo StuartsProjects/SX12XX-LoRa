@@ -19,7 +19,6 @@
 #define NRESET 27                               //reset pin on LoRa device
 #define LED1 2                                  //on board LED, high for on
 #define DIO0 35                                 //DIO0 pin on LoRa device, used for RX and TX done 
-#define VCCPOWER 14                             //pin controls power to external devices
 
 #define LORA_DEVICE DEVICE_SX1278               //we need to define the device we are using
 

@@ -5,55 +5,52 @@
 *******************************************************************************************************/
 
 /*******************************************************************************************************
-Program Operation -  TThis program is an example of a functional GPS tracker receiver using lora. 
-It is capable of picking up the trackers location packets from many kilometres away with only basic antennas. 
+  Program Operation -  This program is an example of a functional GPS tracker receiver using LoRa.
+  It is capable of picking up the trackers location packets from many kilometres away with only basic antennas.
 
-The program receives the location packets from the remote tracker transmitter and writes them on an OLED
-display and also prints the information to the Arduino IDE serial monitor. The program can read a locally
-attached GPS and when that has a fix, will display the distance and direction to the remote tracker. 
+  The program receives the location packets from the remote tracker transmitter and writes them on an OLED
+  display and also prints the information to the Arduino IDE serial monitor. The program can read a locally
+  attached GPS and when that has a fix, will display the distance and direction to the remote tracker.
 
-The program writes direct to the lora devices internal buffer, no memory buffer is used. The lora settings
-are configured in the Settings.h file.
+  The program writes direct to the lora devices internal buffer, no memory buffer is used. The LoRa settings
+  are configured in the Settings.h file.
 
-The receiver recognises two types of tracker packet, the one from the matching program '23_GPS_Tracker_Transmitter'
-(LocationPacket, 27 bytes) which causes these fields to be printed to the serial monitor;
-  
-Latitude, Longitude, Altitude, Satellites, HDOP, TrackerStatusByte, GPS Fixtime, Battery mV, Distance, Direction,
-Distance, Direction, PacketRSSI, PacketSNR, NumberPackets, PacketLength, IRQRegister.
+  The receiver recognises two types of tracker packet, the one from the matching program '23_GPS_Tracker_Transmitter'
+  (LocationPacket, 27 bytes) which causes these fields to be printed to the serial monitor;
 
-This is a long packet which at the long range LoRa settings takes just over 3 seconds to transmit. 
+  Latitude, Longitude, Altitude, Satellites, HDOP, TrackerStatusByte, GPS Fixtime, Battery mV, Distance, Direction,
+  Distance, Direction, PacketRSSI, PacketSNR, NumberPackets, PacketLength, IRQRegister.
 
-The receiver also recognises a much shorter location only packet (LocationBinaryPacket, 11 bytes) and when
-received this is printed to the serial monitor;
+  This is a long packet which at the long range LoRa settings takes just over 3 seconds to transmit.
 
-Latitude, Longitude, Altitude, TrackerStatusByte, Distance, Direction, PacketRSSI, PacketSNR, NumberPackets,
-PacketLength, IRQRegister.
+  The receiver also recognises a much shorter location only packet (LocationBinaryPacket, 11 bytes) and when
+  received this is printed to the serial monitor;
 
-Most of the tracker information (for both types of packet) is shown on the OLED display. If there has been a
-tracker transmitter GPS fix the number\identifier of that tracker is shown on row 0 right of screen and if there
-is a recent local (receiver) GPS fix an 'R' is displayed  row 1 right of screen.
+  Latitude, Longitude, Altitude, TrackerStatusByte, Distance, Direction, PacketRSSI, PacketSNR, NumberPackets,
+  PacketLength, IRQRegister.
 
-When the tracker transmitter starts up or is reset its sends a power up message containing the battery voltage
-which is shown on the OLED and printer to the serial monitor.
+  Most of the tracker information (for both types of packet) is shown on the OLED display. If there has been a
+  tracker transmitter GPS fix the number\identifier of that tracker is shown on row 0 right of screen and if there
+  is a recent local (receiver) GPS fix an 'R' is displayed  row 1 right of screen.
 
-The program has the option of using a pin to control the power to the GPS, if the GPS module being used has this
-feature. To use the option change the define in Settings.h; 
+  When the tracker transmitter starts up or is reset its sends a power up message containing the battery voltage
+  which is shown on the OLED and printer to the serial monitor.
 
-'#define GPSPOWER -1' from -1 to the pin number being used. Also set the GPSONSTATE and GPSOFFSTATE defines to
-the appropriate logic levels.
+  The program has the option of using a pin to control the power to the GPS, if the GPS module being used has this
+  feature. To use the option change the define in Settings.h;
 
-The program by default uses software serial to read the GPS, you can use hardware serial by commenting out this
-line in the Settings.h file;
+  '#define GPSPOWER -1' from -1 to the pin number being used. Also set the GPSONSTATE and GPSOFFSTATE defines to
+  the appropriate logic levels.
 
-#define USE_SOFTSERIAL_GPS
+  The program by default uses software serial to read the GPS, you can use hardware serial by commenting out this
+  line in the Settings.h file;
 
-And then defining the hardware serial port you are using, which defaults to Serial1.
+  #define USE_SOFTSERIAL_GPS
 
-Serial monitor baud rate is set at 9600.
+  And then defining the hardware serial port you are using, which defaults to Serial1.
+
+  Serial monitor baud rate is set at 9600.
 *******************************************************************************************************/
-
-
-#define Program_Version "V1.1"
 
 #include <SPI.h>
 #include <SX127XLT.h>
@@ -63,19 +60,12 @@ SX127XLT LT;
 #include <ProgramLT_Definitions.h>
 
 #include <U8x8lib.h>                                        //https://github.com/olikraus/u8g2 
-U8X8_SSD1306_128X64_NONAME_HW_I2C disp(U8X8_PIN_NONE);    //standard 0.96" SSD1306
-//U8X8_SH1106_128X64_NONAME_HW_I2C disp(U8X8_PIN_NONE);       //1.3" OLED often sold as 1.3" SSD1306
+U8X8_SSD1306_128X64_NONAME_HW_I2C disp(U8X8_PIN_NONE);      //standard 0.96" SSD1306
+//U8X8_SH1106_128X64_NONAME_HW_I2C disp(U8X8_PIN_NONE);     //1.3" OLED often sold as 1.3" SSD1306
 
 
-#include <TinyGPS++.h>                                      //http://arduiniana.org/libraries/tinygpsplus/
-TinyGPSPlus gps;                                            //create the TinyGPS++ object
-
-#ifdef USE_SOFTSERIAL_GPS
-#include <SoftwareSerial.h>
-SoftwareSerial GPSserial(RXpin, TXpin);
-#else
-#define GPSserial HardwareSerialPort       //hardware serial port (eg Serial1) is configured in the Settings.h file
-#endif
+#include <TinyGPS++.h>         //http://arduiniana.org/libraries/tinygpsplus/
+TinyGPSPlus gps;               //create the TinyGPS++ object
 
 uint32_t RXpacketCount;        //count of received packets
 uint8_t RXPacketL;             //length of received packet
@@ -99,7 +89,7 @@ uint16_t RXVolts;              //supply\battery voltage
 float TXdistance;              //calculated distance to tracker
 uint16_t TXdirection;          //calculated direction to tracker
 uint16_t RXerrors;
-uint32_t TXupTimemS;           //up time of TX in mS 
+uint32_t TXupTimemS;           //up time of TX in mS
 
 uint32_t LastRXGPSfixCheck;    //used to record the time of the last GPS fix
 
@@ -121,11 +111,6 @@ void loop()
   //something has happened in receiver
   digitalWrite(LED1, HIGH);
 
-  if (BUZZER > 0)
-  {
-    digitalWrite(BUZZER, HIGH);
-  }
-
   RXPacketL = LT.readRXPacketL();
   PacketRSSI = LT.readPacketRSSI();
   PacketSNR = LT.readPacketSNR();
@@ -141,11 +126,6 @@ void loop()
   }
 
   digitalWrite(LED1, LOW);
-
-  if (BUZZER > 0)
-  {
-    digitalWrite(BUZZER, LOW);
-  }
   Serial.println();
 }
 
@@ -175,7 +155,7 @@ void readGPS()
     printRXLocation();
     LastRXGPSfixCheck = millis();
 
-    if ( FixCount == 1)                           //update screen when FIXcoount counts down from DisplayRate to 1
+    if (FixCount == 1)                           //update screen when FIXcoount counts down from DisplayRate to 1
     {
       FixCount = DisplayRate;
       dispscreen1();
@@ -215,7 +195,6 @@ void readPacketAddressing()
 
 void packet_is_OK()
 {
-  //uint16_t IRQStatus;
   float tempfloat;
 
   RXpacketCount++;
@@ -292,9 +271,9 @@ void packet_is_OK()
     Serial.print(F("mS,"));
     Serial.print(TXVolts);
     Serial.print(F("mV,"));
-    Serial.print((TXupTimemS/1000));
+    Serial.print((TXupTimemS / 1000));
     Serial.print(F("s,"));
-    
+
     Serial.print(TXdistance, 0);
     Serial.print(F("m,"));
     Serial.print(TXdirection);
@@ -376,13 +355,6 @@ void packet_is_Error()
 {
   uint16_t IRQStatus;
 
-  if (BUZZER >= 0)
-  {
-    digitalWrite(BUZZER, LOW);
-    delay(100);
-    digitalWrite(BUZZER, HIGH);
-  }
-
   IRQStatus = LT.readIrqStatus();                    //get the IRQ status
   RXerrors++;
   Serial.print(F("PacketError,RSSI"));
@@ -398,12 +370,6 @@ void packet_is_Error()
   LT.printIrqStatus();
   digitalWrite(LED1, LOW);
 
-  if (BUZZER >= 0)
-  {
-    digitalWrite(BUZZER, LOW);
-    delay(100);
-    digitalWrite(BUZZER, HIGH);
-  }
 }
 
 
@@ -433,7 +399,7 @@ void dispscreen1()
   disp.print(TXLon, 5);
   disp.clearLine(2);
   disp.setCursor(0, 2);
-  disp.print(TXAlt,0);
+  disp.print(TXAlt, 0);
   disp.print(F("m"));
   disp.clearLine(3);
   disp.setCursor(0, 3);
@@ -554,20 +520,12 @@ void setup()
 
   Serial.begin(9600);
   Serial.println();
-  Serial.print(F(__TIME__));
-  Serial.print(F(" "));
-  Serial.println(F(__DATE__));
-  Serial.println(F(Program_Version));
   Serial.println();
 
   Serial.println(F("25_GPS_Tracker_Receiver_With_Display_and_GPS_ESP32 Starting"));
 
-  if (BUZZER >= 0)
-  {
-    pinMode(BUZZER, OUTPUT);
-  }
-
-  SPI.begin();
+  //SPI.begin();
+  SPI.begin(SCK, MISO, MOSI);
 
   disp.begin();
   disp.setFont(u8x8_font_chroma48medium8_r);
@@ -619,6 +577,3 @@ void setup()
   Serial.println(F("Receiver ready"));
   Serial.println();
 }
-
-
-

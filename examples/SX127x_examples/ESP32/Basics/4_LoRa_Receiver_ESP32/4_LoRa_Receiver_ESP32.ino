@@ -50,11 +50,6 @@ void loop()
 
   digitalWrite(LED1, HIGH);                      //something has happened
 
-  if (BUZZER > 0)                                //turn buzzer on
-  {
-    digitalWrite(BUZZER, HIGH);
-  }
-
   PacketRSSI = LT.readPacketRSSI();              //read the recived RSSI value
   PacketSNR = LT.readPacketSNR();                //read the received SNR value
 
@@ -65,11 +60,6 @@ void loop()
   else
   {
     packet_is_OK();
-  }
-
-  if (BUZZER > 0)
-  {
-    digitalWrite(BUZZER, LOW);                    //buzzer off
   }
 
   digitalWrite(LED1, LOW);                        //LED off
@@ -168,31 +158,17 @@ void led_Flash(uint16_t flashes, uint16_t delaymS)
 
 void setup()
 {
-  pinMode(LED1, OUTPUT);                        //setup pin as output for indicator LED
-  led_Flash(2, 125);                            //two quick LED flashes to indicate program start
-
-  if (VCCPOWER >= 0)
-  {
-    pinMode(VCCPOWER, OUTPUT);                  //For controlling power to external devices
-    digitalWrite(VCCPOWER, LOW);                //VCCOUT on. lora device on
-  }
+  pinMode(LED1, OUTPUT);                               //setup pin as output for indicator LED
+  led_Flash(2, 125);                                   //two quick LED flashes to indicate program start
 
   Serial.begin(9600);
   Serial.println(F("4_LoRa_Receiver_ESP32 Starting"));
   Serial.println();
 
-  if (BUZZER > 0)
-  {
-    pinMode(BUZZER, OUTPUT);
-    digitalWrite(BUZZER, HIGH);
-    delay(50);
-    digitalWrite(BUZZER, LOW);
-  }
+  //SPI.begin();                                         //default setup can be used
+  SPI.begin(SCK, MISO, MOSI);
 
-  //SPI.begin();                                      //default setup can be used be used
-  SPI.begin(SCK, MISO, MOSI);                         //alternative format for SPI3, VSPI; SPI.begin(SCK,MISO,MOSI,SS)
-
-  //SPI beginTranscation is normally part of library routines, but if it is disabled in the library
+  //SPI.beginTranscation is normally part of library routines, but if it is disabled in the library
   //a single instance is needed here, so uncomment the program line below
   //SPI.beginTransaction(SPISettings(8000000, MSBFIRST, SPI_MODE0));
 
@@ -208,7 +184,7 @@ void setup()
     Serial.println(F("No device responding"));
     while (1)
     {
-      led_Flash(50, 50);                                       //long fast speed LED flash indicates device error
+      led_Flash(50, 50);                                  //long fast speed LED flash indicates device error
     }
   }
 
