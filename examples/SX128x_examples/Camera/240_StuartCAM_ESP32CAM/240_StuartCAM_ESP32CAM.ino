@@ -1,5 +1,5 @@
 /*******************************************************************************************************
-  Programs for Arduino - Copyright of the author Stuart Robinson - 19/03/22
+  Programs for Arduino - Copyright of the author Stuart Robinson - 14/04/25
 
   This program is supplied as is, it is up to the user of the program to decide if the program is
   suitable for the intended purpose and free from errors.
@@ -129,6 +129,7 @@ void loop()
   startSleep();
 }
 
+
 void startSleep()
 {
   LoRa.setSleep(CONFIGURATION_RETENTION);
@@ -143,7 +144,6 @@ void startSleep()
   esp_deep_sleep_start();
   Serial.println("This should never be printed !!!");
 }
-
 
 
 bool initMicroSDCard()
@@ -181,6 +181,7 @@ void redFlash(uint16_t flashes, uint16_t ondelaymS, uint16_t offdelaymS)
   pinMode(REDLED, INPUT);                     //setup pin as input
 }
 
+
 bool setupLoRaDevice()
 {
   SPI.begin(SCK, MISO, MOSI, NSS);
@@ -216,17 +217,17 @@ void setup()
 
   //WRITE_PERI_REG(RTC_CNTL_BROWN_OUT_REG, 0);  //disable brownout detector
   rtc_gpio_hold_dis(GPIO_NUM_4);
-  rtc_gpio_hold_dis(GPIO_NUM_12);             //LoRa NSS back to normal control after sleep
+  rtc_gpio_hold_dis(GPIO_NUM_12);               //LoRa NSS back to normal control after sleep
 
   pinMode(2, INPUT_PULLUP);
-  digitalWrite(NSS, HIGH);
   pinMode(NSS, OUTPUT);
-
+  digitalWrite(NSS, HIGH);                      //disable LoRa device for now                
+  
   Serial.begin(115200);
   Serial.println();
   Serial.println(F(__FILE__));
 
-  if (bootCount == 0)                         //run this only the first time after programming or power up
+  if (bootCount == 0)                           //run this only the first time after programming or power up
   {
     bootCount = bootCount + 1;
   }
@@ -250,7 +251,6 @@ void setup()
     Serial.println(F("Payload CRC enabled"));
   }
 }
-
 
 //***********************************************************************************************
 // Start camera Code
