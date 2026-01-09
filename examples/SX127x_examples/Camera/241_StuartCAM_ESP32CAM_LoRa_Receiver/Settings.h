@@ -5,12 +5,15 @@
   suitable for the intended purpose and free from errors.
 *******************************************************************************************************/
 
-#define NSS 12                //select on LoRa device
-#define NRESET 15             //reset pin on LoRa device
-#define SCK 4                 //SCK on SPI3
-#define MISO 13               //MISO on SPI3 
-#define MOSI 2                //MOSI on SPI3
+#define NSS 12                                  //select pin on LoRa device
+#define NRESET 15                               //reset pin on LoRa device
+#define SCK 4
+#define MISO 13
+#define MOSI 2
 
+#define MMCSCK 7
+#define MMCCMD 9
+#define MMCD0 8
 #define REDLED 33
 
 #define LORA_DEVICE DEVICE_SX1278               //this is the device we are using

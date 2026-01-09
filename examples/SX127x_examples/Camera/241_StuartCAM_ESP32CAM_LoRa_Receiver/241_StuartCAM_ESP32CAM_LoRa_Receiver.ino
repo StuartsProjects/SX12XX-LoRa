@@ -1,16 +1,14 @@
 /*******************************************************************************************************
-  Programs for Arduino - Copyright of the author Stuart Robinson - 10/10/23
+  Programs for Arduino - Copyright of the author Stuart Robinson - 14/04/25
 
   This program is supplied as is, it is up to the user of the program to decide if the program is
   suitable for the intended purpose and free from errors.
 *******************************************************************************************************/
 
 /*******************************************************************************************************
-  Program Operation -  This program is for an ESP32CAM board that has an SPI LoRa module set up on the
-  following pins; NSS 12, NRESET 15, SCK 4, MISO 13, MOSI 2, 3.3V VCC and GND. All other pins on the
-  SX127X are not connected.
-
-  The received pictures are saved to the ESP32CAMs SD card.
+  Program Operation -  This is a receiver program for an ESP32CAM board that has an SPI LoRa module set up
+  on the following pins; NSS 12, NRESET 15, SCK 4, MISO 13, MOSI 2, 3.3V VCC and GND. All other pins on the
+  SX127X are not connected. The received pictures are saved to the ESP32CAMs SD card.
 
   Note that the white LED on pin 4 or the transistor controlling it need to be removed so that the LoRa
   device can properly use pin 4.
@@ -21,7 +19,7 @@
 #include <SPI.h>
 #include "FS.h"                            //SD Card ESP32
 #include "SD_MMC.h"                        //SD Card ESP32
-SPIClass sdSPI(HSPI);
+//SPIClass sdSPI(HSPI);
 #include "soc/soc.h"                       //disable brownout problems
 #include "soc/rtc_cntl_reg.h"              //disable brownout problems
 #include "driver/rtc_io.h"
@@ -34,7 +32,6 @@ SPIClass sdSPI(HSPI);
 #define PRINTSEGMENTNUM                    //enable this define to print segment numbers during data transfer
 //#define DISABLEPAYLOADCRC                //enable this define if you want to disable payload CRC checking
 //#define DEBUG                            //enable more detail of transfer progress
-
 
 SX127XLT LoRa;                             //create an SX127XLT library instance called LoRa
 #include <ARtransferIRQ.h>
@@ -143,7 +140,9 @@ bool setupLoRaDevice()
 
 bool initMicroSDCard()
 {
-  if (!SD_MMC.begin("/sdcard", true))               //use this line for 1 bit mode
+  SD_MMC.setPins(MMCSCK, MMCCMD, MMCD0);
+
+  if (!SD_MMC.begin("/sdcard", true))               //use this line for 1 bit mode, pin 2 only, 4,12,13 not used
   {
     Serial.println("*****************************");
     Serial.println("ERROR - SD Card Mount Failed");
@@ -182,8 +181,8 @@ void setup()
   //led_Flash(2, 125);                               //two quick LED flashes to indicate program start
   //ARsetDTLED(REDLED);                              //setup LED pin for data transfer indicator
 
-  digitalWrite(NSS, HIGH);
-  pinMode(NSS, OUTPUT);                            //disable LoRa device for now
+  pinMode(NSS, OUTPUT);                              
+  digitalWrite(NSS, HIGH);                           //disable LoRa device for now
 
   Serial.begin(115200);
   Serial.println();
