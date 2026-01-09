@@ -181,7 +181,7 @@ void setup()
   //led_Flash(2, 125);                               //two quick LED flashes to indicate program start
   //ARsetDTLED(REDLED);                              //setup LED pin for data transfer indicator
 
-  pinMode(NSS, OUTPUT);                              
+  pinMode(NSS, OUTPUT);
   digitalWrite(NSS, HIGH);                           //disable LoRa device for now
 
   Serial.begin(115200);
