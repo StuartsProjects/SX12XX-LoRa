@@ -58,12 +58,12 @@ const char AFC = 'a';                   //Packet sent for AFC purposes
 
 #define DTWake 0xB4                        //packet type for wake of node
 #define DTWakeACK 0xB5                     //packet type for wake of node ACK
-#define DTWakeNACK 0xB6                    //packet type for wake of node ACK
+#define DTWakeNACK 0xB6                    //packet type for wake of node NACK
 #define DTWakeHeaderL 6                    //header length for for wake of node
 
 #define DTInfo 0xB8                        //packet type for wake of node
 #define DTInfoACK 0xB9                     //packet type for wake of node ACK
-#define DTInfoNACK 0xBA                    //packet type for wake of node ACK
+#define DTInfoNACK 0xBA                    //packet type for wake of node NACK
 #define DTInfoHeaderL 8                    //header length for for wake of node
 
 #define DTArrayStart 0xA4                  //packet type for array start
