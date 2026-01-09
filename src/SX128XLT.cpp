@@ -396,7 +396,7 @@ void SX128XLT::txEnable()
 
 
 //Changes made November 2021 to improve performance of checkBusy();
-//As published the revised check busy function will used
+//Now the revised check busy function will used.
 //To use the previous version of code, remove the #define REVISEDCHECKBUSY at the top of this file
 #ifdef REVISEDCHECKBUSY
 void SX128XLT::checkBusy()
