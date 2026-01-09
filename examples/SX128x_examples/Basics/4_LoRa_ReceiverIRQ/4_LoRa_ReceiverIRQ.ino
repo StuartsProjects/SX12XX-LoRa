@@ -1,66 +1,71 @@
 /*******************************************************************************************************
-  Programs for Arduino - Copyright of the author Stuart Robinson - 05/11/21
+  Programs for Arduino - Copyright of the author Stuart Robinson - 03/01/26
 
   This program is supplied as is, it is up to the user of the program to decide if the program is
   suitable for the intended purpose and free from errors.
 *******************************************************************************************************/
 
 /*******************************************************************************************************
-  Program Operation - This is a minimum setup LoRa test receiver. The program listens for incoming packets
-  using the frequency and LoRa settings in the LT.setupLoRa() command. The pins to access the lora device
-  need to be defined at the top of the program also.
-
+  Program Operation - The program listens for incoming packets using the frequency and LoRa settings
+  specified at the beginning of the sketch. The GPIO pins used to access the LoRa device need to be
+  defined also. The SPI pins for the Arduino board used must be connected to the LoRa device.
   This program does not need the DIO1 pin on the LoRa device connected.
 
-  There is a printout on the Arduino IDE serial monitor of the valid packets received, the packet is assumed
-  to be in ASCII printable text, if it's not ASCII text characters from 0x20 to 0x7F, expect weird things to
-  happen on the Serial Monitor. Sample serial monitor output;
+  There is a printout of the valid packets received, the packet is assumed to be in ASCII printable text,
+  if its not ASCII text characters from 0x20 to 0x7F, expect weird things to happen on the Serial Monitor.
+  The LED will flash for each packet received.
 
-  8s  Hello World 1234567890*,RSSI,-44dBm,SNR,9dB,Length,23,Packets,7,Errors,0,IRQreg,50
+  Sample serial monitor output;
 
-  If there is a packet error it might look like this, which is showing a CRC error;
+  3s  LoRa 00005,RSSI,-39dBm,SNR,13dB,Length,11,Packets,5,Errors,0,IRQreg,8012
 
-  137s PacketError,RSSI,-89dBm,SNR,-8dB,Length,23,Packets,37,Errors,2,IRQreg,70,IRQ_HEADER_VALID,IRQ_CRC_ERROR,IRQ_RX_DONE
+  If there is a packet error it might look like this, which is showing a CRC error in the received packet,
 
-  If there are no packets received in a 10 second period then you should see a message like this;
-
-  112s RXTimeout
-
-  For an example of a more detailed configuration for a receiver, see program 104_LoRa_Receiver.
+  1189s PacketError,RSSI,-111dBm,SNR,-12dB,Length,0,Packets,26,Errors,1,IRQreg,70,IRQ_HEADER_VALID,IRQ_CRC_ERROR,IRQ_RX_DONE
 
   Serial monitor baud rate is set at 9600.
 *******************************************************************************************************/
 
-#include <SPI.h>                                //the lora device is SPI based so load the SPI library
-#include <SX128XLT.h>                           //include the appropriate library   
+#include <SPI.h>                                 //the LoRa device is SPI based so load the SPI library
+#include <SX128XLT.h>                            //include the appropriate library   
 
-SX128XLT LT;                                    //create a library class instance called LT
+SX128XLT LT;                                     //create a library class instance called LT
 
-#define NSS 10                                  //select pin on LoRa device
-#define NRESET 9                                //reset pin on LoRa device 
-#define RFBUSY 7                                //busy pin on LoRa device
-#define LORA_DEVICE DEVICE_SX1280               //we need to define the device we are using
+#define NSS 10
+#define RFBUSY 7
+#define NRESET 9
+#define LED1 8
+#define LORA_DEVICE DEVICE_SX1280                //we need to define the device we are using  
+#define RXBUFFER_SIZE 32                         //RX buffer size
 
-#define RXBUFFER_SIZE 255                       //RX buffer size
+//LoRa Modem Parameters
+const uint32_t Frequency = 2445000000;           //frequency of transmissions
+const int32_t Offset = 0;                        //offset frequency for calibration purposes
+const uint8_t Bandwidth = LORA_BW_0400;          //LoRa bandwidth
+const uint8_t SpreadingFactor = LORA_SF7;        //LoRa spreading factor
+const uint8_t CodeRate = LORA_CR_4_5;            //LoRa coding rate
+const int8_t TXpower = 10;                       //LoRa transmit power in dBm
 
 uint32_t RXpacketCount;
 uint32_t errors;
 
-uint8_t RXBUFFER[RXBUFFER_SIZE];                //create the buffer that received packets are copied into
+uint8_t RXBUFFER[RXBUFFER_SIZE];                 //create the buffer that received packets are copied into
 
-uint8_t RXPacketL;                              //stores length of packet received
-int16_t PacketRSSI;                             //stores RSSI of received packet
-int8_t  PacketSNR;                              //stores signal to noise ratio (SNR) of received packet
+uint8_t RXPacketL;                               //stores length of packet received
+int16_t  PacketRSSI;                             //stores RSSI of received packet
+int8_t  PacketSNR;                               //stores signal to noise ratio of received packet
 
 
 void loop()
 {
   RXPacketL = LT.receiveIRQ(RXBUFFER, RXBUFFER_SIZE, 60000, WAIT_RX); //wait for a packet to arrive with 60seconds (60000mS) timeout
 
-  PacketRSSI = LT.readPacketRSSI();              //read the received packets RSSI value
-  PacketSNR = LT.readPacketSNR();                //read the received packets SNR value
+  digitalWrite(LED1, HIGH);                      //something has happened
 
-  if (RXPacketL == 0)                            //if the LT.receive() function detects an error RXpacketL is 0
+  PacketRSSI = LT.readPacketRSSI();              //read the recived RSSI value
+  PacketSNR = LT.readPacketSNR();                //read the received SNR value
+
+  if (RXPacketL == 0)                            //if the LT.receive() function detects an error, RXpacketL == 0
   {
     packet_is_Error();
   }
@@ -68,6 +73,8 @@ void loop()
   {
     packet_is_OK();
   }
+
+  digitalWrite(LED1, LOW);                        //LED off
 
   Serial.println();
 }
@@ -145,10 +152,10 @@ void setup()
   Serial.begin(9600);
   Serial.println();
   Serial.println(F("4_LoRa_ReceiverIRQ Starting"));
-  Serial.println();
 
   SPI.begin();
 
+  //setup hardware pins used by device, then check if device is found
   if (LT.begin(NSS, NRESET, RFBUSY, LORA_DEVICE))
   {
     Serial.println(F("LoRa Device found"));
@@ -156,11 +163,11 @@ void setup()
   }
   else
   {
-    Serial.println(F("No LoRa device responding"));
+    Serial.println(F("No device responding"));
     while (1);
   }
 
-  LT.setupLoRa(2445000000, 0, LORA_SF7, LORA_BW_0400, LORA_CR_4_5);      //configure frequency and LoRa settings
+  LT.setupLoRa(Frequency, Offset, SpreadingFactor, Bandwidth, CodeRate);
 
   Serial.print(F("Receiver ready - RXBUFFER_SIZE "));
   Serial.println(RXBUFFER_SIZE);
