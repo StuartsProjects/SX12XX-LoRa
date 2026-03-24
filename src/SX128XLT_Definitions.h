@@ -298,7 +298,7 @@
 //FLRC  modem settings
 //*************************************************************
 
-//24/3/26 - definitions changed, error in original datasheet, there was no RADIO_CRC_2_BYTES
+//24/3/26 - definitions changed, error in original datasheet, there was no RADIO_CRC_4_BYTES
 #define RADIO_CRC_OFF      0x00
 #define RADIO_CRC_2_BYTES  0x10
 #define RADIO_CRC_3_BYTES  0x20
