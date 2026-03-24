@@ -287,11 +287,6 @@
 #define    RADIO_PACKET_FIXED_LENGTH      0x00      //The packet is fixed length, klnown on both RX and TX, no header
 #define    RADIO_PACKET_VARIABLE_LENGTH   0x20      //The packet is variable size, header included
 
-#define RADIO_CRC_OFF      0x00
-#define RADIO_CRC_1_BYTES  0x10
-#define RADIO_CRC_2_BYTES  0x20
-#define RADIO_CRC_3_BYTES  0x30
-
 #define   RADIO_WHITENING_ON   0x00
 #define   RADIO_WHITENING_OFF  0x08
 
@@ -302,6 +297,12 @@
 //*************************************************************
 //FLRC  modem settings
 //*************************************************************
+
+//24/3/26 - definitions changed, error in original datasheet, there was no RADIO_CRC_2_BYTES
+#define RADIO_CRC_OFF      0x00
+#define RADIO_CRC_2_BYTES  0x10
+#define RADIO_CRC_3_BYTES  0x20
+#define RADIO_CRC_4_BYTES  0x30
 
 #define FLRC_SYNC_NOSYNC         0x00
 #define FLRC_SYNC_WORD_LEN_P32S  0x04
@@ -334,7 +335,6 @@
 #define RADIO_MOD_SHAPING_BT_1_0  0x10
 #define RADIO_MOD_SHAPING_BT_0_5  0x20
 
-
 //Table 13-45: PacketStatus2 in FLRC Packet
 #define PacketCtrlBusy  0x01
 #define PacketReceived  0x02
@@ -344,7 +344,6 @@
 #define LengthError     0x20
 #define SyncError       0x40
 #define Reserved        0x80
-
 
 //Table 13-46: PacketStatus3 in FLRC Packet
 #define PktSent    0x01
@@ -360,14 +359,12 @@
 #define FLRC_Default_CrcLength          RADIO_CRC_3_BYTES             //packetParam6
 #define FLRC_Default_Whitening          RADIO_WHITENING_OFF           //packetParam7
 
-
 //Table 11-15 Sleep modes
 #define RETAIN_INSTRUCTION_RAM   0x04
 #define RETAIN_DATABUFFER        0x02
 #define RETAIN_DATA_RAM          0x01
 #define CONFIGURATION_RETENTION  0x01         //included for libray compatibility
 #define RETAIN_None              0x00
-
 
 #ifndef RAMP_TIME
 #define RAMP_TIME RADIO_RAMP_02_US
@@ -385,10 +382,8 @@
 #define PERIODBASE_COUNT_7_0 0
 #endif
 
-
 #define DEVICE_SX1280  0x20
 #define DEVICE_SX1281  0x21
-
 
 //SPI settings
 #define LTspeedMaximum  8000000
@@ -403,7 +398,6 @@
 
 #define CalibrationSF10BW400                        10180     //calibration value for ranging, SF10, BW400
 #define CalibrationSF5BW1600                        13100     //calibration value for ranging, SF5, BW1600
-
 
 const uint16_t RNG_CALIB_0400[] = { 10260,  10244,  10228,  10212,  10196,  10180  };   //SF5 to SF10
 const uint16_t RNG_CALIB_0800[] = { 11380,  11370,  11360,  11350,  11340,  11330  };

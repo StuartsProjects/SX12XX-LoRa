@@ -36,6 +36,8 @@
 //Added reliable packet functions
 //Added data transfer functions
 
+//24/3/26 Change to setPacketParams(). Originally defined RADIO_CRC_3_BYTES (0x30) which set to a 4byte CRC, this should have been RADIO_CRC_4_BYTES (0x30) 
+//change made to definitions in SX128XLT_Definitions.h, changes made to examples 42,43,52,53
 
 
 SX128XLT::SX128XLT()
@@ -690,7 +692,7 @@ void SX128XLT::setupFLRC(uint32_t frequency, int32_t offset, uint8_t modParam1, 
   setRfFrequency(frequency, offset);
   setBufferBaseAddress(0, 0);
   setModulationParams(modParam1, modParam2, modParam3);
-  setPacketParams(PREAMBLE_LENGTH_32_BITS, FLRC_SYNC_WORD_LEN_P32S, RADIO_RX_MATCH_SYNCWORD_1, RADIO_PACKET_VARIABLE_LENGTH, 127, RADIO_CRC_3_BYTES, RADIO_WHITENING_OFF);
+  setPacketParams(PREAMBLE_LENGTH_32_BITS, FLRC_SYNC_WORD_LEN_P32S, RADIO_RX_MATCH_SYNCWORD_1, RADIO_PACKET_VARIABLE_LENGTH, 127, RADIO_CRC_4_BYTES, RADIO_WHITENING_OFF);
   setDioIrqParams(IRQ_RADIO_ALL, (IRQ_TX_DONE + IRQ_RX_TX_TIMEOUT), 0, 0);
   setSyncWord1(syncword);
   setHighSensitivity();

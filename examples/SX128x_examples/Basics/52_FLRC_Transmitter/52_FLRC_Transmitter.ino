@@ -1,5 +1,5 @@
 /*******************************************************************************************************
-  Programs for Arduino - Copyright of the author Stuart Robinson - 29/09/21
+  Programs for Arduino - Copyright of the author Stuart Robinson - 24/03/26
 
   This program is supplied as is, it is up to the user of the program to decide if the program is
   suitable for the intended purpose and free from errors.
@@ -30,11 +30,20 @@ SX128XLT LT;                                                   //create a librar
 
 uint8_t TXPacketL;
 uint32_t TXPacketCount, startmS, endmS;
+uint16_t PacketCount = 0;
 
-uint8_t buff[] = "Hello World 1234567890";
+uint8_t buff[] = "LoRa 00000";                                 //the message to send
 
 void loop()
 {
+  PacketCount++;
+
+  buff[5] = PacketCount / 10000 + '0';
+  buff[6] = ((PacketCount % 10000) / 1000) + '0';
+  buff[7] = ((PacketCount % 1000) / 100) + '0';
+  buff[8] = ((PacketCount % 100) / 10) + '0';
+  buff[9] = PacketCount % 10 + '0' ;
+  
   Serial.print(TXpower);                                       //print the transmit power defined
   Serial.print(F("dBm "));
   Serial.print(F("Packet> "));
@@ -155,7 +164,7 @@ void setup()
   //LT.setRfFrequency(Frequency, Offset);
   //LT.setBufferBaseAddress(0, 0);
   //LT.setModulationParams(BandwidthBitRate, CodingRate, BT);
-  //LT.setPacketParams(PREAMBLE_LENGTH_32_BITS, FLRC_SYNC_WORD_LEN_P32S, RADIO_RX_MATCH_SYNCWORD_1, RADIO_PACKET_VARIABLE_LENGTH, 127, RADIO_CRC_3_BYTES, RADIO_WHITENING_OFF);
+  //LT.setPacketParams(PREAMBLE_LENGTH_32_BITS, FLRC_SYNC_WORD_LEN_P32S, RADIO_RX_MATCH_SYNCWORD_1, RADIO_PACKET_VARIABLE_LENGTH, 127, RADIO_CRC_4_BYTES, RADIO_WHITENING_OFF);
   //LT.setDioIrqParams(IRQ_RADIO_ALL, (IRQ_TX_DONE + IRQ_RX_TX_TIMEOUT), 0, 0);              //set for IRQ on TX done and timeout on DIO1
   //LT.setSyncWord1(Syncword);
   //***************************************************************************************************

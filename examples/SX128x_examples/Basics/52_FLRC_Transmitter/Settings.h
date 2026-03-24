@@ -27,5 +27,5 @@ const uint8_t CodingRate = FLRC_CR_1_0;                   //FLRC coding rate
 const uint8_t BT = RADIO_MOD_SHAPING_BT_1_0;              //FLRC BT
 const uint32_t Syncword = 0x01234567;                     //FLRC uses syncword
 
-const int8_t TXpower  = 0;                                //power for transmissions in dBm
+const int8_t TXpower  = 10;                                //power for transmissions in dBm
 const uint16_t packet_delay = 1000;                       //mS delay between packets
