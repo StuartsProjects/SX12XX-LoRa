@@ -6,19 +6,20 @@
 *******************************************************************************************************/
 
 /******************************************************************************************************
-  Program Operation - This is a simple LoRa test transmitter. A packet containing ASCII text is sent
-  according to the frequency and LoRa settings specified at the beginning of the sketch. The GPIO pins
-  used to access the LoRa device need to be defined also. The SPI pins for the Arduino board used must
-  be connected to the LoRa device.
+  Program Operation - This is a LoRa test transmitter designed to be used with a program that is using
+  LoRa RXdutycycle receive mode, 1_LoRa_Receiver_RXdutycycle_LightSleep_SF7BW125. A packet containing
+  ASCII text is sent according to the frequency and LoRa settings specified at the beginning of the
+  sketch. The packet is sent with an extended number of preamble symbols to meet the requirements of
+  the receivers RXdutycycle mode. 
 
-  The details of the packet sent and any errors are shown on the Serial Monitor, together with the transmit
-  power used and the packet length. The matching receive program, '4_LoRa_Receiver' or '4_LoRa_ReceiverIRQ'
-  can be used to check the packets are being sent correctly, the frequency and LoRa settings used must be
-  the same for the Transmit and Receive programs. Sample Serial Monitor output;
+  The details of the packet sent and any errors are shown on the Serial Monitor, see below;
 
-  10dBm Packet> LoRa 00006  BytesSent,11  PacketsSent,6
+  10dBm Packet> LoRa00006  BytesSent,10  PacketsSent,6
 
-  Serial monitor baud rate is set at 9600
+  To send the packet that should wakeup the Receiver, press the Boot button on the Transmitters ESP32S3
+  Dev board.
+ 
+  Serial monitor baud rate is set at 115200
 *******************************************************************************************************/
 
 #include <SPI.h>     //The LoRa device is SPI based so load the SPI library
@@ -81,12 +82,14 @@ void loop() {
 
   LoRa.printASCIIPacket(buff, TXPacketL);  //print the buffer (the sent packet) as ASCII
 
+  digitalWrite(LED1, HIGH);                                     //Turn on the LED
   if (LoRa.transmit(buff, TXPacketL, 10000, TXpower, WAIT_TX))  //will return packet length sent if OK, otherwise 0 if transmit error
   {
     packet_is_OK();
   } else {
     packet_is_Error();  //transmit packet returned 0, there was an error
   }
+  digitalWrite(LED1, LOW);  //Turn off the LED
 
   delay(2000);  //have a small delay between packets
   Serial.println();

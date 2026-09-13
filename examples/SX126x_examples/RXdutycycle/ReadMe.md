@@ -36,7 +36,7 @@ The examples of the program just described above are to be found in the library 
 
 The programs are;
 
-    1_LoRa_Receiver_RXdutycycle_SF7BW125
+    1_LoRa_Receiver_RXdutycycle_LightSleep_SF7BW125
     2_LoRa_Transmitter_RXdutycycle_SF7BW125
 
 Those examples use light sleep for the ESP32S3 which has the advantage that the the LoRa device setups and SPI bus remain configured during sleeps so its easy to access the LoRa device (and received packet) when the board is woken out of light sleep by reception of a packet.
@@ -75,7 +75,7 @@ The receiver program also shows how a LoRa node can have its LoRa parameters, fr
 
 The programs are;
 
-    3_LoRa_Receiver_RXdutycycle_SF12BW125
+    3_LoRa_Receiver_RXdutycycle_DeepSleep_SF12BW125
     4_LoRa_Transmitter_RXdutycycle_SF12BW125
 
 ## Note:
