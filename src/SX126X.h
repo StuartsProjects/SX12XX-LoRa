@@ -20,8 +20,7 @@ to other Serial ports such as Serial1, Serial2 etc that are supported either as 
 
 setSerial(Stream *streamObject);
 
-4. The setupLoRa() function has been expanded to allow the DIO2 RF switch operation to be specified with a particular TCXO voltage
-and rfswitch option.
+4. The setupLoRa() function has been expanded to allow a particular TCXO voltage to be set and the DIO2 RF switch operation to be specified.
 
 setupLoRa(uint32_t frequency, int32_t offset, uint8_t modParam1, uint8_t modParam2, uint8_t modParam3, uint8_t modParam4, uint8_t tcxoVoltage, uint8_t rfswitch);
 
